@@ -155,4 +155,18 @@ export class GiftCardsAdminCardOpsService {
       ? GiftCardStatus.REDEEMED
       : GiftCardStatus.ACTIVE;
   }
+
+  async setAllowOtherClasses(id: string, allow: boolean) {
+    const card = await this.prisma.giftCard.findUnique({ where: { id } });
+    if (card === null) {
+      throw new NotFoundException('Gift card not found');
+    }
+    if (card.type !== GiftCardType.FIXED_CLASS) {
+      throw new BadRequestException('Only a class gift card can be used on other classes');
+    }
+    return this.prisma.giftCard.update({
+      where: { id },
+      data: { allowOtherClasses: allow },
+    });
+  }
 }

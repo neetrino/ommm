@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { GiftCardStatus } from '@prisma/client';
 import { DEFAULT_LIST_PAGE_SIZE } from '../common/dto/list-pagination-query.dto';
+import { AuditService } from '../audit/audit.service';
 import { PrismaService } from '../prisma/prisma.service';
 import type { ListMyGiftCardsQueryDto } from './dto/list-my-gift-cards-query.dto';
 import {
@@ -17,6 +18,8 @@ import {
 import { expireDueGiftCards } from './gift-card-ledger';
 import { resolveGiftCardPolicy } from './gift-card-policy';
 import { redeemGiftCardForUser } from './gift-card-redeem';
+import { didRedeemJustLock } from './gift-card-redeem-guard';
+import { buildGiftCardPdf } from './gift-card-pdf';
 import { GiftCardRedeemGuardService } from './gift-card-redeem-guard.service';
 import { peekSpendableGiftCreditsCents } from '../packages/package-gift-credits.util';
 
@@ -30,6 +33,7 @@ export class GiftCardsClientService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly redeemGuard: GiftCardRedeemGuardService,
+    private readonly audit: AuditService,
   ) {}
 
   listMine(userId: string, query: ListMyGiftCardsQueryDto = {}) {
@@ -193,14 +197,56 @@ export class GiftCardsClientService {
     try {
       await expireDueGiftCards(this.prisma);
       const result = await redeemGiftCardForUser(this.prisma, userId, code);
-      this.redeemGuard.recordSuccess(userId);
+      if (this.redeemGuard.recordSuccess(userId)) {
+        await this.audit.log({
+          action: 'GIFT_REDEEM_BURST',
+          entityType: 'User',
+          entityId: userId,
+          actorId: userId,
+          payload: { successes: 5 },
+        });
+      }
       return result;
     } catch (error) {
       if (error instanceof NotFoundException || error instanceof BadRequestException) {
-        this.redeemGuard.recordFailure(userId);
+        await this.auditRedeemLock(userId);
       }
       throw error;
     }
+  }
+
+  async buildOwnedPdf(userId: string, cardId: string): Promise<Buffer> {
+    const card = await this.prisma.giftCard.findFirst({
+      where: {
+        id: cardId,
+        OR: [{ purchaserId: userId }, { recipientId: userId }],
+      },
+    });
+    if (card === null) {
+      throw new NotFoundException('Gift card not found');
+    }
+    const amountLabel = card.type === 'FIXED_CLASS'
+      ? `${card.classQuantity} classes`
+      : `${card.amountAmd} AMD`;
+    return buildGiftCardPdf({
+      code: card.code,
+      amountLabel,
+      message: card.message ?? undefined,
+    });
+  }
+
+  private async auditRedeemLock(userId: string): Promise<void> {
+    const state = this.redeemGuard.recordFailure(userId);
+    if (!didRedeemJustLock(state)) {
+      return;
+    }
+    await this.audit.log({
+      action: 'GIFT_REDEEM_LOCKED',
+      entityType: 'User',
+      entityId: userId,
+      actorId: userId,
+      payload: { failures: state.failures },
+    });
   }
 
   listAdminCards() {

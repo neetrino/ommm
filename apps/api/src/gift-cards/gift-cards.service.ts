@@ -140,6 +140,14 @@ export class GiftCardsService {
     return this.adminCardOps.convertCard(id, direction, classTypeId, actorId);
   }
 
+  setAllowOtherClasses(id: string, allow: boolean) {
+    return this.adminCardOps.setAllowOtherClasses(id, allow);
+  }
+
+  buildPdf(userId: string, cardId: string) {
+    return this.client.buildOwnedPdf(userId, cardId);
+  }
+
   exportBatchCsv(batchId: string) {
     return this.adminCardOps.exportBatchCsv(batchId);
   }

@@ -29,6 +29,7 @@ export function planDropInGiftCharge(input: {
 export async function reservePendingDropInGift(
   tx: DropInGiftTx,
   payment: { id: string; userId: string; metadata: Prisma.JsonValue | null },
+  label = 'drop-in',
 ): Promise<void> {
   const appliedCents = readGiftCreditsAppliedCents(payment.metadata);
   if (appliedCents <= 0 || readGiftCreditsAllocations(payment.metadata) !== null) {
@@ -54,7 +55,7 @@ export async function reservePendingDropInGift(
       amountCents: appliedCents,
       currency: 'amd',
       status: PaymentStatus.SUCCEEDED,
-      description: `${GIFT_CREDIT_SPEND_PREFIX} for drop-in`,
+      description: `${GIFT_CREDIT_SPEND_PREFIX} for ${label}`,
       confirmedAt: new Date(),
     },
   });

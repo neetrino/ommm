@@ -1,6 +1,7 @@
 import { BadRequestException } from '@nestjs/common';
 
 export const GIFT_REDEEM_MAX_FAILURES = 8;
+export const GIFT_REDEEM_BURST = 5;
 export const GIFT_REDEEM_WINDOW_MS = 15 * 60 * 1000;
 
 export type RedeemAttemptState = {
@@ -26,6 +27,10 @@ export function isRedeemBlocked(state: RedeemAttemptState | undefined, now: Date
     return false;
   }
   return state.failures >= GIFT_REDEEM_MAX_FAILURES;
+}
+
+export function didRedeemJustLock(state: RedeemAttemptState): boolean {
+  return state.failures === GIFT_REDEEM_MAX_FAILURES;
 }
 
 export function assertRedeemAllowed(state: RedeemAttemptState | undefined, now: Date): void {

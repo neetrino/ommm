@@ -28,7 +28,8 @@ import {
   assertAdminPaymentMethodChange,
   assertAdminPaymentStatusChange,
 } from './payments-admin-mutation.util';
-import { withInternalPaymentUpdateFields } from './payments.helpers';
+import { undoStudioCartGift } from './payments-cart.refund';
+import { readCartCheckout } from './payments-cart.fulfill';
 
 @Injectable()
 export class PaymentsAdminMutationService {
@@ -161,12 +162,22 @@ export class PaymentsAdminMutationService {
     nextStatus: PaymentStatus;
     refundGiftCredits: boolean;
   }): Promise<void> {
-    if (params.refundGiftCredits && params.source === PaymentSource.DROPIN) {
+    if (params.refundGiftCredits && (params.source === PaymentSource.DROPIN || readCartCheckout(params.metadata) !== null)) {
       await refundReservedGiftCredits(this.prisma, {
         userId: params.userId,
         appliedCents: readGiftCreditsAppliedCents(params.metadata),
         allocations: readGiftCreditsAllocations(params.metadata),
         orderId: params.paymentId,
+      });
+    }
+    if (
+      readCartCheckout(params.metadata) !== null &&
+      (params.nextStatus === PaymentStatus.REFUNDED || params.nextStatus === PaymentStatus.FAILED)
+    ) {
+      await undoStudioCartGift(this.prisma, {
+        paymentId: params.paymentId,
+        userId: params.userId,
+        metadata: params.metadata,
       });
     }
     if (params.source !== PaymentSource.PACKAGE || params.sourceId === null) {

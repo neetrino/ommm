@@ -3,11 +3,13 @@ import {
   Controller,
   Delete,
   Get,
+  Header,
   Param,
   Patch,
   Post,
   Query,
   Res,
+  StreamableFile,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -28,6 +30,7 @@ import { AdminCreateGiftCardDto } from './dto/admin-create-gift-card.dto';
 import { AdminAssignGiftCardDto } from './dto/admin-assign-gift-card.dto';
 import { AdminAdjustGiftCardDto, AdminExtendGiftCardDto } from './dto/admin-adjust-gift-card.dto';
 import { AdminConvertGiftCardDto } from './dto/admin-convert-gift-card.dto';
+import { AdminAllowOtherClassesDto } from './dto/admin-allow-other-classes.dto';
 import { AdminUpdateGiftCardBatchDto } from './dto/admin-update-gift-card-batch.dto';
 import { ListAdminGiftCardBatchesQueryDto } from './dto/list-admin-gift-card-batches-query.dto';
 import { ListMyGiftCardsQueryDto } from './dto/list-my-gift-cards-query.dto';
@@ -67,6 +70,18 @@ export class GiftCardsController {
   @UseGuards(JwtAuthGuard)
   activity(@CurrentUser() user: { id: string }) {
     return this.giftCards.listMyActivity(user.id);
+  }
+
+  @Get('me/:id/pdf')
+  @UseGuards(JwtAuthGuard)
+  @Header('Content-Type', 'application/pdf')
+  @Header('Content-Disposition', 'attachment; filename="ommm-gift-card.pdf"')
+  async pdf(
+    @CurrentUser() user: { id: string },
+    @Param('id') id: string,
+  ): Promise<StreamableFile> {
+    const bytes = await this.giftCards.buildPdf(user.id, id);
+    return new StreamableFile(bytes);
   }
 
   @Get('policy')
@@ -236,6 +251,13 @@ export class GiftCardsController {
     @Body() dto: AdminConvertGiftCardDto,
   ) {
     return this.giftCards.convertCard(id, dto.direction, dto.classTypeId, user.id);
+  }
+
+  @Patch('admin/cards/:id/other-classes')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(...BACKOFFICE_WRITE_ROLES)
+  allowOtherClasses(@Param('id') id: string, @Body() dto: AdminAllowOtherClassesDto) {
+    return this.giftCards.setAllowOtherClasses(id, dto.allow);
   }
 
   @Patch('admin/cards/:id/balance')

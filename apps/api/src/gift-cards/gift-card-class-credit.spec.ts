@@ -60,7 +60,11 @@ describe('reserveGiftClassSessions', () => {
     expect(db.giftCard.updateMany).not.toHaveBeenCalled();
     expect(db.giftCard.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
-        where: expect.objectContaining({ classTypeId: 'mat' }),
+        where: expect.objectContaining({
+          AND: expect.arrayContaining([
+            { OR: [{ classTypeId: 'mat' }, { allowOtherClasses: true }] },
+          ]),
+        }),
       }),
     );
   });

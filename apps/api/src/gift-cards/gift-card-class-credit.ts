@@ -14,8 +14,8 @@ export type ClassCreditTake = {
 };
 
 /**
- * Spends fixed-class credits only for the matching class type.
- * Other class types are left untouched. Partial use keeps the remainder.
+ * Spends fixed-class credits for the matching class type.
+ * A card with allowOtherClasses can cover a different class. Partial use keeps the remainder.
  */
 export async function reserveGiftClassSessions(
   db: GiftLedgerDb,
@@ -201,8 +201,10 @@ function activeClassCardsWhere(userId: string, classTypeId: string, now: Date) {
     recipientId: userId,
     status: GiftCardStatus.ACTIVE,
     type: GiftCardType.FIXED_CLASS,
-    classTypeId,
     balanceClasses: { gt: 0 as const },
-    OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
+    AND: [
+      { OR: [{ classTypeId }, { allowOtherClasses: true }] },
+      { OR: [{ expiresAt: null }, { expiresAt: { gt: now } }] },
+    ],
   };
 }

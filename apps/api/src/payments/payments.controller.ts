@@ -20,6 +20,7 @@ import { AdminUpdatePaymentMethodDto } from './dto/admin-update-payment-method.d
 import { AdminUpdatePaymentStatusDto } from './dto/admin-update-payment-status.dto';
 import { ConfirmDropInPaymentDto } from './dto/confirm-dropin-payment.dto';
 import { ConfirmGiftPaymentDto } from './dto/confirm-gift-payment.dto';
+import { CreateCartCheckoutDto } from './dto/create-cart-checkout.dto';
 import { CreateGiftCheckoutDto } from './dto/create-gift-checkout.dto';
 import { ListMyPaymentsQueryDto } from './dto/list-my-payments-query.dto';
 import { PaymentOutcomeQueryDto } from './dto/payment-outcome-query.dto';
@@ -67,6 +68,15 @@ export class PaymentsController {
       reference,
       body.paymentMethod,
     );
+  }
+
+  @Post('checkout/cart')
+  @UseGuards(JwtAuthGuard)
+  checkoutCart(
+    @CurrentUser() user: { id: string },
+    @Body() body: CreateCartCheckoutDto,
+  ) {
+    return this.payments.createCartCheckout(user.id, body);
   }
 
   @Post('checkout/dropin/:sessionId')

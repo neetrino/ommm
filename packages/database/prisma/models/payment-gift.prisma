@@ -37,6 +37,7 @@ model GiftCard {
   classType       ClassType?     @relation(fields: [classTypeId], references: [id], onDelete: SetNull)
   classQuantity   Int            @default(0)
   balanceClasses  Int            @default(0)
+  allowOtherClasses Boolean      @default(false)
   imageUrl        String?
   status          GiftCardStatus @default(ACTIVE)
   redeemedAt      DateTime?

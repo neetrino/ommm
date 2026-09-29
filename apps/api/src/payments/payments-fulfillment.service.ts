@@ -18,6 +18,7 @@ import {
   readGiftSenderName,
 } from './payments-gift-issue.helpers';
 import { reservePendingDropInGift } from './payments-dropin-gift';
+import { fulfillStudioCart, readCartCheckout } from './payments-cart.fulfill';
 import { decideGiftEmail, scheduleGiftEmail } from './payments-gift-delivery';
 import { PrismaService } from '../prisma/prisma.service';
 import { WhatsappBookingConfirmedService } from '../whatsapp/whatsapp-booking-confirmed.service';
@@ -306,6 +307,10 @@ export class PaymentsFulfillmentService {
     giftEmail: GiftEmailPayload | null;
     packageStockTracked: boolean;
   }> {
+    if (readCartCheckout(existing.metadata ?? null) !== null) {
+      await fulfillStudioCart(tx, existing, this);
+      return { giftEmail: null, packageStockTracked: false };
+    }
     if (existing.source === INTERNAL_PAYMENT_SOURCE.DROPIN) {
       await reservePendingDropInGift(tx, {
         id: existing.id,
@@ -363,10 +368,7 @@ export class PaymentsFulfillmentService {
   async emitDropInBookingRealtimeIfNeeded(
     payment: InternalPaymentRecord,
   ): Promise<void> {
-    if (payment.source !== INTERNAL_PAYMENT_SOURCE.DROPIN) {
-      return;
-    }
-    const sessionId = payment.sourceId?.trim();
+    const sessionId = cartOrDropInSessionId(payment);
     if (!sessionId) {
       return;
     }
@@ -384,4 +386,11 @@ export class PaymentsFulfillmentService {
       await this.bookingConfirmed.tryNotify(booking.id);
     }
   }
+}
+
+function cartOrDropInSessionId(payment: InternalPaymentRecord): string | undefined {
+  if (payment.source === INTERNAL_PAYMENT_SOURCE.DROPIN) {
+    return payment.sourceId?.trim() || undefined;
+  }
+  return readCartCheckout(payment.metadata ?? null)?.sessionId;
 }
