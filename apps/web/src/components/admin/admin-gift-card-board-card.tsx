@@ -6,7 +6,6 @@ import {
   giftCardQuantityLabel,
 } from "@/components/admin/admin-gift-card-display-helpers";
 import { AdminGiftCardRowActions } from "@/components/admin/admin-gift-card-row-actions";
-import { recipientLabel } from "@/components/admin/admin-gift-cards-filter-logic";
 import type { AdminGiftCardBatchRow } from "@/components/admin/admin-gift-cards-types";
 import { GiftCardBoardTile } from "@/components/gift-cards/gift-card-board-tile";
 import { formatAmdFromCents } from "@/lib/price-amd";
@@ -45,7 +44,6 @@ export function AdminGiftCardBoardCard({
       details={[
         { label: t("colCreated"), value: displayGiftCardDate(card.createdAt) },
         { label: t("colExpiration"), value: displayGiftCardDate(card.expiresAt) },
-        { label: t("colRecipient"), value: recipientLabel(card) || "—" },
         { label: t("colAvailableQuantity"), value: giftCardQuantityLabel(card) },
       ]}
       footerAriaLabel={readOnly ? undefined : t("colActions")}

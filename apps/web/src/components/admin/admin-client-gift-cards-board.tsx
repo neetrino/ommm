@@ -84,10 +84,6 @@ function giftCardDetails(
     { label: t("colBalance"), value: formatAmdFromCents(card.balanceCents, locale) },
     { label: t("colCreated"), value: displayGiftCardDate(card.createdAt) },
     { label: t("colExpiration"), value: displayGiftCardDate(card.expiresAt) },
-    {
-      label: t("colRecipient"),
-      value: card.recipientName ?? card.recipientEmail ?? "—",
-    },
   ];
 }
 
