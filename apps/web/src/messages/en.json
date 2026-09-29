@@ -3559,6 +3559,7 @@
       },
       "createButton": "Create gift card",
       "placedButton": "Sold & gifted",
+      "placedBack": "Back to gift cards",
       "placedTitle": "Sold & gifted",
       "placedEmpty": "No sold or gifted cards yet.",
       "placedLoadFailed": "Could not load these cards.",

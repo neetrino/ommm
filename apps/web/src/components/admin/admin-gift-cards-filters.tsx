@@ -8,7 +8,7 @@ import {
 } from "@/components/admin/admin-gift-cards-filter-fields";
 import { AdminGiftCardsViewSwitcher } from "@/components/admin/admin-gift-cards-view-switcher";
 import { ListPageSearchFilters } from "@/components/shared/search/list-page-search-filters";
-import { AdminGiftPlacedCardsButton } from "@/components/admin/admin-gift-placed-cards-sheet";
+import { AdminGiftPlacedCardsButton } from "@/components/admin/admin-gift-placed-cards";
 import { AdminPageHeroActionButton } from "@/components/admin/admin-page-hero-action-button";
 import { AdminPageHero } from "@/components/admin/admin-page-hero";
 import type {

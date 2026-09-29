@@ -3552,6 +3552,7 @@
       "viewBoard": "Քարտեր",
       "createButton": "Ստեղծել նվեր քարտ",
       "placedButton": "Գնված և նվիրված",
+      "placedBack": "Վերադառնալ նվեր քարտեր",
       "placedTitle": "Գնված և նվիրված",
       "placedEmpty": "Գնված կամ նվիրված քարտեր դեռ չկան։",
       "placedLoadFailed": "Չհաջողվեց բեռնել քարտերը։",
