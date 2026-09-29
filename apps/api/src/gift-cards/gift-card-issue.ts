@@ -2,7 +2,7 @@ import { BadRequestException } from '@nestjs/common';
 import { GiftCardStatus, GiftCardTransactionKind, GiftCardType } from '@prisma/client';
 import { randomBytes } from 'node:crypto';
 import type { Prisma } from '@prisma/client';
-import { defaultGiftCardExpiresAt } from './gift-card-policy';
+import { defaultGiftCardExpiresAt, resolveGiftCardPolicy } from './gift-card-policy';
 
 const GIFT_CODE_BYTES = 8;
 const CLAIM_ATTEMPTS = 3;
@@ -60,6 +60,20 @@ export function resolveAdminGiftShape(input: {
 
 export function generateGiftCardCode(): string {
   return randomBytes(GIFT_CODE_BYTES).toString('hex').toUpperCase();
+}
+
+/** Studio setting, falling back to the documented 12 months. */
+export async function readGiftValidityMonths(
+  db: Pick<Prisma.TransactionClient, 'studioSettings'>,
+): Promise<number> {
+  const row = await db.studioSettings.findFirst({
+    select: {
+      giftCardMinAmountAmd: true,
+      giftCardValidityMonths: true,
+      giftCardDenominationsJson: true,
+    },
+  });
+  return resolveGiftCardPolicy(row).validityMonths;
 }
 
 export function resolveIssuedExpiresAt(

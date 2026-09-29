@@ -3,6 +3,7 @@ import { GiftCardStatus, GiftCardTransactionKind, GiftCardType, Prisma } from '@
 import {
   claimPreissuedGiftCard,
   generateGiftCardCode,
+  readGiftValidityMonths,
   resolveIssuedExpiresAt,
 } from '../gift-cards/gift-card-issue';
 import { formatCustomerDisplayName } from './payment-email-format.util';
@@ -76,7 +77,12 @@ export async function issuePurchasedGiftCard(
   );
   const message = firstText(params.metadata.message, selectedBatch?.message);
   const amountAmd = selectedBatch?.amountAmd ?? params.amountCents;
-  const expiresAt = resolveIssuedExpiresAt(selectedBatch?.expiresAt);
+  const validityMonths = await readGiftValidityMonths(tx);
+  const expiresAt = resolveIssuedExpiresAt(
+    selectedBatch?.expiresAt,
+    new Date(),
+    validityMonths,
+  );
   if (selectedBatch) {
     const claimed = await claimPreissuedGiftCard(tx, {
       batchId: selectedBatch.id,

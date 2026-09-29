@@ -14,6 +14,7 @@ import {
   buildMintedGiftCardRows,
   issueLedgerRows,
   resolveAdminGiftShape,
+  readGiftValidityMonths,
   resolveIssuedExpiresAt,
 } from './gift-card-issue';
 import { GiftCardsImageService } from './gift-cards-image.service';
@@ -79,7 +80,8 @@ export class GiftCardsAdminBatchWriteService {
         : null;
     const imageUrl = uploadedImageUrl ?? dto.imageUrl ?? null;
 
-    const issuedExpiresAt = resolveIssuedExpiresAt(expiresAt);
+    const validityMonths = await readGiftValidityMonths(this.prisma);
+    const issuedExpiresAt = resolveIssuedExpiresAt(expiresAt, new Date(), validityMonths);
     try {
       const batch = await this.prisma.$transaction(async (tx) => {
         const created = await tx.giftCardBatch.create({
