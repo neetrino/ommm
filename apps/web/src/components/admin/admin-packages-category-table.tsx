@@ -23,6 +23,7 @@ import {
 import { resolvePackageTotalSessions } from "@/components/admin/admin-package-type-sessions.util";
 import type { AdminPackageRow } from "@/components/admin/admin-packages-types";
 import { OmmListPagination } from "@/components/ui/omm-list-pagination";
+import { GUEST_PASSES_ENABLED } from "@/lib/guest-passes";
 
 type AdminPackagesCategoryTableProps = {
   packages: readonly AdminPackageRow[];
@@ -86,12 +87,16 @@ export function AdminPackagesCategoryTable({
   return (
     <div className="ommm-admin-packages-table">
       <div className="ommm-admin-packages-table-scroll">
-        <div className="ommm-admin-packages-table-grid ommm-admin-packages-table-header">
+        <div
+          className={`ommm-admin-packages-table-grid ommm-admin-packages-table-header${
+            GUEST_PASSES_ENABLED ? "" : " ommm-admin-packages-table-grid--no-guests"
+          }`}
+        >
           <div>{t("tablePageName")}</div>
           <div>{t("tableTotalSessions")}</div>
           <div>{t("tablePrice")}</div>
           <div>{t("tableValidity")}</div>
-          <div>{t("tableGuests")}</div>
+          {GUEST_PASSES_ENABLED ? <div>{t("tableGuests")}</div> : null}
           <div>{t("tableFreeze")}</div>
           <div>{t("tableStockCount")}</div>
           <div>{t("tableStartDate")}</div>
@@ -145,7 +150,9 @@ export function AdminPackagesCategoryTable({
                 exit="exit"
               >
                 <div
-                  className="ommm-admin-packages-table-row-layout ommm-admin-packages-table-row-layout--clickable"
+                  className={`ommm-admin-packages-table-row-layout ommm-admin-packages-table-row-layout--clickable${
+                    GUEST_PASSES_ENABLED ? "" : " ommm-admin-packages-table-row-layout--no-guests"
+                  }`}
                   role="button"
                   tabIndex={0}
                   aria-label={t("editPageAria", { name: packageName })}
@@ -171,7 +178,9 @@ export function AdminPackagesCategoryTable({
                     )}
                   </TableCell>
                   <TableCell>{validityLabel}</TableCell>
-                  <TableCell>{guestCount !== null ? guestCount : <EmptyCell />}</TableCell>
+                  {GUEST_PASSES_ENABLED ? (
+                    <TableCell>{guestCount !== null ? guestCount : <EmptyCell />}</TableCell>
+                  ) : null}
                   <TableCell>{freezeLabel !== null ? freezeLabel : <EmptyCell />}</TableCell>
                   <TableCell>{stockCount !== null ? stockCount : <EmptyCell />}</TableCell>
                   <TableCell>{startDateLabel !== null ? startDateLabel : <EmptyCell />}</TableCell>

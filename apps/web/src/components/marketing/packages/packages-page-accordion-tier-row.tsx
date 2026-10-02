@@ -12,6 +12,7 @@ import {
   resolvePublicPackageTotalSessions,
 } from "@/components/marketing/packages/public-package-tier-display";
 import { Link } from "@/i18n/navigation";
+import { GUEST_PASSES_ENABLED } from "@/lib/guest-passes";
 import { buildPackagesSubscribeLoginHref } from "@/lib/auth-redirect";
 import {
   PublicPackageTypeSessionsBreakdown,
@@ -43,7 +44,7 @@ export function PackagesPageAccordionTierRow({
     days: (count) => t("packagesValidityDays", { count }),
     months: (count) => t("packagesValidityMonths", { count }),
   });
-  const guestCount = plan.guestCount ?? 0;
+  const guestCount = GUEST_PASSES_ENABLED ? (plan.guestCount ?? 0) : 0;
   const freezeLabel = formatPackageFreezeLabel(plan, {
     timesDays: (times, days) => t("packagesFreezeTimesDays", { times, days }),
   });
@@ -114,9 +115,11 @@ export function PackagesPageAccordionTierRow({
       <div className={`${accordionStyles.tierCell} ${accordionStyles.tierValidity}`}>
         {validityLabel ?? <PackagesPageAccordionEmptyCell />}
       </div>
-      <div className={`${accordionStyles.tierCell} ${accordionStyles.tierGuests}`}>
-        {guestCount > 0 ? guestCount : <PackagesPageAccordionEmptyCell />}
-      </div>
+      {GUEST_PASSES_ENABLED ? (
+        <div className={`${accordionStyles.tierCell} ${accordionStyles.tierGuests}`}>
+          {guestCount > 0 ? guestCount : <PackagesPageAccordionEmptyCell />}
+        </div>
+      ) : null}
       <div className={`${accordionStyles.tierCell} ${accordionStyles.tierFreeze}`}>
         {freezeLabel !== null ? freezeLabel : <PackagesPageAccordionEmptyCell />}
       </div>

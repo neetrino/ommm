@@ -22,6 +22,7 @@ import { listPublicPackageCategorySubscribablePlans } from "@/components/marketi
 import { buildPackageCategoryHref } from "@/lib/package-category-href";
 import { formatPackageFreezeLabel } from "@/components/admin/admin-packages-display";
 import { toPackageSubscribePlanOptions } from "@/lib/package-subscribe-plan-option";
+import { GUEST_PASSES_ENABLED } from "@/lib/guest-passes";
 import { formatAmdFromCents } from "@/lib/price-amd";
 import { PackagesGuestHint } from "@/components/marketing/packages/packages-guest-hint";
 import { resolvePackagesGuestHintCopy } from "@/components/marketing/packages/packages-guest-hint-copy";
@@ -79,7 +80,7 @@ export function PublicPackageCategoryCard({
             const sessionsLabel = plan.isUnlimited
               ? t("packagesSessionsUnlimited")
               : t("packagesSessionsCount", { count: plan.sessionsPerMonth ?? 0 });
-            const guestCount = plan.guestCount ?? 0;
+            const guestCount = GUEST_PASSES_ENABLED ? (plan.guestCount ?? 0) : 0;
             const freezeLabel = formatPackageFreezeLabel(plan, {
               timesDays: (times, days) =>
                 t("packagesFreezeTimesDays", { times, days }),

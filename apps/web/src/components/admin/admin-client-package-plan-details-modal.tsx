@@ -24,6 +24,7 @@ import { PublicPackageTypeSessionsBreakdown } from "@/components/marketing/packa
 import { OmmButton } from "@/components/ui/omm-button";
 import { AdminSheetPortal } from "@/components/admin/admin-sheet-portal";
 import { useAdminAnimatedSheetClose } from "@/components/admin/use-admin-animated-sheet-close";
+import { GUEST_PASSES_ENABLED } from "@/lib/guest-passes";
 import type { PublicPackagePlan } from "@/lib/public-package-plan";
 
 type AdminClientPackagePlanDetailsModalProps = {
@@ -32,8 +33,9 @@ type AdminClientPackagePlanDetailsModalProps = {
   onClose: () => void;
 };
 
-const DETAILS_GRID_CLASS =
-  "grid w-full min-w-0 max-w-full grid-cols-[minmax(0,1.3fr)_minmax(0,0.65fr)_minmax(0,0.8fr)_minmax(0,0.65fr)_minmax(0,0.45fr)_minmax(0,0.7fr)_minmax(0,0.45fr)_minmax(0,0.8fr)] items-center gap-x-2";
+const DETAILS_GRID_CLASS = GUEST_PASSES_ENABLED
+  ? "grid w-full min-w-0 max-w-full grid-cols-[minmax(0,1.3fr)_minmax(0,0.65fr)_minmax(0,0.8fr)_minmax(0,0.65fr)_minmax(0,0.45fr)_minmax(0,0.7fr)_minmax(0,0.45fr)_minmax(0,0.8fr)] items-center gap-x-2"
+  : "grid w-full min-w-0 max-w-full grid-cols-[minmax(0,1.3fr)_minmax(0,0.65fr)_minmax(0,0.8fr)_minmax(0,0.65fr)_minmax(0,0.7fr)_minmax(0,0.45fr)_minmax(0,0.8fr)] items-center gap-x-2";
 
 function EmptyCell() {
   return <span className="text-[rgba(80,69,59,0.4)]">—</span>;
@@ -146,7 +148,9 @@ export function AdminClientPackagePlanDetailsModal({
               </div>
               <div className="min-w-0 text-center leading-snug">{tPackages("tablePrice")}</div>
               <div className="min-w-0 text-center leading-snug">{tPackages("tableValidity")}</div>
-              <div className="min-w-0 text-center leading-snug">{tPackages("tableGuests")}</div>
+              {GUEST_PASSES_ENABLED ? (
+                <div className="min-w-0 text-center leading-snug">{tPackages("tableGuests")}</div>
+              ) : null}
               <div className="min-w-0 text-center leading-snug">{tPackages("tableFreeze")}</div>
               <div className="min-w-0 text-center leading-snug">{tPackages("tableStockCount")}</div>
               <div className="min-w-0 text-center leading-snug">{tPackages("tableStartDate")}</div>
@@ -172,7 +176,9 @@ export function AdminClientPackagePlanDetailsModal({
               <Cell>
                 <span className="break-words">{validityLabel}</span>
               </Cell>
-              <Cell>{guestCount !== null ? guestCount : <EmptyCell />}</Cell>
+              {GUEST_PASSES_ENABLED ? (
+                <Cell>{guestCount !== null ? guestCount : <EmptyCell />}</Cell>
+              ) : null}
               <Cell>
                 {freezeLabel !== null ? (
                   <span className="break-words">{freezeLabel}</span>

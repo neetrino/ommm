@@ -13,6 +13,7 @@ import { formatPublicPackagePriceParts } from "@/components/marketing/packages/p
 import styles from "@/components/marketing/packages/public-package-category-detail-section.module.css";
 import { formatAmdFromCents } from "@/lib/price-amd";
 import { PackagesGuestHint } from "@/components/marketing/packages/packages-guest-hint";
+import { GUEST_PASSES_ENABLED } from "@/lib/guest-passes";
 import { resolvePackagesGuestHintCopy } from "@/components/marketing/packages/packages-guest-hint-copy";
 
 type PublicPackageCategoryDetailSectionProps = {
@@ -49,7 +50,7 @@ export async function PublicPackageCategoryDetailSection({
         categoryLabel={category.label}
         plans={displayPlans}
         audience={audience}
-        showGuestsColumn
+        showGuestsColumn={GUEST_PASSES_ENABLED}
       />
     </Suspense>
   );

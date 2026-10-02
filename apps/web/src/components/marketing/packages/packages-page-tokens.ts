@@ -1,3 +1,4 @@
+import { GUEST_PASSES_ENABLED } from "@/lib/guest-passes";
 import {
   CANVAS_TABLET_MIN_WIDTH_PX,
   IPAD_AIR_LANDSCAPE_MAX_WIDTH_PX,
@@ -153,11 +154,24 @@ export function resolvePackagesPageExpandedScrollHeightPx(): number {
 export const PACKAGES_PAGE_TIER_TABLE_COLUMNS =
   "minmax(10rem, 2.2fr) minmax(3.25rem, 0.8fr) minmax(4.5rem, 1fr) minmax(3.75rem, 0.85fr) minmax(2.5rem, 0.45fr) minmax(4.25rem, 0.85fr) minmax(5.5rem, 1.05fr)";
 
+/** Same tracks without the guests column. */
+export const PACKAGES_PAGE_TIER_TABLE_COLUMNS_NO_GUESTS =
+  "minmax(10rem, 2.2fr) minmax(3.25rem, 0.8fr) minmax(4.5rem, 1fr) minmax(3.75rem, 0.85fr) minmax(4.25rem, 0.85fr) minmax(5.5rem, 1.05fr)";
+
 /** Armenian — leaner plan col so longer hy labels fit in the other pills. */
 export const PACKAGES_PAGE_TIER_TABLE_COLUMNS_HY =
   "minmax(6.75rem, 1.3fr) minmax(3.5rem, 0.9fr) minmax(4.25rem, 1fr) minmax(4.5rem, 1fr) minmax(2.25rem, 0.5fr) minmax(4.5rem, 0.95fr) minmax(6.5rem, 1.25fr)";
 
+/** Armenian tracks without the guests column. */
+export const PACKAGES_PAGE_TIER_TABLE_COLUMNS_HY_NO_GUESTS =
+  "minmax(6.75rem, 1.3fr) minmax(3.5rem, 0.9fr) minmax(4.25rem, 1fr) minmax(4.5rem, 1fr) minmax(4.5rem, 0.95fr) minmax(6.5rem, 1.25fr)";
+
 export function resolvePackagesPageTierTableColumns(locale: string): string {
+  if (!GUEST_PASSES_ENABLED) {
+    return locale === "hy"
+      ? PACKAGES_PAGE_TIER_TABLE_COLUMNS_HY_NO_GUESTS
+      : PACKAGES_PAGE_TIER_TABLE_COLUMNS_NO_GUESTS;
+  }
   return locale === "hy"
     ? PACKAGES_PAGE_TIER_TABLE_COLUMNS_HY
     : PACKAGES_PAGE_TIER_TABLE_COLUMNS;
