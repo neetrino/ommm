@@ -1,5 +1,5 @@
 import {
-  buildMemberGiftCardsUrl,
+  buildRegisterUrl,
   resolveEmailLocale,
   resolveWebAppUrl,
 } from '../email-app-urls';
@@ -42,8 +42,8 @@ function buildGiftCardEmailBody(params: GiftCardEmailParams): string {
   const note = params.message?.trim() ?? '';
   const intro =
     sender.length > 0
-      ? `${sender} sent you an Ommm gift card. Sign in or create an account, then enter this code to add it.`
-      : 'Someone sent you an Ommm gift card. Sign in or create an account, then enter this code to add it.';
+      ? `${sender} sent you an Ommm gift card. Create your account, then enter this code to add the gift.`
+      : 'Someone sent you an Ommm gift card. Create your account, then enter this code to add the gift.';
   const parts = [
     renderEmailHeading('A gift for you'),
     renderEmailGreeting(params.recipientName ?? ''),
@@ -51,9 +51,9 @@ function buildGiftCardEmailBody(params: GiftCardEmailParams): string {
     renderGiftDetailCard(params.amountLabel, sender),
     note.length > 0 ? renderEmailQuote(note) : '',
     renderEmailCodeBox('Gift card code', params.code),
-    renderEmailCtaButton('Open my gift cards', params.accountUrl),
+    renderEmailCtaButton('Create your account', params.accountUrl),
     renderEmailMutedNote(
-      'Open Gift cards in your account and enter the code. Keep this code private.',
+      'After you create an account, open Gift cards and enter the code. Keep this code private.',
     ),
     renderEmailSignoff(),
   ];
@@ -88,7 +88,7 @@ export function buildGiftCardDeliveryEmail(params: {
     subject: GIFT_CARD_EMAIL_SUBJECT,
     html: renderGiftCardEmail({
       code: params.code,
-      accountUrl: buildMemberGiftCardsUrl(
+      accountUrl: buildRegisterUrl(
         resolveWebAppUrl(params.webAppUrl),
         resolveEmailLocale(params.locale),
       ),

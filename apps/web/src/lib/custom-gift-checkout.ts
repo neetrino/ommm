@@ -31,15 +31,14 @@ export type CustomGiftFieldIssues = {
   recipient: "recipientRequired" | null;
 };
 
-/** Required-field issues only. The gift note is optional and is not checked. */
+/** Required-field issues. The recipient email is required; a personal note is not. */
 export function customGiftFieldIssues(
   amountAmd: number | null,
   hasRecipient: boolean,
 ): CustomGiftFieldIssues {
-  void hasRecipient;
   return {
     amount: customGiftAmountIssue(amountAmd),
-    recipient: null,
+    recipient: hasRecipient ? null : "recipientRequired",
   };
 }
 

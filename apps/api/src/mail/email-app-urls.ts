@@ -40,6 +40,11 @@ export function buildMemberAccountUrl(
   return buildEmailAppPath(webAppUrl, locale, 'user/dashboard');
 }
 
+/** Public registration page for a gift recipient who does not have an account yet. */
+export function buildRegisterUrl(webAppUrl: string, locale: string): string {
+  return buildEmailAppPath(webAppUrl, locale, 'register');
+}
+
 /** Gift cards page for redeem / view CTAs. */
 export function buildMemberGiftCardsUrl(
   webAppUrl: string,

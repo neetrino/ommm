@@ -67,7 +67,7 @@ export function GiftPurchaseForm({ locale }: GiftPurchaseFormProps) {
   }, [t]);
 
   async function onBuy(intent: GiftPurchaseIntent) {
-    const { card, recipient } = intent;
+    const { card, recipientEmail } = intent;
     setBusyBatchId(card.id);
     setStatus(null);
     try {
@@ -76,7 +76,8 @@ export function GiftPurchaseForm({ locale }: GiftPurchaseFormProps) {
         body: JSON.stringify({
           batchId: card.id,
           amountCents: card.amountCents,
-          recipientId: recipient.id,
+          recipientEmail,
+          delivery: "EMAIL",
         }),
       });
       const params = new URLSearchParams({

@@ -358,7 +358,7 @@ export class PaymentsFulfillmentService {
 
   async sendGiftCardEmail(payload: GiftEmailPayload): Promise<void> {
     const amountLabel =
-      payload.amountAmd === undefined
+      payload.amountAmd === undefined || payload.amountAmd <= 0
         ? undefined
         : formatPaymentAmount(payload.amountAmd, 'amd');
     await this.mail.sendEmail({

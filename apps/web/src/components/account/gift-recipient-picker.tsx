@@ -1,249 +1,56 @@
 "use client";
 
-import { useEffect, useId, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import { apiFetch, ApiError } from "@/lib/api";
 import { FormErrorBanner, formFieldInputClass } from "@/components/ui/form-validation";
 
-export type GiftRecipientOption = {
-  id: string;
-  email: string;
-  name: string | null;
-  lastName: string | null;
-};
-
-const RECIPIENT_SEARCH_MIN_CHARS = 1;
-const RECIPIENT_SEARCH_DEBOUNCE_MS = 280;
-
-/** Soft sand card shared with the custom-gift note field. */
-export const GIFT_SOFT_FIELD_CARD_CLASS =
-  "rounded-[22px] border border-sand-100/80 bg-white p-4";
-
-type GiftRecipientPickerProps = {
-  selected: GiftRecipientOption | null;
-  onSelect: (value: GiftRecipientOption | null) => void;
+type GiftRecipientEmailFieldProps = {
+  value: string;
+  onChange: (value: string) => void;
   disabled?: boolean;
-  /** Shown after submit when a recipient has not been chosen. */
   validationMessage?: string | null;
-  /** Drops the extra card chrome when the picker sits inside another surface. */
+  /** Drops the extra card chrome when the field sits inside another surface. */
   embedded?: boolean;
 };
 
-/** Search and select a studio member as the gift card recipient. */
-export function GiftRecipientPicker({
-  selected,
-  onSelect,
+/** Email address that receives the gift code after payment. */
+export function GiftRecipientEmailField({
+  value,
+  onChange,
   disabled = false,
   validationMessage = null,
   embedded = false,
-}: GiftRecipientPickerProps) {
+}: GiftRecipientEmailFieldProps) {
   const t = useTranslations("userPages.giftCards.purchaseForm");
-  const listboxId = useId();
-  const requestIdRef = useRef(0);
-  const [query, setQuery] = useState("");
-  const [debouncedQuery, setDebouncedQuery] = useState("");
-  const [results, setResults] = useState<GiftRecipientOption[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [listOpen, setListOpen] = useState(false);
-
-  useEffect(() => {
-    const timer = window.setTimeout(() => {
-      const nextQuery = query.trim();
-      setDebouncedQuery(nextQuery);
-      if (nextQuery.length < RECIPIENT_SEARCH_MIN_CHARS) {
-        requestIdRef.current += 1;
-        setResults([]);
-        setError(null);
-        setLoading(false);
-        setListOpen(false);
-      }
-    }, RECIPIENT_SEARCH_DEBOUNCE_MS);
-    return () => window.clearTimeout(timer);
-  }, [query]);
-
-  useEffect(() => {
-    if (debouncedQuery.length < RECIPIENT_SEARCH_MIN_CHARS) {
-      return;
-    }
-
-    const requestId = requestIdRef.current + 1;
-    requestIdRef.current = requestId;
-    let cancelled = false;
-
-    async function search() {
-      setLoading(true);
-      setError(null);
-      setListOpen(true);
-      try {
-        const rows = await apiFetch<GiftRecipientOption[]>(
-          `/gift-cards/recipients?q=${encodeURIComponent(debouncedQuery)}`,
-        );
-        if (cancelled || requestIdRef.current !== requestId) {
-          return;
-        }
-        setResults(rows);
-        setListOpen(true);
-      } catch (err) {
-        if (cancelled || requestIdRef.current !== requestId) {
-          return;
-        }
-        setResults([]);
-        setError(err instanceof ApiError ? err.message : t("recipientSearchFailed"));
-        setListOpen(true);
-      } finally {
-        if (!cancelled && requestIdRef.current === requestId) {
-          setLoading(false);
-        }
-      }
-    }
-
-    void search();
-    return () => {
-      cancelled = true;
-    };
-  }, [debouncedQuery, t]);
-
-  function selectRecipient(row: GiftRecipientOption) {
-    onSelect(row);
-    setQuery("");
-    setDebouncedQuery("");
-    setResults([]);
-    setListOpen(false);
-    setError(null);
-  }
-
-  function clearRecipient() {
-    onSelect(null);
-    setQuery("");
-    setDebouncedQuery("");
-    setResults([]);
-    setError(null);
-    setListOpen(false);
-  }
-
-  const searchActive = debouncedQuery.length >= RECIPIENT_SEARCH_MIN_CHARS;
-  const showResultsPanel =
-    selected === null &&
-    listOpen &&
-    (loading || error !== null || searchActive);
-
-  const chrome = recipientPickerChrome(embedded);
+  const chrome = recipientEmailChrome(embedded);
 
   return (
     <section className={chrome.section}>
       <p className={chrome.title}>{t("recipientSectionLabel")}</p>
       <p className={chrome.hint}>{t("recipientSectionHint")}</p>
-
-      <div className={chrome.fields}>
-        {selected !== null ? (
-          <div className="space-y-2">
-            <div className="flex items-center justify-between gap-3 rounded-2xl border border-sage-700/30 bg-sage-50 px-3 py-3">
-              <div className="min-w-0">
-                <p className="text-xs font-semibold uppercase tracking-[0.08em] text-sage-500">
-                  {t("recipientSelectedLabel")}
-                </p>
-                <p className="mt-1 truncate text-sm font-semibold text-sage-950">
-                  {formatRecipientLabel(selected)}
-                </p>
-                <p className="truncate text-xs text-sage-600">{selected.email}</p>
-              </div>
-              <button
-                type="button"
-                className="shrink-0 rounded-full border border-red-200 bg-white px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.08em] text-red-800 transition-colors hover:border-red-300 hover:bg-red-50"
-                disabled={disabled}
-                onClick={clearRecipient}
-              >
-                {t("recipientRemove")}
-              </button>
-            </div>
-            <p className="text-xs text-sage-500">{t("recipientRemoveHint")}</p>
-          </div>
-        ) : (
-          <div className="space-y-2">
-            <label className="ommm-label flex flex-col gap-2">
-              {t("recipientSearchLabel")}
-              <input
-                type="text"
-                role="combobox"
-                aria-expanded={showResultsPanel}
-                aria-controls={listboxId}
-                aria-autocomplete="list"
-                value={query}
-                disabled={disabled}
-                onChange={(event) => {
-                  setQuery(event.target.value);
-                  setListOpen(true);
-                }}
-                onFocus={() => {
-                  if (searchActive) {
-                    setListOpen(true);
-                  }
-                }}
-                data-form-field="recipient"
-                aria-invalid={validationMessage !== null}
-                className={formFieldInputClass(validationMessage !== null, chrome.input)}
-                placeholder={t("recipientSearchPlaceholder")}
-                autoComplete="off"
-                spellCheck={false}
-              />
-            </label>
-
-            {showResultsPanel ? (
-              <div
-                id={listboxId}
-                role="listbox"
-                className="ommm-dropdown-menu-list max-h-60 overflow-y-auto rounded-2xl border border-sage-200 bg-white shadow-[0_12px_28px_-18px_rgba(45,40,35,0.28)]"
-              >
-                {loading ? (
-                  <p className="px-3 py-3 text-sm text-sage-500">{t("recipientSearching")}</p>
-                ) : null}
-                {error !== null ? (
-                  <p className="px-3 py-3 text-sm text-red-800" role="alert">
-                    {error}
-                  </p>
-                ) : null}
-                {!loading && error === null && results.length === 0 ? (
-                  <p className="px-3 py-3 text-sm text-sage-500">{t("recipientEmpty")}</p>
-                ) : null}
-                {!loading && error === null
-                  ? results.map((row) => (
-                      <button
-                        key={row.id}
-                        type="button"
-                        role="option"
-                        aria-selected={false}
-                        disabled={disabled}
-                        className="flex w-full flex-col items-start gap-0.5 border-b border-sage-50 px-3 py-2.5 text-left transition-colors last:border-b-0 hover:bg-sand-50 focus-visible:bg-sand-50 focus-visible:outline-none"
-                        onMouseDown={(event) => {
-                          event.preventDefault();
-                          selectRecipient(row);
-                        }}
-                        onClick={() => selectRecipient(row)}
-                      >
-                        <span className="text-sm font-semibold text-sage-950">
-                          {formatRecipientLabel(row)}
-                        </span>
-                        <span className="text-xs text-sage-500">{row.email}</span>
-                      </button>
-                    ))
-                  : null}
-              </div>
-            ) : null}
-            <FormErrorBanner message={validationMessage} variant="inline" />
-          </div>
-        )}
-      </div>
+      <label className={`${chrome.fields} ommm-label flex flex-col gap-2`}>
+        {t("recipientSearchLabel")}
+        <input
+          type="email"
+          value={value}
+          disabled={disabled}
+          data-form-field="recipient"
+          aria-invalid={validationMessage !== null}
+          className={formFieldInputClass(validationMessage !== null, "ommm-input")}
+          placeholder={t("recipientSearchPlaceholder")}
+          autoComplete="email"
+          onChange={(event) => onChange(event.target.value)}
+        />
+      </label>
+      <FormErrorBanner message={validationMessage} variant="inline" />
     </section>
   );
 }
 
-function recipientPickerChrome(embedded: boolean): {
+function recipientEmailChrome(embedded: boolean): {
   section: string;
   title: string;
   hint: string;
   fields: string;
-  input: string;
 } {
   if (!embedded) {
     return {
@@ -251,23 +58,13 @@ function recipientPickerChrome(embedded: boolean): {
         "rounded-[24px] border border-white/60 bg-white/75 p-4 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.18)] sm:p-5",
       title: "text-sm font-medium text-sage-800",
       hint: "mt-1 text-xs leading-5 text-sage-500",
-      fields: "mt-4 space-y-3",
-      input: "",
+      fields: "mt-4",
     };
   }
   return {
     section: "flex flex-col gap-3 rounded-[20px] border border-white/70 bg-white/55 p-4",
     title: "ommm-label text-xs uppercase tracking-wide",
     hint: "text-sm leading-relaxed text-sage-600",
-    fields: "space-y-3",
-    input: "",
+    fields: "",
   };
-}
-
-export function formatRecipientLabel(user: GiftRecipientOption): string {
-  const name = [user.name, user.lastName]
-    .filter((part): part is string => Boolean(part && part.trim()))
-    .join(" ")
-    .trim();
-  return name.length > 0 ? name : user.email;
 }

@@ -99,7 +99,7 @@ describe('branded email templates', () => {
   it('renders CTAs as buttons, not pasted URLs', () => {
     expect(samples[0]).toContain('Confirm email');
     expect(samples[2]).toContain('Open my account');
-    expect(samples[5]).toContain('Open my gift cards');
+    expect(samples[5]).toContain('Create your account');
     expect(samples[6]).toContain('Book this class');
     expect(samples[7]).toContain('Open my waitlist');
     expect(samples[9]).toContain('Open schedule');
@@ -138,7 +138,7 @@ describe('branded email templates', () => {
     expect(text).toContain('Aren');
     expect(text).toContain('30,000');
     expect(text).toContain('Happy birthday');
-    expect(html).toContain('Open my gift cards');
+    expect(html).toContain('Create your account');
     expect(text).toContain('enter this code');
     expect(text).not.toMatch(/https?:\/\//);
   });

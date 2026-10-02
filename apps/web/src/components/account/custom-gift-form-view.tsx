@@ -2,10 +2,7 @@
 
 import type { FormEvent, ReactNode } from "react";
 import { useTranslations } from "next-intl";
-import {
-  GiftRecipientPicker,
-  type GiftRecipientOption,
-} from "@/components/account/gift-recipient-picker";
+import { GiftRecipientEmailField } from "@/components/account/gift-recipient-picker";
 import { AmdMoneyInput } from "@/components/ui/amd-money-input";
 import { OmmButton } from "@/components/ui/omm-button";
 import { FORM_INVALID_FIELD_CLASS, FormErrorBanner } from "@/components/ui/form-validation";
@@ -17,7 +14,7 @@ const PLAIN_LABEL_CLASS = "ommm-label text-xs uppercase tracking-wide";
 export type CustomGiftFormProps = {
   amountId: string;
   amountRaw: string;
-  recipient: GiftRecipientOption | null;
+  recipientEmail: string;
   error: string | null;
   amountError: string | null;
   recipientError: string | null;
@@ -26,7 +23,7 @@ export type CustomGiftFormProps = {
   amountChoices: readonly { amountAmd: number; label: string }[];
   selectedAmountAmd: number | null;
   onAmountChange: (value: string) => void;
-  onRecipientChange: (value: GiftRecipientOption | null) => void;
+  onRecipientEmailChange: (value: string) => void;
   onSubmit: (event: FormEvent) => void;
   /** Gift type, then class fields when the gift is class sessions. */
   leading?: ReactNode;
@@ -62,12 +59,12 @@ export function CustomGiftForm(props: CustomGiftFormProps) {
           onAmountChange={props.onAmountChange}
         />
       ) : null}
-      <GiftRecipientPicker
+      <GiftRecipientEmailField
         embedded
-        selected={props.recipient}
+        value={props.recipientEmail}
         disabled={props.busy}
         validationMessage={props.recipientError}
-        onSelect={props.onRecipientChange}
+        onChange={props.onRecipientEmailChange}
       />
       {props.extras}
       <FormErrorBanner message={props.error} variant="inline" />

@@ -2,11 +2,7 @@
 
 import { useCallback, useId, useState } from "react";
 import { useTranslations } from "next-intl";
-import {
-  GiftRecipientPicker,
-  formatRecipientLabel,
-  type GiftRecipientOption,
-} from "@/components/account/gift-recipient-picker";
+import { GiftRecipientEmailField } from "@/components/account/gift-recipient-picker";
 import {
   ADMIN_DETAILS_SHEET_BODY_CLASS,
   ADMIN_DETAILS_SHEET_DETAIL_LABEL_CLASS,
@@ -20,6 +16,7 @@ import { displayGiftCardDate, giftCardStatusBadgeClass } from "@/components/gift
 import { GiftCardFace } from "@/components/gift-cards/gift-card-face";
 import { OmmButton } from "@/components/ui/omm-button";
 import { OmmDrawerPortal } from "@/components/ui/omm-modal";
+import { isGiftRecipientEmail } from "@/lib/gift-recipient-email";
 import { formatAmdFromCents } from "@/lib/price-amd";
 
 export type GiftMarketCardPreview = {
@@ -60,7 +57,7 @@ export function marketGiftValueLabel(
 
 export type GiftPurchaseIntent = {
   card: GiftMarketCardPreview;
-  recipient: GiftRecipientOption;
+  recipientEmail: string;
 };
 
 type GiftMarketCardDetailsSheetProps = {
@@ -113,22 +110,23 @@ function GiftMarketCardDetailsSheetInner({
   const titleId = useId();
   const amountLabel = marketGiftValueLabel(card, locale, t);
   const amountFieldLabel = card.type === "FIXED_CLASS" ? t("cartClassType") : t("cardAmount");
-  const [recipient, setRecipient] = useState<GiftRecipientOption | null>(null);
+  const [recipientEmail, setRecipientEmail] = useState("");
   const [recipientError, setRecipientError] = useState<string | null>(null);
 
-  const canBuy = !busy && card.availableQuantity > 0 && recipient !== null;
+  const canBuy = !busy && card.availableQuantity > 0 && isGiftRecipientEmail(recipientEmail);
 
   const handleClose = useCallback(() => {
     onClose();
   }, [onClose]);
 
   function handleBuy() {
-    if (recipient === null) {
+    const email = recipientEmail.trim();
+    if (!isGiftRecipientEmail(email)) {
       setRecipientError(tPurchase("recipientRequired"));
       return;
     }
     setRecipientError(null);
-    onBuy({ card, recipient });
+    onBuy({ card, recipientEmail: email });
   }
 
   return (
@@ -177,28 +175,15 @@ function GiftMarketCardDetailsSheetInner({
           </dl>
         </section>
 
-        <GiftRecipientPicker
-          selected={recipient}
-          onSelect={(value) => {
-            setRecipient(value);
+        <GiftRecipientEmailField
+          value={recipientEmail}
+          disabled={busy}
+          validationMessage={recipientError}
+          onChange={(value) => {
+            setRecipientEmail(value);
             setRecipientError(null);
           }}
-          disabled={busy}
         />
-
-        {recipient !== null ? (
-          <p className="text-sm text-sage-700">
-            {tPurchase("recipientSelectedSummary", {
-              name: formatRecipientLabel(recipient),
-            })}
-          </p>
-        ) : null}
-
-        {recipientError !== null ? (
-          <p className="text-sm text-red-800" role="alert">
-            {recipientError}
-          </p>
-        ) : null}
       </div>
 
       <footer

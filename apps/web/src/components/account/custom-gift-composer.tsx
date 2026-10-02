@@ -5,7 +5,6 @@ import { useTranslations } from "next-intl";
 import {
   CustomGiftForm,
 } from "@/components/account/custom-gift-form-view";
-import type { GiftRecipientOption } from "@/components/account/gift-recipient-picker";
 import { useRouter } from "@/i18n/navigation";
 import { ApiError } from "@/lib/api";
 import {
@@ -26,6 +25,7 @@ import {
 import { useGiftAmountPolicy } from "@/components/account/use-gift-amount-policy";
 import { focusFormField } from "@/components/ui/form-validation";
 import { GIFT_CARD_CHECKOUT_PATH } from "@/lib/payment-checkout-source";
+import { isGiftRecipientEmail } from "@/lib/gift-recipient-email";
 import { formatAmdFromCents, parseAmdMoneyInput } from "@/lib/price-amd";
 
 type CustomGiftComposerProps = {
@@ -44,7 +44,7 @@ export function CustomGiftComposer({ locale }: CustomGiftComposerProps) {
   const router = useRouter();
   const amountId = useId();
   const [amountRaw, setAmountRaw] = useState(String(CUSTOM_GIFT_CARD_MIN_AMD));
-  const [recipient, setRecipient] = useState<GiftRecipientOption | null>(null);
+  const [recipientEmail, setRecipientEmail] = useState("");
   const [kind, setKind] = useState<CustomGiftKind>("FIXED_VALUE");
   const [classTypeId, setClassTypeId] = useState("");
   const [classSessions, setClassSessions] = useState("1");
@@ -63,7 +63,7 @@ export function CustomGiftComposer({ locale }: CustomGiftComposerProps) {
     <CustomGiftForm
       amountId={amountId}
       amountRaw={amountRaw}
-      recipient={recipient}
+      recipientEmail={recipientEmail}
       error={error}
       amountError={amountError}
       recipientError={recipientError}
@@ -92,8 +92,8 @@ export function CustomGiftComposer({ locale }: CustomGiftComposerProps) {
         setAmountRaw(value);
         setAmountError(null);
       }}
-      onRecipientChange={(value) => {
-        setRecipient(value);
+      onRecipientEmailChange={(value) => {
+        setRecipientEmail(value);
         setRecipientError(null);
       }}
       extras={
@@ -114,7 +114,7 @@ export function CustomGiftComposer({ locale }: CustomGiftComposerProps) {
       onSubmit={(event) => {
         void submitComposer(event, {
           amountRaw,
-          recipient,
+          recipientEmail,
           kind,
           classTypeId,
           classSessions,
@@ -196,7 +196,7 @@ async function submitComposer(
   event: FormEvent,
   input: {
     amountRaw: string;
-    recipient: GiftRecipientOption | null;
+    recipientEmail: string;
     kind: CustomGiftKind;
     classTypeId: string;
     classSessions: string;
@@ -215,10 +215,9 @@ async function submitComposer(
   const isClassGift = input.kind === "FIXED_CLASS";
   const amountAmd = isClassGift ? 0 : parseAmdMoneyInput(input.amountRaw);
   const sessions = Number.parseInt(input.classSessions, 10);
-  const recipient = input.recipient;
   const issues = customGiftFieldIssues(
     isClassGift ? CUSTOM_GIFT_CARD_MIN_AMD : amountAmd,
-    recipient !== null,
+    isGiftRecipientEmail(input.recipientEmail),
   );
   const amountMessage = fieldIssueText(issues.amount, input.copy);
   const recipientMessage = issues.recipient === null ? null : input.copy.recipientRequired;
@@ -228,8 +227,8 @@ async function submitComposer(
     input.setError(input.classRequired);
     return;
   }
-  if (!isClassGift && (amountMessage !== null || recipientMessage !== null || amountAmd === null)) {
-    focusMissingGiftField(event.currentTarget, amountMessage !== null);
+  if (recipientMessage !== null || (!isClassGift && (amountMessage !== null || amountAmd === null))) {
+    focusMissingGiftField(event.currentTarget, !isClassGift && amountMessage !== null);
     return;
   }
   input.setBusy(true);
@@ -238,7 +237,7 @@ async function submitComposer(
     const started = await startCustomGiftCheckout({
       amountAmd: amountAmd ?? 0,
       options: {
-        ...(recipient ? { recipientId: recipient.id } : {}),
+        recipientEmail: input.recipientEmail.trim(),
         type: input.kind,
         delivery: input.delivery,
         ...(isClassGift ? { classTypeId: input.classTypeId, classQuantity: sessions } : {}),
