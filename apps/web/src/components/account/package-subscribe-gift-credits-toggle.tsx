@@ -272,12 +272,17 @@ export function PackageSubscribeGiftCreditsToggle({
 
   return (
     <section className={formStyles.giftCreditsSection} aria-labelledby={`${fieldId}-legend`}>
-      <p
-        id={`${fieldId}-legend`}
-        className={`ommm-label text-xs uppercase tracking-wide text-sage-700 ${formStyles.sectionHeading}`}
-      >
-        {t("giftCreditsLegend")}
-      </p>
+      <div className={formStyles.giftCreditsHeading}>
+        <span className={formStyles.giftCreditsHeadingIcon} aria-hidden>
+          <GiftCreditsIcon />
+        </span>
+        <p
+          id={`${fieldId}-legend`}
+          className={`ommm-label text-xs uppercase tracking-wide text-sage-700 ${formStyles.sectionHeading}`}
+        >
+          {t("giftCreditsLegend")}
+        </p>
+      </div>
 
       <div className={blockClassName}>
         {choosingCards ? (
