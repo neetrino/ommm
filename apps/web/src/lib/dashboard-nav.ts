@@ -133,7 +133,6 @@ const ADMIN_NAV: readonly DashboardNavDefinition[] = [
   { href: "/admin/analytics", icon: "pieChart", labelKey: "analytics", oliveIconSlug: "analytics" },
   { href: "/admin/content", icon: "fileText", labelKey: "content", oliveIconSlug: "feedback" },
   { href: "/admin/settings", icon: "settings", labelKey: "settings", oliveIconSlug: "settings" },
-  { href: "/admin/guest-users", icon: "users", labelKey: "guestUsers", oliveIconSlug: "guestUsers" },
   { href: "/admin/profile", icon: "user", labelKey: "profile", oliveIconSlug: "clients" },
 ];
 

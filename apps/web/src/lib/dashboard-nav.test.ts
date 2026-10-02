@@ -45,11 +45,7 @@ describe("dashboard-nav manager parity", () => {
     assert.ok(coachesIndex >= 0);
     assert.ok(managersIndex === coachesIndex + 1);
     assert.ok(scheduleIndex === managersIndex + 1);
-    const settingsIndex = hrefs.indexOf("/admin/settings");
-    const guestUsersIndex = hrefs.indexOf("/admin/guest-users");
-    const profileIndex = hrefs.indexOf("/admin/profile");
-    assert.ok(guestUsersIndex === settingsIndex + 1);
-    assert.ok(profileIndex === guestUsersIndex + 1);
+    assert.equal(hrefs.includes("/admin/guest-users"), false);
   });
 
   it("manager schedule uses calendar icon like admin", () => {
