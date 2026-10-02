@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { useTranslations } from "next-intl";
+import { useTranslations, type useTranslations as UseTranslations } from "next-intl";
+import { CustomGiftClassChoices } from "@/components/account/custom-gift-class-schedule";
 import { DropdownSelect, type DropdownOption } from "@/components/ui/dropdown-select";
 import { apiFetch } from "@/lib/api";
 
@@ -55,26 +56,23 @@ type ClassTypeOption = {
 type AdminGiftCardKindFieldsProps = {
   kind: AdminGiftCardKind;
   classTypeId: string;
-  classSessions: string;
   disabled: boolean;
   onKindChange: (kind: AdminGiftCardKind) => void;
   onClassTypeChange: (classTypeId: string) => void;
   onClassSessionsChange: (classSessions: string) => void;
-  t: ReturnType<typeof useTranslations<"adminPages.giftCards">>;
+  t: ReturnType<UseTranslations<"adminPages.giftCards">>;
 };
 
 /** Money or class-session gift. Class cards are minted only on create. */
 export function AdminGiftCardKindFields({
   kind,
   classTypeId,
-  classSessions,
   disabled,
   onKindChange,
   onClassTypeChange,
   onClassSessionsChange,
   t,
 }: AdminGiftCardKindFieldsProps) {
-  const classOptions = useClassTypeOptions(t("fieldClassType"));
   return (
     <div className="grid gap-3">
       <DropdownSelect
@@ -89,12 +87,9 @@ export function AdminGiftCardKindFields({
       {kind === "FIXED_CLASS" ? (
         <ClassSessionFields
           classTypeId={classTypeId}
-          classSessions={classSessions}
-          classOptions={classOptions}
           disabled={disabled}
           onClassTypeChange={onClassTypeChange}
           onClassSessionsChange={onClassSessionsChange}
-          t={t}
         />
       ) : null}
     </div>
@@ -103,53 +98,38 @@ export function AdminGiftCardKindFields({
 
 function ClassSessionFields({
   classTypeId,
-  classSessions,
-  classOptions,
   disabled,
   onClassTypeChange,
   onClassSessionsChange,
-  t,
 }: {
   classTypeId: string;
-  classSessions: string;
-  classOptions: readonly DropdownOption<string>[];
   disabled: boolean;
   onClassTypeChange: (classTypeId: string) => void;
   onClassSessionsChange: (classSessions: string) => void;
-  t: ReturnType<typeof useTranslations<"adminPages.giftCards">>;
 }) {
+  const page = useTranslations("userPages.giftCards");
+  const custom = useTranslations("userPages.giftCards.customGift");
+  const classTypes = useClassTypes();
   return (
-    <>
-      <DropdownSelect
-        label={t("fieldClassType")}
-        ariaLabel={t("fieldClassType")}
-        value={classTypeId}
-        options={classOptions}
-        onChange={onClassTypeChange}
-        disabled={disabled}
-        wrapLabel
-        searchable
-      />
-      <label className="flex flex-col gap-1">
-        <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldClassSessions")}</span>
-        <input
-          name="classQuantity"
-          type="number"
-          min={1}
-          step={1}
-          className="ommm-input [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-          value={classSessions}
-          onChange={(event) => onClassSessionsChange(event.target.value)}
-          disabled={disabled}
-          required
-        />
-      </label>
-    </>
+    <CustomGiftClassChoices
+      classTypeId={classTypeId}
+      classTypes={classTypes}
+      disabled={disabled}
+      classPlaceholder={custom("classPlaceholder")}
+      classTypeLabel={page("cartClassType")}
+      packageLabel={page("cartPackage")}
+      sessionLabel={page("cartSession")}
+      skipLabel={page("cartSkip")}
+      priceCaption={custom("priceLabel")}
+      onClassTypeChange={onClassTypeChange}
+      onClassSessionsChange={onClassSessionsChange}
+      onQuotedPriceChange={() => undefined}
+    />
   );
 }
 
 function kindOptions(
-  t: ReturnType<typeof useTranslations<"adminPages.giftCards">>,
+  t: ReturnType<UseTranslations<"adminPages.giftCards">>,
 ): readonly DropdownOption<AdminGiftCardKind>[] {
   return [
     { value: "FIXED_VALUE", label: t("fieldCardKindMoney") },
@@ -157,7 +137,7 @@ function kindOptions(
   ];
 }
 
-function useClassTypeOptions(placeholder: string): readonly DropdownOption<string>[] {
+function useClassTypes(): readonly ClassTypeOption[] {
   const [types, setTypes] = useState<readonly ClassTypeOption[]>([]);
   useEffect(() => {
     let cancelled = false;
@@ -172,8 +152,5 @@ function useClassTypeOptions(placeholder: string): readonly DropdownOption<strin
       cancelled = true;
     };
   }, []);
-  return [
-    { value: "", label: placeholder },
-    ...types.map((row) => ({ value: row.id, label: row.name })),
-  ];
+  return types;
 }

@@ -160,7 +160,6 @@ export function AdminCreateGiftCardForm({
         <AdminGiftCardKindFields
           kind={cardKind}
           classTypeId={classTypeId}
-          classSessions={classSessions}
           disabled={busy}
           onKindChange={setCardKind}
           onClassTypeChange={setClassTypeId}
