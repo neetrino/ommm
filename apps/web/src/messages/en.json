@@ -1287,6 +1287,8 @@
         "checkoutFailed": "Could not start payment.",
         "detailsTitle": "How it arrives",
         "detailsHint": "Choose the gift, then how and when it should arrive.",
+        "buyNewGift": "Buy New gift",
+        "closeModal": "Close",
         "kindLabel": "Gift type",
         "kindMoney": "Money",
         "kindClass": "Class sessions",

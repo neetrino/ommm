@@ -28,8 +28,8 @@ model StudioSettings {
   giftCardMinAmountAmd       Int @default(30000)
   /// Months added when a card is issued without an explicit expiry.
   giftCardValidityMonths     Int @default(12)
-  /// JSON array of ready-made AMD denominations, e.g. [40000,70000,100000].
-  giftCardDenominationsJson  String @default("[40000,70000,100000]")
+  /// JSON array of ready-made AMD denominations, e.g. [30000,70000,100000].
+  giftCardDenominationsJson  String @default("[30000,70000,100000]")
   createdAt               DateTime @default(now())
   updatedAt               DateTime @updatedAt
 }

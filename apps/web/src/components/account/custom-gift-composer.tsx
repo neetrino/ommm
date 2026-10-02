@@ -18,7 +18,8 @@ import {
   type CustomGiftInputError,
 } from "@/lib/custom-gift-checkout";
 import {
-  CustomGiftOptions,
+  CustomGiftDeliverySection,
+  CustomGiftKindSection,
   type CustomGiftDelivery,
   type CustomGiftKind,
 } from "@/components/account/custom-gift-options";
@@ -76,6 +77,27 @@ export function CustomGiftComposer({ locale }: CustomGiftComposerProps) {
       minLabel={minLabel}
       amountChoices={policy.choices}
       selectedAmountAmd={selectedAmountAmd}
+      showAmount={kind === "FIXED_VALUE"}
+      leading={
+        <CustomGiftKindSection
+          kind={kind}
+          classTypeId={classTypeId}
+          classSessions={classSessions}
+          delivery={delivery}
+          deliverAt={deliverAt}
+          guestName={guestName}
+          guestEmail={guestEmail}
+          disabled={busy}
+          onKindChange={setKind}
+          onClassTypeChange={setClassTypeId}
+          onClassSessionsChange={setClassSessions}
+          onDeliveryChange={setDelivery}
+          onDeliverAtChange={setDeliverAt}
+          onGuestNameChange={setGuestName}
+          onGuestEmailChange={setGuestEmail}
+          t={t}
+        />
+      }
       onAmountChange={(value) => {
         setAmountRaw(value);
         setAmountError(null);
@@ -86,7 +108,7 @@ export function CustomGiftComposer({ locale }: CustomGiftComposerProps) {
         setRecipientError(null);
       }}
       extras={
-        <CustomGiftOptions
+        <CustomGiftDeliverySection
           kind={kind}
           classTypeId={classTypeId}
           classSessions={classSessions}

@@ -1287,6 +1287,8 @@
         "checkoutFailed": "Не удалось начать оплату.",
         "detailsTitle": "Как доставить",
         "detailsHint": "Выберите подарок, затем как и когда его отправить.",
+        "buyNewGift": "Купить новый подарок",
+        "closeModal": "Закрыть",
         "kindLabel": "Тип подарка",
         "kindMoney": "Деньги",
         "kindClass": "Занятия",

@@ -5,7 +5,7 @@ export const GIFT_CARD_MIN_AMOUNT_AMD = 30_000;
 export const GIFT_CARD_MAX_AMOUNT_AMD = 1_000_000;
 
 /** Ready-made amounts from the gift-card brief. "Other" stays a free amount. */
-export const GIFT_CARD_DENOMINATIONS_AMD = [40_000, 70_000, 100_000] as const;
+export const GIFT_CARD_DENOMINATIONS_AMD = [30_000, 70_000, 100_000] as const;
 
 /** Applied when a card is issued without an explicit expiry. */
 export const GIFT_CARD_DEFAULT_VALIDITY_MONTHS = 12;

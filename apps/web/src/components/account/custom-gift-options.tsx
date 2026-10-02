@@ -36,9 +36,39 @@ type CustomGiftOptionsProps = {
   t: GiftCopy;
 };
 
-/** Class gift, delivery, and a recipient who does not have an account yet. */
-export function CustomGiftOptions(props: CustomGiftOptionsProps) {
+/** First question: money or class sessions, then the class fields. */
+export function CustomGiftKindSection(props: CustomGiftOptionsProps) {
   const classTypes = useClassTypes();
+  return (
+    <div className="space-y-4">
+      <div className={GIFT_SOFT_FIELD_CARD_CLASS}>
+        <GiftOptionSelect
+          label={props.t("kindLabel")}
+          value={props.kind}
+          disabled={props.disabled}
+          options={kindOptions(props.t)}
+          onChange={(value) => props.onKindChange(readKind(value))}
+        />
+      </div>
+      {props.kind === "FIXED_CLASS" ? (
+        <div className={`${GIFT_SOFT_FIELD_CARD_CLASS} grid gap-4 sm:grid-cols-2`}>
+          <ClassGiftFields
+            classTypeId={props.classTypeId}
+            classSessions={props.classSessions}
+            classTypes={classTypes}
+            disabled={props.disabled}
+            t={props.t}
+            onClassTypeChange={props.onClassTypeChange}
+            onClassSessionsChange={props.onClassSessionsChange}
+          />
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+/** Delivery channel, send date, and a guest who does not have an account yet. */
+export function CustomGiftDeliverySection(props: CustomGiftOptionsProps) {
   return (
     <section className="space-y-4">
       <header>
@@ -48,46 +78,9 @@ export function CustomGiftOptions(props: CustomGiftOptionsProps) {
         <p className="mt-1.5 max-w-lg text-sm leading-6 text-sage-500">{props.t("detailsHint")}</p>
       </header>
       <div className={`${GIFT_SOFT_FIELD_CARD_CLASS} grid gap-4 sm:grid-cols-2`}>
-        <GiftKindFields {...props} classTypes={classTypes} />
         <GiftDeliveryFields {...props} />
       </div>
     </section>
-  );
-}
-
-function GiftKindFields({
-  kind,
-  classTypeId,
-  classSessions,
-  classTypes,
-  disabled,
-  t,
-  onKindChange,
-  onClassTypeChange,
-  onClassSessionsChange,
-}: CustomGiftOptionsProps & { classTypes: readonly ClassTypeOption[] }) {
-  return (
-    <>
-      <GiftOptionSelect
-        className="sm:col-span-2"
-        label={t("kindLabel")}
-        value={kind}
-        disabled={disabled}
-        options={kindOptions(t)}
-        onChange={(value) => onKindChange(readKind(value))}
-      />
-      {kind === "FIXED_CLASS" ? (
-        <ClassGiftFields
-          classTypeId={classTypeId}
-          classSessions={classSessions}
-          classTypes={classTypes}
-          disabled={disabled}
-          t={t}
-          onClassTypeChange={onClassTypeChange}
-          onClassSessionsChange={onClassSessionsChange}
-        />
-      ) : null}
-    </>
   );
 }
 

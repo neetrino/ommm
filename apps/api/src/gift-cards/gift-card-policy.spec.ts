@@ -52,6 +52,6 @@ describe('gift-card-policy', () => {
       giftCardValidityMonths: 12,
       giftCardDenominationsJson: 'not-json',
     });
-    expect(policy.denominationsAmd).toEqual([40_000, 70_000, 100_000]);
+    expect(policy.denominationsAmd).toEqual([30_000, 70_000, 100_000]);
   });
 });

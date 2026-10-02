@@ -1,9 +1,8 @@
 import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
 import { GiftCardActivityList, type GiftCardActivityRow } from "@/components/account/gift-card-activity-list";
-import { CustomGiftComposer } from "@/components/account/custom-gift-composer";
+import { GiftShopPanel } from "@/components/account/gift-shop-panel";
 import { UserGiftCardRedeemForm } from "@/components/account/user-gift-card-redeem-form";
-import { GiftPurchaseForm } from "@/components/account/gift-purchase-form";
 import { StudioCartForm } from "@/components/account/studio-cart-form";
 import { UserGiftCardsBoard } from "@/components/account/user-gift-cards-board";
 import type { UserGiftCardRow } from "@/components/account/user-gift-cards-types";
@@ -62,8 +61,7 @@ export async function MemberUserGiftCardsRouteContent({
       }
       shopPanel={
         <div className="space-y-10">
-          <CustomGiftComposer locale={locale} />
-          <GiftPurchaseForm locale={locale} />
+          <GiftShopPanel locale={locale} />
           <StudioCartForm />
         </div>
       }
