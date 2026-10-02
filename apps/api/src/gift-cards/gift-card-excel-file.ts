@@ -29,7 +29,7 @@ const ISSUED_HEADERS = [
 
 export async function readGiftImportMatrix(buffer: Buffer): Promise<GiftImportCell[][]> {
   const workbook = new ExcelJS.Workbook();
-  await workbook.xlsx.load(buffer);
+  await workbook.xlsx.load(toExcelBuffer(buffer));
   const sheet = workbook.worksheets[0];
   if (sheet === undefined) {
     return [];
@@ -107,6 +107,12 @@ function normalizeExcelCell(value: ExcelJS.CellValue): GiftImportCell {
     return normalizeExcelCell(value.result ?? null);
   }
   return null;
+}
+
+function toExcelBuffer(value: Buffer): ArrayBuffer {
+  const copy = new ArrayBuffer(value.byteLength);
+  new Uint8Array(copy).set(value);
+  return copy;
 }
 
 async function workbookToBuffer(workbook: ExcelJS.Workbook): Promise<Buffer> {
