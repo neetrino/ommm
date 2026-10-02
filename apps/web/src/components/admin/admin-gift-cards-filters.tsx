@@ -8,7 +8,6 @@ import {
 } from "@/components/admin/admin-gift-cards-filter-fields";
 import { AdminGiftCardsViewSwitcher } from "@/components/admin/admin-gift-cards-view-switcher";
 import { ListPageSearchFilters } from "@/components/shared/search/list-page-search-filters";
-import { AdminGiftPlacedCardsButton } from "@/components/admin/admin-gift-placed-cards";
 import { AdminPageHeroActionButton } from "@/components/admin/admin-page-hero-action-button";
 import { AdminPageHero } from "@/components/admin/admin-page-hero";
 import type {
@@ -214,15 +213,12 @@ export function AdminGiftCardsFilters({
       title={t("title")}
       search={filterSearchRow}
       primaryAction={
-        <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
-          <AdminGiftPlacedCardsButton />
-          {hideCreate ? null : (
-            <AdminPageHeroActionButton type="button" onClick={onCreate}>
-              <AddGiftCardGlyph className="h-5 w-5 shrink-0" />
-              {t("createButton")}
-            </AdminPageHeroActionButton>
-          )}
-        </div>
+        hideCreate ? undefined : (
+          <AdminPageHeroActionButton type="button" onClick={onCreate}>
+            <AddGiftCardGlyph className="h-5 w-5 shrink-0" />
+            {t("createButton")}
+          </AdminPageHeroActionButton>
+        )
       }
     />
   );

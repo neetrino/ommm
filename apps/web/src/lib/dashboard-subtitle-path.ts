@@ -15,7 +15,6 @@ const HREF_TO_SUBTITLE_PATH: Record<string, string> = {
   "/admin/packages/sold": "admin.packages",
   "/admin/memberships": "admin.packages",
   "/admin/gift-cards": "admin.giftCards",
-  "/admin/gift-cards/sold": "admin.giftCards",
   "/admin/finance": "admin.finance",
   "/admin/finance/overview": "admin.finance",
   "/admin/finance/payments": "admin.finance",
