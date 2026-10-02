@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useTranslations, type useTranslations as UseTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import { CustomGiftClassChoices } from "@/components/account/custom-gift-class-schedule";
 import { DropdownSelect, type DropdownOption } from "@/components/ui/dropdown-select";
 import { apiFetch } from "@/lib/api";
@@ -60,7 +60,7 @@ type AdminGiftCardKindFieldsProps = {
   onKindChange: (kind: AdminGiftCardKind) => void;
   onClassTypeChange: (classTypeId: string) => void;
   onClassSessionsChange: (classSessions: string) => void;
-  t: ReturnType<UseTranslations<"adminPages.giftCards">>;
+  t: ReturnType<typeof useTranslations<"adminPages.giftCards">>;
 };
 
 /** Money or class-session gift. Class cards are minted only on create. */
@@ -129,7 +129,7 @@ function ClassSessionFields({
 }
 
 function kindOptions(
-  t: ReturnType<UseTranslations<"adminPages.giftCards">>,
+  t: ReturnType<typeof useTranslations<"adminPages.giftCards">>,
 ): readonly DropdownOption<AdminGiftCardKind>[] {
   return [
     { value: "FIXED_VALUE", label: t("fieldCardKindMoney") },
