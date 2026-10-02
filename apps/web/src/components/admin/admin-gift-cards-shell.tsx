@@ -258,7 +258,7 @@ function AdminGiftCardsShellInner({
                 </svg>
               </button>
             </div>
-            <div className={`${ADMIN_CREATE_SHEET_BODY_SHELL_CLASS} ommm-soft-scroll overflow-y-auto overscroll-y-contain p-5 sm:p-6`}>
+            <div className={ADMIN_CREATE_SHEET_BODY_SHELL_CLASS}>
               <AdminCreateGiftCardForm
                 key={editingBatch?.id ?? "create-gift-card"}
                 users={assignableUsers}

@@ -151,7 +151,8 @@ export function AdminCreateGiftCardForm({
   }
 
   return (
-    <form onSubmit={submit} className="flex flex-col gap-5">
+    <form onSubmit={submit} className="flex min-h-0 flex-1 flex-col overflow-hidden">
+      <div className="ommm-soft-scroll flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto overscroll-y-contain p-5 sm:p-6">
       {mode === "create" ? (
         <GiftCardFace alt={t("cardImageAlt")} className="aspect-[1.58/1] overflow-hidden rounded-[22px]" />
       ) : null}
@@ -196,7 +197,8 @@ export function AdminCreateGiftCardForm({
           {result}
         </p>
       ) : null}
-      <div className="flex flex-wrap items-center justify-end gap-3 border-t border-sage-200/70 pt-4">
+      </div>
+      <div className="flex shrink-0 flex-wrap items-center justify-end gap-3 border-t border-sage-200/70 bg-paper px-5 py-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] sm:px-6">
         <OmmButton type="submit" variant="primary" size="md" disabled={busy}>
           {busy ? t("savingButton") : mode === "edit" ? t("editSaveButton") : t("saveButton")}
         </OmmButton>
