@@ -37,6 +37,9 @@ export type CustomGiftFormProps = {
   /** Money amount and ready-made denominations. Hidden for class gifts. */
   showAmount: boolean;
   extras?: ReactNode;
+  /** Class-gift total, shown above payment once a class type has a price. */
+  priceCaption?: string;
+  priceLabel?: string | null;
 };
 
 export function CustomGiftForm(props: CustomGiftFormProps) {
@@ -80,12 +83,41 @@ export function CustomGiftForm(props: CustomGiftFormProps) {
         onChange={props.onMessageChange}
       />
       <FormErrorBanner message={props.error} variant="inline" />
-      <div className="flex flex-wrap items-center justify-end gap-3 border-t border-sage-200/70 pt-4">
-        <OmmButton type="submit" variant="primary" size="md" disabled={props.busy}>
-          {props.busy ? t("submitting") : t("submit")}
-        </OmmButton>
-      </div>
+      <CustomGiftSubmitRow
+        busy={props.busy}
+        submitLabel={props.busy ? t("submitting") : t("submit")}
+        priceCaption={props.priceCaption ?? t("priceLabel")}
+        priceLabel={props.priceLabel ?? null}
+      />
     </form>
+  );
+}
+
+function CustomGiftSubmitRow({
+  busy,
+  submitLabel,
+  priceCaption,
+  priceLabel,
+}: {
+  busy: boolean;
+  submitLabel: string;
+  priceCaption: string;
+  priceLabel: string | null;
+}) {
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-3 border-t border-sage-200/70 pt-4">
+      {priceLabel !== null ? (
+        <p className="flex items-baseline gap-3">
+          <span className={PLAIN_LABEL_CLASS}>{priceCaption}</span>
+          <span className="font-serif text-2xl leading-none text-sage-900">{priceLabel}</span>
+        </p>
+      ) : (
+        <span />
+      )}
+      <OmmButton type="submit" variant="primary" size="md" disabled={busy}>
+        {submitLabel}
+      </OmmButton>
+    </div>
   );
 }
 

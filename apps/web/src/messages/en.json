@@ -1297,7 +1297,8 @@
         "guestNamePlaceholder": "Name",
         "guestEmailLabel": "Recipient email (optional)",
         "guestEmailPlaceholder": "name@email.com",
-        "classRequired": "Choose a class, a session, and a time."
+        "classRequired": "Choose a class, a session, and a time.",
+        "priceLabel": "Price"
       },
       "celebration": {
         "eyebrow": "A gift for you",

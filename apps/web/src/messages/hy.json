@@ -1298,7 +1298,8 @@
         "guestNamePlaceholder": "Անուն",
         "guestEmailLabel": "Ստացողի email (ընտրովի)",
         "guestEmailPlaceholder": "name@email.com",
-        "classRequired": "Ընտրեք դաս, սեսիա և ժամ։"
+        "classRequired": "Ընտրեք դաս, սեսիա և ժամ։",
+        "priceLabel": "Գին"
       },
       "celebration": {
         "eyebrow": "Նվեր ձեզ համար",

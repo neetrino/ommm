@@ -1297,7 +1297,8 @@
         "guestNamePlaceholder": "Имя",
         "guestEmailLabel": "Email получателя (необязательно)",
         "guestEmailPlaceholder": "name@email.com",
-        "classRequired": "Выберите занятие, сессию и время."
+        "classRequired": "Выберите занятие, сессию и время.",
+        "priceLabel": "Цена"
       },
       "celebration": {
         "eyebrow": "Подарок для вас",

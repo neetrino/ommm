@@ -28,6 +28,7 @@ type CustomGiftOptionsProps = {
   onKindChange: (kind: CustomGiftKind) => void;
   onClassTypeChange: (classTypeId: string) => void;
   onClassSessionsChange: (classSessions: string) => void;
+  onQuotedPriceChange: (amountAmd: number | null) => void;
   onDeliveryChange: (delivery: CustomGiftDelivery) => void;
   onDeliverAtChange: (deliverAt: string) => void;
   onGuestNameChange: (guestName: string) => void;
@@ -52,6 +53,7 @@ export function CustomGiftKindSection(props: CustomGiftOptionsProps) {
           props.onKindChange(next);
           if (next !== "FIXED_CLASS") {
             props.onClassTypeChange("");
+            props.onQuotedPriceChange(null);
           }
         }}
       />
@@ -63,6 +65,7 @@ export function CustomGiftKindSection(props: CustomGiftOptionsProps) {
           t={props.t}
           onClassTypeChange={props.onClassTypeChange}
           onClassSessionsChange={props.onClassSessionsChange}
+          onQuotedPriceChange={props.onQuotedPriceChange}
         />
       ) : null}
     </div>
@@ -136,6 +139,7 @@ function ClassGiftFields({
   t,
   onClassTypeChange,
   onClassSessionsChange,
+  onQuotedPriceChange,
 }: {
   classTypeId: string;
   classTypes: readonly ClassTypeOption[];
@@ -143,6 +147,7 @@ function ClassGiftFields({
   t: GiftCopy;
   onClassTypeChange: (classTypeId: string) => void;
   onClassSessionsChange: (classSessions: string) => void;
+  onQuotedPriceChange: (amountAmd: number | null) => void;
 }) {
   const page = useTranslations("userPages.giftCards");
   return (
@@ -157,6 +162,7 @@ function ClassGiftFields({
       skipLabel={page("cartSkip")}
       onClassTypeChange={onClassTypeChange}
       onClassSessionsChange={onClassSessionsChange}
+      onQuotedPriceChange={onQuotedPriceChange}
     />
   );
 }

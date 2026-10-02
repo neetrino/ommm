@@ -50,6 +50,7 @@ export function CustomGiftComposer({ locale }: CustomGiftComposerProps) {
   const [kind, setKind] = useState<CustomGiftKind>("FIXED_VALUE");
   const [classTypeId, setClassTypeId] = useState("");
   const [classSessions, setClassSessions] = useState("1");
+  const [classPriceAmd, setClassPriceAmd] = useState<number | null>(null);
   const [delivery, setDelivery] = useState<CustomGiftDelivery>("EMAIL");
   const [deliverAt, setDeliverAt] = useState("");
   const [guestName, setGuestName] = useState("");
@@ -78,6 +79,7 @@ export function CustomGiftComposer({ locale }: CustomGiftComposerProps) {
       amountChoices={policy.choices}
       selectedAmountAmd={selectedAmountAmd}
       showAmount={kind === "FIXED_VALUE"}
+      priceLabel={classPriceAmd === null ? null : formatAmdFromCents(classPriceAmd, locale)}
       leading={
         <CustomGiftKindSection
           kind={kind}
@@ -91,6 +93,7 @@ export function CustomGiftComposer({ locale }: CustomGiftComposerProps) {
           onKindChange={setKind}
           onClassTypeChange={setClassTypeId}
           onClassSessionsChange={setClassSessions}
+          onQuotedPriceChange={setClassPriceAmd}
           onDeliveryChange={setDelivery}
           onDeliverAtChange={setDeliverAt}
           onGuestNameChange={setGuestName}
@@ -120,6 +123,7 @@ export function CustomGiftComposer({ locale }: CustomGiftComposerProps) {
           onKindChange={setKind}
           onClassTypeChange={setClassTypeId}
           onClassSessionsChange={setClassSessions}
+          onQuotedPriceChange={setClassPriceAmd}
           onDeliveryChange={setDelivery}
           onDeliverAtChange={setDeliverAt}
           onGuestNameChange={setGuestName}
