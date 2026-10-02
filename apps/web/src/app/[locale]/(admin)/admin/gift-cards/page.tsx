@@ -1,7 +1,6 @@
 import { Suspense } from "react";
 import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
-import { AdminBarProducts } from "@/components/admin/admin-bar-products";
 import { AdminGiftCardsManagement } from "@/components/admin/admin-gift-cards-management";
 import {
   buildAdminGiftCardsListEndpoint,
@@ -61,7 +60,6 @@ export default async function AdminGiftCardsPage({
           locale={locale}
           initialFilters={initialFilters}
         />
-        <AdminBarProducts />
       </Suspense>
     </AdminContentFrame>
   );

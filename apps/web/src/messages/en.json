@@ -3553,6 +3553,11 @@
       "viewSwitcherAria": "Gift cards display mode",
       "viewList": "List",
       "viewBoard": "Board",
+      "sectionTabs": {
+        "aria": "Gift cards sections",
+        "cards": "Gift cards",
+        "bar": "Bar"
+      },
       "activateGiftCard": "Activate",
       "deactivateGiftCard": "Deactivate",
       "confirmActivate": "Activate this gift card?",

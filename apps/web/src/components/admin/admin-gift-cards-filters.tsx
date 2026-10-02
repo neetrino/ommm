@@ -1,6 +1,8 @@
 "use client";
 
 import { useMemo } from "react";
+import { usePathname } from "@/i18n/navigation";
+import { AdminGiftCardsSectionTabs } from "@/components/admin/admin-gift-cards-section-tabs";
 import { useTranslations } from "next-intl";
 import {
   adminGiftCardsIntegratedFilterValues,
@@ -49,6 +51,7 @@ type AdminGiftCardsFiltersProps = {
   /** Staff layout: search row only (hero lives in StaffListPageLayout). */
   variant?: "full" | "embedded";
   hideCreate?: boolean;
+  hideView?: boolean;
 };
 
 function AddGiftCardGlyph({ className }: { className?: string }) {
@@ -78,9 +81,12 @@ export function AdminGiftCardsFilters({
   onCreate,
   variant = "full",
   hideCreate = false,
+  hideView = false,
 }: AdminGiftCardsFiltersProps) {
   const t = useTranslations("adminPages.giftCards");
   const tFilters = useTranslations("adminPages.giftCards.filters");
+  const pathname = usePathname();
+  const showSectionTabs = variant === "full" && pathname.includes("/admin/gift-cards");
 
   const filterFields = useMemo(
     () =>
@@ -200,7 +206,9 @@ export function AdminGiftCardsFilters({
         onClearAll={onReset}
         resetLabel={tFilters("reset")}
       />
-      <AdminGiftCardsViewSwitcher value={viewMode} onChange={onViewChange} />
+      {hideView ? null : (
+        <AdminGiftCardsViewSwitcher value={viewMode} onChange={onViewChange} />
+      )}
     </div>
   );
 
@@ -212,6 +220,7 @@ export function AdminGiftCardsFilters({
     <AdminPageHero
       title={t("title")}
       search={filterSearchRow}
+      belowSearch={showSectionTabs ? <AdminGiftCardsSectionTabs /> : undefined}
       primaryAction={
         hideCreate ? undefined : (
           <AdminPageHeroActionButton type="button" onClick={onCreate}>

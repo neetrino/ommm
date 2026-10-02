@@ -15,6 +15,10 @@ import {
 import { AdminCreateGiftCardForm } from "@/components/admin/admin-create-gift-card-form";
 import { AdminGiftCardsFilters } from "@/components/admin/admin-gift-cards-filters";
 import {
+  AdminGiftCardsSection,
+  useGiftCardsSection,
+} from "@/components/admin/admin-gift-cards-section-tabs";
+import {
   AdminGiftCardsViewProvider,
   useAdminGiftCardsView,
 } from "@/components/admin/admin-gift-cards-view-context";
@@ -94,6 +98,7 @@ function AdminGiftCardsShellInner({
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const section = useGiftCardsSection();
   const titleId = useId();
   const [banner, setBanner] = useState<string | null>(null);
   const bannerTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -169,7 +174,8 @@ function AdminGiftCardsShellInner({
       onViewChange={setViewMode}
       onCreate={openModal}
       variant={isStaff ? "embedded" : "full"}
-      hideCreate={readOnly || isStaff}
+      hideCreate={readOnly || isStaff || section === "bar"}
+      hideView={section === "bar"}
     />
   );
 
@@ -182,7 +188,7 @@ function AdminGiftCardsShellInner({
         banner={operationalBanner}
         search={filters}
       >
-        {children}
+        <AdminGiftCardsSection>{children}</AdminGiftCardsSection>
       </StaffListPageLayout>
     );
   }
@@ -200,7 +206,7 @@ function AdminGiftCardsShellInner({
 
       {filters}
 
-      {children}
+      <AdminGiftCardsSection>{children}</AdminGiftCardsSection>
 
       {!readOnly ? (
         <AdminSheetPortal

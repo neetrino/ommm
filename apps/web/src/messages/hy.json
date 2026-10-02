@@ -3554,6 +3554,11 @@
       "viewSwitcherAria": "Նվեր քարտերի ցուցադրման ռեժիմ",
       "viewList": "Ցանկ",
       "viewBoard": "Քարտեր",
+      "sectionTabs": {
+        "aria": "Նվեր քարտերի բաժիններ",
+        "cards": "Նվեր քարտեր",
+        "bar": "Բար"
+      },
       "createButton": "Ստեղծել նվեր քարտ",
       "placedButton": "Գնված և նվիրված",
       "placedBack": "Վերադառնալ նվեր քարտեր",

@@ -10,7 +10,7 @@ import { formatAmdFromMajor } from "@/lib/price-amd";
 type BarProduct = { id: string; name: string; priceAmd: number; active: boolean };
 
 const BAR_SHELL_CLASS =
-  "mt-8 rounded-[28px] border border-white/80 bg-white/95 shadow-[0_28px_64px_-36px_rgba(45,40,35,0.38)]";
+  "rounded-[28px] border border-white/80 bg-white/95 shadow-[0_28px_64px_-36px_rgba(45,40,35,0.38)]";
 const BAR_FIELD_CLASS = "!h-14 !rounded-2xl bg-white px-4 text-base";
 const BAR_LABEL_CLASS = "text-sm font-medium text-sage-700";
 
