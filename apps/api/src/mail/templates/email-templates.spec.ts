@@ -128,14 +128,17 @@ describe('branded email templates', () => {
       code: 'OMMM-4821',
       accountUrl: SAMPLE_URL,
       recipientName: 'Jasmine',
-      senderName: 'Aren',
+      senderName: 'Aren Petrosyan',
+      senderEmail: 'aren@gmail.com',
       amountLabel: '30,000 ֏',
       message: 'Happy birthday',
     });
     const text = visibleText(html);
     expect(html).toContain('A gift for you');
     expect(text).toContain('Hi Jasmine,');
-    expect(text).toContain('Aren');
+    expect(text).toContain('Aren Petrosyan');
+    expect(text).toContain('aren@gmail.com');
+    expect(text).toContain('From');
     expect(text).toContain('Your gift');
     expect(text).toContain('30,000 ֏ to use at the studio');
     expect(text).not.toMatch(/\bAmount\b/);

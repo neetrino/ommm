@@ -31,6 +31,7 @@ export type GiftEmailPayload = {
   channel?: 'EMAIL' | 'WHATSAPP';
   recipientName?: string;
   senderName?: string;
+  senderEmail?: string;
   amountAmd?: number;
   message?: string;
 };

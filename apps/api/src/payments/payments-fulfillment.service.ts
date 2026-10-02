@@ -15,7 +15,7 @@ import { buildGiftCardDeliveryEmail } from '../mail/templates/gift-card.template
 import { formatPaymentAmount } from './payment-email-format.util';
 import {
   issuePurchasedGiftCard,
-  readGiftSenderName,
+  readGiftSender,
 } from './payments-gift-issue.helpers';
 import { reservePendingDropInGift } from './payments-dropin-gift';
 import { fulfillStudioCart, readCartCheckout } from './payments-cart.fulfill';
@@ -277,6 +277,7 @@ export class PaymentsFulfillmentService {
       sourceId: payment.sourceId,
       metadata,
     });
+    const sender = await readGiftSender(tx, payment.userId);
     const whatsappPhone = metadata.recipientPhone?.trim() ?? '';
     if (metadata.delivery === 'WHATSAPP' && whatsappPhone.length > 0) {
       return {
@@ -284,7 +285,8 @@ export class PaymentsFulfillmentService {
         code: issued.code,
         channel: 'WHATSAPP',
         recipientName: issued.recipientName,
-        senderName: await readGiftSenderName(tx, payment.userId),
+        senderName: sender.name,
+        senderEmail: sender.email,
         amountAmd: issued.amountAmd,
         message: issued.message,
       };
@@ -316,7 +318,8 @@ export class PaymentsFulfillmentService {
       to: issued.recipientEmail,
       code: issued.code,
       recipientName: issued.recipientName,
-      senderName: await readGiftSenderName(tx, payment.userId),
+      senderName: sender.name,
+      senderEmail: sender.email,
       amountAmd: issued.amountAmd,
       message: issued.message,
     };
@@ -383,6 +386,7 @@ export class PaymentsFulfillmentService {
         code: payload.code,
         recipientName: payload.recipientName,
         senderName: payload.senderName,
+        senderEmail: payload.senderEmail,
         amountLabel,
         message: payload.message,
         webAppUrl: this.config.get<string>('WEB_APP_URL'),

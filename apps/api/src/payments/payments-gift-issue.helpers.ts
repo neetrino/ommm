@@ -155,19 +155,29 @@ function readClassGift(
   };
 }
 
-export async function readGiftSenderName(
+export type GiftSender = {
+  name?: string;
+  email?: string;
+};
+
+/** Purchaser name, surname, and email for the gift letter. */
+export async function readGiftSender(
   tx: Prisma.TransactionClient,
   purchaserId: string,
-): Promise<string | undefined> {
+): Promise<GiftSender> {
   const purchaser = await tx.user.findUnique({
     where: { id: purchaserId },
-    select: { name: true, lastName: true },
+    select: { name: true, lastName: true, email: true },
   });
   if (!purchaser) {
-    return undefined;
+    return {};
   }
   const name = formatCustomerDisplayName(purchaser);
-  return name.length > 0 ? name : undefined;
+  const email = purchaser.email?.trim() ?? '';
+  return {
+    ...(name.length > 0 ? { name } : {}),
+    ...(email.length > 0 ? { email } : {}),
+  };
 }
 
 function firstText(
