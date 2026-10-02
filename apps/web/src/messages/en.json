@@ -1303,7 +1303,9 @@
         "deliveryPrint": "Print",
         "deliverAtLabel": "Send on (optional)",
         "guestNameLabel": "Recipient name (optional)",
+        "guestNamePlaceholder": "Name",
         "guestEmailLabel": "Recipient email (optional)",
+        "guestEmailPlaceholder": "name@email.com",
         "classRequired": "Choose a class, a session, and a time."
       },
       "celebration": {

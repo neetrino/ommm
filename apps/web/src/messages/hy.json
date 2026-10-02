@@ -1304,7 +1304,9 @@
         "deliveryPrint": "Տպել",
         "deliverAtLabel": "Ուղարկել այս օրը (ընտրովի)",
         "guestNameLabel": "Ստացողի անուն (ընտրովի)",
+        "guestNamePlaceholder": "Անուն",
         "guestEmailLabel": "Ստացողի email (ընտրովի)",
+        "guestEmailPlaceholder": "name@email.com",
         "classRequired": "Ընտրեք դաս, սեսիա և ժամ։"
       },
       "celebration": {

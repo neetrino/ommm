@@ -113,6 +113,7 @@ function GiftDeliveryFields({
         value={guestName}
         disabled={disabled}
         plain
+        placeholder={t("guestNamePlaceholder")}
         onChange={onGuestNameChange}
       />
       <GiftOptionText
@@ -120,6 +121,7 @@ function GiftDeliveryFields({
         value={guestEmail}
         disabled={disabled}
         plain
+        placeholder={t("guestEmailPlaceholder")}
         onChange={onGuestEmailChange}
         type="email"
       />

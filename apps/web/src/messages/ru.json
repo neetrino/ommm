@@ -1303,7 +1303,9 @@
         "deliveryPrint": "Печать",
         "deliverAtLabel": "Отправить в этот день (необязательно)",
         "guestNameLabel": "Имя получателя (необязательно)",
+        "guestNamePlaceholder": "Имя",
         "guestEmailLabel": "Email получателя (необязательно)",
+        "guestEmailPlaceholder": "name@email.com",
         "classRequired": "Выберите занятие, сессию и время."
       },
       "celebration": {

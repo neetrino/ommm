@@ -44,6 +44,7 @@ export function GiftOptionText({
   onChange,
   type = "text",
   inputMode,
+  placeholder,
   plain = false,
 }: {
   label: string;
@@ -52,6 +53,7 @@ export function GiftOptionText({
   onChange: (value: string) => void;
   type?: "text" | "email" | "number";
   inputMode?: "numeric";
+  placeholder?: string;
   /** Uppercase label and the shared input, matching the admin gift form. */
   plain?: boolean;
 }) {
@@ -69,6 +71,7 @@ export function GiftOptionText({
         min={type === "number" ? 1 : undefined}
         step={type === "number" ? 1 : undefined}
         value={value}
+        placeholder={placeholder}
         disabled={disabled}
         onChange={(event) => onChange(event.target.value)}
       />
