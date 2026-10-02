@@ -7,9 +7,9 @@ import { sanitizeImageSrcUrl } from "@/lib/sanitize-image-src-url";
 type MemberProfileAvatarProps = {
   initials: string;
   imageSrc: string | null;
-  /** Photo circle sizing — used only when `imageSrc` is set. */
+  /** Circle sizing for photo and initials (same footprint). */
   className?: string;
-  /** Matches logged-out header user icon sizing when there is no photo. */
+  /** Fallback sizing when `className` is omitted (e.g. header guest icon). */
   guestIconClassName?: string;
 };
 
@@ -30,7 +30,7 @@ export function MemberProfileAvatar({
     return (
       <span
         className={[
-          "inline-flex size-full max-h-full max-w-full shrink-0 items-center justify-center overflow-hidden rounded-full border border-white/70 ommm-user-avatar-placeholder-surface font-semibold leading-none text-sage-800",
+          "inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full border border-white/70 ommm-user-avatar-placeholder-surface font-semibold leading-none text-sage-800",
           "text-[0.55rem] lg:text-[0.65rem] nav-desktop:text-[0.7rem]",
           shellClass,
         ]
