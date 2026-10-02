@@ -1,5 +1,6 @@
 import { BadRequestException } from '@nestjs/common';
 import type { UserPackage } from '@prisma/client';
+import { GUEST_PASSES_ENABLED } from '../bookings/guest-passes.config';
 import {
   resolveUserPackagePlanCategoryName,
   resolveUserPackagePlanIsUnlimited,
@@ -144,9 +145,9 @@ export function toEligibleBookingPackage(
     currentPeriodStart: membership.currentPeriodStart.toISOString(),
     currentPeriodEnd: membership.currentPeriodEnd.toISOString(),
     includedCategories,
-    guestSlotsTotal: membership.guestSlotsTotal,
-    guestSlotsRemaining: membership.guestSlotsRemaining,
-    canBookGuest: membership.guestSlotsRemaining > 0,
+    guestSlotsTotal: GUEST_PASSES_ENABLED ? membership.guestSlotsTotal : 0,
+    guestSlotsRemaining: GUEST_PASSES_ENABLED ? membership.guestSlotsRemaining : 0,
+    canBookGuest: GUEST_PASSES_ENABLED && membership.guestSlotsRemaining > 0,
   };
 }
 

@@ -15,8 +15,8 @@ describe('packages-guest-pass.helpers', () => {
     });
   });
 
-  it('allows a guest booking only while a slot remains', () => {
-    expect(hasGuestPassSlot({ guestSlotsRemaining: 1 })).toBe(true);
+  it('does not allow a guest booking while guest passes are disabled', () => {
+    expect(hasGuestPassSlot({ guestSlotsRemaining: 1 })).toBe(false);
     expect(hasGuestPassSlot({ guestSlotsRemaining: 0 })).toBe(false);
   });
 });

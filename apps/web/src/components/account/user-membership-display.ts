@@ -1,4 +1,5 @@
 import { formatPackagePlanName } from "@/components/admin/admin-packages-display";
+import { GUEST_PASSES_ENABLED } from "@/lib/guest-passes";
 import type { UserMembershipRow, UserPackageStatus } from "@/lib/user-package-types";
 import { formatMembershipValidityLabel } from "@/lib/user-package-validity";
 
@@ -58,6 +59,9 @@ function resolveGuestPassesSummary(
   membership: UserMembershipRow,
   t: (key: string, values?: Record<string, string | number | Date>) => string,
 ): string | null {
+  if (!GUEST_PASSES_ENABLED) {
+    return null;
+  }
   const total = membership.guestSlotsTotal ?? 0;
   if (total <= 0) {
     return null;

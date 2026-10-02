@@ -18,6 +18,7 @@ import {
   preventNumberArrowStep,
   type AdminPackageFormValues,
 } from "@/components/admin/admin-package-form-utils";
+import { GUEST_PASSES_ENABLED } from "@/lib/guest-passes";
 import { AdminPackageTypeSessionsFields } from "@/components/admin/admin-package-type-sessions-fields";
 import {
   createEmptyTypeSessionEntry,
@@ -248,22 +249,24 @@ export function AdminPackageTierCompactFields({
           />
         </TierIconField>
 
-        <TierIconField tone="guests" label={t("fieldGuestCount")}>
-          <input
-            name="guestCount"
-            type="number"
-            className={INLINE_NUMBER_INPUT_CLASS}
-            min={MIN_PACKAGE_GUEST_COUNT}
-            max={MAX_PACKAGE_GUEST_COUNT}
-            step={1}
-            inputMode="numeric"
-            value={values.guestCount}
-            onChange={(event) => onValuesChange({ guestCount: event.target.value })}
-            onKeyDown={preventNumberArrowStep}
-            placeholder={t("fieldGuestCountPlaceholder")}
-            disabled={pending}
-          />
-        </TierIconField>
+        {GUEST_PASSES_ENABLED ? (
+          <TierIconField tone="guests" label={t("fieldGuestCount")}>
+            <input
+              name="guestCount"
+              type="number"
+              className={INLINE_NUMBER_INPUT_CLASS}
+              min={MIN_PACKAGE_GUEST_COUNT}
+              max={MAX_PACKAGE_GUEST_COUNT}
+              step={1}
+              inputMode="numeric"
+              value={values.guestCount}
+              onChange={(event) => onValuesChange({ guestCount: event.target.value })}
+              onKeyDown={preventNumberArrowStep}
+              placeholder={t("fieldGuestCountPlaceholder")}
+              disabled={pending}
+            />
+          </TierIconField>
+        ) : null}
 
         <TierIconField tone="duration" label={t("fieldFreezeMaxDays")}>
           <input

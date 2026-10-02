@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { buildPackagesSubscribeLoginHref } from "@/lib/auth-redirect";
+import { GUEST_PASSES_ENABLED } from "@/lib/guest-passes";
 import {
   formatPackageFreezeLabel,
   formatPackagePlanName,
@@ -84,7 +85,7 @@ export function PublicPackageMobileTierCard({
     days: (count) => t("packagesValidityDays", { count }),
     months: (count) => t("packagesValidityMonths", { count }),
   });
-  const guestCount = plan.guestCount ?? 0;
+  const guestCount = GUEST_PASSES_ENABLED ? (plan.guestCount ?? 0) : 0;
   const guestLabel = guestCount > 0 ? String(guestCount) : null;
   const freezeLabel = formatPackageFreezeLabel(plan, {
     timesDays: (times, days) => t("packagesFreezeTimesDays", { times, days }),
@@ -154,7 +155,9 @@ export function PublicPackageMobileTierCard({
           <MetaRow label={t("packagesOriginalPrice")} value={originalPrice} />
         ) : null}
         <MetaRow label={t("packagesTableValidity")} value={validityLabel} />
-        <MetaRow label={t("packagesTableGuests")} value={guestLabel} />
+        {GUEST_PASSES_ENABLED ? (
+          <MetaRow label={t("packagesTableGuests")} value={guestLabel} />
+        ) : null}
         <MetaRow label={t("packagesTableFreeze")} value={freezeLabel} />
       </div>
 

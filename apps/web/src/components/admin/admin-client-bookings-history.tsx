@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { resolveSessionCoachName } from "@/components/account/session-coach-line";
+import { GUEST_PASSES_ENABLED } from "@/lib/guest-passes";
 import { isPastAdminCancelBookingStatus } from "@/components/admin/admin-booking-cancel.helpers";
 import {
   bookingHistoryCancelActorKind,
@@ -209,7 +210,7 @@ export function AdminClientBookingsHistory({
                           ? t("drawer.withCoach", { name: coachName })
                           : t("drawer.coachUnknown")}
                       </p>
-                      {booking.guestName ? (
+                      {GUEST_PASSES_ENABLED && booking.guestName ? (
                         <p className="text-xs text-sand-800">
                           {t("drawer.guestPass")}: {booking.guestName}
                         </p>

@@ -17,6 +17,7 @@ import {
 } from "@/components/admin/admin-client-booking-create.helpers";
 import { AdminClientBookingGuestField } from "@/components/admin/admin-client-booking-guest-field";
 import type { EligibleBookingPackage } from "@/components/account/booking-package-select-modal";
+import { GUEST_PASSES_ENABLED } from "@/lib/guest-passes";
 import { AdminCenterToast } from "@/components/ui/admin-center-toast";
 import { OmmButton } from "@/components/ui/omm-button";
 import { ApiError, apiFetch } from "@/lib/api";
@@ -183,8 +184,9 @@ export function AdminClientBookingCreateBar({
     packageRequired,
     userPackageId,
     selectedCanBook: selectedPackage?.canBook === true,
-    selectedCanBookGuest: selectedPackage?.canBookGuest === true,
-    guestName,
+    selectedCanBookGuest:
+      GUEST_PASSES_ENABLED && selectedPackage?.canBookGuest === true,
+    guestName: GUEST_PASSES_ENABLED ? guestName : "",
   });
 
   const sessionOptions = sessions.map((row) => ({
@@ -226,7 +228,7 @@ export function AdminClientBookingCreateBar({
       const body = buildAdminClientBookingRequestBody({
         sessionId,
         userPackageId,
-        guestName,
+        guestName: GUEST_PASSES_ENABLED ? guestName : "",
       });
       await apiFetch(`/clients/${client.id}/bookings`, {
         method: "POST",
@@ -285,7 +287,7 @@ export function AdminClientBookingCreateBar({
           </OmmButton>
         }
       />
-      {selectedPackage?.canBookGuest === true ? (
+      {GUEST_PASSES_ENABLED && selectedPackage?.canBookGuest === true ? (
         <AdminClientBookingGuestField
           label={t("bookings.guestNameLabel")}
           hint={t("bookings.guestPassHint")}

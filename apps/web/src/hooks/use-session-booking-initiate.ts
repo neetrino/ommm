@@ -3,6 +3,7 @@
 import { useCallback } from "react";
 import { useTranslations } from "next-intl";
 import { ApiError, apiFetch } from "@/lib/api";
+import { GUEST_PASSES_ENABLED } from "@/lib/guest-passes";
 import {
   hasBookablePackage,
   resolveAutoBookPackageId,
@@ -95,7 +96,7 @@ export async function postSessionBooking(
   if (userPackageId !== undefined) {
     body.userPackageId = userPackageId;
   }
-  if (guestName !== undefined && guestName.trim().length > 0) {
+  if (GUEST_PASSES_ENABLED && guestName !== undefined && guestName.trim().length > 0) {
     body.guestName = guestName.trim();
   }
   return apiFetch<BookSessionResponse>(`/bookings/sessions/${sessionId}`, {

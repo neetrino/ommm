@@ -2,6 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { SessionClassTitle } from "@/components/account/session-class-title";
+import { GUEST_PASSES_ENABLED } from "@/lib/guest-passes";
 import { SessionDateTimeHighlight } from "@/components/account/session-datetime-highlight";
 import { AdminBookingRowActions } from "@/components/admin/admin-booking-row-actions";
 import { AdminBookingStatusPicker } from "@/components/admin/admin-booking-status-picker";
@@ -110,7 +111,7 @@ function BookingUserCell({
       >
         {userLabel}
       </button>
-      {row.guestName ? (
+      {GUEST_PASSES_ENABLED && row.guestName ? (
         <p className={ADMIN_BOOKINGS_LIST_SUBTITLE_CLASS}>
           {t("guestPass")}: {row.guestName}
         </p>

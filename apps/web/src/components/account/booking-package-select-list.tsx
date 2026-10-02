@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { BookingPackageSelectCard } from "@/components/account/booking-package-select-card";
 import { buildDuplicatePlanNameSuffixes } from "@/lib/booking-package-labels";
 import type { EligibleBookingPackage } from "@/lib/eligible-booking-package";
+import { GUEST_PASSES_ENABLED } from "@/lib/guest-passes";
 
 type BookingPackageSelectListProps = {
   eligiblePackages: readonly EligibleBookingPackage[];
@@ -69,7 +70,9 @@ export function BookingPackageSelectList({
               visitsLabel={visitsLabel}
               periodLabel={periodLabel}
               isSelected={pkg.userPackageId === activeSelectedId}
-              isDisabled={busy || (!pkg.canBook && pkg.canBookGuest !== true)}
+              isDisabled={
+                busy || (!pkg.canBook && !(GUEST_PASSES_ENABLED && pkg.canBookGuest === true))
+              }
               onSelect={onSelect}
             />
           </li>

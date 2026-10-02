@@ -30,6 +30,7 @@ import { useDesktopSheetEnterMotion } from "@/hooks/use-desktop-sheet-enter-moti
 import { useMemberHubSheetPhone } from "@/hooks/use-member-hub-sheet-phone";
 import { ApiError, apiFetch } from "@/lib/api";
 import { pickDefaultBookingPackageId } from "@/lib/booking-package-selection";
+import { GUEST_PASSES_ENABLED } from "@/lib/guest-passes";
 import { dismissMobileKeyboard } from "@/lib/dismiss-mobile-keyboard";
 import type { EligibleBookingPackage } from "@/lib/eligible-booking-package";
 
@@ -100,7 +101,7 @@ function BookingPackageSelectModalSession({
   const [guestName, setGuestName] = useState("");
   const activeSelectedId = useMemo(() => {
     const selected = eligiblePackages.find((pkg) => pkg.userPackageId === selectedId);
-    if (selected?.canBook || selected?.canBookGuest === true) {
+    if (selected?.canBook || (GUEST_PASSES_ENABLED && selected?.canBookGuest === true)) {
       return selectedId;
     }
     return pickDefaultBookingPackageId(eligiblePackages);
@@ -114,7 +115,7 @@ function BookingPackageSelectModalSession({
       const body: { userPackageId: string; guestName?: string } = {
         userPackageId: activeSelectedId,
       };
-      if (guestPassName !== undefined) {
+      if (GUEST_PASSES_ENABLED && guestPassName !== undefined) {
         body.guestName = guestPassName;
       }
       const booking = await apiFetch<BookSessionResponse>(
@@ -199,7 +200,7 @@ function BookingPackageSelectModalSession({
             busy={busy}
             onSelect={setSelectedId}
           />
-          {selectedPackage?.canBookGuest === true ? (
+          {GUEST_PASSES_ENABLED && selectedPackage?.canBookGuest === true ? (
             <label className="block text-sm text-sage-700">
               <span className="mb-1 block text-xs font-medium text-sage-500">
                 {t("guestPassNameLabel")}
@@ -219,10 +220,14 @@ function BookingPackageSelectModalSession({
         <div className={PACKAGE_SUBSCRIBE_FORM_ACTIONS_CLASS}>
           <BookingPackageSelectGuestActions
             busy={busy}
-            showGuestAction={selectedPackage?.canBookGuest === true}
+            showGuestAction={
+              GUEST_PASSES_ENABLED && selectedPackage?.canBookGuest === true
+            }
             canConfirmOwner={selectedPackage?.canBook === true}
             canConfirmGuest={
-              selectedPackage?.canBookGuest === true && guestName.trim().length > 0
+              GUEST_PASSES_ENABLED &&
+              selectedPackage?.canBookGuest === true &&
+              guestName.trim().length > 0
             }
             onConfirmOwner={() => {
               if (selectedPackage?.canBook === true && !busy) {
@@ -231,6 +236,7 @@ function BookingPackageSelectModalSession({
             }}
             onConfirmGuest={() => {
               if (
+                GUEST_PASSES_ENABLED &&
                 selectedPackage?.canBookGuest === true &&
                 guestName.trim().length > 0 &&
                 !busy
