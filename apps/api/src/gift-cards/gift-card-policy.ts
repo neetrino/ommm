@@ -53,8 +53,8 @@ export function compareGiftCardsForSpend(
 }
 
 export function resolveGiftCardPolicy(row: GiftCardPolicyRow): GiftCardPolicy {
-  const minAmountAmd = positiveInt(
-    row?.giftCardMinAmountAmd,
+  const minAmountAmd = Math.max(
+    positiveInt(row?.giftCardMinAmountAmd, GIFT_CARD_MIN_AMOUNT_AMD),
     GIFT_CARD_MIN_AMOUNT_AMD,
   );
   const validityMonths = clampInt(

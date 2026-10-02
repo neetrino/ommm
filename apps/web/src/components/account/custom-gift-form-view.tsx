@@ -8,6 +8,8 @@ import { OmmButton } from "@/components/ui/omm-button";
 import { FORM_INVALID_FIELD_CLASS, FormErrorBanner } from "@/components/ui/form-validation";
 import { GiftAmountChoices } from "@/components/account/gift-amount-choices";
 import { GiftCardFace } from "@/components/gift-cards/gift-card-face";
+import { CUSTOM_GIFT_CARD_MIN_AMD } from "@/lib/custom-gift-card.constants";
+import { floorCustomGiftAmountRaw } from "@/lib/custom-gift-checkout";
 
 const PLAIN_LABEL_CLASS = "ommm-label text-xs uppercase tracking-wide";
 
@@ -106,6 +108,37 @@ function CustomGiftSubmitRow({
   );
 }
 
+function GiftAmountField({
+  amountId,
+  amountRaw,
+  amountError,
+  busy,
+  onAmountChange,
+}: {
+  amountId: string;
+  amountRaw: string;
+  amountError: string | null;
+  busy: boolean;
+  onAmountChange: (value: string) => void;
+}) {
+  return (
+    <AmdMoneyInput
+      id={amountId}
+      value={amountRaw}
+      disabled={busy}
+      align="start"
+      data-form-field="amount"
+      aria-invalid={amountError !== null}
+      aria-describedby={`${amountId}-hint`}
+      className={amountError !== null ? FORM_INVALID_FIELD_CLASS : ""}
+      onBlur={() => onAmountChange(floorCustomGiftAmountRaw(amountRaw))}
+      onValueChange={(value) =>
+        onAmountChange(value.length === 0 ? String(CUSTOM_GIFT_CARD_MIN_AMD) : value)
+      }
+    />
+  );
+}
+
 function CustomGiftAmount({
   amountId,
   amountRaw,
@@ -134,16 +167,12 @@ function CustomGiftAmount({
       <label className={PLAIN_LABEL_CLASS} htmlFor={amountId}>
         {amountLabel}
       </label>
-      <AmdMoneyInput
-        id={amountId}
-        value={amountRaw}
-        disabled={busy}
-        align="start"
-        data-form-field="amount"
-        aria-invalid={amountError !== null}
-        aria-describedby={`${amountId}-hint`}
-        className={amountError !== null ? FORM_INVALID_FIELD_CLASS : ""}
-        onValueChange={onAmountChange}
+      <GiftAmountField
+        amountId={amountId}
+        amountRaw={amountRaw}
+        amountError={amountError}
+        busy={busy}
+        onAmountChange={onAmountChange}
       />
       <p id={`${amountId}-hint`} className="text-xs text-sage-500">
         {amountHint}

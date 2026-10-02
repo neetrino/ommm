@@ -13,6 +13,7 @@ import {
 } from "@/lib/custom-gift-card.constants";
 import {
   customGiftFieldIssues,
+  floorCustomGiftAmountRaw,
   startCustomGiftCheckout,
   type CustomGiftInputError,
 } from "@/lib/custom-gift-checkout";
@@ -116,8 +117,12 @@ export function CustomGiftComposer({ locale }: CustomGiftComposerProps) {
         />
       }
       onSubmit={(event) => {
+        const giftAmountRaw = floorCustomGiftAmountRaw(amountRaw);
+        if (giftAmountRaw !== amountRaw) {
+          setAmountRaw(giftAmountRaw);
+        }
         void submitComposer(event, {
-          amountRaw,
+          amountRaw: giftAmountRaw,
           recipientEmail,
           kind,
           classTypeId,

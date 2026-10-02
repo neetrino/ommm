@@ -3,6 +3,7 @@ import {
   CUSTOM_GIFT_CARD_MAX_AMD,
   CUSTOM_GIFT_CARD_MIN_AMD,
 } from "@/lib/custom-gift-card.constants";
+import { parseAmdMoneyInput } from "@/lib/price-amd";
 
 type PendingPaymentResponse = {
   paymentReference: string | null;
@@ -49,6 +50,15 @@ export function customGiftInputError(
 ): CustomGiftInputError | null {
   const issues = customGiftFieldIssues(amountAmd, hasRecipient);
   return issues.amount ?? issues.recipient;
+}
+
+/** Empty or too-small drafts become the 30,000 AMD floor. */
+export function floorCustomGiftAmountRaw(raw: string): string {
+  const parsed = parseAmdMoneyInput(raw);
+  if (parsed === null || parsed < CUSTOM_GIFT_CARD_MIN_AMD) {
+    return String(CUSTOM_GIFT_CARD_MIN_AMD);
+  }
+  return String(parsed);
 }
 
 function customGiftAmountIssue(

@@ -5,7 +5,11 @@ import {
   CUSTOM_GIFT_CARD_MAX_AMD,
   CUSTOM_GIFT_CARD_MIN_AMD,
 } from "@/lib/custom-gift-card.constants";
-import { customGiftFieldIssues, customGiftInputError } from "@/lib/custom-gift-checkout";
+import {
+  customGiftFieldIssues,
+  customGiftInputError,
+  floorCustomGiftAmountRaw,
+} from "@/lib/custom-gift-checkout";
 import {
   GIFT_CELEBRATION_MAX_AGE_DAYS,
   selectUnseenGiftCelebration,
@@ -44,6 +48,12 @@ describe("customGiftInputError", () => {
       amount: null,
       recipient: null,
     });
+  });
+
+  it("keeps the gift amount at the 30,000 floor", () => {
+    assert.equal(floorCustomGiftAmountRaw(""), String(CUSTOM_GIFT_CARD_MIN_AMD));
+    assert.equal(floorCustomGiftAmountRaw("15000"), String(CUSTOM_GIFT_CARD_MIN_AMD));
+    assert.equal(floorCustomGiftAmountRaw("70000"), "70000");
   });
 
   it("accepts the minimum and rejects outside the range", () => {

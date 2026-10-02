@@ -27,7 +27,10 @@ export function assertCustomGiftAmount(
   amountAmd: number,
   limits?: { minAmountAmd: number; maxAmountAmd: number },
 ): void {
-  const minAmountAmd = limits?.minAmountAmd ?? CUSTOM_GIFT_CARD_MIN_AMD;
+  const minAmountAmd = Math.max(
+    limits?.minAmountAmd ?? CUSTOM_GIFT_CARD_MIN_AMD,
+    CUSTOM_GIFT_CARD_MIN_AMD,
+  );
   const maxAmountAmd = limits?.maxAmountAmd ?? CUSTOM_GIFT_CARD_MAX_AMD;
   if (!Number.isInteger(amountAmd) || amountAmd < minAmountAmd) {
     throw new BadRequestException(

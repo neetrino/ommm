@@ -38,10 +38,15 @@ export function useGiftAmountPolicy(locale: string): GiftAmountPolicy {
     };
   }, []);
 
-  const minAmd = policy?.minAmountAmd ?? CUSTOM_GIFT_CARD_MIN_AMD;
-  const choices = (policy?.denominationsAmd ?? []).map((amountAmd) => ({
-    amountAmd,
-    label: formatAmdFromCents(amountAmd, locale),
-  }));
+  const minAmd = Math.max(
+    policy?.minAmountAmd ?? CUSTOM_GIFT_CARD_MIN_AMD,
+    CUSTOM_GIFT_CARD_MIN_AMD,
+  );
+  const choices = (policy?.denominationsAmd ?? [])
+    .filter((amountAmd) => amountAmd >= minAmd)
+    .map((amountAmd) => ({
+      amountAmd,
+      label: formatAmdFromCents(amountAmd, locale),
+    }));
   return { minAmd, choices };
 }
