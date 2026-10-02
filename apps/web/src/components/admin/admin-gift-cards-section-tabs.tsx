@@ -113,7 +113,8 @@ function GiftCardTabIcon({ className }: { className: string }) {
     >
       <rect x="3" y="8" width="18" height="13" rx="2" />
       <path d="M12 8v13M3 13h18" />
-      <path d="M12 8c-1.8-2.6-5-2.8-5-.6S10.2 8 12 8c1.8-2.6 5-2.8 5-.6S13.8 8 12 8" />
+      <path d="M12 8H7.5a2.5 2.5 0 0 1 0-5C10 3 12 8 12 8z" />
+      <path d="M12 8h4.5a2.5 2.5 0 0 0 0-5C14 3 12 8 12 8z" />
     </svg>
   );
 }
