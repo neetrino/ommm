@@ -12,7 +12,6 @@ import {
   ADMIN_GIFT_CARDS_LIST_CELL,
   ADMIN_GIFT_CARDS_LIST_ROW_ACTIONS_HOVER_REVEAL,
   ADMIN_GIFT_CARDS_LIST_ROW_CLASS,
-  ADMIN_GIFT_CARDS_LIST_SPACER_CELL,
   ADMIN_GIFT_CARDS_LIST_STATUS_CELL,
 } from "@/components/admin/admin-gift-cards-list-layout";
 import type { AdminGiftCardBatchRow } from "@/components/admin/admin-gift-cards-types";
@@ -56,9 +55,9 @@ export function AdminGiftCardCompactRow({
       }}
       className={ADMIN_GIFT_CARDS_LIST_ROW_CLASS}
     >
-      <div className={ADMIN_GIFT_CARDS_LIST_CELL}>
+      <div className={`${ADMIN_GIFT_CARDS_LIST_CELL} md:text-center`}>
         <AdminListMobileLabel label={t("colImage")} />
-        <div className="h-14 w-20 overflow-hidden rounded-xl border border-white/60 bg-sage-100">
+        <div className="mx-auto h-14 w-20 overflow-hidden rounded-xl border border-white/60 bg-sage-100">
           <GiftCardFace alt={t("cardImageAlt")} className="h-full w-full" />
         </div>
       </div>
@@ -93,23 +92,19 @@ export function AdminGiftCardCompactRow({
       </div>
 
       {readOnly ? null : (
-        <>
-          <div className={ADMIN_GIFT_CARDS_LIST_SPACER_CELL} aria-hidden="true" />
-
-          <div
-            className={`${ADMIN_GIFT_CARDS_LIST_ACTIONS_CELL} ${ADMIN_GIFT_CARDS_LIST_ROW_ACTIONS_HOVER_REVEAL}`}
-            onClick={(event) => event.stopPropagation()}
-            onKeyDown={(event) => event.stopPropagation()}
-          >
-            <AdminListMobileLabel label={t("colActions")} />
-            <AdminGiftCardRowActions
-              card={card}
-              canDelete={canDelete}
-              onEdit={onEdit}
-              onChanged={onChanged}
-            />
-          </div>
-        </>
+        <div
+          className={`${ADMIN_GIFT_CARDS_LIST_ACTIONS_CELL} ${ADMIN_GIFT_CARDS_LIST_ROW_ACTIONS_HOVER_REVEAL}`}
+          onClick={(event) => event.stopPropagation()}
+          onKeyDown={(event) => event.stopPropagation()}
+        >
+          <AdminListMobileLabel label={t("colActions")} />
+          <AdminGiftCardRowActions
+            card={card}
+            canDelete={canDelete}
+            onEdit={onEdit}
+            onChanged={onChanged}
+          />
+        </div>
       )}
     </article>
   );

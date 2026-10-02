@@ -4,7 +4,6 @@ import { useTranslations } from "next-intl";
 import { AdminGiftCardBoardCard } from "@/components/admin/admin-gift-card-board-card";
 import { AdminGiftCardCompactRow } from "@/components/admin/admin-gift-card-compact-row";
 import {
-  ADMIN_GIFT_CARDS_LIST_ACTIONS_HEADER_CELL,
   ADMIN_GIFT_CARDS_LIST_EMPHASIZED_HEADER,
   ADMIN_GIFT_CARDS_LIST_HEADER_CLASS,
   ADMIN_GIFT_CARDS_LIST_TABLE_CLASS,
@@ -45,6 +44,7 @@ function AdminGiftCardsListView({
   readOnly = false,
 }: AdminGiftCardsDirectoryProps) {
   const t = useTranslations("adminPages.giftCards");
+  const headerLabelClass = `${ADMIN_GIFT_CARDS_LIST_EMPHASIZED_HEADER} text-center`;
   const tableClass = readOnly
     ? ADMIN_GIFT_CARDS_LIST_TABLE_READONLY_CLASS
     : ADMIN_GIFT_CARDS_LIST_TABLE_CLASS;
@@ -52,28 +52,13 @@ function AdminGiftCardsListView({
   return (
     <div className={tableClass}>
       <div className={ADMIN_GIFT_CARDS_LIST_HEADER_CLASS}>
-        <span>{t("colImage")}</span>
-        <span className={`${ADMIN_GIFT_CARDS_LIST_EMPHASIZED_HEADER} md:text-center`}>
-          {t("colAmount")}
-        </span>
-        <span className={`${ADMIN_GIFT_CARDS_LIST_EMPHASIZED_HEADER} md:text-center`}>
-          {t("colStatus")}
-        </span>
-        <span className={`${ADMIN_GIFT_CARDS_LIST_EMPHASIZED_HEADER} md:text-center`}>
-          {t("colCreated")}
-        </span>
-        <span className={`${ADMIN_GIFT_CARDS_LIST_EMPHASIZED_HEADER} md:text-center`}>
-          {t("colExpiration")}
-        </span>
-        <span className={`${ADMIN_GIFT_CARDS_LIST_EMPHASIZED_HEADER} md:text-center`}>
-          {t("colAvailableQuantity")}
-        </span>
-        {readOnly ? null : (
-          <>
-            <span aria-hidden="true" />
-            <span className={ADMIN_GIFT_CARDS_LIST_ACTIONS_HEADER_CELL}>{t("colActions")}</span>
-          </>
-        )}
+        <span className={headerLabelClass}>{t("colImage")}</span>
+        <span className={headerLabelClass}>{t("colAmount")}</span>
+        <span className={headerLabelClass}>{t("colStatus")}</span>
+        <span className={headerLabelClass}>{t("colCreated")}</span>
+        <span className={headerLabelClass}>{t("colExpiration")}</span>
+        <span className={headerLabelClass}>{t("colAvailableQuantity")}</span>
+        {readOnly ? null : <span className={headerLabelClass}>{t("colActions")}</span>}
       </div>
       {cards.map((card) => (
         <AdminGiftCardCompactRow
