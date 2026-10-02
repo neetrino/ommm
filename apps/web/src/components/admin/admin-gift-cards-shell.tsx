@@ -13,6 +13,7 @@ import {
   ADMIN_SHEET_PHONE_HIDE_CLOSE_CLASS,
 } from "@/components/admin/admin-details-sheet-layout";
 import { AdminCreateGiftCardForm } from "@/components/admin/admin-create-gift-card-form";
+import { AdminGiftCardsCreateButton } from "@/components/admin/admin-gift-cards-create-button";
 import { AdminGiftCardsFilters } from "@/components/admin/admin-gift-cards-filters";
 import {
   AdminGiftCardsSection,
@@ -172,12 +173,12 @@ function AdminGiftCardsShellInner({
       onReset={filterProps.onReset}
       viewMode={viewMode}
       onViewChange={setViewMode}
-      onCreate={openModal}
       variant={isStaff ? "embedded" : "full"}
-      hideCreate={readOnly || isStaff || section === "bar"}
       hideView={section === "bar"}
     />
   );
+
+  const showCreate = !readOnly && !isStaff && section !== "bar";
 
   const operationalBanner = banner ?? staffBanner ?? null;
 
@@ -206,7 +207,12 @@ function AdminGiftCardsShellInner({
 
       {filters}
 
-      <AdminGiftCardsSection>{children}</AdminGiftCardsSection>
+      <div className="flex flex-col gap-3">
+        {showCreate ? (
+          <AdminGiftCardsCreateButton label={t("createButton")} onClick={openModal} />
+        ) : null}
+        <AdminGiftCardsSection>{children}</AdminGiftCardsSection>
+      </div>
 
       {!readOnly ? (
         <AdminSheetPortal
