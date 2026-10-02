@@ -19,7 +19,7 @@ export function AdminGiftCardsCreateButton({
   onClick: () => void;
 }) {
   return (
-    <div className="flex sm:justify-end">
+    <div className="flex justify-center">
       <button type="button" className={CREATE_BUTTON_CLASS} onClick={onClick}>
         <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/20">
           <PlusGlyph />
