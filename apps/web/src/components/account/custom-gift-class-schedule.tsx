@@ -14,7 +14,6 @@ import { formatAmdFromCents } from "@/lib/price-amd";
 type GiftPlan = CartPlanOption & {
   priceCents?: number;
   finalPriceCents?: number;
-  typeSessionAllocations?: ReadonlyArray<{ classTypeId: string; sessionCount?: number }>;
 };
 
 type GiftSession = {

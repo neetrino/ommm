@@ -2,7 +2,7 @@ export type CartPlanOption = {
   id: string;
   name: string;
   classTypeId?: string | null;
-  typeSessionAllocations?: ReadonlyArray<{ classTypeId: string }>;
+  typeSessionAllocations?: ReadonlyArray<{ classTypeId: string; sessionCount?: number }>;
 };
 
 /** Packages that include the selected class type. Empty selection matches nothing. */

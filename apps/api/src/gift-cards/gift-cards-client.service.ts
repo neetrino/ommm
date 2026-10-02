@@ -277,9 +277,15 @@ export class GiftCardsClientService {
   }
 }
 
-function readMarketClassTypeName(batch: Record<string, unknown>): string | null {
+function readMarketClassTypeName(
+  batch: Record<string, unknown>,
+): string | null {
   const classType = batch.classType;
-  if (typeof classType !== 'object' || classType === null || !('name' in classType)) {
+  if (
+    typeof classType !== 'object' ||
+    classType === null ||
+    !('name' in classType)
+  ) {
     return null;
   }
   const name = classType.name;
