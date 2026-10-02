@@ -30,7 +30,6 @@ export function GiftOptionSelect<T extends string>({
         value={value}
         options={options}
         disabled={disabled}
-        triggerClassName={OPTION_CONTROL_CLASS}
         onChange={onChange}
       />
     </label>
