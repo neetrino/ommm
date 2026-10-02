@@ -23,9 +23,12 @@ export type StudioCartQuote = {
 /** Class credit covers one matching session. Money gift covers the remainder. */
 export function quoteStudioCart(input: StudioCartQuoteInput): StudioCartQuote {
   const covered =
-    input.hasSession && input.sessionCents > 0 && input.classSessionsAvailable >= 1;
+    input.hasSession &&
+    input.sessionCents > 0 &&
+    input.classSessionsAvailable >= 1;
   const sessionChargeCents = covered ? 0 : input.sessionCents;
-  const moneyTotalCents = input.packageCents + sessionChargeCents + input.barCents;
+  const moneyTotalCents =
+    input.packageCents + sessionChargeCents + input.barCents;
   const gift = planDropInGiftCharge({
     priceCents: moneyTotalCents,
     spendableCents: input.spendableGiftCents,

@@ -2,7 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { ManualPaymentMethod, PaymentStatus } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import type { CreateCartCheckoutDto } from './dto/create-cart-checkout.dto';
-import { createPaymentReference, withInternalPaymentCreateFields, withInternalPaymentUpdateFields } from './payments.helpers';
+import {
+  createPaymentReference,
+  withInternalPaymentCreateFields,
+  withInternalPaymentUpdateFields,
+} from './payments.helpers';
 import { loadCartLines } from './payments-cart.load';
 import { fulfillStudioCart } from './payments-cart.fulfill';
 import { CART_CHECKOUT_KIND, quoteStudioCart } from './payments-cart.quote';
@@ -34,7 +38,8 @@ export class PaymentsCartCheckoutService {
       classTypeId: lines.classTypeId ?? undefined,
       barProductId: lines.barProductId ?? undefined,
       classSessionsCovered: quote.classSessionsCovered,
-      giftCreditsAppliedCents: quote.appliedGiftCents > 0 ? quote.appliedGiftCents : undefined,
+      giftCreditsAppliedCents:
+        quote.appliedGiftCents > 0 ? quote.appliedGiftCents : undefined,
     };
     if (quote.chargeCents === 0) {
       return this.settleCovered(userId, metadata);

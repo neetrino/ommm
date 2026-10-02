@@ -2,6 +2,16 @@ import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { GiftCardStatus, GiftCardTransactionKind } from '@prisma/client';
 import { redeemGiftCardForUser } from './gift-card-redeem';
 
+function containing(
+  expected: Record<string, unknown>,
+): Record<string, unknown> {
+  return expect.objectContaining(expected) as Record<string, unknown>;
+}
+
+function anyDate(): Date {
+  return expect.any(Date) as Date;
+}
+
 describe('redeemGiftCardForUser', () => {
   const card = {
     id: 'card-1',
@@ -28,7 +38,11 @@ describe('redeemGiftCardForUser', () => {
 
   it('binds the code once and writes a redeem row', async () => {
     const client = db();
-    const result = await redeemGiftCardForUser(client as never, 'user-1', ' ab12 ');
+    const result = await redeemGiftCardForUser(
+      client as never,
+      'user-1',
+      ' ab12 ',
+    );
     expect(result).toEqual({
       ok: true,
       creditedCents: 40_000,
@@ -37,10 +51,10 @@ describe('redeemGiftCardForUser', () => {
     });
     expect(client.giftCard.updateMany).toHaveBeenCalledWith({
       where: { id: 'card-1', status: GiftCardStatus.ACTIVE, recipientId: null },
-      data: { recipientId: 'user-1', redeemedAt: expect.any(Date) },
+      data: { recipientId: 'user-1', redeemedAt: anyDate() },
     });
     expect(client.giftCardTransaction.create).toHaveBeenCalledWith({
-      data: expect.objectContaining({
+      data: containing({
         kind: GiftCardTransactionKind.REDEEM,
         userId: 'user-1',
         amountAmd: 40_000,
@@ -50,11 +64,13 @@ describe('redeemGiftCardForUser', () => {
 
   it('does not bind a code another account already claimed', async () => {
     const client = db({
-      findUnique: jest.fn().mockResolvedValue({ ...card, recipientId: 'other' }),
+      findUnique: jest
+        .fn()
+        .mockResolvedValue({ ...card, recipientId: 'other' }),
     });
-    await expect(redeemGiftCardForUser(client as never, 'user-1', 'AB12')).rejects.toBeInstanceOf(
-      BadRequestException,
-    );
+    await expect(
+      redeemGiftCardForUser(client as never, 'user-1', 'AB12'),
+    ).rejects.toBeInstanceOf(BadRequestException);
     expect(client.giftCard.updateMany).not.toHaveBeenCalled();
   });
 
@@ -66,15 +82,15 @@ describe('redeemGiftCardForUser', () => {
         .mockResolvedValueOnce(card)
         .mockResolvedValueOnce({ recipientId: 'other' }),
     });
-    await expect(redeemGiftCardForUser(client as never, 'user-1', 'AB12')).rejects.toBeInstanceOf(
-      BadRequestException,
-    );
+    await expect(
+      redeemGiftCardForUser(client as never, 'user-1', 'AB12'),
+    ).rejects.toBeInstanceOf(BadRequestException);
   });
 
   it('rejects an unknown code', async () => {
     const client = db({ findUnique: jest.fn().mockResolvedValue(null) });
-    await expect(redeemGiftCardForUser(client as never, 'user-1', 'NOPE')).rejects.toBeInstanceOf(
-      NotFoundException,
-    );
+    await expect(
+      redeemGiftCardForUser(client as never, 'user-1', 'NOPE'),
+    ).rejects.toBeInstanceOf(NotFoundException);
   });
 });

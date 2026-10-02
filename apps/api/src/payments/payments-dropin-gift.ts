@@ -32,7 +32,10 @@ export async function reservePendingDropInGift(
   label = 'drop-in',
 ): Promise<void> {
   const appliedCents = readGiftCreditsAppliedCents(payment.metadata);
-  if (appliedCents <= 0 || readGiftCreditsAllocations(payment.metadata) !== null) {
+  if (
+    appliedCents <= 0 ||
+    readGiftCreditsAllocations(payment.metadata) !== null
+  ) {
     return;
   }
   const allocations = await reserveGiftCreditsForPackage(tx, {

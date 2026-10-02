@@ -43,8 +43,16 @@ export class PaymentsService {
     return this.checkout.createGiftCheckout(params);
   }
 
-  createDropInCheckout(userId: string, sessionId: string, useGiftCredits = false) {
-    return this.checkout.createDropInCheckout(userId, sessionId, useGiftCredits);
+  createDropInCheckout(
+    userId: string,
+    sessionId: string,
+    useGiftCredits = false,
+  ) {
+    return this.checkout.createDropInCheckout(
+      userId,
+      sessionId,
+      useGiftCredits,
+    );
   }
 
   createCartCheckout(userId: string, dto: CreateCartCheckoutDto) {

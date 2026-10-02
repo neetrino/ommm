@@ -1,5 +1,22 @@
-import { GiftCardStatus, GiftCardTransactionKind, GiftCardType } from '@prisma/client';
-import { reserveGiftClassSessions, restoreGiftClassSpend } from './gift-card-class-credit';
+import {
+  GiftCardStatus,
+  GiftCardTransactionKind,
+  GiftCardType,
+} from '@prisma/client';
+import {
+  reserveGiftClassSessions,
+  restoreGiftClassSpend,
+} from './gift-card-class-credit';
+
+function containing(
+  expected: Record<string, unknown>,
+): Record<string, unknown> {
+  return expect.objectContaining(expected) as Record<string, unknown>;
+}
+
+function containingItems(expected: readonly unknown[]): unknown[] {
+  return expect.arrayContaining(expected) as unknown[];
+}
 
 describe('reserveGiftClassSessions', () => {
   it('spends only the matching class and keeps the remainder', async () => {
@@ -27,13 +44,20 @@ describe('reserveGiftClassSessions', () => {
       sessions: 1,
     });
 
-    expect(takes).toEqual([{ cardId: 'reformer', classes: 1, transactionId: 'tx-class' }]);
+    expect(takes).toEqual([
+      { cardId: 'reformer', classes: 1, transactionId: 'tx-class' },
+    ]);
     expect(db.giftCard.findMany).toHaveBeenCalledWith(
-      expect.objectContaining({
-        where: expect.objectContaining({
+      containing({
+        where: containing({
           type: GiftCardType.FIXED_CLASS,
-          AND: expect.arrayContaining([
-            { OR: [{ classTypeId: 'reformer-group' }, { allowOtherClasses: true }] },
+          AND: containingItems([
+            {
+              OR: [
+                { classTypeId: 'reformer-group' },
+                { allowOtherClasses: true },
+              ],
+            },
           ]),
         }),
       }),
@@ -51,7 +75,10 @@ describe('reserveGiftClassSessions', () => {
 
   it('does not query a different class type', async () => {
     const db = {
-      giftCard: { findMany: jest.fn().mockResolvedValue([]), updateMany: jest.fn() },
+      giftCard: {
+        findMany: jest.fn().mockResolvedValue([]),
+        updateMany: jest.fn(),
+      },
       giftCardTransaction: { create: jest.fn() },
     };
     await reserveGiftClassSessions(db as never, {
@@ -61,9 +88,9 @@ describe('reserveGiftClassSessions', () => {
     });
     expect(db.giftCard.updateMany).not.toHaveBeenCalled();
     expect(db.giftCard.findMany).toHaveBeenCalledWith(
-      expect.objectContaining({
-        where: expect.objectContaining({
-          AND: expect.arrayContaining([
+      containing({
+        where: containing({
+          AND: containingItems([
             { OR: [{ classTypeId: 'mat' }, { allowOtherClasses: true }] },
           ]),
         }),
@@ -76,12 +103,16 @@ describe('restoreGiftClassSpend', () => {
   it('returns the spent sessions once and writes a refund', async () => {
     const db = {
       giftCard: {
-        update: jest.fn().mockResolvedValue({ balanceClasses: 2, balanceAmd: 0 }),
+        update: jest
+          .fn()
+          .mockResolvedValue({ balanceClasses: 2, balanceAmd: 0 }),
       },
       giftCardTransaction: {
-        findMany: jest.fn().mockResolvedValue([
-          { giftCardId: 'reformer', classes: 1, userId: 'u1' },
-        ]),
+        findMany: jest
+          .fn()
+          .mockResolvedValue([
+            { giftCardId: 'reformer', classes: 1, userId: 'u1' },
+          ]),
         findFirst: jest.fn().mockResolvedValue(null),
         create: jest.fn().mockResolvedValue({ id: 'refund-1' }),
       },
@@ -99,8 +130,8 @@ describe('restoreGiftClassSpend', () => {
       }),
     );
     expect(db.giftCardTransaction.create).toHaveBeenCalledWith(
-      expect.objectContaining({
-        data: expect.objectContaining({
+      containing({
+        data: containing({
           kind: GiftCardTransactionKind.REFUND,
           classes: 1,
           orderId: 'booking-1',

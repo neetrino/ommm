@@ -79,20 +79,31 @@ export function parsePaymentMetadata(
 
 function readGiftType(value: object): PaymentMetadata['giftType'] {
   const candidate = (value as Record<string, unknown>).giftType;
-  return candidate === 'FIXED_CLASS' || candidate === 'FIXED_VALUE' ? candidate : undefined;
+  return candidate === 'FIXED_CLASS' || candidate === 'FIXED_VALUE'
+    ? candidate
+    : undefined;
 }
 
 function readDelivery(value: object): PaymentMetadata['delivery'] {
   const candidate = (value as Record<string, unknown>).delivery;
-  if (candidate === 'EMAIL' || candidate === 'WHATSAPP' || candidate === 'PRINT') {
+  if (
+    candidate === 'EMAIL' ||
+    candidate === 'WHATSAPP' ||
+    candidate === 'PRINT'
+  ) {
     return candidate;
   }
   return undefined;
 }
 
-function readPositiveInt(value: object, key: keyof PaymentMetadata): number | undefined {
+function readPositiveInt(
+  value: object,
+  key: keyof PaymentMetadata,
+): number | undefined {
   const candidate = (value as Record<string, unknown>)[key];
-  return typeof candidate === 'number' && Number.isInteger(candidate) && candidate > 0
+  return typeof candidate === 'number' &&
+    Number.isInteger(candidate) &&
+    candidate > 0
     ? candidate
     : undefined;
 }

@@ -86,7 +86,11 @@ export class PaymentsController {
     @Param('sessionId') sessionId: string,
     @Query('useGiftCredits') useGiftCredits?: string,
   ) {
-    return this.payments.createDropInCheckout(user.id, sessionId, useGiftCredits === 'true');
+    return this.payments.createDropInCheckout(
+      user.id,
+      sessionId,
+      useGiftCredits === 'true',
+    );
   }
 
   @Post('checkout/dropin/:reference/confirm')

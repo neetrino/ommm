@@ -1,5 +1,10 @@
 import { BadRequestException } from '@nestjs/common';
-import { GiftCardStatus, GiftCardTransactionKind, GiftCardType, Prisma } from '@prisma/client';
+import {
+  GiftCardStatus,
+  GiftCardTransactionKind,
+  GiftCardType,
+  Prisma,
+} from '@prisma/client';
 import {
   claimPreissuedGiftCard,
   generateGiftCardCode,
@@ -86,7 +91,13 @@ export async function issuePurchasedGiftCard(
       message,
     });
     if (claimed) {
-      return { code: claimed.code, recipientEmail, recipientName, amountAmd, message };
+      return {
+        code: claimed.code,
+        recipientEmail,
+        recipientName,
+        amountAmd,
+        message,
+      };
     }
   }
   const code = generateGiftCardCode();
@@ -95,7 +106,10 @@ export async function issuePurchasedGiftCard(
     data: {
       batchId: selectedBatch?.id,
       code,
-      type: classGift === null ? GiftCardType.FIXED_VALUE : GiftCardType.FIXED_CLASS,
+      type:
+        classGift === null
+          ? GiftCardType.FIXED_VALUE
+          : GiftCardType.FIXED_CLASS,
       amountAmd: classGift === null ? amountAmd : 0,
       balanceAmd: classGift === null ? amountAmd : 0,
       classTypeId: classGift?.classTypeId,
@@ -131,9 +145,14 @@ function readClassGift(
     return null;
   }
   if (!metadata.classTypeId || !metadata.classQuantity) {
-    throw new BadRequestException('Class gift cards need a class type and quantity');
+    throw new BadRequestException(
+      'Class gift cards need a class type and quantity',
+    );
   }
-  return { classTypeId: metadata.classTypeId, classQuantity: metadata.classQuantity };
+  return {
+    classTypeId: metadata.classTypeId,
+    classQuantity: metadata.classQuantity,
+  };
 }
 
 export async function readGiftSenderName(

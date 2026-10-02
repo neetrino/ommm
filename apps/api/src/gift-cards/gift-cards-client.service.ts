@@ -208,7 +208,10 @@ export class GiftCardsClientService {
       }
       return result;
     } catch (error) {
-      if (error instanceof NotFoundException || error instanceof BadRequestException) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof BadRequestException
+      ) {
         await this.auditRedeemLock(userId);
       }
       throw error;
@@ -225,9 +228,10 @@ export class GiftCardsClientService {
     if (card === null) {
       throw new NotFoundException('Gift card not found');
     }
-    const amountLabel = card.type === 'FIXED_CLASS'
-      ? `${card.classQuantity} classes`
-      : `${card.amountAmd} AMD`;
+    const amountLabel =
+      card.type === 'FIXED_CLASS'
+        ? `${card.classQuantity} classes`
+        : `${card.amountAmd} AMD`;
     return buildGiftCardPdf({
       code: card.code,
       amountLabel,

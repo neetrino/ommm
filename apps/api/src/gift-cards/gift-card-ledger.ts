@@ -4,7 +4,10 @@ import {
   type Prisma,
 } from '@prisma/client';
 import { readGiftCardBalance } from './gift-cards.mapper';
-import { GIFT_CARD_DEBIT_ATTEMPTS, GIFT_CARD_EXPIRE_BATCH } from './gift-card-policy';
+import {
+  GIFT_CARD_DEBIT_ATTEMPTS,
+  GIFT_CARD_EXPIRE_BATCH,
+} from './gift-card-policy';
 
 export type GiftLedgerDb = Pick<
   Prisma.TransactionClient,

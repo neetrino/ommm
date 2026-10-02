@@ -53,7 +53,10 @@ export function compareGiftCardsForSpend(
 }
 
 export function resolveGiftCardPolicy(row: GiftCardPolicyRow): GiftCardPolicy {
-  const minAmountAmd = positiveInt(row?.giftCardMinAmountAmd, GIFT_CARD_MIN_AMOUNT_AMD);
+  const minAmountAmd = positiveInt(
+    row?.giftCardMinAmountAmd,
+    GIFT_CARD_MIN_AMOUNT_AMD,
+  );
   const validityMonths = clampInt(
     row?.giftCardValidityMonths,
     GIFT_CARD_DEFAULT_VALIDITY_MONTHS,
@@ -63,12 +66,18 @@ export function resolveGiftCardPolicy(row: GiftCardPolicyRow): GiftCardPolicy {
   return {
     minAmountAmd,
     maxAmountAmd: GIFT_CARD_MAX_AMOUNT_AMD,
-    denominationsAmd: parseDenominations(row?.giftCardDenominationsJson, minAmountAmd),
+    denominationsAmd: parseDenominations(
+      row?.giftCardDenominationsJson,
+      minAmountAmd,
+    ),
     validityMonths,
   };
 }
 
-function parseDenominations(raw: string | undefined, minAmountAmd: number): number[] {
+function parseDenominations(
+  raw: string | undefined,
+  minAmountAmd: number,
+): number[] {
   if (raw === undefined) {
     return [...GIFT_CARD_DENOMINATIONS_AMD];
   }

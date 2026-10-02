@@ -40,7 +40,11 @@ export async function loadCartLines(
     packageCents: plan,
     sessionCents: session?.priceCents ?? 0,
     barCents: bar,
-    classSessionsAvailable: await readClassSessions(prisma, userId, session?.classTypeId),
+    classSessionsAvailable: await readClassSessions(
+      prisma,
+      userId,
+      session?.classTypeId,
+    ),
     spendableGiftCents: dto.useGiftCredits
       ? await peekSpendableGiftCreditsCents(prisma, userId)
       : 0,
@@ -52,7 +56,10 @@ function cleanId(value: string | undefined): string | null {
   return trimmed.length > 0 ? trimmed : null;
 }
 
-async function readPlan(prisma: PrismaService, planId: string | null): Promise<number> {
+async function readPlan(
+  prisma: PrismaService,
+  planId: string | null,
+): Promise<number> {
   if (planId === null) {
     return 0;
   }
@@ -67,21 +74,31 @@ async function readSession(prisma: PrismaService, sessionId: string | null) {
   if (sessionId === null) {
     return null;
   }
-  const session = await prisma.classSession.findUnique({ where: { id: sessionId } });
+  const session = await prisma.classSession.findUnique({
+    where: { id: sessionId },
+  });
   if (session === null || session.status === ClassSessionStatus.CANCELLED) {
     throw new NotFoundException('Session is not available');
   }
-  if (session.startsAt < new Date() || session.status === ClassSessionStatus.FULL) {
+  if (
+    session.startsAt < new Date() ||
+    session.status === ClassSessionStatus.FULL
+  ) {
     throw new BadRequestException('Session is not available');
   }
   return session;
 }
 
-async function readBar(prisma: PrismaService, barProductId: string | null): Promise<number> {
+async function readBar(
+  prisma: PrismaService,
+  barProductId: string | null,
+): Promise<number> {
   if (barProductId === null) {
     return 0;
   }
-  const product = await prisma.barProduct.findUnique({ where: { id: barProductId } });
+  const product = await prisma.barProduct.findUnique({
+    where: { id: barProductId },
+  });
   if (product === null || !product.active) {
     throw new NotFoundException('Bar item not found');
   }

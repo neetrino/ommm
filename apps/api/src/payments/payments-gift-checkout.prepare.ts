@@ -1,9 +1,7 @@
 import { BadRequestException } from '@nestjs/common';
 import { ClassSessionStatus, GiftCardType } from '@prisma/client';
 import type { PrismaService } from '../prisma/prisma.service';
-import {
-  assertCustomGiftAmount,
-} from './payments-checkout.helpers';
+import { assertCustomGiftAmount } from './payments-checkout.helpers';
 import { resolveGiftCardPolicy } from '../gift-cards/gift-card-policy';
 import type { PaymentMetadata } from './payments.types';
 
@@ -26,13 +24,18 @@ export type GiftCheckoutRequest = {
   deliverAt?: string;
 };
 
-type GiftCheckoutDb = Pick<PrismaService, 'user' | 'studioSettings' | 'classType' | 'classSession'>;
+type GiftCheckoutDb = Pick<
+  PrismaService,
+  'user' | 'studioSettings' | 'classType' | 'classSession'
+>;
 
 /** Recipient may be a member, a name/email, or nobody. The buyer still receives the code. */
 export async function resolveGiftCheckoutRecipient(
   db: Pick<PrismaService, 'user'>,
   params: GiftCheckoutRequest,
-): Promise<Pick<PaymentMetadata, 'recipientId' | 'recipientName' | 'recipientEmail'>> {
+): Promise<
+  Pick<PaymentMetadata, 'recipientId' | 'recipientName' | 'recipientEmail'>
+> {
   const recipientId = params.recipientId?.trim() ?? '';
   if (recipientId.length === 0) {
     return {
@@ -57,40 +60,63 @@ export async function resolveGiftCheckoutRecipient(
   return {
     recipientId: recipient.id,
     recipientEmail: recipient.email,
-    recipientName: displayName.length > 0 ? displayName : blankToUndefined(params.recipientName),
+    recipientName:
+      displayName.length > 0
+        ? displayName
+        : blankToUndefined(params.recipientName),
   };
 }
 
 export async function prepareGiftCheckout(
   db: GiftCheckoutDb,
   params: GiftCheckoutRequest,
-): Promise<{ amountCents: number; metadata: PaymentMetadata; description: string }> {
+): Promise<{
+  amountCents: number;
+  metadata: PaymentMetadata;
+  description: string;
+}> {
   const recipient = await resolveGiftCheckoutRecipient(db, params);
-  const giftType = params.giftType === GiftCardType.FIXED_CLASS ? GiftCardType.FIXED_CLASS : GiftCardType.FIXED_VALUE;
-  const classShape = giftType === GiftCardType.FIXED_CLASS
-    ? await resolveClassGiftCharge(db, params)
-    : null;
+  const giftType =
+    params.giftType === GiftCardType.FIXED_CLASS
+      ? GiftCardType.FIXED_CLASS
+      : GiftCardType.FIXED_VALUE;
+  const classShape =
+    giftType === GiftCardType.FIXED_CLASS
+      ? await resolveClassGiftCharge(db, params)
+      : null;
   if (classShape === null && params.batchId === undefined) {
     await assertStudioGiftAmount(db, params.amountCents);
   }
   const amountCents = classShape?.amountCents ?? params.amountCents;
   return {
     amountCents,
-    description: classShape === null ? giftValueDescription(params.batchId) : 'Class gift card',
+    description:
+      classShape === null
+        ? giftValueDescription(params.batchId)
+        : 'Class gift card',
     metadata: {
       ...recipient,
-      ...(blankToUndefined(params.message) ? { message: params.message?.trim() } : {}),
+      ...(blankToUndefined(params.message)
+        ? { message: params.message?.trim() }
+        : {}),
       giftType,
       delivery: normalizeDelivery(params.delivery),
       ...(classShape
-        ? { classTypeId: classShape.classTypeId, classQuantity: classShape.classQuantity }
+        ? {
+            classTypeId: classShape.classTypeId,
+            classQuantity: classShape.classQuantity,
+          }
         : {}),
-      ...(blankToUndefined(params.deliverAt) ? { deliverAt: params.deliverAt?.trim() } : {}),
+      ...(blankToUndefined(params.deliverAt)
+        ? { deliverAt: params.deliverAt?.trim() }
+        : {}),
     },
   };
 }
 
-export function normalizeDelivery(value: string | undefined): GiftDeliveryChoice {
+export function normalizeDelivery(
+  value: string | undefined,
+): GiftDeliveryChoice {
   if (value === 'WHATSAPP' || value === 'PRINT') {
     return value;
   }
@@ -100,14 +126,28 @@ export function normalizeDelivery(value: string | undefined): GiftDeliveryChoice
 async function resolveClassGiftCharge(
   db: GiftCheckoutDb,
   params: GiftCheckoutRequest,
-): Promise<{ amountCents: number; classTypeId: string; classQuantity: number }> {
+): Promise<{
+  amountCents: number;
+  classTypeId: string;
+  classQuantity: number;
+}> {
   const classTypeId = params.classTypeId?.trim() ?? '';
   const classQuantity = params.classQuantity ?? 0;
-  if (classTypeId.length === 0 || classQuantity < 1 || classQuantity > CLASS_GIFT_MAX_QUANTITY) {
-    throw new BadRequestException('Class gift cards need a class type and quantity');
+  if (
+    classTypeId.length === 0 ||
+    classQuantity < 1 ||
+    classQuantity > CLASS_GIFT_MAX_QUANTITY
+  ) {
+    throw new BadRequestException(
+      'Class gift cards need a class type and quantity',
+    );
   }
   const unitPriceAmd = await quoteClassUnitPriceAmd(db, classTypeId);
-  return { amountCents: unitPriceAmd * classQuantity, classTypeId, classQuantity };
+  return {
+    amountCents: unitPriceAmd * classQuantity,
+    classTypeId,
+    classQuantity,
+  };
 }
 
 /** Latest priced session for this class. Shop price and admin conversion use the same rate. */
@@ -137,7 +177,10 @@ export async function quoteClassUnitPriceAmd(
   return session.priceCents;
 }
 
-async function assertStudioGiftAmount(db: Pick<PrismaService, 'studioSettings'>, amountCents: number): Promise<void> {
+async function assertStudioGiftAmount(
+  db: Pick<PrismaService, 'studioSettings'>,
+  amountCents: number,
+): Promise<void> {
   const row = await db.studioSettings.findFirst({
     select: {
       giftCardMinAmountAmd: true,
@@ -149,7 +192,9 @@ async function assertStudioGiftAmount(db: Pick<PrismaService, 'studioSettings'>,
 }
 
 function giftValueDescription(batchId: string | undefined): string {
-  return batchId === undefined ? 'Custom gift card' : 'Gift card purchase (gift)';
+  return batchId === undefined
+    ? 'Custom gift card'
+    : 'Gift card purchase (gift)';
 }
 
 function blankToUndefined(value: string | undefined): string | undefined {

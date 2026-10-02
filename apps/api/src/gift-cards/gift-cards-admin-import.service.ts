@@ -35,7 +35,10 @@ export class GiftCardsAdminImportService {
     private readonly batchWrite: GiftCardsAdminBatchWriteService,
   ) {}
 
-  async importWorkbook(adminId: string, file: UploadFile | undefined): Promise<GiftImportResult> {
+  async importWorkbook(
+    adminId: string,
+    file: UploadFile | undefined,
+  ): Promise<GiftImportResult> {
     const buffer = assertXlsxUpload(file);
     const matrix = await this.readMatrix(buffer);
     const parsed = parseGiftImportMatrix(matrix);
@@ -98,7 +101,8 @@ export class GiftCardsAdminImportService {
     try {
       return await readGiftImportMatrix(buffer);
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'unreadable workbook';
+      const message =
+        error instanceof Error ? error.message : 'unreadable workbook';
       this.logger.warn(`Gift import workbook could not be read: ${message}`);
       throw new BadRequestException('gift_import_unreadable');
     }
@@ -158,7 +162,9 @@ function matchClassType(
   classTypes: readonly ClassTypeName[],
 ): ClassTypeName | 'missing' | 'ambiguous' {
   const needle = name.trim().toLowerCase();
-  const matches = classTypes.filter((row) => row.name.trim().toLowerCase() === needle);
+  const matches = classTypes.filter(
+    (row) => row.name.trim().toLowerCase() === needle,
+  );
   if (matches.length === 1) {
     return matches[0] ?? 'missing';
   }

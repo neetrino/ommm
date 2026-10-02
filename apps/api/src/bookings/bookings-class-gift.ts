@@ -9,7 +9,9 @@ import {
   shouldValidatePackageForBooking,
 } from './resolve-booking-session-credits';
 
-type CreditSession = Parameters<typeof resolveBookingSessionCredits>[0]['session'];
+type CreditSession = Parameters<
+  typeof resolveBookingSessionCredits
+>[0]['session'];
 
 export type BookingCreditSplit = {
   packageSessions: number;

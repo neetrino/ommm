@@ -109,7 +109,9 @@ export class StudioService {
 
   async updateGiftPolicy(dto: UpdateGiftPolicyDto) {
     const current = await this.loadPublicFromDb();
-    const denominations = [...new Set(dto.denominationsAmd)].sort((left, right) => left - right);
+    const denominations = [...new Set(dto.denominationsAmd)].sort(
+      (left, right) => left - right,
+    );
     const updated = await this.prisma.studioSettings.update({
       where: { id: current.id },
       data: {

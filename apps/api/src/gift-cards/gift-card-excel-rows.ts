@@ -11,6 +11,7 @@ import {
 
 const EMAIL_MAX_LENGTH = 320;
 const MS_PER_MINUTE = 60_000;
+const INVALID_EXPIRES = Symbol('invalid-expires');
 
 const HEADER_KEYS: Record<string, GiftImportColumnKey> = {
   kind: 'kind',
@@ -152,7 +153,10 @@ function parseDataRow(
     : readClassRow(rowNumber, line, columns, quantityIssue, shared);
 }
 
-function readQuantity(rowNumber: number, value: GiftImportCell): number | GiftImportIssue {
+function readQuantity(
+  rowNumber: number,
+  value: GiftImportCell,
+): number | GiftImportIssue {
   if (cellText(value).length === 0) {
     return 1;
   }
@@ -171,7 +175,15 @@ function readMoneyRow(
   if (amountAmd === null) {
     return { rowNumber, code: 'invalid_amount' };
   }
-  return { rowNumber, kind: 'money', amountAmd, className: null, sessions: null, quantity, ...shared };
+  return {
+    rowNumber,
+    kind: 'money',
+    amountAmd,
+    className: null,
+    sessions: null,
+    quantity,
+    ...shared,
+  };
 }
 
 function readClassRow(
@@ -189,7 +201,15 @@ function readClassRow(
   if (sessions === null) {
     return { rowNumber, code: 'invalid_sessions' };
   }
-  return { rowNumber, kind: 'class', amountAmd: null, className, sessions, quantity, ...shared };
+  return {
+    rowNumber,
+    kind: 'class',
+    amountAmd: null,
+    className,
+    sessions,
+    quantity,
+    ...shared,
+  };
 }
 
 function readSharedFields(
@@ -206,7 +226,7 @@ function readSharedFields(
     return { rowNumber, code: 'invalid_message' };
   }
   const expiresAt = readExpiresAt(cellAt(line, columns.expiresAt));
-  if (expiresAt === 'invalid') {
+  if (expiresAt === INVALID_EXPIRES) {
     return { rowNumber, code: 'invalid_expires' };
   }
   return {
@@ -224,17 +244,24 @@ function readKind(value: GiftImportCell): GiftImportKind | null {
   return CLASS_KINDS.has(token) ? 'class' : null;
 }
 
-function readExpiresAt(value: GiftImportCell): string | null | 'invalid' {
+function readExpiresAt(
+  value: GiftImportCell,
+): string | null | typeof INVALID_EXPIRES {
   if (value instanceof Date) {
-    return Number.isNaN(value.getTime()) ? 'invalid' : formatCalendarDate(value);
+    return Number.isNaN(value.getTime())
+      ? INVALID_EXPIRES
+      : formatCalendarDate(value);
   }
   const text = cellText(value);
   if (text.length === 0) {
     return null;
   }
   const iso = text.slice(0, 10);
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(iso) || Number.isNaN(new Date(`${iso}T12:00:00.000Z`).getTime())) {
-    return 'invalid';
+  if (
+    !/^\d{4}-\d{2}-\d{2}$/.test(iso) ||
+    Number.isNaN(new Date(`${iso}T12:00:00.000Z`).getTime())
+  ) {
+    return INVALID_EXPIRES;
   }
   return iso;
 }
@@ -251,7 +278,10 @@ function parsePositiveInt(value: GiftImportCell): number | null {
   return parsed >= 1 ? parsed : null;
 }
 
-function cellAt(line: readonly GiftImportCell[], index: number | undefined): GiftImportCell {
+function cellAt(
+  line: readonly GiftImportCell[],
+  index: number | undefined,
+): GiftImportCell {
   return index === undefined ? null : (line[index] ?? null);
 }
 
@@ -271,7 +301,9 @@ function normalizeToken(value: string): string {
 }
 
 function formatCalendarDate(value: Date): string {
-  const shifted = new Date(value.getTime() - value.getTimezoneOffset() * MS_PER_MINUTE);
+  const shifted = new Date(
+    value.getTime() - value.getTimezoneOffset() * MS_PER_MINUTE,
+  );
   return shifted.toISOString().slice(0, 10);
 }
 
@@ -280,5 +312,7 @@ function emptyToNull(value: string): string | null {
 }
 
 function isEmail(value: string): boolean {
-  return value.length <= EMAIL_MAX_LENGTH && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+  return (
+    value.length <= EMAIL_MAX_LENGTH && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
+  );
 }

@@ -191,7 +191,8 @@ function ledgerDescription(row: {
   balanceAmdAfter: number;
   balanceClassesAfter: number;
 }): string {
-  const moved = row.classes > 0 ? `${row.classes} classes` : `${row.amountAmd} AMD`;
+  const moved =
+    row.classes > 0 ? `${row.classes} classes` : `${row.amountAmd} AMD`;
   return `${row.kind}: ${moved}; balance ${row.balanceAmdAfter} AMD / ${row.balanceClassesAfter} classes`;
 }
 
@@ -205,7 +206,11 @@ function legacyGiftCardEvents(card: {
   recipient: { name: string | null; email: string | null } | null;
 }): Array<{ type: string; at: string; description: string }> {
   const events = [
-    { type: 'CREATED', at: card.createdAt.toISOString(), description: 'Gift card created' },
+    {
+      type: 'CREATED',
+      at: card.createdAt.toISOString(),
+      description: 'Gift card created',
+    },
   ];
   if (card.recipientId || card.recipientEmail) {
     const label =

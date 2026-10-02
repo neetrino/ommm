@@ -1,5 +1,9 @@
 import { BadRequestException } from '@nestjs/common';
-import { GiftCardStatus, GiftCardTransactionKind, GiftCardType } from '@prisma/client';
+import {
+  GiftCardStatus,
+  GiftCardTransactionKind,
+  GiftCardType,
+} from '@prisma/client';
 import { randomBytes } from 'node:crypto';
 import type { Prisma } from '@prisma/client';
 import { defaultGiftCardExpiresAt } from './gift-card-policy';
@@ -37,7 +41,9 @@ export function resolveAdminGiftShape(input: {
 } {
   if (input.type === GiftCardType.FIXED_CLASS) {
     if (!input.classTypeId || !input.classQuantity || input.classQuantity < 1) {
-      throw new BadRequestException('Class gift cards need a class type and quantity');
+      throw new BadRequestException(
+        'Class gift cards need a class type and quantity',
+      );
     }
     return {
       type: GiftCardType.FIXED_CLASS,
@@ -63,12 +69,16 @@ export function generateGiftCardCode(): string {
   return randomBytes(GIFT_CODE_BYTES).toString('hex').toUpperCase();
 }
 
-export function parseGiftExpiresAt(value: string | undefined): Date | undefined {
+export function parseGiftExpiresAt(
+  value: string | undefined,
+): Date | undefined {
   const trimmed = value?.trim() ?? '';
   if (trimmed.length === 0) {
     return undefined;
   }
-  const parsed = new Date(trimmed.includes('T') ? trimmed : `${trimmed}T12:00:00.000Z`);
+  const parsed = new Date(
+    trimmed.includes('T') ? trimmed : `${trimmed}T12:00:00.000Z`,
+  );
   if (Number.isNaN(parsed.getTime())) {
     throw new BadRequestException('Invalid expiresAt date');
   }

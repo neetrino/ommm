@@ -1,5 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import type { AdminAdjustGiftCardDto, AdminExtendGiftCardDto } from './dto/admin-adjust-gift-card.dto';
+import type {
+  AdminAdjustGiftCardDto,
+  AdminExtendGiftCardDto,
+} from './dto/admin-adjust-gift-card.dto';
 import type { AdminCreateGiftCardDto } from './dto/admin-create-gift-card.dto';
 import type { AdminUpdateGiftCardBatchDto } from './dto/admin-update-gift-card-batch.dto';
 import type { ListAdminGiftCardBatchesQueryDto } from './dto/list-admin-gift-card-batches-query.dto';
@@ -151,7 +154,9 @@ export class GiftCardsService {
 
   importGiftExcel(
     adminId: string,
-    file: { originalname: string; mimetype: string; size: number; buffer: Buffer } | undefined,
+    file:
+      | { originalname: string; mimetype: string; size: number; buffer: Buffer }
+      | undefined,
   ) {
     return this.adminImport.importWorkbook(adminId, file);
   }

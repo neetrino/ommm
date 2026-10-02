@@ -1,8 +1,19 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
-import { GiftCardStatus, GiftCardTransactionKind, GiftCardType } from '@prisma/client';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import {
+  GiftCardStatus,
+  GiftCardTransactionKind,
+  GiftCardType,
+} from '@prisma/client';
 import { AuditService } from '../audit/audit.service';
 import { PrismaService } from '../prisma/prisma.service';
-import { convertGiftBalances, type GiftConvertDirection } from './gift-card-convert';
+import {
+  convertGiftBalances,
+  type GiftConvertDirection,
+} from './gift-card-convert';
 import { buildIssuedCardsWorkbook } from './gift-card-excel-file';
 import { quoteClassUnitPriceAmd } from '../payments/payments-gift-checkout.prepare';
 import { readGiftCardBalance } from './gift-cards.mapper';
@@ -53,7 +64,11 @@ export class GiftCardsAdminCardOpsService {
         data: {
           balanceAmd,
           balanceClasses,
-          status: this.statusAfterAdjust(card.status, balanceAmd, balanceClasses),
+          status: this.statusAfterAdjust(
+            card.status,
+            balanceAmd,
+            balanceClasses,
+          ),
         },
       });
       await tx.giftCardTransaction.create({
@@ -101,7 +116,10 @@ export class GiftCardsAdminCardOpsService {
       where: { id },
       data: {
         classTypeId: typeId,
-        type: direction === 'TO_MONEY' ? GiftCardType.FIXED_VALUE : GiftCardType.FIXED_CLASS,
+        type:
+          direction === 'TO_MONEY'
+            ? GiftCardType.FIXED_VALUE
+            : GiftCardType.FIXED_CLASS,
       },
     });
     return this.adjustBalance(id, next, actorId);
@@ -139,7 +157,10 @@ export class GiftCardsAdminCardOpsService {
     return card;
   }
 
-  private hasBalance(card: { balanceAmd: number; balanceClasses: number }): boolean {
+  private hasBalance(card: {
+    balanceAmd: number;
+    balanceClasses: number;
+  }): boolean {
     return readGiftCardBalance(card) > 0 || card.balanceClasses > 0;
   }
 
@@ -148,7 +169,10 @@ export class GiftCardsAdminCardOpsService {
     balanceAmd: number,
     balanceClasses: number,
   ): GiftCardStatus {
-    if (status === GiftCardStatus.DEACTIVATED || status === GiftCardStatus.EXPIRED) {
+    if (
+      status === GiftCardStatus.DEACTIVATED ||
+      status === GiftCardStatus.EXPIRED
+    ) {
       return status;
     }
     return balanceAmd === 0 && balanceClasses === 0
@@ -162,7 +186,9 @@ export class GiftCardsAdminCardOpsService {
       throw new NotFoundException('Gift card not found');
     }
     if (card.type !== GiftCardType.FIXED_CLASS) {
-      throw new BadRequestException('Only a class gift card can be used on other classes');
+      throw new BadRequestException(
+        'Only a class gift card can be used on other classes',
+      );
     }
     return this.prisma.giftCard.update({
       where: { id },

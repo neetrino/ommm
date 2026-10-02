@@ -31,8 +31,18 @@ describe('package-gift-credits.util', () => {
     const db = {
       giftCard: {
         findMany: jest.fn().mockResolvedValue([
-          { id: 'soon', code: 'SOON', balanceAmd: 3_000, expiresAt: new Date('2026-12-01') },
-          { id: 'later', code: 'LATER', balanceAmd: 5_000, expiresAt: new Date('2027-06-01') },
+          {
+            id: 'soon',
+            code: 'SOON',
+            balanceAmd: 3_000,
+            expiresAt: new Date('2026-12-01'),
+          },
+          {
+            id: 'later',
+            code: 'LATER',
+            balanceAmd: 5_000,
+            expiresAt: new Date('2027-06-01'),
+          },
         ]),
         updateMany: jest
           .fn()
@@ -82,19 +92,38 @@ describe('package-gift-credits.util', () => {
     const db = {
       giftCard: {
         findMany: jest.fn().mockResolvedValue([
-          { id: 'open', code: 'OPEN', balanceAmd: 5_000, expiresAt: null, createdAt: new Date('2020-01-01') },
-          { id: 'soon', code: 'SOON', balanceAmd: 1_000, expiresAt: new Date('2026-12-01'), createdAt: new Date('2026-01-01') },
+          {
+            id: 'open',
+            code: 'OPEN',
+            balanceAmd: 5_000,
+            expiresAt: null,
+            createdAt: new Date('2020-01-01'),
+          },
+          {
+            id: 'soon',
+            code: 'SOON',
+            balanceAmd: 1_000,
+            expiresAt: new Date('2026-12-01'),
+            createdAt: new Date('2026-01-01'),
+          },
         ]),
-        updateMany: jest.fn().mockImplementation((args: { where: { id: string } }) => {
-          order.push(args.where.id);
-          return Promise.resolve({ count: 1 });
-        }),
+        updateMany: jest
+          .fn()
+          .mockImplementation((args: { where: { id: string } }) => {
+            order.push(args.where.id);
+            return Promise.resolve({ count: 1 });
+          }),
       },
-      giftCardTransaction: { create: jest.fn().mockResolvedValue({ id: 'tx' }) },
+      giftCardTransaction: {
+        create: jest.fn().mockResolvedValue({ id: 'tx' }),
+      },
       user: { updateMany: jest.fn() },
     };
 
-    await reserveGiftCreditsForPackage(db as never, { userId: 'u1', appliedCents: 1_000 });
+    await reserveGiftCreditsForPackage(db as never, {
+      userId: 'u1',
+      appliedCents: 1_000,
+    });
     expect(order).toEqual(['soon']);
   });
 
@@ -171,8 +200,16 @@ describe('package-gift-credits.util', () => {
           }),
         update: jest
           .fn()
-          .mockResolvedValueOnce({ balanceAmd: 1_000, balanceClasses: 0, code: 'C1' })
-          .mockResolvedValueOnce({ balanceAmd: 1_200, balanceClasses: 0, code: 'C2' }),
+          .mockResolvedValueOnce({
+            balanceAmd: 1_000,
+            balanceClasses: 0,
+            code: 'C1',
+          })
+          .mockResolvedValueOnce({
+            balanceAmd: 1_200,
+            balanceClasses: 0,
+            code: 'C2',
+          }),
       },
       giftCardTransaction: {
         create: jest.fn().mockResolvedValue({ id: 'tx-refund' }),

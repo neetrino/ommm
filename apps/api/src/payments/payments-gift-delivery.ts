@@ -15,7 +15,11 @@ export function decideGiftEmail(input: {
   recipientEmail?: string;
   now: Date;
 }): GiftEmailDecision {
-  if (!input.recipientEmail || input.delivery === 'WHATSAPP' || input.delivery === 'PRINT') {
+  if (
+    !input.recipientEmail ||
+    input.delivery === 'WHATSAPP' ||
+    input.delivery === 'PRINT'
+  ) {
     return 'skip';
   }
   const due = input.deliverAt ? new Date(input.deliverAt) : null;
@@ -46,7 +50,12 @@ export async function scheduleGiftEmail(
 /** Sends gift emails whose deliverAt has passed. Safe to run from the half-hour cron. */
 export async function dispatchDueGiftEmails(
   prisma: PrismaService,
-  send: (payload: { to: string; code: string; amountAmd?: number; message?: string }) => Promise<void>,
+  send: (payload: {
+    to: string;
+    code: string;
+    amountAmd?: number;
+    message?: string;
+  }) => Promise<void>,
   now = new Date(),
 ): Promise<number> {
   const rows = await prisma.payment.findMany({
@@ -61,10 +70,17 @@ export async function dispatchDueGiftEmails(
     if (due === null) {
       continue;
     }
-    await send({ to: due.to, code: due.code, amountAmd: row.amountCents, message: due.message });
+    await send({
+      to: due.to,
+      code: due.code,
+      amountAmd: row.amountCents,
+      message: due.message,
+    });
     await prisma.payment.update({
       where: { id: row.id },
-      data: { metadata: mergeArcaMetadata(row.metadata, { giftEmailSent: true }) },
+      data: {
+        metadata: mergeArcaMetadata(row.metadata, { giftEmailSent: true }),
+      },
     });
     sent += 1;
   }
@@ -75,7 +91,11 @@ function readDueGiftEmail(
   metadata: Prisma.JsonValue | null,
   now: Date,
 ): { to: string; code: string; message?: string } | null {
-  if (metadata === null || typeof metadata !== 'object' || Array.isArray(metadata)) {
+  if (
+    metadata === null ||
+    typeof metadata !== 'object' ||
+    Array.isArray(metadata)
+  ) {
     return null;
   }
   const record = metadata as Record<string, unknown>;
@@ -85,7 +105,11 @@ function readDueGiftEmail(
   const dueRaw = record.giftEmailDue;
   const to = record.recipientEmail;
   const code = record.giftCode;
-  if (typeof dueRaw !== 'string' || typeof to !== 'string' || typeof code !== 'string') {
+  if (
+    typeof dueRaw !== 'string' ||
+    typeof to !== 'string' ||
+    typeof code !== 'string'
+  ) {
     return null;
   }
   const due = new Date(dueRaw);

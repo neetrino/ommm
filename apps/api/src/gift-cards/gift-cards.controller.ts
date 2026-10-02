@@ -24,7 +24,10 @@ import { RolesGuard } from '../common/guards/roles.guard';
 import { RedeemGiftDto } from './dto/redeem-gift.dto';
 import { AdminCreateGiftCardDto } from './dto/admin-create-gift-card.dto';
 import { AdminAssignGiftCardDto } from './dto/admin-assign-gift-card.dto';
-import { AdminAdjustGiftCardDto, AdminExtendGiftCardDto } from './dto/admin-adjust-gift-card.dto';
+import {
+  AdminAdjustGiftCardDto,
+  AdminExtendGiftCardDto,
+} from './dto/admin-adjust-gift-card.dto';
 import { AdminConvertGiftCardDto } from './dto/admin-convert-gift-card.dto';
 import { AdminAllowOtherClassesDto } from './dto/admin-allow-other-classes.dto';
 import { AdminUpdateGiftCardBatchDto } from './dto/admin-update-gift-card-batch.dto';
@@ -223,7 +226,10 @@ export class GiftCardsController {
       'Content-Type',
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     );
-    res.setHeader('Content-Disposition', `attachment; filename="gift-cards-${id}.xlsx"`);
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename="gift-cards-${id}.xlsx"`,
+    );
     res.send(file);
   }
 
@@ -242,13 +248,21 @@ export class GiftCardsController {
     @Param('id') id: string,
     @Body() dto: AdminConvertGiftCardDto,
   ) {
-    return this.giftCards.convertCard(id, dto.direction, dto.classTypeId, user.id);
+    return this.giftCards.convertCard(
+      id,
+      dto.direction,
+      dto.classTypeId,
+      user.id,
+    );
   }
 
   @Patch('admin/cards/:id/other-classes')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(...BACKOFFICE_WRITE_ROLES)
-  allowOtherClasses(@Param('id') id: string, @Body() dto: AdminAllowOtherClassesDto) {
+  allowOtherClasses(
+    @Param('id') id: string,
+    @Body() dto: AdminAllowOtherClassesDto,
+  ) {
     return this.giftCards.setAllowOtherClasses(id, dto.allow);
   }
 

@@ -36,7 +36,9 @@ type CartPorts = {
   ) => Promise<boolean>;
 };
 
-export function readCartCheckout(value: Prisma.JsonValue | null): CartCheckoutMeta | null {
+export function readCartCheckout(
+  value: Prisma.JsonValue | null,
+): CartCheckoutMeta | null {
   if (typeof value !== 'object' || value === null || Array.isArray(value)) {
     return null;
   }
@@ -65,11 +67,15 @@ export async function fulfillStudioCart(
   if (cart === null) {
     return;
   }
-  await reservePendingDropInGift(tx, {
-    id: payment.id,
-    userId: payment.userId,
-    metadata: payment.metadata ?? null,
-  }, 'studio cart');
+  await reservePendingDropInGift(
+    tx,
+    {
+      id: payment.id,
+      userId: payment.userId,
+      metadata: payment.metadata ?? null,
+    },
+    'studio cart',
+  );
   await reserveCoveredClass(tx, payment, cart);
   if (cart.sessionId) {
     await ports.fulfillDropInPayment(tx, payment.userId, cart.sessionId);

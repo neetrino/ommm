@@ -283,8 +283,18 @@ export class PaymentsFulfillmentService {
       recipientEmail: issued.recipientEmail,
       now: new Date(),
     });
-    if (decision === 'schedule' && metadata.deliverAt && issued.recipientEmail) {
-      await scheduleGiftEmail(tx, payment.id, payment.metadata, metadata.deliverAt, issued.code);
+    if (
+      decision === 'schedule' &&
+      metadata.deliverAt &&
+      issued.recipientEmail
+    ) {
+      await scheduleGiftEmail(
+        tx,
+        payment.id,
+        payment.metadata,
+        metadata.deliverAt,
+        issued.code,
+      );
       return null;
     }
     if (decision !== 'send' || !issued.recipientEmail) {
@@ -388,7 +398,9 @@ export class PaymentsFulfillmentService {
   }
 }
 
-function cartOrDropInSessionId(payment: InternalPaymentRecord): string | undefined {
+function cartOrDropInSessionId(
+  payment: InternalPaymentRecord,
+): string | undefined {
   if (payment.source === INTERNAL_PAYMENT_SOURCE.DROPIN) {
     return payment.sourceId?.trim() || undefined;
   }

@@ -163,7 +163,11 @@ export class PaymentsAdminMutationService {
     nextStatus: PaymentStatus;
     refundGiftCredits: boolean;
   }): Promise<void> {
-    if (params.refundGiftCredits && (params.source === PaymentSource.DROPIN || readCartCheckout(params.metadata) !== null)) {
+    if (
+      params.refundGiftCredits &&
+      (params.source === PaymentSource.DROPIN ||
+        readCartCheckout(params.metadata) !== null)
+    ) {
       await refundReservedGiftCredits(this.prisma, {
         userId: params.userId,
         appliedCents: readGiftCreditsAppliedCents(params.metadata),
@@ -173,7 +177,8 @@ export class PaymentsAdminMutationService {
     }
     if (
       readCartCheckout(params.metadata) !== null &&
-      (params.nextStatus === PaymentStatus.REFUNDED || params.nextStatus === PaymentStatus.FAILED)
+      (params.nextStatus === PaymentStatus.REFUNDED ||
+        params.nextStatus === PaymentStatus.FAILED)
     ) {
       await undoStudioCartGift(this.prisma, {
         paymentId: params.paymentId,

@@ -27,7 +27,9 @@ const ISSUED_HEADERS = [
   'expiresAt',
 ] as const;
 
-export async function readGiftImportMatrix(buffer: Buffer): Promise<GiftImportCell[][]> {
+export async function readGiftImportMatrix(
+  buffer: Buffer,
+): Promise<GiftImportCell[][]> {
   const workbook = new ExcelJS.Workbook();
   await workbook.xlsx.load(toExcelBuffer(buffer));
   const sheet = workbook.worksheets[0];
@@ -91,7 +93,11 @@ function normalizeExcelCell(value: ExcelJS.CellValue): GiftImportCell {
   if (value === null || value === undefined) {
     return null;
   }
-  if (value instanceof Date || typeof value === 'number' || typeof value === 'string') {
+  if (
+    value instanceof Date ||
+    typeof value === 'number' ||
+    typeof value === 'string'
+  ) {
     return value;
   }
   if (typeof value === 'boolean') {
@@ -100,7 +106,11 @@ function normalizeExcelCell(value: ExcelJS.CellValue): GiftImportCell {
   if (typeof value === 'object' && 'richText' in value) {
     return value.richText.map((part) => part.text).join('');
   }
-  if (typeof value === 'object' && 'text' in value && typeof value.text === 'string') {
+  if (
+    typeof value === 'object' &&
+    'text' in value &&
+    typeof value.text === 'string'
+  ) {
     return value.text;
   }
   if (typeof value === 'object' && 'result' in value) {

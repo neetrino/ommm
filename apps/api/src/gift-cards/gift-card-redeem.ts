@@ -25,7 +25,9 @@ export async function redeemGiftCardForUser(
   code: string,
   now = new Date(),
 ): Promise<GiftRedeemResult> {
-  const card = await db.giftCard.findUnique({ where: { code: normalizeGiftCode(code) } });
+  const card = await db.giftCard.findUnique({
+    where: { code: normalizeGiftCode(code) },
+  });
   if (card === null) {
     throw new NotFoundException('Invalid code');
   }
@@ -47,7 +49,14 @@ export async function redeemGiftCardForUser(
   if (card.recipientId !== null) {
     throw new BadRequestException('Gift card already assigned');
   }
-  return claimUnassignedCard(db, card, userId, now, creditedCents, creditedClasses);
+  return claimUnassignedCard(
+    db,
+    card,
+    userId,
+    now,
+    creditedCents,
+    creditedClasses,
+  );
 }
 
 export function normalizeGiftCode(code: string): string {
@@ -100,9 +109,17 @@ async function rereadRedeem(
   throw new BadRequestException('Gift card already assigned');
 }
 
-async function markExpired(db: GiftRedeemDb, cardId: string, now: Date): Promise<void> {
+async function markExpired(
+  db: GiftRedeemDb,
+  cardId: string,
+  now: Date,
+): Promise<void> {
   await db.giftCard.updateMany({
-    where: { id: cardId, status: GiftCardStatus.ACTIVE, expiresAt: { lte: now } },
+    where: {
+      id: cardId,
+      status: GiftCardStatus.ACTIVE,
+      expiresAt: { lte: now },
+    },
     data: { status: GiftCardStatus.EXPIRED },
   });
 }

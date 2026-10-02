@@ -5,7 +5,10 @@ import {
   type Prisma,
 } from '@prisma/client';
 import type { GiftLedgerDb } from './gift-card-ledger';
-import { compareGiftCardsForSpend, GIFT_CARD_DEBIT_ATTEMPTS } from './gift-card-policy';
+import {
+  compareGiftCardsForSpend,
+  GIFT_CARD_DEBIT_ATTEMPTS,
+} from './gift-card-policy';
 
 export type ClassCreditTake = {
   cardId: string;
@@ -19,7 +22,12 @@ export type ClassCreditTake = {
  */
 export async function reserveGiftClassSessions(
   db: GiftLedgerDb,
-  params: { userId: string; classTypeId: string; sessions: number; orderId?: string | null },
+  params: {
+    userId: string;
+    classTypeId: string;
+    sessions: number;
+    orderId?: string | null;
+  },
 ): Promise<ClassCreditTake[]> {
   if (params.sessions <= 0) {
     return [];
@@ -71,7 +79,9 @@ async function debitClassCard(
     },
     data: {
       balanceClasses: { decrement: take },
-      ...(card.balanceClasses === take ? { status: GiftCardStatus.REDEEMED } : {}),
+      ...(card.balanceClasses === take
+        ? { status: GiftCardStatus.REDEEMED }
+        : {}),
     },
   });
   if (updated.count !== 1) {
@@ -106,7 +116,9 @@ async function retryClassDebit(
       },
       data: {
         balanceClasses: { decrement: take },
-        ...(fresh.balanceClasses === take ? { status: GiftCardStatus.REDEEMED } : {}),
+        ...(fresh.balanceClasses === take
+          ? { status: GiftCardStatus.REDEEMED }
+          : {}),
       },
     });
     if (updated.count === 1) {
@@ -139,7 +151,10 @@ function writeClassSpend(
     .then((row) => ({ cardId: card.id, classes: take, transactionId: row.id }));
 }
 
-export type ClassGiftDb = Pick<Prisma.TransactionClient, 'giftCard' | 'giftCardTransaction'>;
+export type ClassGiftDb = Pick<
+  Prisma.TransactionClient,
+  'giftCard' | 'giftCardTransaction'
+>;
 
 export async function peekGiftClassSessions(
   db: Pick<Prisma.TransactionClient, 'giftCard'>,
@@ -153,7 +168,10 @@ export async function peekGiftClassSessions(
 }
 
 /** Puts class sessions back when the booking that spent them is cancelled. */
-export async function restoreGiftClassSpend(db: ClassGiftDb, orderId: string): Promise<void> {
+export async function restoreGiftClassSpend(
+  db: ClassGiftDb,
+  orderId: string,
+): Promise<void> {
   const spends = await db.giftCardTransaction.findMany({
     where: { orderId, kind: GiftCardTransactionKind.SPEND, classes: { gt: 0 } },
     select: { giftCardId: true, classes: true, userId: true },
@@ -169,7 +187,11 @@ async function restoreOneClassSpend(
   orderId: string,
 ): Promise<void> {
   const refunded = await db.giftCardTransaction.findFirst({
-    where: { orderId, giftCardId: spend.giftCardId, kind: GiftCardTransactionKind.REFUND },
+    where: {
+      orderId,
+      giftCardId: spend.giftCardId,
+      kind: GiftCardTransactionKind.REFUND,
+    },
     select: { id: true },
   });
   if (refunded !== null) {

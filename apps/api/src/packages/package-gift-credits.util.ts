@@ -18,7 +18,6 @@ import { GIFT_CREDIT_SPEND_PREFIX } from '../reports/studio-analytics.helpers';
 import {
   PACKAGE_GIFT_CREDITS_ALLOCATIONS_KEY,
   PACKAGE_GIFT_CREDITS_APPLIED_KEY,
-  PACKAGE_GIFT_CREDITS_REFUNDED_KEY,
   type GiftCreditAllocation,
 } from './package-gift-credits.metadata';
 

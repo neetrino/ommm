@@ -242,13 +242,15 @@ export class GiftCardsAdminBoardService {
         card.type === GiftCardType.FIXED_CLASS
           ? card.balanceClasses > 0
           : readGiftCardBalance(card) > 0;
-      const isAvailable = card.status === GiftCardStatus.ACTIVE && spendable ? 1 : 0;
+      const isAvailable =
+        card.status === GiftCardStatus.ACTIVE && spendable ? 1 : 0;
       if (!existing) {
         grouped.set(key, {
           id: card.id,
           type: card.type,
           classQuantity: card.classQuantity,
-          classType: card.classType === null ? null : { name: card.classType.name },
+          classType:
+            card.classType === null ? null : { name: card.classType.name },
           amountAmd: readGiftCardAmount(card),
           imageUrl: readGiftCardImage(card),
           status: card.status,

@@ -25,13 +25,20 @@ describe('gift-card-issue', () => {
     const codes = new Set(rows.map((row) => row.code));
     expect(rows).toHaveLength(3);
     expect(codes.size).toBe(3);
-    expect(rows.every((row) => /^[0-9A-F]{8}$/.test(String(row.code)))).toBe(true);
+    expect(rows.every((row) => /^[0-9A-F]{8}$/.test(String(row.code)))).toBe(
+      true,
+    );
     expect(rows.every((row) => row.recipientId === undefined)).toBe(true);
-    expect(rows.every((row) => row.status === GiftCardStatus.ACTIVE)).toBe(true);
+    expect(rows.every((row) => row.status === GiftCardStatus.ACTIVE)).toBe(
+      true,
+    );
   });
 
   it('defaults expiry to twelve months', () => {
-    const expiresAt = resolveIssuedExpiresAt(undefined, new Date('2026-09-28T00:00:00.000Z'));
+    const expiresAt = resolveIssuedExpiresAt(
+      undefined,
+      new Date('2026-09-28T00:00:00.000Z'),
+    );
     expect(expiresAt.toISOString()).toBe('2027-09-28T00:00:00.000Z');
   });
 

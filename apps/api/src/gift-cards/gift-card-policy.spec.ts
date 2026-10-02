@@ -13,9 +13,21 @@ describe('gift-card-policy', () => {
   });
 
   it('spends the soonest expiry first and undated cards last', () => {
-    const undated = { id: 'open', expiresAt: null, createdAt: new Date('2020-01-01') };
-    const soon = { id: 'soon', expiresAt: new Date('2026-02-01'), createdAt: new Date('2026-01-01') };
-    const later = { id: 'later', expiresAt: new Date('2026-08-01'), createdAt: new Date('2025-01-01') };
+    const undated = {
+      id: 'open',
+      expiresAt: null,
+      createdAt: new Date('2020-01-01'),
+    };
+    const soon = {
+      id: 'soon',
+      expiresAt: new Date('2026-02-01'),
+      createdAt: new Date('2026-01-01'),
+    };
+    const later = {
+      id: 'later',
+      expiresAt: new Date('2026-08-01'),
+      createdAt: new Date('2025-01-01'),
+    };
     const ordered = [undated, later, soon].sort(compareGiftCardsForSpend);
     expect(ordered.map((card) => card.id)).toEqual(['soon', 'later', 'open']);
   });

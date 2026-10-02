@@ -6,7 +6,11 @@ import { readCartCheckout } from './payments-cart.fulfill';
 /** Returns class credit and cancels the cart booking when that payment is refunded. */
 export async function undoStudioCartGift(
   prisma: PrismaService,
-  params: { paymentId: string; userId: string; metadata: Prisma.JsonValue | null },
+  params: {
+    paymentId: string;
+    userId: string;
+    metadata: Prisma.JsonValue | null;
+  },
 ): Promise<void> {
   const cart = readCartCheckout(params.metadata);
   if (cart?.sessionId === undefined && (cart?.classSessionsCovered ?? 0) <= 0) {

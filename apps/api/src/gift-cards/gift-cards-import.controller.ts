@@ -15,7 +15,10 @@ import { Roles } from '../common/decorators/roles.decorator';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { GIFT_CARD_IMPORT_MAX_BYTES } from './gift-card-excel';
-import { buildGiftImportTemplate, GIFT_XLSX_CONTENT_TYPE } from './gift-card-excel-file';
+import {
+  buildGiftImportTemplate,
+  GIFT_XLSX_CONTENT_TYPE,
+} from './gift-card-excel-file';
 import { GiftCardsService } from './gift-cards.service';
 
 @Controller('gift-cards')
@@ -32,7 +35,11 @@ export class GiftCardsImportController {
   @Post('admin/import')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(...BACKOFFICE_WRITE_ROLES)
-  @UseInterceptors(FileInterceptor('file', { limits: { fileSize: GIFT_CARD_IMPORT_MAX_BYTES } }))
+  @UseInterceptors(
+    FileInterceptor('file', {
+      limits: { fileSize: GIFT_CARD_IMPORT_MAX_BYTES },
+    }),
+  )
   importExcel(
     @CurrentUser() user: { id: string },
     @UploadedFile() file: Express.Multer.File | undefined,

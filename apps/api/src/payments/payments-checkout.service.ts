@@ -17,7 +17,10 @@ import {
   assertGiftBatchForCheckout,
   findOwnedPendingPaymentByReference,
 } from './payments-checkout.helpers';
-import { planDropInGiftCharge, reservePendingDropInGift } from './payments-dropin-gift';
+import {
+  planDropInGiftCharge,
+  reservePendingDropInGift,
+} from './payments-dropin-gift';
 import { prepareGiftCheckout } from './payments-gift-checkout.prepare';
 import { dispatchDueGiftEmails } from './payments-gift-delivery';
 import { PaymentsConfirmService } from './payments-confirm.service';
@@ -153,7 +156,10 @@ export class PaymentsCheckoutService {
         source: INTERNAL_PAYMENT_SOURCE.DROPIN,
         sourceId: sessionId,
         description: `Drop-in session ${sessionId}`,
-        metadata: gift.appliedCents > 0 ? { giftCreditsAppliedCents: gift.appliedCents } : undefined,
+        metadata:
+          gift.appliedCents > 0
+            ? { giftCreditsAppliedCents: gift.appliedCents }
+            : undefined,
       }),
     });
   }

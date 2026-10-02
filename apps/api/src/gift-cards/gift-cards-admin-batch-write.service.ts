@@ -55,61 +55,63 @@ export class GiftCardsAdminBatchWriteService {
     }
     const recipientEmail = dto.recipientEmail ?? recipient?.email ?? null;
     const recipientName = dto.recipientName ?? recipient?.name ?? null;
-    const issuedExpiresAt = resolveIssuedExpiresAt(parseGiftExpiresAt(dto.expiresAt));
+    const issuedExpiresAt = resolveIssuedExpiresAt(
+      parseGiftExpiresAt(dto.expiresAt),
+    );
     const batch = await this.prisma.$transaction(async (tx) => {
-        const created = await tx.giftCardBatch.create({
-          data: {
-            type: shape.type,
-            amountAmd,
-            classTypeId: shape.classTypeId,
-            classQuantity: shape.classQuantity,
-            imageUrl: null,
-            status: GiftCardStatus.ACTIVE,
-            totalQuantity: dto.quantity,
-            availableQuantity: dto.quantity,
-            recipientEmail,
-            recipientName,
-            message: dto.message,
-            expiresAt: issuedExpiresAt,
-          },
-        });
-        await tx.giftCard.createMany({
-          data: buildMintedGiftCardRows({
-            batchId: created.id,
-            quantity: dto.quantity,
-            amountAmd,
-            balanceClasses: shape.balanceClasses,
-            classQuantity: shape.classQuantity,
-            classTypeId: shape.classTypeId,
-            type: shape.type,
-            imageUrl: null,
-            message: dto.message ?? null,
-            recipientEmail,
-            recipientName,
-            expiresAt: issuedExpiresAt,
-          }),
-        });
-        const cards = await tx.giftCard.findMany({
-          where: { batchId: created.id },
-          select: { id: true, balanceAmd: true, balanceClasses: true },
-        });
-        await tx.giftCardTransaction.createMany({ data: issueLedgerRows(cards) });
-        return created as GiftCardBatchSnapshot;
-      });
-      await this.audit.log({
-        actorId: adminId,
-        actorRole: 'ADMIN',
-        action: 'GIFT_CARD_BATCH_CREATED_ADMIN',
-        entityType: 'GiftCardBatch',
-        entityId: batch.id,
-        payload: {
-          amountCents: readBatchAmount(batch),
-          totalQuantity: batch.totalQuantity,
-          recipientEmail: batch.recipientEmail ?? null,
-          recipientId: batch.recipientId ?? null,
-          imageUrl: batch.imageUrl ?? null,
+      const created = await tx.giftCardBatch.create({
+        data: {
+          type: shape.type,
+          amountAmd,
+          classTypeId: shape.classTypeId,
+          classQuantity: shape.classQuantity,
+          imageUrl: null,
+          status: GiftCardStatus.ACTIVE,
+          totalQuantity: dto.quantity,
+          availableQuantity: dto.quantity,
+          recipientEmail,
+          recipientName,
+          message: dto.message,
+          expiresAt: issuedExpiresAt,
         },
       });
+      await tx.giftCard.createMany({
+        data: buildMintedGiftCardRows({
+          batchId: created.id,
+          quantity: dto.quantity,
+          amountAmd,
+          balanceClasses: shape.balanceClasses,
+          classQuantity: shape.classQuantity,
+          classTypeId: shape.classTypeId,
+          type: shape.type,
+          imageUrl: null,
+          message: dto.message ?? null,
+          recipientEmail,
+          recipientName,
+          expiresAt: issuedExpiresAt,
+        }),
+      });
+      const cards = await tx.giftCard.findMany({
+        where: { batchId: created.id },
+        select: { id: true, balanceAmd: true, balanceClasses: true },
+      });
+      await tx.giftCardTransaction.createMany({ data: issueLedgerRows(cards) });
+      return created;
+    });
+    await this.audit.log({
+      actorId: adminId,
+      actorRole: 'ADMIN',
+      action: 'GIFT_CARD_BATCH_CREATED_ADMIN',
+      entityType: 'GiftCardBatch',
+      entityId: batch.id,
+      payload: {
+        amountCents: readBatchAmount(batch),
+        totalQuantity: batch.totalQuantity,
+        recipientEmail: batch.recipientEmail ?? null,
+        recipientId: batch.recipientId ?? null,
+        imageUrl: batch.imageUrl ?? null,
+      },
+    });
     return batch;
   }
 
