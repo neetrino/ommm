@@ -1295,6 +1295,8 @@
         "classLabel": "Class",
         "classPlaceholder": "Choose a class",
         "sessionsLabel": "Sessions",
+        "sessionChoicePlaceholder": "Choose a session",
+        "hoursPlaceholder": "Choose a time",
         "deliveryLabel": "How to send it",
         "deliveryEmail": "Email",
         "deliveryWhatsapp": "WhatsApp link",
@@ -1302,7 +1304,7 @@
         "deliverAtLabel": "Send on (optional)",
         "guestNameLabel": "Recipient name (optional)",
         "guestEmailLabel": "Recipient email (optional)",
-        "classRequired": "Choose a class and at least one session."
+        "classRequired": "Choose a class, a session, and a time."
       },
       "celebration": {
         "eyebrow": "A gift for you",

@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
+import { CustomGiftClassChoices } from "@/components/account/custom-gift-class-schedule";
 import {
   GiftOptionDate,
   GiftOptionText,
@@ -46,12 +47,17 @@ export function CustomGiftKindSection(props: CustomGiftOptionsProps) {
         options={kindOptions(props.t)}
         disabled={props.disabled}
         wrapLabel
-        onChange={(value) => props.onKindChange(readKind(value))}
+        onChange={(value) => {
+          const next = readKind(value);
+          props.onKindChange(next);
+          if (next !== "FIXED_CLASS") {
+            props.onClassTypeChange("");
+          }
+        }}
       />
       {props.kind === "FIXED_CLASS" ? (
         <ClassGiftFields
           classTypeId={props.classTypeId}
-          classSessions={props.classSessions}
           classTypes={classTypes}
           disabled={props.disabled}
           t={props.t}
@@ -123,7 +129,6 @@ function GiftDeliveryFields({
 
 function ClassGiftFields({
   classTypeId,
-  classSessions,
   classTypes,
   disabled,
   t,
@@ -131,34 +136,26 @@ function ClassGiftFields({
   onClassSessionsChange,
 }: {
   classTypeId: string;
-  classSessions: string;
   classTypes: readonly ClassTypeOption[];
   disabled: boolean;
   t: GiftCopy;
   onClassTypeChange: (classTypeId: string) => void;
   onClassSessionsChange: (classSessions: string) => void;
 }) {
+  const page = useTranslations("userPages.giftCards");
   return (
-    <>
-      <DropdownSelect
-        label={t("classLabel")}
-        ariaLabel={t("classLabel")}
-        value={classTypeId}
-        options={classOptions(classTypes, t("classLabel"))}
-        disabled={disabled}
-        wrapLabel
-        searchable
-        onChange={onClassTypeChange}
-      />
-      <GiftOptionText
-        label={t("sessionsLabel")}
-        value={classSessions}
-        disabled={disabled}
-        plain
-        type="number"
-        onChange={onClassSessionsChange}
-      />
-    </>
+    <CustomGiftClassChoices
+      classTypeId={classTypeId}
+      classTypes={classTypes}
+      disabled={disabled}
+      classPlaceholder={t("classPlaceholder")}
+      classTypeLabel={page("cartClassType")}
+      packageLabel={page("cartPackage")}
+      sessionLabel={page("cartSession")}
+      skipLabel={page("cartSkip")}
+      onClassTypeChange={onClassTypeChange}
+      onClassSessionsChange={onClassSessionsChange}
+    />
   );
 }
 
@@ -174,16 +171,6 @@ function deliveryOptions(t: GiftCopy): readonly DropdownOption<CustomGiftDeliver
     { value: "EMAIL", label: t("deliveryEmail") },
     { value: "WHATSAPP", label: t("deliveryWhatsapp") },
     { value: "PRINT", label: t("deliveryPrint") },
-  ];
-}
-
-function classOptions(
-  classTypes: readonly ClassTypeOption[],
-  placeholder: string,
-): readonly DropdownOption<string>[] {
-  return [
-    { value: "", label: placeholder },
-    ...classTypes.map((row) => ({ value: row.id, label: row.name })),
   ];
 }
 

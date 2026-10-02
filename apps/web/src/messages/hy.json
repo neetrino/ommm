@@ -1296,6 +1296,8 @@
         "classLabel": "Դաս",
         "classPlaceholder": "Ընտրեք դաս",
         "sessionsLabel": "Դասերի քանակ",
+        "sessionChoicePlaceholder": "Ընտրեք սեսիան",
+        "hoursPlaceholder": "Ընտրեք ժամը",
         "deliveryLabel": "Ինչպես ուղարկել",
         "deliveryEmail": "Email",
         "deliveryWhatsapp": "WhatsApp հղում",
@@ -1303,7 +1305,7 @@
         "deliverAtLabel": "Ուղարկել այս օրը (ընտրովի)",
         "guestNameLabel": "Ստացողի անուն (ընտրովի)",
         "guestEmailLabel": "Ստացողի email (ընտրովի)",
-        "classRequired": "Ընտրեք դաս և առնվազն մեկ հատ։"
+        "classRequired": "Ընտրեք դաս, սեսիա և ժամ։"
       },
       "celebration": {
         "eyebrow": "Նվեր ձեզ համար",

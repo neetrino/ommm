@@ -1295,6 +1295,8 @@
         "classLabel": "Занятие",
         "classPlaceholder": "Выберите занятие",
         "sessionsLabel": "Количество занятий",
+        "sessionChoicePlaceholder": "Выберите сессию",
+        "hoursPlaceholder": "Выберите время",
         "deliveryLabel": "Как отправить",
         "deliveryEmail": "Email",
         "deliveryWhatsapp": "Ссылка WhatsApp",
@@ -1302,7 +1304,7 @@
         "deliverAtLabel": "Отправить в этот день (необязательно)",
         "guestNameLabel": "Имя получателя (необязательно)",
         "guestEmailLabel": "Email получателя (необязательно)",
-        "classRequired": "Выберите занятие и хотя бы одну сессию."
+        "classRequired": "Выберите занятие, сессию и время."
       },
       "celebration": {
         "eyebrow": "Подарок для вас",
