@@ -1,7 +1,8 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import type { UserGiftCardRow } from "@/components/account/user-gift-cards-types";
+import type { UserGiftCardWithSource } from "@/lib/merge-user-gift-cards";
+import { Link } from "@/i18n/navigation";
 import {
   displayGiftCardDate,
   giftCardStatusBadgeClass,
@@ -18,7 +19,7 @@ const SECTION_CLASS =
   "rounded-[24px] border border-white/60 bg-white/75 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.18)]";
 
 type UserGiftCardSheetContentProps = {
-  card: UserGiftCardRow;
+  card: UserGiftCardWithSource;
   locale: string;
 };
 
@@ -59,6 +60,8 @@ export function UserGiftCardSheetContent({ card, locale }: UserGiftCardSheetCont
         <MetricCard label={t("cardAmount")} value={amountLabel} />
         <MetricCard label={t("cardBalance")} value={balanceLabel} />
       </div>
+
+      {canSpendGiftCard(card, expired) ? <GiftCardUseNow label={t("useNow")} /> : null}
 
       <section className={`${SECTION_CLASS} p-4 sm:p-5`}>
         <dl className="grid gap-4 text-sm sm:grid-cols-2">
@@ -114,6 +117,18 @@ export function UserGiftCardSheetContent({ card, locale }: UserGiftCardSheetCont
         </dl>
       </section>
     </div>
+  );
+}
+
+function canSpendGiftCard(card: UserGiftCardWithSource, expired: boolean): boolean {
+  return card.spendable && card.status === "ACTIVE" && card.balanceCents > 0 && !expired;
+}
+
+function GiftCardUseNow({ label }: { label: string }) {
+  return (
+    <Link href="/package" className="ommm-cta-primary inline-flex w-full justify-center">
+      {label}
+    </Link>
   );
 }
 
