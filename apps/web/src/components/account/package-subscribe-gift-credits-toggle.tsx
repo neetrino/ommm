@@ -41,13 +41,17 @@ function GiftCardChoiceList({
   onSelectedIdsChange: (ids: string[]) => void;
 }) {
   const selected = new Set(selectedIds);
+  const allSelected = cards.every((card) => selected.has(card.id));
   return (
     <div className="space-y-2">
+      <p className={formStyles.giftCreditsHint}>{hint}</p>
       <GiftCardSelectAll
-        hint={hint}
         label={selectAllLabel}
-        disabled={disabled || cards.every((card) => selected.has(card.id))}
-        onSelect={() => onSelectedIdsChange(cards.map((card) => card.id))}
+        checked={allSelected}
+        disabled={disabled}
+        onChange={(checked) =>
+          onSelectedIdsChange(checked ? cards.map((card) => card.id) : [])
+        }
       />
       <ul className={formStyles.giftCardChoices}>
         {cards.map((card) => (
@@ -75,28 +79,27 @@ function GiftCardChoiceList({
 }
 
 function GiftCardSelectAll({
-  hint,
   label,
+  checked,
   disabled,
-  onSelect,
+  onChange,
 }: {
-  hint: string;
   label: string;
+  checked: boolean;
   disabled: boolean;
-  onSelect: () => void;
+  onChange: (checked: boolean) => void;
 }) {
   return (
-    <div className={formStyles.giftCardChoiceHeader}>
-      <p className={formStyles.giftCreditsHint}>{hint}</p>
-      <button
-        type="button"
-        className={formStyles.giftCardSelectAll}
+    <label className={formStyles.giftCardChoice}>
+      <span className={formStyles.giftCardSelectAllLabel}>{label}</span>
+      <input
+        type="checkbox"
+        className={formStyles.giftCreditsCheckbox}
+        checked={checked}
         disabled={disabled}
-        onClick={onSelect}
-      >
-        {label}
-      </button>
-    </div>
+        onChange={(event) => onChange(event.target.checked)}
+      />
+    </label>
   );
 }
 

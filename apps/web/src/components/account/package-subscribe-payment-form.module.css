@@ -227,29 +227,10 @@
   accent-color: var(--ommm-admin-olive);
 }
 
-.giftCardChoiceHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-}
-
-.giftCardSelectAll {
-  flex-shrink: 0;
-  border: 0;
-  background: transparent;
-  padding: 0;
-  font-size: 0.75rem;
+.giftCardSelectAllLabel {
+  font-size: 0.8rem;
   font-weight: 600;
-  color: #5f5848;
-  cursor: pointer;
-  text-decoration: underline;
-  text-underline-offset: 0.15rem;
-}
-
-.giftCardSelectAll:disabled {
-  cursor: default;
-  opacity: 0.45;
+  color: #2f2a24;
 }
 
 .giftCardChoices {
