@@ -256,11 +256,11 @@ function recipientPickerChrome(embedded: boolean): {
     };
   }
   return {
-    section: "space-y-4",
-    title: "font-serif text-2xl font-normal leading-tight tracking-tight text-sage-900",
-    hint: "mt-1.5 max-w-lg text-sm leading-6 text-sage-500",
-    fields: `space-y-3 ${GIFT_SOFT_FIELD_CARD_CLASS}`,
-    input: "h-14 rounded-2xl bg-white px-4 text-base",
+    section: "flex flex-col gap-3 rounded-[20px] border border-white/70 bg-white/55 p-4",
+    title: "ommm-label text-xs uppercase tracking-wide",
+    hint: "text-sm leading-relaxed text-sage-600",
+    fields: "space-y-3",
+    input: "",
   };
 }
 

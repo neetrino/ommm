@@ -4,11 +4,9 @@ import { useEffect, useState } from "react";
 import type { useTranslations } from "next-intl";
 import {
   GiftOptionDate,
-  GiftOptionSelect,
   GiftOptionText,
 } from "@/components/account/custom-gift-option-fields";
-import { GIFT_SOFT_FIELD_CARD_CLASS } from "@/components/account/gift-recipient-picker";
-import { type OmmSelectOption } from "@/components/ui/omm-select-dropdown";
+import { DropdownSelect, type DropdownOption } from "@/components/ui/dropdown-select";
 import { apiFetch } from "@/lib/api";
 
 export type CustomGiftKind = "FIXED_VALUE" | "FIXED_CLASS";
@@ -40,28 +38,26 @@ type CustomGiftOptionsProps = {
 export function CustomGiftKindSection(props: CustomGiftOptionsProps) {
   const classTypes = useClassTypes();
   return (
-    <div className="space-y-4">
-      <div className={GIFT_SOFT_FIELD_CARD_CLASS}>
-        <GiftOptionSelect
-          label={props.t("kindLabel")}
-          value={props.kind}
-          disabled={props.disabled}
-          options={kindOptions(props.t)}
-          onChange={(value) => props.onKindChange(readKind(value))}
-        />
-      </div>
+    <div className="grid gap-3">
+      <DropdownSelect
+        label={props.t("kindLabel")}
+        ariaLabel={props.t("kindLabel")}
+        value={props.kind}
+        options={kindOptions(props.t)}
+        disabled={props.disabled}
+        wrapLabel
+        onChange={(value) => props.onKindChange(readKind(value))}
+      />
       {props.kind === "FIXED_CLASS" ? (
-        <div className={`${GIFT_SOFT_FIELD_CARD_CLASS} grid gap-4 sm:grid-cols-2`}>
-          <ClassGiftFields
-            classTypeId={props.classTypeId}
-            classSessions={props.classSessions}
-            classTypes={classTypes}
-            disabled={props.disabled}
-            t={props.t}
-            onClassTypeChange={props.onClassTypeChange}
-            onClassSessionsChange={props.onClassSessionsChange}
-          />
-        </div>
+        <ClassGiftFields
+          classTypeId={props.classTypeId}
+          classSessions={props.classSessions}
+          classTypes={classTypes}
+          disabled={props.disabled}
+          t={props.t}
+          onClassTypeChange={props.onClassTypeChange}
+          onClassSessionsChange={props.onClassSessionsChange}
+        />
       ) : null}
     </div>
   );
@@ -70,17 +66,9 @@ export function CustomGiftKindSection(props: CustomGiftOptionsProps) {
 /** Delivery channel, send date, and a guest who does not have an account yet. */
 export function CustomGiftDeliverySection(props: CustomGiftOptionsProps) {
   return (
-    <section className="space-y-4">
-      <header>
-        <h3 className="font-serif text-2xl font-normal leading-tight tracking-tight text-sage-900">
-          {props.t("detailsTitle")}
-        </h3>
-        <p className="mt-1.5 max-w-lg text-sm leading-6 text-sage-500">{props.t("detailsHint")}</p>
-      </header>
-      <div className={`${GIFT_SOFT_FIELD_CARD_CLASS} grid gap-4 sm:grid-cols-2`}>
-        <GiftDeliveryFields {...props} />
-      </div>
-    </section>
+    <div className="grid gap-3">
+      <GiftDeliveryFields {...props} />
+    </div>
   );
 }
 
@@ -98,29 +86,34 @@ function GiftDeliveryFields({
 }: CustomGiftOptionsProps) {
   return (
     <>
-      <GiftOptionSelect
+      <DropdownSelect
         label={t("deliveryLabel")}
+        ariaLabel={t("deliveryLabel")}
         value={delivery}
-        disabled={disabled}
         options={deliveryOptions(t)}
+        disabled={disabled}
+        wrapLabel
         onChange={(value) => onDeliveryChange(readDelivery(value))}
       />
       <GiftOptionDate
         label={t("deliverAtLabel")}
         value={deliverAt}
         disabled={disabled}
+        plain
         onChange={onDeliverAtChange}
       />
       <GiftOptionText
         label={t("guestNameLabel")}
         value={guestName}
         disabled={disabled}
+        plain
         onChange={onGuestNameChange}
       />
       <GiftOptionText
         label={t("guestEmailLabel")}
         value={guestEmail}
         disabled={disabled}
+        plain
         onChange={onGuestEmailChange}
         type="email"
       />
@@ -147,32 +140,36 @@ function ClassGiftFields({
 }) {
   return (
     <>
-      <GiftOptionSelect
+      <DropdownSelect
         label={t("classLabel")}
+        ariaLabel={t("classLabel")}
         value={classTypeId}
+        options={classOptions(classTypes, t("classLabel"))}
         disabled={disabled}
-        options={classOptions(classTypes, t("classPlaceholder"))}
+        wrapLabel
+        searchable
         onChange={onClassTypeChange}
       />
       <GiftOptionText
         label={t("sessionsLabel")}
         value={classSessions}
         disabled={disabled}
+        plain
+        type="number"
         onChange={onClassSessionsChange}
-        inputMode="numeric"
       />
     </>
   );
 }
 
-function kindOptions(t: GiftCopy): OmmSelectOption<CustomGiftKind>[] {
+function kindOptions(t: GiftCopy): readonly DropdownOption<CustomGiftKind>[] {
   return [
     { value: "FIXED_VALUE", label: t("kindMoney") },
     { value: "FIXED_CLASS", label: t("kindClass") },
   ];
 }
 
-function deliveryOptions(t: GiftCopy): OmmSelectOption<CustomGiftDelivery>[] {
+function deliveryOptions(t: GiftCopy): readonly DropdownOption<CustomGiftDelivery>[] {
   return [
     { value: "EMAIL", label: t("deliveryEmail") },
     { value: "WHATSAPP", label: t("deliveryWhatsapp") },
@@ -183,7 +180,7 @@ function deliveryOptions(t: GiftCopy): OmmSelectOption<CustomGiftDelivery>[] {
 function classOptions(
   classTypes: readonly ClassTypeOption[],
   placeholder: string,
-): OmmSelectOption<string>[] {
+): readonly DropdownOption<string>[] {
   return [
     { value: "", label: placeholder },
     ...classTypes.map((row) => ({ value: row.id, label: row.name })),
