@@ -6,15 +6,20 @@ import { useSearchParams } from "next/navigation";
 import { useRouter } from "@/i18n/navigation";
 import { usePathname } from "@/i18n/navigation";
 import { AdminSheetPortal } from "@/components/admin/admin-sheet-portal";
-import { adminFormModalPanelClass } from "@/components/admin/admin-mobile-sheet-layout";
 import {
   ADMIN_CREATE_SHEET_BODY_SHELL_CLASS,
   ADMIN_CREATE_SHEET_HEADER_CLASS,
+  ADMIN_DETAILS_SHEET_OVERLAY_CLASS,
   ADMIN_SHEET_PHONE_HIDE_CLOSE_CLASS,
+  ADMIN_WIDE_DRAWER_PANEL_CLASS,
 } from "@/components/admin/admin-details-sheet-layout";
-import { adminChrome } from "@/components/admin/admin-chrome";
 import { AdminCreateGiftCardForm } from "@/components/admin/admin-create-gift-card-form";
+import { AdminGiftCardsCreateButton } from "@/components/admin/admin-gift-cards-create-button";
 import { AdminGiftCardsFilters } from "@/components/admin/admin-gift-cards-filters";
+import {
+  AdminGiftCardsSection,
+  useGiftCardsSection,
+} from "@/components/admin/admin-gift-cards-section-tabs";
 import {
   AdminGiftCardsViewProvider,
   useAdminGiftCardsView,
@@ -95,6 +100,7 @@ function AdminGiftCardsShellInner({
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const section = useGiftCardsSection();
   const titleId = useId();
   const [banner, setBanner] = useState<string | null>(null);
   const bannerTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -122,22 +128,26 @@ function AdminGiftCardsShellInner({
     router.replace(`${pathname}?${params.toString()}`, { scroll: false });
   }, [pathname, router, searchParams]);
 
-  const onCreated = useCallback((createdCount: number) => {
+  const showBanner = useCallback((message: string) => {
     if (bannerTimerRef.current !== null) {
       clearTimeout(bannerTimerRef.current);
     }
-    closeModal();
-    router.refresh();
-    setBanner(
-      createdCount > 1
-        ? t("messages.createSuccessMany", { count: createdCount })
-        : t("messages.createSuccess"),
-    );
+    setBanner(message);
     bannerTimerRef.current = setTimeout(() => {
       setBanner(null);
       bannerTimerRef.current = null;
     }, BANNER_MS);
-  }, [closeModal, router, t]);
+  }, []);
+
+  const onCreated = useCallback((createdCount: number) => {
+    closeModal();
+    router.refresh();
+    showBanner(
+      createdCount > 1
+        ? t("messages.createSuccessMany", { count: createdCount })
+        : t("messages.createSuccess"),
+    );
+  }, [closeModal, router, showBanner, t]);
 
   useEffect(() => {
     return () => {
@@ -164,11 +174,12 @@ function AdminGiftCardsShellInner({
       onReset={filterProps.onReset}
       viewMode={viewMode}
       onViewChange={setViewMode}
-      onCreate={openModal}
       variant={isStaff ? "embedded" : "full"}
-      hideCreate={readOnly || isStaff}
+      hideView={section === "bar"}
     />
   );
+
+  const showCreate = !readOnly && !isStaff && section !== "bar";
 
   const operationalBanner = banner ?? staffBanner ?? null;
 
@@ -179,7 +190,7 @@ function AdminGiftCardsShellInner({
         banner={operationalBanner}
         search={filters}
       >
-        {children}
+        <AdminGiftCardsSection>{children}</AdminGiftCardsSection>
       </StaffListPageLayout>
     );
   }
@@ -197,25 +208,35 @@ function AdminGiftCardsShellInner({
 
       {filters}
 
-      {children}
+      <div className="flex flex-col gap-3">
+        {showCreate ? (
+          <AdminGiftCardsCreateButton label={t("createButton")} onClick={openModal} />
+        ) : null}
+        <AdminGiftCardsSection>{children}</AdminGiftCardsSection>
+      </div>
 
       {!readOnly ? (
         <AdminSheetPortal
-          presentation="modal"
+          presentation="drawer"
           isOpen={isModalOpen}
           onClose={closeModal}
           backdropAriaLabel={t("modalBackdropClose")}
           ariaLabelledBy={titleId}
-          modalOverlayClassName="ommm-modal-overlay z-50 items-center p-3 sm:p-4"
-          modalPanelClassName={adminFormModalPanelClass("max-w-2xl p-5 sm:p-6")}
-          zIndexClass="z-50"
+          drawerOverlayClassName={ADMIN_DETAILS_SHEET_OVERLAY_CLASS}
+          drawerPanelClassName={ADMIN_WIDE_DRAWER_PANEL_CLASS}
         >
           <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
             <div className={ADMIN_CREATE_SHEET_HEADER_CLASS}>
-              <div>
-                <h2 id={titleId} className={adminChrome.panelHeading}>
+              <div className="min-w-0">
+                <h2
+                  id={titleId}
+                  className="font-serif text-[1.75rem] font-normal leading-none tracking-tight text-sage-900"
+                >
                   {isEditMode ? t("editTitle") : t("createTitle")}
                 </h2>
+                {isEditMode ? null : (
+                  <p className="mt-2 text-sm leading-relaxed text-sage-600">{t("createDescription")}</p>
+                )}
               </div>
               <button
                 type="button"
@@ -237,7 +258,7 @@ function AdminGiftCardsShellInner({
                 </svg>
               </button>
             </div>
-            <div className={`${ADMIN_CREATE_SHEET_BODY_SHELL_CLASS} overflow-y-auto overscroll-y-contain p-5 sm:p-6`}>
+            <div className={ADMIN_CREATE_SHEET_BODY_SHELL_CLASS}>
               <AdminCreateGiftCardForm
                 key={editingBatch?.id ?? "create-gift-card"}
                 users={assignableUsers}

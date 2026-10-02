@@ -9,6 +9,7 @@ import {
   PaymentStatus,
   type Prisma,
 } from '@prisma/client';
+import { restoreGiftClassSpend } from '../gift-cards/gift-card-class-credit';
 import { PackageUsageService } from '../packages/package-usage.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { StaffActivityService } from '../staff-activity/staff-activity.service';
@@ -89,6 +90,7 @@ export class BookingsSlotService {
         continue;
       }
       await this.prisma.$transaction(async (tx) => {
+        await restoreGiftClassSpend(tx, booking.id);
         await this.packageUsage.restoreSession({
           tx,
           bookingId: booking.id,
@@ -115,6 +117,7 @@ export class BookingsSlotService {
             : {}),
         },
       });
+      await restoreGiftClassSpend(tx, booking.id);
       await this.restorePackageIfEligible(tx, booking, options);
       return current.status;
     });

@@ -19,9 +19,6 @@ export const BOOKING_MANAGEMENT_SORT_ORDERS = [
 ] as const;
 export type BookingManagementSortOrder = (typeof BOOKING_MANAGEMENT_SORT_ORDERS)[number];
 
-export const USER_GIFT_CARD_SORT_ORDERS = ["newest", "oldest", "expirationSoon"] as const;
-export type UserGiftCardSortOrder = (typeof USER_GIFT_CARD_SORT_ORDERS)[number];
-
 export const USER_PACKAGE_SORT_ORDERS = ["upcoming", "newest", "oldest"] as const;
 export type UserPackageSortOrder = (typeof USER_PACKAGE_SORT_ORDERS)[number];
 
@@ -56,15 +53,6 @@ export function parseBookingManagementSortOrder(
 ): BookingManagementSortOrder {
   return BOOKING_MANAGEMENT_SORT_ORDERS.includes(value as BookingManagementSortOrder)
     ? (value as BookingManagementSortOrder)
-    : fallback;
-}
-
-export function parseUserGiftCardSortOrder(
-  value: string | undefined | null,
-  fallback: UserGiftCardSortOrder = "newest",
-): UserGiftCardSortOrder {
-  return USER_GIFT_CARD_SORT_ORDERS.includes(value as UserGiftCardSortOrder)
-    ? (value as UserGiftCardSortOrder)
     : fallback;
 }
 
@@ -145,31 +133,6 @@ export function sortBookingManagementRows<
   return copy;
 }
 
-export function sortUserGiftCards<
-  T extends { createdAt: string; expiresAt: string | null },
->(rows: readonly T[], order: UserGiftCardSortOrder): T[] {
-  const copy = [...rows];
-  copy.sort((left, right) => {
-    switch (order) {
-      case "oldest":
-        return left.createdAt.localeCompare(right.createdAt);
-      case "expirationSoon": {
-        const leftTime = left.expiresAt
-          ? new Date(left.expiresAt).getTime()
-          : Number.POSITIVE_INFINITY;
-        const rightTime = right.expiresAt
-          ? new Date(right.expiresAt).getTime()
-          : Number.POSITIVE_INFINITY;
-        return leftTime - rightTime || right.createdAt.localeCompare(left.createdAt);
-      }
-      case "newest":
-      default:
-        return right.createdAt.localeCompare(left.createdAt);
-    }
-  });
-  return copy;
-}
-
 export function sortUserPackages<
   T extends { currentPeriodStart: string | null; currentPeriodEnd: string | null },
 >(rows: readonly T[], order: UserPackageSortOrder): T[] {
@@ -236,22 +199,6 @@ export function buildBookingManagementSortFilterField(
     emptyValue: "upcoming",
     selectionMode: "single",
     options: BOOKING_MANAGEMENT_SORT_ORDERS.map((value) => ({
-      value,
-      label: sortLabels[value],
-    })),
-  };
-}
-
-export function buildUserGiftCardSortFilterField(
-  label: string,
-  sortLabels: SortFilterLabels<UserGiftCardSortOrder>,
-): IntegratedFilterField {
-  return {
-    key: "order",
-    label,
-    emptyValue: "newest",
-    selectionMode: "single",
-    options: USER_GIFT_CARD_SORT_ORDERS.map((value) => ({
       value,
       label: sortLabels[value],
     })),

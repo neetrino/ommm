@@ -6,9 +6,11 @@ import { PaymentDueWarningIcon } from "@/components/admin/admin-client-package-p
 import { AdminClientDrawerById } from "@/components/admin/admin-client-drawer-by-id";
 import { CLIENT_SHEET_TAB_PACKAGES } from "@/components/admin/admin-client-sheet-tabs";
 import {
-  previewPaymentDueClients,
+  previewPaymentDueGroups,
+  remainingPaymentDuePeopleCount,
   type DashboardStudioPaymentDueItem,
 } from "@/components/admin/admin-dashboard-payment-due";
+import { PaymentDueClientCard } from "@/components/admin/admin-payment-due-client-card";
 import { Link, useRouter } from "@/i18n/navigation";
 
 type AdminDashboardPaymentDueBannerProps = {
@@ -17,32 +19,6 @@ type AdminDashboardPaymentDueBannerProps = {
   locale: string;
   viewAllHref: string;
 };
-
-type PaymentDueClientRowProps = {
-  item: DashboardStudioPaymentDueItem;
-  openLabel: string;
-  onOpen: () => void;
-};
-
-function PaymentDueClientRow({ item, openLabel, onOpen }: PaymentDueClientRowProps) {
-  return (
-    <li>
-      <button
-        type="button"
-        className="flex w-full items-center rounded-2xl border border-white/25 bg-white/15 px-3 py-2.5 text-left text-sm font-medium text-white hover:bg-white/25"
-        aria-label={openLabel}
-        onClick={onOpen}
-      >
-        <span className="min-w-0 truncate">
-          {item.clientName}
-          <span className="mt-0.5 block truncate text-xs font-normal text-rose-50">
-            {item.packageName}
-          </span>
-        </span>
-      </button>
-    </li>
-  );
-}
 
 function PaymentDueViewAllLink({
   href,
@@ -84,6 +60,28 @@ function PaymentDueCalmIcon() {
   );
 }
 
+function PaymentDueHeaderActions({
+  href,
+  items,
+}: {
+  href: string;
+  items: DashboardStudioPaymentDueItem[];
+}) {
+  const t = useTranslations("adminHome.overview.paymentDue");
+  const morePeople = remainingPaymentDuePeopleCount(items);
+
+  return (
+    <div className="flex shrink-0 items-center gap-2 self-center">
+      {morePeople > 0 ? (
+        <span className="inline-flex items-center rounded-full bg-white px-3 py-2 text-xs font-semibold tabular-nums text-rose-700">
+          {t("morePeople", { count: morePeople })}
+        </span>
+      ) : null}
+      <PaymentDueViewAllLink href={href} label={t("viewAll")} tone="alert" />
+    </div>
+  );
+}
+
 function PaymentDueFilledBanner({
   items,
   count,
@@ -96,7 +94,7 @@ function PaymentDueFilledBanner({
   onOpenClient: (clientId: string) => void;
 }) {
   const t = useTranslations("adminHome.overview.paymentDue");
-  const visibleItems = previewPaymentDueClients(items);
+  const visibleGroups = previewPaymentDueGroups(items);
 
   return (
     <div
@@ -114,17 +112,19 @@ function PaymentDueFilledBanner({
               <p className="text-sm font-medium text-rose-50">{t("hint")}</p>
               <p className="text-xs font-medium text-rose-100">{t("count", { count })}</p>
             </div>
-            <PaymentDueViewAllLink href={viewAllHref} label={t("viewAll")} tone="alert" />
+            <PaymentDueHeaderActions href={viewAllHref} items={items} />
           </div>
         </div>
       </div>
-      <ul className="mt-4 space-y-2">
-        {visibleItems.map((item) => (
-          <PaymentDueClientRow
-            key={item.clientId}
-            item={item}
-            openLabel={t("openClient", { name: item.clientName })}
-            onOpen={() => onOpenClient(item.clientId)}
+      <ul className="mt-4 grid auto-rows-fr grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-5">
+        {visibleGroups.map((group) => (
+          <PaymentDueClientCard
+            key={group.clientId}
+            group={group}
+            boughtLabel={t("bought")}
+            moreCountLabel={(extra) => t("morePackages", { count: extra })}
+            openLabel={t("openClient", { name: group.clientName })}
+            onOpen={() => onOpenClient(group.clientId)}
           />
         ))}
       </ul>

@@ -7,6 +7,12 @@ import {
   reserveGiftCreditsForPackage,
 } from './package-gift-credits.util';
 
+function containing(
+  expected: Record<string, unknown>,
+): Record<string, unknown> {
+  return expect.objectContaining(expected) as Record<string, unknown>;
+}
+
 describe('package-gift-credits.util', () => {
   it('peekSpendableGiftCreditsCents sums wallet and active cards', async () => {
     const db = {
@@ -31,10 +37,20 @@ describe('package-gift-credits.util', () => {
     const db = {
       giftCard: {
         findMany: jest.fn().mockResolvedValue([
-          { id: 'soon', balanceAmd: 3_000, expiresAt: new Date('2026-01-01') },
-          { id: 'later', balanceAmd: 5_000, expiresAt: new Date('2026-06-01') },
+          {
+            id: 'soon',
+            code: 'SOON',
+            balanceAmd: 3_000,
+            expiresAt: new Date('2026-12-01'),
+          },
+          {
+            id: 'later',
+            code: 'LATER',
+            balanceAmd: 5_000,
+            expiresAt: new Date('2027-06-01'),
+          },
         ]),
-        update: jest
+        updateMany: jest
           .fn()
           .mockImplementation(
             (args: {
@@ -42,9 +58,12 @@ describe('package-gift-credits.util', () => {
               data: Record<string, unknown>;
             }) => {
               updates.push({ id: args.where.id, data: args.data });
-              return Promise.resolve({});
+              return Promise.resolve({ count: 1 });
             },
           ),
+      },
+      giftCardTransaction: {
+        create: jest.fn().mockResolvedValue({ id: 'tx1' }),
       },
       user: {
         updateMany: jest.fn().mockResolvedValue({ count: 1 }),
@@ -63,11 +82,55 @@ describe('package-gift-credits.util', () => {
     expect(updates).toEqual([
       {
         id: 'soon',
-        data: { balanceAmd: 0, status: GiftCardStatus.REDEEMED },
+        data: {
+          balanceAmd: { decrement: 3_000 },
+          status: GiftCardStatus.REDEEMED,
+        },
       },
-      { id: 'later', data: { balanceAmd: 3_500 } },
+      { id: 'later', data: { balanceAmd: { decrement: 1_500 } } },
     ]);
+    expect(db.giftCardTransaction.create).toHaveBeenCalledTimes(2);
     expect(db.user.updateMany).not.toHaveBeenCalled();
+  });
+
+  it('spends a dated card before an undated card', async () => {
+    const order: string[] = [];
+    const db = {
+      giftCard: {
+        findMany: jest.fn().mockResolvedValue([
+          {
+            id: 'open',
+            code: 'OPEN',
+            balanceAmd: 5_000,
+            expiresAt: null,
+            createdAt: new Date('2020-01-01'),
+          },
+          {
+            id: 'soon',
+            code: 'SOON',
+            balanceAmd: 1_000,
+            expiresAt: new Date('2026-12-01'),
+            createdAt: new Date('2026-01-01'),
+          },
+        ]),
+        updateMany: jest
+          .fn()
+          .mockImplementation((args: { where: { id: string } }) => {
+            order.push(args.where.id);
+            return Promise.resolve({ count: 1 });
+          }),
+      },
+      giftCardTransaction: {
+        create: jest.fn().mockResolvedValue({ id: 'tx' }),
+      },
+      user: { updateMany: jest.fn() },
+    };
+
+    await reserveGiftCreditsForPackage(db as never, {
+      userId: 'u1',
+      appliedCents: 1_000,
+    });
+    expect(order).toEqual(['soon']);
   });
 
   it('reserveGiftCreditsForPackage uses legacy wallet after cards', async () => {
@@ -76,9 +139,12 @@ describe('package-gift-credits.util', () => {
         findMany: jest
           .fn()
           .mockResolvedValue([
-            { id: 'c1', balanceAmd: 1_000, expiresAt: null },
+            { id: 'c1', code: 'C1', balanceAmd: 1_000, expiresAt: null },
           ]),
-        update: jest.fn().mockResolvedValue({}),
+        updateMany: jest.fn().mockResolvedValue({ count: 1 }),
+      },
+      giftCardTransaction: {
+        create: jest.fn().mockResolvedValue({ id: 'tx1' }),
       },
       user: {
         updateMany: jest.fn().mockResolvedValue({ count: 1 }),
@@ -98,6 +164,91 @@ describe('package-gift-credits.util', () => {
       where: { id: 'u1', giftCreditsCents: { gte: 1_500 } },
       data: { giftCreditsCents: { decrement: 1_500 } },
     });
+  });
+
+  it('reserveGiftCreditsForPackage leaves the unused part of a card', async () => {
+    const updates: Array<{ id: string; data: Record<string, unknown> }> = [];
+    const db = {
+      giftCard: {
+        findMany: jest
+          .fn()
+          .mockResolvedValue([
+            { id: 'card', code: 'CARD', balanceAmd: 30_000, expiresAt: null },
+          ]),
+        updateMany: jest
+          .fn()
+          .mockImplementation(
+            (args: {
+              where: { id: string };
+              data: Record<string, unknown>;
+            }) => {
+              updates.push({ id: args.where.id, data: args.data });
+              return Promise.resolve({ count: 1 });
+            },
+          ),
+      },
+      giftCardTransaction: {
+        create: jest.fn().mockResolvedValue({ id: 'tx' }),
+      },
+      user: { updateMany: jest.fn() },
+    };
+
+    const allocations = await reserveGiftCreditsForPackage(db as never, {
+      userId: 'u1',
+      appliedCents: 15_000,
+      cardIds: ['card'],
+    });
+
+    expect(allocations).toEqual([{ cardId: 'card', cents: 15_000 }]);
+    expect(updates).toEqual([
+      { id: 'card', data: { balanceAmd: { decrement: 15_000 } } },
+    ]);
+    expect(db.giftCardTransaction.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: containing({
+          amountAmd: 15_000,
+          balanceAmdAfter: 15_000,
+        }),
+      }),
+    );
+  });
+
+  it('reserveGiftCreditsForPackage debits only the chosen card', async () => {
+    const debited: string[] = [];
+    const db = {
+      giftCard: {
+        findMany: jest
+          .fn()
+          .mockResolvedValue([
+            { id: 'chosen', code: 'ONE', balanceAmd: 30_000, expiresAt: null },
+          ]),
+        updateMany: jest
+          .fn()
+          .mockImplementation((args: { where: { id: string } }) => {
+            debited.push(args.where.id);
+            return Promise.resolve({ count: 1 });
+          }),
+      },
+      giftCardTransaction: {
+        create: jest.fn().mockResolvedValue({ id: 'tx' }),
+      },
+      user: { updateMany: jest.fn() },
+    };
+
+    const allocations = await reserveGiftCreditsForPackage(db as never, {
+      userId: 'u1',
+      appliedCents: 30_000,
+      cardIds: ['chosen'],
+    });
+
+    expect(db.giftCard.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: containing({ id: { in: ['chosen'] } }),
+      }),
+    );
+    expect(allocations).toEqual([{ cardId: 'chosen', cents: 30_000 }]);
+    expect(debited).toEqual(['chosen']);
+    expect(db.user.updateMany).not.toHaveBeenCalled();
   });
 
   it('reserveGiftCreditsForPackage throws when balance is insufficient', async () => {
@@ -126,15 +277,33 @@ describe('package-gift-credits.util', () => {
           .fn()
           .mockResolvedValueOnce({
             id: 'c1',
+            code: 'C1',
             balanceAmd: 0,
+            balanceClasses: 0,
             status: GiftCardStatus.REDEEMED,
           })
           .mockResolvedValueOnce({
             id: 'c2',
+            code: 'C2',
             balanceAmd: 500,
+            balanceClasses: 0,
             status: GiftCardStatus.ACTIVE,
           }),
-        update: jest.fn().mockResolvedValue({}),
+        update: jest
+          .fn()
+          .mockResolvedValueOnce({
+            balanceAmd: 1_000,
+            balanceClasses: 0,
+            code: 'C1',
+          })
+          .mockResolvedValueOnce({
+            balanceAmd: 1_200,
+            balanceClasses: 0,
+            code: 'C2',
+          }),
+      },
+      giftCardTransaction: {
+        create: jest.fn().mockResolvedValue({ id: 'tx-refund' }),
       },
       user: {
         update: jest.fn().mockResolvedValue({}),
@@ -153,12 +322,15 @@ describe('package-gift-credits.util', () => {
 
     expect(db.giftCard.update).toHaveBeenNthCalledWith(1, {
       where: { id: 'c1' },
-      data: { balanceAmd: 1_000, status: GiftCardStatus.ACTIVE },
+      data: { balanceAmd: { increment: 1_000 }, status: GiftCardStatus.ACTIVE },
+      select: { balanceAmd: true, balanceClasses: true, code: true },
     });
     expect(db.giftCard.update).toHaveBeenNthCalledWith(2, {
       where: { id: 'c2' },
-      data: { balanceAmd: 1_200, status: GiftCardStatus.ACTIVE },
+      data: { balanceAmd: { increment: 700 } },
+      select: { balanceAmd: true, balanceClasses: true, code: true },
     });
+    expect(db.giftCardTransaction.create).toHaveBeenCalledTimes(2);
     expect(db.user.update).toHaveBeenCalledWith({
       where: { id: 'u1' },
       data: { giftCreditsCents: { increment: 500 } },

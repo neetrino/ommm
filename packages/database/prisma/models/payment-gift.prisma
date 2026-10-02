@@ -30,10 +30,17 @@ model GiftCard {
   batchId         String?
   batch           GiftCardBatch? @relation(fields: [batchId], references: [id], onDelete: SetNull)
   code            String         @unique
+  type            GiftCardType   @default(FIXED_VALUE)
   amountAmd       Int            @map("amountCents")
   balanceAmd      Int            @map("balanceCents")
+  classTypeId     String?
+  classType       ClassType?     @relation(fields: [classTypeId], references: [id], onDelete: SetNull)
+  classQuantity   Int            @default(0)
+  balanceClasses  Int            @default(0)
+  allowOtherClasses Boolean      @default(false)
   imageUrl        String?
   status          GiftCardStatus @default(ACTIVE)
+  redeemedAt      DateTime?
   purchaserId     String?
   purchaser       User?          @relation("GiftCardPurchaser", fields: [purchaserId], references: [id], onDelete: SetNull)
   recipientId     String?
@@ -44,13 +51,20 @@ model GiftCard {
   expiresAt       DateTime?
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
+  transactions    GiftCardTransaction[]
 
   @@index([batchId])
+  @@index([recipientId, status])
+  @@index([classTypeId])
 }
 
 model GiftCardBatch {
   id                String         @id @default(cuid())
+  type              GiftCardType   @default(FIXED_VALUE)
   amountAmd         Int            @map("amountCents")
+  classTypeId       String?
+  classType         ClassType?     @relation(fields: [classTypeId], references: [id], onDelete: SetNull)
+  classQuantity     Int            @default(0)
   imageUrl          String?
   status            GiftCardStatus @default(ACTIVE)
   totalQuantity     Int
@@ -71,4 +85,24 @@ model GiftCardBatch {
   @@index([status, createdAt])
   @@index([purchaserId])
   @@index([recipientId])
+  @@index([classTypeId])
+}
+
+/// One row per issue, activation, spend, refund, adjustment, or expiry.
+model GiftCardTransaction {
+  id                  String                   @id @default(cuid())
+  giftCardId          String
+  giftCard            GiftCard                 @relation(fields: [giftCardId], references: [id], onDelete: Cascade)
+  kind                GiftCardTransactionKind
+  userId              String?
+  orderId             String?
+  amountAmd           Int                      @default(0) @map("amountCents")
+  classes             Int                      @default(0)
+  balanceAmdAfter     Int                      @map("balanceCentsAfter")
+  balanceClassesAfter Int                      @default(0)
+  createdAt           DateTime                 @default(now())
+
+  @@index([giftCardId, createdAt])
+  @@index([userId, createdAt])
+  @@index([orderId])
 }

@@ -18,6 +18,7 @@ describe('loadDashboardStudioPaymentDue', () => {
       {
         id: 'up-due',
         planNameSnapshot: '10-class pack',
+        planCategoryNameSnapshot: 'Reformer',
         user: {
           id: 'client-1',
           name: 'Payment',
@@ -55,6 +56,7 @@ describe('loadDashboardStudioPaymentDue', () => {
           clientName: 'Payment Due Demo',
           packageId: 'up-due',
           packageName: '10-class pack',
+          categoryName: 'Reformer',
         },
       ],
     });

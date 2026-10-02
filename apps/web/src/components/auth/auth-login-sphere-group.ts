@@ -19,6 +19,12 @@ export class AuthLoginSphereGroup {
   private lastTimestamp = 0;
   private running = false;
   private pointer: RoamPoint | null = null;
+  /** When set, spheres roam this box instead of the viewport. */
+  private host: HTMLElement | null = null;
+
+  attachHost(host: HTMLElement): void {
+    this.host = host;
+  }
 
   addSphere(
     id: string,
@@ -28,11 +34,12 @@ export class AuthLoginSphereGroup {
   ): void {
     const rect = el.getBoundingClientRect();
     const size = rect.width || el.offsetWidth;
-    const bounds = measureBounds(size);
+    const frame = this.frameSize();
+    const bounds = measureBounds(size, frame);
     const seed = clampPoint(
       {
-        x: (layout.left / 100) * window.innerWidth,
-        y: (layout.top / 100) * window.innerHeight,
+        x: (layout.left / 100) * frame.width,
+        y: (layout.top / 100) * frame.height,
       },
       bounds,
     );
@@ -68,7 +75,7 @@ export class AuthLoginSphereGroup {
   }
 
   setPointer(point: RoamPoint): void {
-    this.pointer = point;
+    this.pointer = this.host === null ? point : this.toHostPoint(point);
   }
 
   clearPointer(): void {
@@ -98,7 +105,7 @@ export class AuthLoginSphereGroup {
   relayoutOnResize(): void {
     for (const entry of this.spheres.values()) {
       entry.size = entry.el.getBoundingClientRect().width || entry.el.offsetWidth;
-      const bounds = measureBounds(entry.size);
+      const bounds = measureBounds(entry.size, this.frameSize());
       const clamped = clampPoint({ x: entry.x, y: entry.y }, bounds);
       entry.x = clamped.x;
       entry.y = clamped.y;
@@ -121,7 +128,7 @@ export class AuthLoginSphereGroup {
 
     for (const entry of this.spheres.values()) {
       this.advanceTowardTarget(entry, deltaMs);
-      const bounds = measureBounds(entry.size);
+      const bounds = measureBounds(entry.size, this.frameSize());
       const fled = fleeFromPointer(entry, this.pointer, bounds, deltaMs);
       if (fled) {
         entry.targetX = entry.x;
@@ -163,10 +170,25 @@ export class AuthLoginSphereGroup {
   }
 
   private assignTarget(entry: AuthLoginSphereEntry): void {
-    const bounds = measureBounds(entry.size);
+    const bounds = measureBounds(entry.size, this.frameSize());
     const target = pickRandomRoamTarget(bounds);
     entry.targetX = target.x;
     entry.targetY = target.y;
+  }
+
+  private frameSize(): { width: number; height: number } {
+    if (this.host === null) {
+      return { width: window.innerWidth, height: window.innerHeight };
+    }
+    return { width: this.host.clientWidth, height: this.host.clientHeight };
+  }
+
+  private toHostPoint(point: RoamPoint): RoamPoint {
+    if (this.host === null) {
+      return point;
+    }
+    const rect = this.host.getBoundingClientRect();
+    return { x: point.x - rect.left, y: point.y - rect.top };
   }
 
   private applyAllPositions(): void {

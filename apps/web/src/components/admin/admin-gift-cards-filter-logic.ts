@@ -53,6 +53,7 @@ function matchesSearch(card: AdminGiftCardBatchRow, search: string): boolean {
     String(card.amountAmd),
     String(card.availableQuantity),
     String(card.totalQuantity),
+    ...(card.codes ?? []),
   ]
     .join(" ")
     .toLowerCase();

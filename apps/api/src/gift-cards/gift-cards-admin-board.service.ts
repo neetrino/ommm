@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { GiftCardStatus } from '@prisma/client';
+import { GiftCardStatus, GiftCardType } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { DEFAULT_LIST_PAGE_SIZE } from '../common/dto/list-pagination-query.dto';
 import { PrismaService } from '../prisma/prisma.service';
@@ -70,6 +70,12 @@ export class GiftCardsAdminBoardService {
           include: {
             purchaser: { select: { email: true, name: true } },
             recipient: { select: { email: true, name: true } },
+            classType: { select: { name: true } },
+            giftCards: {
+              select: { code: true },
+              orderBy: { createdAt: 'asc' as const },
+              take: 12,
+            },
           },
           orderBy,
           take,
@@ -210,6 +216,7 @@ export class GiftCardsAdminBoardService {
       include: {
         purchaser: { select: { email: true, name: true } },
         recipient: { select: { email: true, name: true } },
+        classType: { select: { name: true } },
       },
       orderBy: { createdAt: 'desc' },
     });
@@ -226,15 +233,24 @@ export class GiftCardsAdminBoardService {
         card.recipientName ?? '',
         card.message ?? '',
         card.expiresAt?.toISOString() ?? '',
+        card.type,
+        card.classTypeId ?? '',
+        String(card.classQuantity),
       ].join('|');
       const existing = grouped.get(key);
+      const spendable =
+        card.type === GiftCardType.FIXED_CLASS
+          ? card.balanceClasses > 0
+          : readGiftCardBalance(card) > 0;
       const isAvailable =
-        card.status === GiftCardStatus.ACTIVE && readGiftCardBalance(card) > 0
-          ? 1
-          : 0;
+        card.status === GiftCardStatus.ACTIVE && spendable ? 1 : 0;
       if (!existing) {
         grouped.set(key, {
           id: card.id,
+          type: card.type,
+          classQuantity: card.classQuantity,
+          classType:
+            card.classType === null ? null : { name: card.classType.name },
           amountAmd: readGiftCardAmount(card),
           imageUrl: readGiftCardImage(card),
           status: card.status,
@@ -247,9 +263,11 @@ export class GiftCardsAdminBoardService {
           createdAt: card.createdAt,
           purchaser: card.purchaser,
           recipient: card.recipient,
+          codes: [card.code],
         });
         continue;
       }
+      existing.codes = [...(existing.codes ?? []), card.code];
       existing.totalQuantity += 1;
       existing.availableQuantity += isAvailable;
       if (card.createdAt > existing.createdAt) {

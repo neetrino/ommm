@@ -17,6 +17,7 @@ import {
 import { ClientBookingsPanel } from "@/components/admin/admin-client-bookings-panel";
 import { ClientFeedbackPanel } from "@/components/admin/admin-client-feedback-panel";
 import { ClientPackagesPanel } from "@/components/admin/admin-client-packages-panel";
+import { ClientGiftCardsBoard } from "@/components/admin/admin-client-gift-cards-board";
 import { ClientSheetPaginatedTab } from "@/components/admin/admin-client-sheet-paginated-tab";
 import {
   CLIENT_SHEET_TAB_BOOKINGS,
@@ -45,6 +46,7 @@ import {
 } from "@/components/ui/whatsapp-brand-icon";
 import { ImagePreviewModal } from "@/components/ui/image-preview-modal";
 import { isManualPaymentMethod } from "@/lib/manual-payment-method";
+import { formatClientPaymentGiftNote } from "@/components/admin/admin-finance-gift-discount";
 import { formatAmdFromCents } from "@/lib/price-amd";
 import { resolveApiAssetUrl } from "@/lib/resolve-api-asset-url";
 import { ClientRegistrationMeta } from "@/components/admin/admin-client-registration-meta";
@@ -406,6 +408,10 @@ export function ClientSheetTabPanels({
             payment.paymentMethod !== null && isManualPaymentMethod(payment.paymentMethod)
               ? tFinance(`paymentMethods.${payment.paymentMethod}`)
               : null;
+          const giftNote = formatClientPaymentGiftNote(payment, locale, {
+            gift: tFinance("paymentDetails.giftDiscount"),
+            giftSpend: tFinance("paymentDetails.giftCreditSpend"),
+          });
           return {
             id: payment.id,
             main: formatAmdFromCents(payment.amountCents, locale),
@@ -413,10 +419,11 @@ export function ClientSheetTabPanels({
               payment.status,
               methodLabel,
               formatDateForUi(payment.createdAt),
+              giftNote,
             ]
               .filter(Boolean)
               .join(" · "),
-            extra: payment.description,
+            extra: payment.isGiftCreditSpend ? null : payment.description,
           };
         }}
       />
@@ -440,12 +447,13 @@ export function ClientSheetTabPanels({
           endpoint={`/clients/${detail.id}/gift-cards`}
           title={t("drawer.giftCards")}
           empty={t("drawer.noGiftCards")}
-          mapItem={(card) => ({
-            id: card.id,
-            main: `${formatAmdFromCents(card.balanceCents, locale)} / ${formatAmdFromCents(card.amountCents, locale)}`,
-            meta: `${card.status} · ${card.relation} · ${formatDateForUi(card.createdAt)}`,
-            extra: card.recipientName ?? card.recipientEmail,
-          })}
+          renderItems={(cards) => (
+            <ClientGiftCardsBoard
+              locale={locale}
+              cards={cards}
+              empty={t("drawer.noGiftCards")}
+            />
+          )}
         />
       </div>
     );

@@ -19,11 +19,11 @@ import { scheduleColors } from "../../schedule/scheduleTokens";
 import { PackagesPrimaryCta } from "../../packages/components/PackagesScreenActions";
 import { fontFamilies } from "../../../theme/fontFamilies";
 import { colors, space, typography } from "../../../theme/tokens";
+import { GiftRedeemForm } from "../components/GiftRedeemForm";
 import { GiftCardsTabNav } from "../components/GiftCardsTabNav";
 import { GiftMarketCardTile } from "../components/GiftMarketCardTile";
 import { GiftMyCardTile } from "../components/GiftMyCardTile";
 import { GiftPurchaseSheet } from "../components/GiftPurchaseSheet";
-import { GiftRedeemForm } from "../components/GiftRedeemForm";
 import {
   useMemberGiftCardsScreenState,
   type GiftCardsTab,
@@ -128,13 +128,7 @@ export function MemberGiftCardsScreen() {
           </View>
         ) : (
           <View style={styles.list}>
-            <GiftRedeemForm
-              code={state.redeemCode}
-              onChangeCode={state.setRedeemCode}
-              busy={state.redeemBusy}
-              message={state.redeemMessage}
-              onSubmit={() => void state.onRedeem()}
-            />
+            <GiftRedeemForm onRedeemed={() => void state.reload()} />
             <Text style={styles.sectionHeading}>{t("myCardsHeading")}</Text>
             {state.myCards.length === 0 ? (
               <Text style={styles.empty}>{t("emptyMyDescription")}</Text>

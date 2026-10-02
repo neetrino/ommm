@@ -3,14 +3,18 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { GiftCardStatus } from '@prisma/client';
-import type { Express } from 'express';
+import { GiftCardStatus, GiftCardType } from '@prisma/client';
 import { AuditService } from '../audit/audit.service';
-import { utcToStudioCalendarDate } from '../common/studio-timezone';
 import { PrismaService } from '../prisma/prisma.service';
 import type { AdminCreateGiftCardDto } from './dto/admin-create-gift-card.dto';
 import type { AdminUpdateGiftCardBatchDto } from './dto/admin-update-gift-card-batch.dto';
-import { GiftCardsImageService } from './gift-cards-image.service';
+import {
+  buildMintedGiftCardRows,
+  issueLedgerRows,
+  parseGiftExpiresAt,
+  resolveAdminGiftShape,
+  resolveIssuedExpiresAt,
+} from './gift-card-issue';
 import {
   type GiftCardBatchSnapshot,
   giftCardBatchDelegate,
@@ -23,29 +27,16 @@ export class GiftCardsAdminBatchWriteService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly audit: AuditService,
-    private readonly images: GiftCardsImageService,
   ) {}
 
-  async createAdminCard(
-    adminId: string,
-    dto: AdminCreateGiftCardDto,
-    imageFile?: Express.Multer.File,
-  ) {
-    const amountAmd = dto.resolvedAmountAmd;
-    if (amountAmd === undefined) {
-      throw new BadRequestException('amountAmd is required');
-    }
-    const expiresAt =
-      dto.expiresAt !== undefined ? new Date(dto.expiresAt) : undefined;
-    if (expiresAt && Number.isNaN(expiresAt.getTime())) {
-      throw new BadRequestException('Invalid expiresAt date');
-    }
-    if (
-      expiresAt &&
-      utcToStudioCalendarDate(expiresAt) < utcToStudioCalendarDate(new Date())
-    ) {
-      throw new BadRequestException('expiresAt cannot be in the past');
-    }
+  async createAdminCard(adminId: string, dto: AdminCreateGiftCardDto) {
+    const shape = resolveAdminGiftShape({
+      type: dto.type,
+      amountAmd: dto.resolvedAmountAmd,
+      classTypeId: dto.classTypeId,
+      classQuantity: dto.classQuantity,
+    });
+    const amountAmd = shape.amountAmd;
     if (!Number.isInteger(dto.quantity) || dto.quantity < 1) {
       throw new BadRequestException('quantity must be a positive integer');
     }
@@ -64,49 +55,64 @@ export class GiftCardsAdminBatchWriteService {
     }
     const recipientEmail = dto.recipientEmail ?? recipient?.email ?? null;
     const recipientName = dto.recipientName ?? recipient?.name ?? null;
-    const uploadedImageUrl =
-      imageFile !== undefined
-        ? await this.images.storeGiftCardImage(adminId, imageFile)
-        : null;
-    const imageUrl = uploadedImageUrl ?? dto.imageUrl ?? null;
-
-    try {
-      const batchDelegate = giftCardBatchDelegate(this.prisma);
-      const batch = (await batchDelegate.create({
+    const issuedExpiresAt = resolveIssuedExpiresAt(
+      parseGiftExpiresAt(dto.expiresAt),
+    );
+    const batch = await this.prisma.$transaction(async (tx) => {
+      const created = await tx.giftCardBatch.create({
         data: {
+          type: shape.type,
           amountAmd,
-          imageUrl,
+          classTypeId: shape.classTypeId,
+          classQuantity: shape.classQuantity,
+          imageUrl: null,
           status: GiftCardStatus.ACTIVE,
           totalQuantity: dto.quantity,
           availableQuantity: dto.quantity,
-          recipientId: recipient?.id,
           recipientEmail,
           recipientName,
           message: dto.message,
-          expiresAt,
-        },
-      })) as GiftCardBatchSnapshot;
-      await this.audit.log({
-        actorId: adminId,
-        actorRole: 'ADMIN',
-        action: 'GIFT_CARD_BATCH_CREATED_ADMIN',
-        entityType: 'GiftCardBatch',
-        entityId: batch.id,
-        payload: {
-          amountCents: readBatchAmount(batch),
-          totalQuantity: batch.totalQuantity,
-          recipientEmail: batch.recipientEmail ?? null,
-          recipientId: batch.recipientId ?? null,
-          imageUrl: batch.imageUrl ?? null,
+          expiresAt: issuedExpiresAt,
         },
       });
-      return batch;
-    } catch (error) {
-      if (uploadedImageUrl !== null) {
-        await this.images.removeStoredGiftCardImage(uploadedImageUrl);
-      }
-      throw error;
-    }
+      await tx.giftCard.createMany({
+        data: buildMintedGiftCardRows({
+          batchId: created.id,
+          quantity: dto.quantity,
+          amountAmd,
+          balanceClasses: shape.balanceClasses,
+          classQuantity: shape.classQuantity,
+          classTypeId: shape.classTypeId,
+          type: shape.type,
+          imageUrl: null,
+          message: dto.message ?? null,
+          recipientEmail,
+          recipientName,
+          expiresAt: issuedExpiresAt,
+        }),
+      });
+      const cards = await tx.giftCard.findMany({
+        where: { batchId: created.id },
+        select: { id: true, balanceAmd: true, balanceClasses: true },
+      });
+      await tx.giftCardTransaction.createMany({ data: issueLedgerRows(cards) });
+      return created;
+    });
+    await this.audit.log({
+      actorId: adminId,
+      actorRole: 'ADMIN',
+      action: 'GIFT_CARD_BATCH_CREATED_ADMIN',
+      entityType: 'GiftCardBatch',
+      entityId: batch.id,
+      payload: {
+        amountCents: readBatchAmount(batch),
+        totalQuantity: batch.totalQuantity,
+        recipientEmail: batch.recipientEmail ?? null,
+        recipientId: batch.recipientId ?? null,
+        imageUrl: batch.imageUrl ?? null,
+      },
+    });
+    return batch;
   }
 
   async updateBatch(batchId: string, dto: AdminUpdateGiftCardBatchDto) {
@@ -150,7 +156,6 @@ export class GiftCardsAdminBatchWriteService {
         ? dto.recipientName
         : (recipient?.name ?? existing.recipientName);
     const nextAmountAmd = amountAmd;
-    const amountDiff = nextAmountAmd - readBatchAmount(existing);
     const updateData: Record<string, unknown> = {
       amountAmd: nextAmountAmd,
       recipientId:
@@ -178,28 +183,24 @@ export class GiftCardsAdminBatchWriteService {
         data: updateData,
       })) as GiftCardBatchSnapshot;
 
-      const updateIssuedCardsArgs = {
+      await tx.giftCard.updateMany({
         where: {
           batchId,
           status: GiftCardStatus.ACTIVE,
+          type: GiftCardType.FIXED_VALUE,
+          purchaserId: null,
+          recipientId: null,
         },
         data: {
           amountAmd: nextAmountAmd,
-          ...(amountDiff !== 0
-            ? { balanceAmd: { increment: amountDiff } }
-            : {}),
-          recipientId:
-            dto.recipientId !== undefined
-              ? (recipient?.id ?? null)
-              : existing.recipientId,
+          balanceAmd: nextAmountAmd,
           recipientEmail,
           recipientName,
           message: dto.message !== undefined ? dto.message : existing.message,
           expiresAt:
             dto.expiresAt !== undefined ? parsedExpiresAt : existing.expiresAt,
         },
-      } as unknown as Parameters<typeof tx.giftCard.updateMany>[0];
-      await tx.giftCard.updateMany(updateIssuedCardsArgs);
+      });
 
       return batch;
     });

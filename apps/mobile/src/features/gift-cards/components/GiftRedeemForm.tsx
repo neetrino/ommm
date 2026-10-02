@@ -1,137 +1,89 @@
-import {
-  ActivityIndicator,
-  Pressable,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
+import { useState } from "react";
+import { StyleSheet, Text, TextInput, View } from "react-native";
+import { readStoredAccessToken } from "../../../auth/accessTokenStorage";
 import { useTranslations } from "../../../i18n/I18nProvider";
+import { redeemGiftCard } from "../../../lib/api/giftCardsClient";
 import { fontFamilies } from "../../../theme/fontFamilies";
 import { colors, radii, space, typography } from "../../../theme/tokens";
+import { PackagesPrimaryCta } from "../../packages/components/PackagesScreenActions";
 
-type GiftRedeemFormProps = {
-  code: string;
-  onChangeCode: (value: string) => void;
-  busy: boolean;
-  message: { kind: "ok" | "err"; text: string } | null;
-  onSubmit: () => void;
-};
-
-export function GiftRedeemForm({
-  code,
-  onChangeCode,
-  busy,
-  message,
-  onSubmit,
-}: GiftRedeemFormProps) {
+/** Member enters a gift code. The balance stays on the card until this succeeds. */
+export function GiftRedeemForm({ onRedeemed }: { onRedeemed: () => void }) {
   const t = useTranslations("userPages.giftCards.redeemForm");
+  const [code, setCode] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [notice, setNotice] = useState<string | null>(null);
 
   return (
-    <View style={styles.wrap}>
-      <Text style={styles.lead}>{t("lead")}</Text>
-      <Text style={styles.label}>{t("codeLabel")}</Text>
+    <View style={styles.box}>
+      <Text style={styles.title}>{t("title")}</Text>
       <TextInput
         value={code}
-        onChangeText={onChangeCode}
-        placeholder={t("codePlaceholder")}
-        placeholderTextColor={colors.bodyMuted}
         autoCapitalize="characters"
-        autoCorrect={false}
-        editable={!busy}
+        placeholder={t("codePlaceholder")}
+        placeholderTextColor={colors.taupe}
         style={styles.input}
-        accessibilityLabel={t("codeLabel")}
+        onChangeText={setCode}
       />
-      {message !== null ? (
-        <Text
-          style={message.kind === "ok" ? styles.ok : styles.err}
-          accessibilityLiveRegion="polite"
-        >
-          {message.text}
-        </Text>
-      ) : null}
-      <Pressable
-        onPress={onSubmit}
-        disabled={busy}
-        style={({ pressed }) => [
-          styles.button,
-          pressed && !busy && styles.pressed,
-          busy && styles.disabled,
-        ]}
-        accessibilityRole="button"
-        accessibilityLabel={t("submit")}
-      >
-        {busy ? (
-          <ActivityIndicator color={colors.white} />
-        ) : (
-          <Text style={styles.buttonLabel}>{t("submit")}</Text>
-        )}
-      </Pressable>
+      {notice !== null ? <Text style={styles.notice}>{notice}</Text> : null}
+      <PackagesPrimaryCta
+        label={busy ? t("submitting") : t("submit")}
+        onPress={() => {
+          void submitCode(code, t("success"), t("failed"), setBusy, setNotice, () => {
+            setCode("");
+            onRedeemed();
+          });
+        }}
+      />
     </View>
   );
 }
 
+async function submitCode(
+  code: string,
+  successLabel: string,
+  failedLabel: string,
+  setBusy: (value: boolean) => void,
+  setNotice: (value: string) => void,
+  onDone: () => void,
+): Promise<void> {
+  setBusy(true);
+  try {
+    const token = await readStoredAccessToken();
+    if (token === null) {
+      setNotice(failedLabel);
+      return;
+    }
+    await redeemGiftCard(token, code.trim());
+    setNotice(successLabel);
+    onDone();
+  } catch (error) {
+    setNotice(error instanceof Error ? error.message : failedLabel);
+  } finally {
+    setBusy(false);
+  }
+}
+
 const styles = StyleSheet.create({
-  wrap: {
-    gap: space.sm,
-    padding: space.lg,
-    borderRadius: radii.labelCard,
-    borderWidth: 1,
-    borderColor: colors.glassBorder,
-    backgroundColor: colors.white,
-  },
-  lead: {
-    fontFamily: fontFamilies.manrope.regular,
-    fontSize: typography.bodySmall,
-    lineHeight: 20,
-    color: colors.bodyMuted,
-  },
-  label: {
+  box: { gap: space.sm, marginBottom: space.md },
+  title: {
     fontFamily: fontFamilies.manrope.semiBold,
-    fontSize: typography.caption,
-    color: colors.ink,
-  },
-  input: {
-    minHeight: 48,
-    borderRadius: radii.pill,
-    borderWidth: 1,
-    borderColor: colors.glassBorder,
-    backgroundColor: colors.canvas,
-    paddingHorizontal: space.md,
-    fontFamily: fontFamilies.manrope.regular,
     fontSize: typography.body,
     color: colors.ink,
   },
-  ok: {
-    fontFamily: fontFamilies.manrope.semiBold,
+  input: {
+    borderWidth: 1,
+    borderColor: colors.glassBorder,
+    borderRadius: radii.labelCard,
+    paddingHorizontal: space.md,
+    paddingVertical: space.sm,
+    color: colors.ink,
+    fontFamily: fontFamilies.manrope.regular,
     fontSize: typography.bodySmall,
-    color: colors.primaryGreen,
   },
-  err: {
-    fontFamily: fontFamilies.manrope.semiBold,
-    fontSize: typography.bodySmall,
-    color: colors.danger,
-  },
-  button: {
-    alignSelf: "flex-end",
-    minHeight: 44,
-    paddingHorizontal: space.lg,
-    borderRadius: radii.pill,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: colors.taupe,
-  },
-  pressed: {
-    opacity: 0.92,
-  },
-  disabled: {
-    opacity: 0.55,
-  },
-  buttonLabel: {
-    fontFamily: fontFamilies.manrope.semiBold,
-    fontSize: typography.bodySmall,
-    color: colors.white,
-    textTransform: "uppercase",
-    letterSpacing: 0.8,
+  notice: {
+    fontFamily: fontFamilies.manrope.regular,
+    fontSize: typography.caption,
+    color: colors.ink,
   },
 });

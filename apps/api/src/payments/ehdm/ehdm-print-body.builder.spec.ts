@@ -38,8 +38,29 @@ describe('ehdm-print-body.builder', () => {
     expect(body.items).toHaveLength(1);
     expect(body.items[0]?.adgCode).toBe('9205');
     expect(body.items[0]?.price).toBe(25_000);
+    expect(body.items[0]?.discount).toBeUndefined();
+    expect(body.items[0]?.discountType).toBeUndefined();
     expect(body.items[0]?.goodName).toHaveLength(30);
     expect(body.items[0]?.goodCode).toBe('PKG-123');
+  });
+
+  it('prints list price minus a dram gift-card discount while tender stays the amount paid', () => {
+    const body = buildEhdmPrintBody(stubConfig(), {
+      paymentId: 'pay_gift',
+      paymentReference: 'PKG-GIFT',
+      amountCents: 90_000,
+      discountAmd: 30_000,
+      paymentMethod: ManualPaymentMethod.CARD,
+      itemName: 'Package',
+      itemCode: 'PKG-GIFT',
+      seq: 4,
+    });
+
+    expect(body.cardAmount).toBe(90_000);
+    expect(body.cashAmount).toBe(0);
+    expect(body.items[0]?.price).toBe(120_000);
+    expect(body.items[0]?.discount).toBe(30_000);
+    expect(body.items[0]?.discountType).toBe(2);
   });
 
   it('uses cash tender for bank transfer', () => {

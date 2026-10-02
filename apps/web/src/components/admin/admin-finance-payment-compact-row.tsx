@@ -35,7 +35,7 @@ import {
 import { AdminListMobileLabel } from "@/components/admin/admin-list-mobile-label";
 import type { FinancePaymentItem } from "@/components/admin/admin-finance-types";
 import { displayPhoneOrEmail } from "@/lib/phone";
-import { AmdMoneyText } from "@/components/ui/amd-money-text";
+import { AdminFinanceListAmount } from "@/components/admin/admin-finance-gift-discount";
 
 type AdminFinancePaymentCompactRowProps = {
   locale: string;
@@ -106,10 +106,14 @@ export function AdminFinancePaymentCompactRow({
 
       <div className={ADMIN_FINANCE_PAYMENTS_LIST_CELL}>
         <AdminListMobileLabel label={tTable("colAmount")} />
-        <AmdMoneyText
-          cents={row.amountCents}
+        <AdminFinanceListAmount
+          amountCents={row.amountCents}
+          giftCreditsAppliedCents={row.giftCreditsAppliedCents}
+          isGiftCreditSpend={row.isGiftCreditSpend}
           locale={locale}
           className={ADMIN_FINANCE_MONEY_CLASS}
+          giftLabel={t("paymentDetails.giftDiscount")}
+          giftSpendLabel={t("paymentDetails.giftCreditSpend")}
         />
       </div>
 

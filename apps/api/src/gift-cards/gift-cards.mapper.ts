@@ -1,5 +1,5 @@
 import { BadRequestException } from '@nestjs/common';
-import { GiftCardStatus } from '@prisma/client';
+import { GiftCardStatus, GiftCardType } from '@prisma/client';
 
 export type GiftCardBatchDelegateLike = {
   findMany: (args: {
@@ -31,6 +31,9 @@ export type GiftCardBatchDelegateLike = {
 export type AdminBoardBatchRow = {
   id: string;
   amountAmd: number;
+  type?: GiftCardType;
+  classQuantity?: number;
+  classType?: { name: string } | null;
   imageUrl: string | null;
   status: GiftCardStatus;
   totalQuantity: number;
@@ -42,6 +45,8 @@ export type AdminBoardBatchRow = {
   createdAt: Date;
   purchaser: { email: string; name: string | null } | null;
   recipient: { email: string; name: string | null } | null;
+  giftCards?: { code: string }[];
+  codes?: string[];
 };
 
 export type GiftCardBatchSnapshot = {
@@ -112,6 +117,11 @@ export function serializeUserGiftCard(card: {
   expiresAt: Date | null;
   createdAt: Date;
   batch?: { imageUrl: string | null } | null;
+  purchaser?: {
+    name: string | null;
+    lastName: string | null;
+    avatarUrl?: string | null;
+  } | null;
 }) {
   return {
     id: card.id,
@@ -122,17 +132,48 @@ export function serializeUserGiftCard(card: {
     imageUrl: readGiftCardImage(card) ?? card.batch?.imageUrl ?? null,
     recipientEmail: card.recipientEmail,
     recipientName: card.recipientName,
+    purchaserName: purchaserDisplayName(card.purchaser),
+    purchaserAvatarUrl: purchaserAvatarUrl(card.purchaser),
     message: card.message,
     expiresAt: card.expiresAt,
     createdAt: card.createdAt,
   };
 }
 
+function purchaserAvatarUrl(
+  purchaser: { avatarUrl?: string | null } | null | undefined,
+): string | null {
+  const url = purchaser?.avatarUrl?.trim() ?? '';
+  return url.length > 0 ? url : null;
+}
+
+function purchaserDisplayName(
+  purchaser:
+    | { name: string | null; lastName: string | null }
+    | null
+    | undefined,
+): string | null {
+  if (!purchaser) {
+    return null;
+  }
+  const name = [purchaser.name, purchaser.lastName]
+    .map((part) => part?.trim() ?? '')
+    .filter((part) => part.length > 0)
+    .join(' ');
+  return name.length > 0 ? name : null;
+}
+
 export function serializeAdminBoardBatch(batch: AdminBoardBatchRow) {
+  const { giftCards, classType, ...rest } = batch;
+  const codes = rest.codes ?? giftCards?.map((card) => card.code) ?? [];
   return {
-    ...batch,
+    ...rest,
+    codes,
     amountAmd: readBatchAmount(batch),
     amountCents: readBatchAmount(batch),
+    type: rest.type ?? GiftCardType.FIXED_VALUE,
+    classQuantity: rest.classQuantity ?? 0,
+    classTypeName: classType?.name ?? null,
   };
 }
 

@@ -68,8 +68,45 @@ export function parsePaymentMetadata(
     recipientId: readString(value, 'recipientId'),
     recipientName: readString(value, 'recipientName'),
     recipientEmail: readString(value, 'recipientEmail'),
+    recipientPhone: readString(value, 'recipientPhone'),
     message: readString(value, 'message'),
+    giftType: readGiftType(value),
+    classTypeId: readString(value, 'classTypeId'),
+    classQuantity: readPositiveInt(value, 'classQuantity'),
+    delivery: readDelivery(value),
+    deliverAt: readString(value, 'deliverAt'),
   };
+}
+
+function readGiftType(value: object): PaymentMetadata['giftType'] {
+  const candidate = (value as Record<string, unknown>).giftType;
+  return candidate === 'FIXED_CLASS' || candidate === 'FIXED_VALUE'
+    ? candidate
+    : undefined;
+}
+
+function readDelivery(value: object): PaymentMetadata['delivery'] {
+  const candidate = (value as Record<string, unknown>).delivery;
+  if (
+    candidate === 'EMAIL' ||
+    candidate === 'WHATSAPP' ||
+    candidate === 'PRINT'
+  ) {
+    return candidate;
+  }
+  return undefined;
+}
+
+function readPositiveInt(
+  value: object,
+  key: keyof PaymentMetadata,
+): number | undefined {
+  const candidate = (value as Record<string, unknown>)[key];
+  return typeof candidate === 'number' &&
+    Number.isInteger(candidate) &&
+    candidate > 0
+    ? candidate
+    : undefined;
 }
 
 function mapPaymentSourceFilter(

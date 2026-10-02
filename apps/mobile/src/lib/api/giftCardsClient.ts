@@ -313,28 +313,20 @@ export async function confirmGiftCardPayment(
   }
 }
 
-export async function redeemGiftCardCode(
-  accessToken: string,
-  code: string,
-): Promise<void> {
+export async function redeemGiftCard(accessToken: string, code: string): Promise<void> {
   const base = getApiBaseUrl();
   const res = await fetchWithReachabilityHint(
     joinApiPath(base, "/v1/gift-cards/redeem"),
     {
       method: "POST",
-      headers: {
-        ...AUTH_JSON_HEADERS,
-        Authorization: `Bearer ${accessToken}`,
-      },
+      headers: { ...AUTH_JSON_HEADERS, Authorization: `Bearer ${accessToken}` },
       body: JSON.stringify({ code }),
     },
     base,
   );
   const body = await parseJson(res);
   if (!res.ok) {
-    throw new Error(
-      extractErrorMessage(JSON.stringify(body), `Redeem ${res.status}`),
-    );
+    throw new Error(extractErrorMessage(JSON.stringify(body), `Redeem ${res.status}`));
   }
 }
 

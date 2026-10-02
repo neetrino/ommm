@@ -12,6 +12,7 @@ export type DashboardStudioPaymentDueItem = {
   clientName: string;
   packageId: string;
   packageName: string;
+  categoryName: string;
 };
 
 export type DashboardStudioPaymentDue = {
@@ -38,6 +39,7 @@ type DashboardPaymentDueDb = {
       select: {
         id: true;
         planNameSnapshot: true;
+        planCategoryNameSnapshot: true;
         user: {
           select: {
             id: true;
@@ -52,6 +54,7 @@ type DashboardPaymentDueDb = {
       Array<{
         id: string;
         planNameSnapshot: string;
+        planCategoryNameSnapshot: string;
         user: {
           id: string;
           name: string | null;
@@ -102,6 +105,7 @@ export async function loadDashboardStudioPaymentDue(
     select: {
       id: true,
       planNameSnapshot: true,
+      planCategoryNameSnapshot: true,
       user: {
         select: { id: true, name: true, lastName: true, email: true },
       },
@@ -116,6 +120,7 @@ export async function loadDashboardStudioPaymentDue(
       clientName: joinName(row.user.name, row.user.lastName, row.user.email),
       packageId: row.id,
       packageName: row.planNameSnapshot,
+      categoryName: row.planCategoryNameSnapshot,
     })),
   };
 }

@@ -80,6 +80,20 @@ enum GiftCardStatus {
   DEACTIVATED
 }
 
+enum GiftCardType {
+  FIXED_VALUE
+  FIXED_CLASS
+}
+
+enum GiftCardTransactionKind {
+  ISSUE
+  REDEEM
+  SPEND
+  REFUND
+  ADJUST
+  EXPIRE
+}
+
 enum AuthTokenType {
   EMAIL_VERIFY
   PASSWORD_RESET

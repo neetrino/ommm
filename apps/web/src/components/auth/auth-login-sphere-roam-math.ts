@@ -27,13 +27,19 @@ export type AuthLoginSphereEntry = {
   size: number;
 };
 
-export function measureBounds(size: number): RoamBounds {
+export function measureBounds(
+  size: number,
+  frame: { width: number; height: number } = {
+    width: window.innerWidth,
+    height: window.innerHeight,
+  },
+): RoamBounds {
   const pad = AUTH_LOGIN_SPHERE_ROAM.edgePaddingPx;
   return {
     minX: pad,
     minY: pad,
-    maxX: Math.max(pad, window.innerWidth - size - pad),
-    maxY: Math.max(pad, window.innerHeight - size - pad),
+    maxX: Math.max(pad, frame.width - size - pad),
+    maxY: Math.max(pad, frame.height - size - pad),
   };
 }
 

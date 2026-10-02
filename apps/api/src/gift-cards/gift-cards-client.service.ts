@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { GiftCardStatus } from '@prisma/client';
 import { DEFAULT_LIST_PAGE_SIZE } from '../common/dto/list-pagination-query.dto';
+import { AuditService } from '../audit/audit.service';
 import { PrismaService } from '../prisma/prisma.service';
 import type { ListMyGiftCardsQueryDto } from './dto/list-my-gift-cards-query.dto';
 import {
@@ -14,14 +15,26 @@ import {
   readGiftCardBalance,
   serializeUserGiftCard,
 } from './gift-cards.mapper';
+import { expireDueGiftCards } from './gift-card-ledger';
+import { resolveGiftCardPolicy } from './gift-card-policy';
+import { redeemGiftCardForUser } from './gift-card-redeem';
+import { didRedeemJustLock } from './gift-card-redeem-guard';
+import { buildGiftCardPdf } from './gift-card-pdf';
+import { GiftCardRedeemGuardService } from './gift-card-redeem-guard.service';
 import { peekSpendableGiftCreditsCents } from '../packages/package-gift-credits.util';
 
-const GIFT_RECIPIENT_SEARCH_MIN_CHARS = 2;
+const GIFT_ACTIVITY_PAGE = 40;
+
+const GIFT_RECIPIENT_SEARCH_MIN_CHARS = 1;
 const GIFT_RECIPIENT_SEARCH_LIMIT = 20;
 
 @Injectable()
 export class GiftCardsClientService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly redeemGuard: GiftCardRedeemGuardService,
+    private readonly audit: AuditService,
+  ) {}
 
   listMine(userId: string, query: ListMyGiftCardsQueryDto = {}) {
     const hasPagination =
@@ -59,7 +72,10 @@ export class GiftCardsClientService {
     const hasPagination =
       query.take !== undefined || query.offset !== undefined;
     const where = { recipientId: userId };
-    const include = { batch: { select: { imageUrl: true } } };
+    const include = {
+      batch: { select: { imageUrl: true } },
+      purchaser: { select: { name: true, lastName: true, avatarUrl: true } },
+    };
     const orderBy = { createdAt: 'desc' as const };
 
     if (!hasPagination) {
@@ -95,6 +111,7 @@ export class GiftCardsClientService {
           status: GiftCardStatus.ACTIVE,
           availableQuantity: { gt: 0 },
         },
+        include: { classType: { select: { name: true } } },
         orderBy: { createdAt: 'desc' },
         take: 200,
       })
@@ -103,6 +120,7 @@ export class GiftCardsClientService {
           ...batch,
           amountAmd: readBatchAmount(batch),
           amountCents: readBatchAmount(batch),
+          classTypeName: readMarketClassTypeName(batch),
         })),
       );
   }
@@ -135,6 +153,7 @@ export class GiftCardsClientService {
   }
 
   async getSpendableBalance(userId: string) {
+    await expireDueGiftCards(this.prisma);
     const spendableCents = await peekSpendableGiftCreditsCents(
       this.prisma,
       userId,
@@ -142,33 +161,98 @@ export class GiftCardsClientService {
     return { spendableCents };
   }
 
+  async getPolicy() {
+    const row = await this.prisma.studioSettings.findFirst({
+      select: {
+        giftCardMinAmountAmd: true,
+        giftCardValidityMonths: true,
+        giftCardDenominationsJson: true,
+      },
+    });
+    return resolveGiftCardPolicy(row);
+  }
+
+  async listMyActivity(userId: string) {
+    const rows = await this.prisma.giftCardTransaction.findMany({
+      where: {
+        OR: [{ userId }, { giftCard: { recipientId: userId } }],
+      },
+      include: { giftCard: { select: { code: true } } },
+      orderBy: { createdAt: 'desc' },
+      take: GIFT_ACTIVITY_PAGE,
+    });
+    return rows.map((row) => ({
+      id: row.id,
+      kind: row.kind,
+      code: row.giftCard.code,
+      amountAmd: row.amountAmd,
+      classes: row.classes,
+      balanceAmdAfter: row.balanceAmdAfter,
+      balanceClassesAfter: row.balanceClassesAfter,
+      orderId: row.orderId,
+      createdAt: row.createdAt,
+    }));
+  }
+
   async redeem(userId: string, code: string) {
-    const normalized = code.trim().toUpperCase();
-    const card = await this.prisma.giftCard.findUnique({
-      where: { code: normalized },
+    this.redeemGuard.assertAllowed(userId);
+    try {
+      await expireDueGiftCards(this.prisma);
+      const result = await redeemGiftCardForUser(this.prisma, userId, code);
+      if (this.redeemGuard.recordSuccess(userId)) {
+        await this.audit.log({
+          action: 'GIFT_REDEEM_BURST',
+          entityType: 'User',
+          entityId: userId,
+          actorId: userId,
+          payload: { successes: 5 },
+        });
+      }
+      return result;
+    } catch (error) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof BadRequestException
+      ) {
+        await this.auditRedeemLock(userId);
+      }
+      throw error;
+    }
+  }
+
+  async buildOwnedPdf(userId: string, cardId: string): Promise<Buffer> {
+    const card = await this.prisma.giftCard.findFirst({
+      where: {
+        id: cardId,
+        OR: [{ purchaserId: userId }, { recipientId: userId }],
+      },
     });
-    if (!card || card.status !== GiftCardStatus.ACTIVE) {
-      throw new NotFoundException('Invalid code');
+    if (card === null) {
+      throw new NotFoundException('Gift card not found');
     }
-    const now = new Date();
-    if (card.expiresAt !== null && card.expiresAt <= now) {
-      throw new BadRequestException('Gift card has expired');
-    }
-    const balance = readGiftCardBalance(card);
-    if (balance <= 0) {
-      throw new BadRequestException('Gift card has no balance');
-    }
-    if (card.recipientId !== null && card.recipientId !== userId) {
-      throw new BadRequestException('Gift card already assigned');
-    }
-    if (card.recipientId === userId) {
-      return { ok: true, creditedCents: balance, alreadyOwned: true };
-    }
-    await this.prisma.giftCard.update({
-      where: { id: card.id },
-      data: { recipientId: userId },
+    const amountLabel =
+      card.type === 'FIXED_CLASS'
+        ? `${card.classQuantity} classes`
+        : `${card.amountAmd} AMD`;
+    return buildGiftCardPdf({
+      code: card.code,
+      amountLabel,
+      message: card.message ?? undefined,
     });
-    return { ok: true, creditedCents: balance, alreadyOwned: false };
+  }
+
+  private async auditRedeemLock(userId: string): Promise<void> {
+    const state = this.redeemGuard.recordFailure(userId);
+    if (!didRedeemJustLock(state)) {
+      return;
+    }
+    await this.audit.log({
+      action: 'GIFT_REDEEM_LOCKED',
+      entityType: 'User',
+      entityId: userId,
+      actorId: userId,
+      payload: { failures: state.failures },
+    });
   }
 
   listAdminCards() {
@@ -191,4 +275,19 @@ export class GiftCardsClientService {
         })),
       );
   }
+}
+
+function readMarketClassTypeName(
+  batch: Record<string, unknown>,
+): string | null {
+  const classType = batch.classType;
+  if (
+    typeof classType !== 'object' ||
+    classType === null ||
+    !('name' in classType)
+  ) {
+    return null;
+  }
+  const name = classType.name;
+  return typeof name === 'string' && name.trim().length > 0 ? name : null;
 }

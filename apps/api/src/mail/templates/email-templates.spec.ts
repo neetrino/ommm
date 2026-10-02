@@ -99,7 +99,7 @@ describe('branded email templates', () => {
   it('renders CTAs as buttons, not pasted URLs', () => {
     expect(samples[0]).toContain('Confirm email');
     expect(samples[2]).toContain('Open my account');
-    expect(samples[5]).toContain('Open my gift cards');
+    expect(samples[5]).toContain('Create your account');
     expect(samples[6]).toContain('Book this class');
     expect(samples[7]).toContain('Open my waitlist');
     expect(samples[9]).toContain('Open schedule');
@@ -121,5 +121,30 @@ describe('branded email templates', () => {
 
   it('does not attribute a studio sender', () => {
     expect(visibleText(samples[7])).not.toMatch(/\bFrom\b/);
+  });
+
+  it('congratulates a gift recipient with the gift, sender, and note', () => {
+    const html = renderGiftCardEmail({
+      code: 'OMMM-4821',
+      accountUrl: SAMPLE_URL,
+      recipientName: 'Jasmine',
+      senderName: 'Aren Petrosyan',
+      senderEmail: 'aren@gmail.com',
+      amountLabel: '30,000 ֏',
+      message: 'Happy birthday',
+    });
+    const text = visibleText(html);
+    expect(html).toContain('A gift for you');
+    expect(text).toContain('Hi Jasmine,');
+    expect(text).toContain('Aren Petrosyan');
+    expect(text).toContain('aren@gmail.com');
+    expect(text).toContain('From');
+    expect(text).toContain('Your gift');
+    expect(text).toContain('30,000 ֏ to use at the studio');
+    expect(text).not.toMatch(/\bAmount\b/);
+    expect(text).toContain('Happy birthday');
+    expect(html).toContain('Create your account');
+    expect(text).toContain('enter this code');
+    expect(text).not.toMatch(/https?:\/\//);
   });
 });

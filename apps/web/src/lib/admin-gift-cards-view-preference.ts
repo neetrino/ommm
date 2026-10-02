@@ -1,7 +1,7 @@
 export type AdminGiftCardsViewMode = "list" | "board";
 
 export const ADMIN_GIFT_CARDS_VIEW_QUERY_KEY = "view";
-export const DEFAULT_ADMIN_GIFT_CARDS_VIEW_MODE: AdminGiftCardsViewMode = "board";
+export const DEFAULT_ADMIN_GIFT_CARDS_VIEW_MODE: AdminGiftCardsViewMode = "list";
 
 const VALID_MODES: readonly AdminGiftCardsViewMode[] = ["list", "board"];
 

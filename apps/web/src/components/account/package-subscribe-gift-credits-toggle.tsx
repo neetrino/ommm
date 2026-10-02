@@ -3,6 +3,11 @@
 import { useTranslations } from "next-intl";
 import formStyles from "@/components/account/package-subscribe-payment-form.module.css";
 import { formatAmdFromCents } from "@/lib/price-amd";
+import {
+  remainingGiftCents,
+  selectedGiftBalanceCents,
+  type SpendableGiftCardChoice,
+} from "@/lib/spendable-gift-card-choices";
 
 type PackageSubscribeGiftCreditsToggleProps = {
   fieldId: string;
@@ -12,10 +17,203 @@ type PackageSubscribeGiftCreditsToggleProps = {
   appliedCents: number;
   amountDueCents: number;
   locale: string;
+  cards: readonly SpendableGiftCardChoice[];
+  selectedIds: readonly string[];
   onChange: (value: boolean) => void;
+  onSelectedIdsChange: (ids: string[]) => void;
 };
 
-function GiftCreditsIcon() {
+function GiftCardChoiceList({
+  cards,
+  selectedIds,
+  disabled,
+  locale,
+  hint,
+  selectAllLabel,
+  onSelectedIdsChange,
+}: {
+  cards: readonly SpendableGiftCardChoice[];
+  selectedIds: readonly string[];
+  disabled: boolean;
+  locale: string;
+  hint: string;
+  selectAllLabel: string;
+  onSelectedIdsChange: (ids: string[]) => void;
+}) {
+  const selected = new Set(selectedIds);
+  const allSelected = cards.every((card) => selected.has(card.id));
+  return (
+    <div className="space-y-2">
+      <p className={formStyles.giftCreditsHint}>{hint}</p>
+      <GiftCardSelectAll
+        label={selectAllLabel}
+        checked={allSelected}
+        disabled={disabled}
+        onChange={(checked) =>
+          onSelectedIdsChange(checked ? cards.map((card) => card.id) : [])
+        }
+      />
+      <ul className={formStyles.giftCardChoices}>
+        {cards.map((card) => (
+          <li key={card.id}>
+            <label className={formStyles.giftCardChoice}>
+              <span className={formStyles.giftCardChoiceCode}>{card.code}</span>
+              <span className={formStyles.giftCreditsBadge}>
+                {formatAmdFromCents(card.balanceCents, locale)}
+              </span>
+              <input
+                type="checkbox"
+                className={formStyles.giftCreditsCheckbox}
+                checked={selected.has(card.id)}
+                disabled={disabled}
+                onChange={(event) =>
+                  onSelectedIdsChange(toggleGiftCardId(selectedIds, card.id, event.target.checked))
+                }
+              />
+            </label>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function GiftCardSelectAll({
+  label,
+  checked,
+  disabled,
+  onChange,
+}: {
+  label: string;
+  checked: boolean;
+  disabled: boolean;
+  onChange: (checked: boolean) => void;
+}) {
+  return (
+    <label className={formStyles.giftCardChoice}>
+      <span className={formStyles.giftCardSelectAllLabel}>{label}</span>
+      <input
+        type="checkbox"
+        className={formStyles.giftCreditsCheckbox}
+        checked={checked}
+        disabled={disabled}
+        onChange={(event) => onChange(event.target.checked)}
+      />
+    </label>
+  );
+}
+
+function toggleGiftCardId(
+  selectedIds: readonly string[],
+  cardId: string,
+  checked: boolean,
+): string[] {
+  if (!checked) {
+    return selectedIds.filter((id) => id !== cardId);
+  }
+  return selectedIds.includes(cardId) ? [...selectedIds] : [...selectedIds, cardId];
+}
+
+function PooledGiftCreditOption({
+  fieldId,
+  checked,
+  disabled,
+  hasCredit,
+  spendableCents,
+  locale,
+  title,
+  availableHint,
+  unavailableHint,
+  onChange,
+}: {
+  fieldId: string;
+  checked: boolean;
+  disabled: boolean;
+  hasCredit: boolean;
+  spendableCents: number;
+  locale: string;
+  title: string;
+  availableHint: string;
+  unavailableHint: string;
+  onChange: (value: boolean) => void;
+}) {
+  return (
+    <label
+      htmlFor={fieldId}
+      className={`${formStyles.giftCreditsOption} ${disabled ? formStyles.giftCreditsOptionDisabled : ""}`}
+    >
+      <span className={formStyles.giftCreditsIconWrap} aria-hidden>
+        <GiftCreditsIcon />
+      </span>
+      <span className={formStyles.giftCreditsCopy}>
+        <span className={formStyles.giftCreditsTitleRow}>
+          <span className={formStyles.giftCreditsTitle}>{title}</span>
+          {hasCredit ? (
+            <span className={formStyles.giftCreditsBadge}>
+              {formatAmdFromCents(spendableCents, locale)}
+            </span>
+          ) : null}
+        </span>
+        <span className={formStyles.giftCreditsHint}>
+          {hasCredit ? availableHint : unavailableHint}
+        </span>
+      </span>
+      <input
+        id={fieldId}
+        type="checkbox"
+        checked={checked}
+        disabled={disabled}
+        onChange={(event) => onChange(event.target.checked)}
+        className={formStyles.giftCreditsCheckbox}
+      />
+    </label>
+  );
+}
+
+function GiftCreditSummary({
+  appliedLabel,
+  dueLabel,
+  remainderLabel,
+  appliedCents,
+  amountDueCents,
+  remainderCents,
+  locale,
+}: {
+  appliedLabel: string;
+  dueLabel: string;
+  remainderLabel: string;
+  appliedCents: number;
+  amountDueCents: number;
+  remainderCents: number;
+  locale: string;
+}) {
+  return (
+    <dl className={formStyles.giftCreditsSummary}>
+      <div className={formStyles.giftCreditsSummaryRow}>
+        <dt>{appliedLabel}</dt>
+        <dd className={formStyles.giftCreditsAppliedValue}>
+          −{formatAmdFromCents(appliedCents, locale)}
+        </dd>
+      </div>
+      {remainderCents > 0 ? (
+        <div className={formStyles.giftCreditsSummaryRow}>
+          <dt>{remainderLabel}</dt>
+          <dd className={formStyles.giftCreditsDueValue}>
+            {formatAmdFromCents(remainderCents, locale)}
+          </dd>
+        </div>
+      ) : null}
+      <div className={formStyles.giftCreditsSummaryRow}>
+        <dt>{dueLabel}</dt>
+        <dd className={formStyles.giftCreditsDueValue}>
+          {formatAmdFromCents(amountDueCents, locale)}
+        </dd>
+      </div>
+    </dl>
+  );
+}
+
+export function GiftCreditsIcon() {
   return (
     <svg
       className={formStyles.giftCreditsIcon}
@@ -55,13 +253,18 @@ export function PackageSubscribeGiftCreditsToggle({
   appliedCents,
   amountDueCents,
   locale,
+  cards,
+  selectedIds,
   onChange,
+  onSelectedIdsChange,
 }: PackageSubscribeGiftCreditsToggleProps) {
   const t = useTranslations("forms.manualPackagePayment");
-  const hasCredit = spendableCents > 0;
+  const choosingCards = cards.length > 0;
+  const hasCredit = choosingCards || spendableCents > 0;
+  const selectionActive = choosingCards ? selectedIds.length > 0 : checked;
   const blockClassName = [
     formStyles.giftCreditsBlock,
-    checked ? formStyles.giftCreditsBlockActive : "",
+    selectionActive ? formStyles.giftCreditsBlockActive : "",
     !hasCredit ? formStyles.giftCreditsBlockEmpty : "",
   ]
     .filter(Boolean)
@@ -69,63 +272,59 @@ export function PackageSubscribeGiftCreditsToggle({
 
   return (
     <section className={formStyles.giftCreditsSection} aria-labelledby={`${fieldId}-legend`}>
-      <p
-        id={`${fieldId}-legend`}
-        className={`ommm-label text-xs uppercase tracking-wide text-sage-700 ${formStyles.sectionHeading}`}
-      >
-        {t("giftCreditsLegend")}
-      </p>
+      <div className={formStyles.giftCreditsHeading}>
+        <span className={formStyles.giftCreditsHeadingIcon} aria-hidden>
+          <GiftCreditsIcon />
+        </span>
+        <p
+          id={`${fieldId}-legend`}
+          className={`ommm-label text-xs uppercase tracking-wide text-sage-700 ${formStyles.sectionHeading}`}
+        >
+          {t("giftCreditsLegend")}
+        </p>
+      </div>
 
       <div className={blockClassName}>
-        <label
-          htmlFor={fieldId}
-          className={`${formStyles.giftCreditsOption} ${disabled ? formStyles.giftCreditsOptionDisabled : ""}`}
-        >
-          <span className={formStyles.giftCreditsIconWrap} aria-hidden>
-            <GiftCreditsIcon />
-          </span>
-
-          <span className={formStyles.giftCreditsCopy}>
-            <span className={formStyles.giftCreditsTitleRow}>
-              <span className={formStyles.giftCreditsTitle}>{t("useGiftCredits")}</span>
-              {hasCredit ? (
-                <span className={formStyles.giftCreditsBadge}>
-                  {formatAmdFromCents(spendableCents, locale)}
-                </span>
-              ) : null}
-            </span>
-            <span className={formStyles.giftCreditsHint}>
-              {hasCredit
-                ? t("giftCreditsAvailableHint")
-                : t("giftCreditsUnavailable")}
-            </span>
-          </span>
-
-          <input
-            id={fieldId}
-            type="checkbox"
+        {choosingCards ? (
+          <GiftCardChoiceList
+            cards={cards}
+            selectedIds={selectedIds}
+            disabled={disabled}
+            locale={locale}
+            hint={t("giftCardChooseHint")}
+            selectAllLabel={t("giftCardSelectAll")}
+            onSelectedIdsChange={onSelectedIdsChange}
+          />
+        ) : (
+          <PooledGiftCreditOption
+            fieldId={fieldId}
             checked={checked}
             disabled={disabled}
-            onChange={(event) => onChange(event.target.checked)}
-            className={formStyles.giftCreditsCheckbox}
+            hasCredit={hasCredit}
+            spendableCents={spendableCents}
+            locale={locale}
+            title={t("useGiftCredits")}
+            availableHint={t("giftCreditsAvailableHint")}
+            unavailableHint={t("giftCreditsUnavailable")}
+            onChange={onChange}
           />
-        </label>
+        )}
 
-        {checked && hasCredit ? (
-          <dl className={formStyles.giftCreditsSummary}>
-            <div className={formStyles.giftCreditsSummaryRow}>
-              <dt>{t("giftCreditsApplied")}</dt>
-              <dd className={formStyles.giftCreditsAppliedValue}>
-                −{formatAmdFromCents(appliedCents, locale)}
-              </dd>
-            </div>
-            <div className={formStyles.giftCreditsSummaryRow}>
-              <dt>{t("amountDue")}</dt>
-              <dd className={formStyles.giftCreditsDueValue}>
-                {formatAmdFromCents(amountDueCents, locale)}
-              </dd>
-            </div>
-          </dl>
+        {selectionActive && hasCredit ? (
+          <GiftCreditSummary
+            appliedLabel={t("giftCreditsApplied")}
+            dueLabel={t("amountDue")}
+            remainderLabel={t("giftCardRemainder")}
+            appliedCents={appliedCents}
+            amountDueCents={amountDueCents}
+            remainderCents={remainingGiftCents(
+              choosingCards
+                ? selectedGiftBalanceCents(cards, selectedIds)
+                : spendableCents,
+              appliedCents,
+            )}
+            locale={locale}
+          />
         ) : null}
       </div>
     </section>

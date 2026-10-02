@@ -31,6 +31,7 @@ import {
 import {
   peekSpendableGiftCreditsCents,
   resolveGiftCreditsApplication,
+  selectedGiftCardIds,
 } from './package-gift-credits.util';
 import {
   createCashPackageSubscriptionWithGiftCredits,
@@ -143,6 +144,7 @@ export class PackagesPublicService {
     assertPackageHasAvailableStock(plan);
 
     const useGiftCredits = dto.useGiftCredits === true;
+    const giftCardIds = selectedGiftCardIds(dto.giftCardIds);
     const isCardPayment = dto.paymentMethod === ManualPaymentMethod.CARD;
     if (isCardPayment && isArcaCheckoutEnabled(this.config)) {
       return this.subscribeCardWithArca(
@@ -150,6 +152,7 @@ export class PackagesPublicService {
         plan,
         dto.locale,
         useGiftCredits,
+        giftCardIds,
       );
     }
     return this.subscribeWithoutArcaRedirect(
@@ -157,6 +160,7 @@ export class PackagesPublicService {
       plan,
       isCardPayment,
       useGiftCredits,
+      giftCardIds,
     );
   }
 
@@ -165,17 +169,20 @@ export class PackagesPublicService {
     plan: PackagePlan,
     locale: string | undefined,
     useGiftCredits: boolean,
+    giftCardIds?: readonly string[],
   ) {
     const pricing = await this.resolveSubscribePricing(
       userId,
       plan,
       useGiftCredits,
+      giftCardIds,
     );
     if (pricing.chargeCents === 0) {
       return this.subscribeFullyCoveredByGiftCredits(
         userId,
         plan,
         pricing.appliedCents,
+        giftCardIds,
       );
     }
 
@@ -184,6 +191,7 @@ export class PackagesPublicService {
       plan,
       chargeCents: pricing.chargeCents,
       giftCreditsAppliedCents: pricing.appliedCents,
+      giftCardIds,
     });
     try {
       const { redirectUrl } = await this.arca.initPayment({
@@ -209,6 +217,7 @@ export class PackagesPublicService {
     userId: string,
     plan: PackagePlan,
     useGiftCredits: boolean,
+    giftCardIds?: readonly string[],
   ): Promise<{
     appliedCents: number;
     chargeCents: number;
@@ -221,6 +230,7 @@ export class PackagesPublicService {
     const spendableCents = await peekSpendableGiftCreditsCents(
       this.prisma,
       userId,
+      giftCardIds,
     );
     return {
       ...resolveGiftCreditsApplication({
@@ -262,17 +272,20 @@ export class PackagesPublicService {
     plan: PackagePlan,
     isCardPayment: boolean,
     useGiftCredits: boolean,
+    giftCardIds?: readonly string[],
   ) {
     const pricing = await this.resolveSubscribePricing(
       userId,
       plan,
       useGiftCredits,
+      giftCardIds,
     );
     if (pricing.chargeCents === 0) {
       return this.subscribeFullyCoveredByGiftCredits(
         userId,
         plan,
         pricing.appliedCents,
+        giftCardIds,
       );
     }
     if (isCardPayment) {
@@ -282,6 +295,7 @@ export class PackagesPublicService {
           plan,
           chargeCents: pricing.chargeCents,
           giftCreditsAppliedCents: pricing.appliedCents,
+          giftCardIds,
         }),
       );
       return {
@@ -298,6 +312,7 @@ export class PackagesPublicService {
         userId,
         plan,
         giftCreditsAppliedCents: pricing.appliedCents,
+        giftCardIds,
       }),
     );
     await this.paymentCashPendingEmail.trySendCashPendingEmail(
@@ -316,12 +331,14 @@ export class PackagesPublicService {
     userId: string,
     plan: PackagePlan,
     appliedCents: number,
+    giftCardIds?: readonly string[],
   ) {
     const created = await this.prisma.$transaction((tx) =>
       createFullyGiftCoveredPackageSubscription(tx, {
         userId,
         plan,
         appliedCents,
+        giftCardIds,
       }),
     );
     if (created.stockTracked) {

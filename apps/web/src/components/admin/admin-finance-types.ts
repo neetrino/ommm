@@ -72,6 +72,10 @@ export type FinancePaymentItem = {
   confirmedAt: string | null;
   /** Short code explaining PENDING/FAILED — see payment-status-reason.ts */
   statusReason?: string | null;
+  /** Gift-card credit subtracted from the package list price. */
+  giftCreditsAppliedCents?: number;
+  /** Internal ledger row for gift-card balance used on a package. */
+  isGiftCreditSpend?: boolean;
   ehdmReceipt?: {
     receiptId: string;
     seq: number;

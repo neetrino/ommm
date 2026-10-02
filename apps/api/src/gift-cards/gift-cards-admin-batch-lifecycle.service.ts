@@ -4,12 +4,12 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { GiftCardStatus } from '@prisma/client';
-import { randomBytes } from 'node:crypto';
 import { AuditService } from '../audit/audit.service';
 import { MailService } from '../mail/mail.service';
 import { buildGiftCardDeliveryEmail } from '../mail/templates/gift-card.template';
 import { PrismaService } from '../prisma/prisma.service';
 import { WhatsappNotifyService } from '../whatsapp/whatsapp-notify.service';
+import { generateGiftCardCode } from './gift-card-issue';
 import { GiftCardsImageService } from './gift-cards-image.service';
 import {
   type GiftCardBatchSnapshot,
@@ -60,7 +60,7 @@ export class GiftCardsAdminBatchLifecycleService {
       const createIssuedCardArgs = {
         data: {
           batchId: batch.id,
-          code: randomBytes(8).toString('hex').toUpperCase(),
+          code: generateGiftCardCode(),
           amountAmd: readBatchAmount(batch),
           balanceAmd: readBatchAmount(batch),
           imageUrl: batch.imageUrl ?? undefined,
@@ -231,7 +231,7 @@ export class GiftCardsAdminBatchLifecycleService {
       description:
         card.status === GiftCardStatus.REDEEMED
           ? `Gift card ${card.code} redeemed`
-          : `Gift card ${card.code} issued to ${card.recipientName ?? card.recipientEmail ?? 'recipient'}`,
+          : describeIssuedGiftCard(card),
     }));
     return {
       batchId: batch.id,
@@ -265,4 +265,16 @@ export class GiftCardsAdminBatchLifecycleService {
     });
     await this.whatsapp.trySendGiftCard(email, code);
   }
+}
+
+function describeIssuedGiftCard(card: {
+  code: string;
+  recipientName: string | null;
+  recipientEmail: string | null;
+}): string {
+  const recipient = card.recipientName ?? card.recipientEmail;
+  if (recipient) {
+    return `Gift card ${card.code} issued to ${recipient}`;
+  }
+  return `Gift card ${card.code} issued`;
 }

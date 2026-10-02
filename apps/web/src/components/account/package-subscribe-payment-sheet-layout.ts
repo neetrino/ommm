@@ -42,7 +42,7 @@ export const PACKAGE_SUBSCRIBE_DESKTOP_BODY_CLASS =
 
 /** Fills sheet height; scroll lives in the form body, actions stay pinned. */
 export const PACKAGE_SUBSCRIBE_FORM_CLASS =
-  "flex min-h-0 flex-1 flex-col gap-0";
+  "relative flex min-h-0 flex-1 flex-col gap-0";
 
 export const PACKAGE_SUBSCRIBE_FORM_SCROLL_CLASS =
   "min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-y-contain pe-1";

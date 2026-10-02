@@ -24,6 +24,12 @@ model StudioSettings {
   enabledLocalesJson         String?
   /// When set, header call-task badge counts only PENDING tasks created after this time.
   callTasksBadgeAcknowledgedAt DateTime?
+  /// Admin-configurable floor for a custom fixed-value gift card (whole AMD).
+  giftCardMinAmountAmd       Int @default(30000)
+  /// Months added when a card is issued without an explicit expiry.
+  giftCardValidityMonths     Int @default(12)
+  /// JSON array of ready-made AMD denominations, e.g. [30000,70000,100000].
+  giftCardDenominationsJson  String @default("[30000,70000,100000]")
   createdAt               DateTime @default(now())
   updatedAt               DateTime @updatedAt
 }

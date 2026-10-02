@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import type { ManualPaymentMethod } from '@prisma/client';
 import { AdminListPaymentsQueryDto } from './dto/admin-list-payments-query.dto';
+import type { CreateCartCheckoutDto } from './dto/create-cart-checkout.dto';
 import type { ListMyPaymentsQueryDto } from './dto/list-my-payments-query.dto';
 import type { AdminUpdatablePaymentMethod } from './dto/admin-update-payment-method.dto';
 import type { AdminUpdatablePaymentStatus } from './dto/admin-update-payment-status.dto';
@@ -13,12 +14,14 @@ import { PaymentCashPendingEmailService } from './payment-cash-pending-email.ser
 import { PaymentsAdminMutationService } from './payments-admin-mutation.service';
 import { PaymentsAdminService } from './payments-admin.service';
 import { PaymentsCheckoutService } from './payments-checkout.service';
+import { PaymentsCartCheckoutService } from './payments-cart.checkout';
 
 @Injectable()
 export class PaymentsService {
   constructor(
     private readonly config: ConfigService,
     private readonly checkout: PaymentsCheckoutService,
+    private readonly cart: PaymentsCartCheckoutService,
     private readonly admin: PaymentsAdminService,
     private readonly adminMutation: PaymentsAdminMutationService,
     private readonly paymentCashPendingEmail: PaymentCashPendingEmailService,
@@ -40,8 +43,24 @@ export class PaymentsService {
     return this.checkout.createGiftCheckout(params);
   }
 
-  createDropInCheckout(userId: string, sessionId: string) {
-    return this.checkout.createDropInCheckout(userId, sessionId);
+  createDropInCheckout(
+    userId: string,
+    sessionId: string,
+    useGiftCredits = false,
+  ) {
+    return this.checkout.createDropInCheckout(
+      userId,
+      sessionId,
+      useGiftCredits,
+    );
+  }
+
+  createCartCheckout(userId: string, dto: CreateCartCheckoutDto) {
+    return this.cart.create(userId, dto);
+  }
+
+  dispatchDueGiftEmails(): Promise<number> {
+    return this.checkout.dispatchDueGiftEmails();
   }
 
   confirmPendingCardPayment(paymentId: string): Promise<void> {

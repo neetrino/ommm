@@ -1,9 +1,14 @@
 import { Injectable } from '@nestjs/common';
-import type { Express } from 'express';
+import type {
+  AdminAdjustGiftCardDto,
+  AdminExtendGiftCardDto,
+} from './dto/admin-adjust-gift-card.dto';
 import type { AdminCreateGiftCardDto } from './dto/admin-create-gift-card.dto';
 import type { AdminUpdateGiftCardBatchDto } from './dto/admin-update-gift-card-batch.dto';
 import type { ListAdminGiftCardBatchesQueryDto } from './dto/list-admin-gift-card-batches-query.dto';
 import type { ListMyGiftCardsQueryDto } from './dto/list-my-gift-cards-query.dto';
+import { GiftCardsAdminCardOpsService } from './gift-cards-admin-card-ops.service';
+import { GiftCardsAdminImportService } from './gift-cards-admin-import.service';
 import { GiftCardsAdminBatchLifecycleService } from './gift-cards-admin-batch-lifecycle.service';
 import { GiftCardsAdminBatchWriteService } from './gift-cards-admin-batch-write.service';
 import { GiftCardsAdminBoardService } from './gift-cards-admin-board.service';
@@ -18,6 +23,8 @@ export class GiftCardsService {
     private readonly adminCards: GiftCardsAdminCardsService,
     private readonly adminBatchWrite: GiftCardsAdminBatchWriteService,
     private readonly adminBatchLifecycle: GiftCardsAdminBatchLifecycleService,
+    private readonly adminCardOps: GiftCardsAdminCardOpsService,
+    private readonly adminImport: GiftCardsAdminImportService,
   ) {}
 
   listMine(userId: string, query: ListMyGiftCardsQueryDto = {}) {
@@ -38,6 +45,14 @@ export class GiftCardsService {
 
   getSpendableBalance(userId: string) {
     return this.client.getSpendableBalance(userId);
+  }
+
+  getPolicy() {
+    return this.client.getPolicy();
+  }
+
+  listMyActivity(userId: string) {
+    return this.client.listMyActivity(userId);
   }
 
   redeem(userId: string, code: string) {
@@ -68,12 +83,8 @@ export class GiftCardsService {
     return this.adminCards.resendEmail(id);
   }
 
-  createAdminCard(
-    adminId: string,
-    dto: AdminCreateGiftCardDto,
-    imageFile?: Express.Multer.File,
-  ) {
-    return this.adminBatchWrite.createAdminCard(adminId, dto, imageFile);
+  createAdminCard(adminId: string, dto: AdminCreateGiftCardDto) {
+    return this.adminBatchWrite.createAdminCard(adminId, dto);
   }
 
   updateBatch(batchId: string, dto: AdminUpdateGiftCardBatchDto) {
@@ -110,5 +121,43 @@ export class GiftCardsService {
 
   getRedemptionHistory(giftCardId: string) {
     return this.adminCards.getRedemptionHistory(giftCardId);
+  }
+
+  extendCardExpiry(id: string, dto: AdminExtendGiftCardDto) {
+    return this.adminCardOps.extendExpiry(id, dto.expiresAt);
+  }
+
+  adjustCardBalance(id: string, dto: AdminAdjustGiftCardDto, actorId: string) {
+    return this.adminCardOps.adjustBalance(id, dto, actorId);
+  }
+
+  convertCard(
+    id: string,
+    direction: 'TO_MONEY' | 'TO_CLASSES',
+    classTypeId: string | undefined,
+    actorId: string,
+  ) {
+    return this.adminCardOps.convertCard(id, direction, classTypeId, actorId);
+  }
+
+  setAllowOtherClasses(id: string, allow: boolean) {
+    return this.adminCardOps.setAllowOtherClasses(id, allow);
+  }
+
+  buildPdf(userId: string, cardId: string) {
+    return this.client.buildOwnedPdf(userId, cardId);
+  }
+
+  exportBatchXlsx(batchId: string) {
+    return this.adminCardOps.exportBatchXlsx(batchId);
+  }
+
+  importGiftExcel(
+    adminId: string,
+    file:
+      | { originalname: string; mimetype: string; size: number; buffer: Buffer }
+      | undefined,
+  ) {
+    return this.adminImport.importWorkbook(adminId, file);
   }
 }

@@ -130,6 +130,8 @@ export type ClientSheetPaymentItem = {
   description: string | null;
   paymentMethod: string | null;
   createdAt: string;
+  giftCreditsAppliedCents?: number;
+  isGiftCreditSpend?: boolean;
 };
 
 export type ClientSheetPackageTypeBalance = {
@@ -190,6 +192,8 @@ export type GiftCardRow = {
 };
 
 export type ClientSheetGiftCardItem = GiftCardRow & {
+  code: string;
+  expiresAt: string | null;
   relation: "purchased" | "received";
 };
 

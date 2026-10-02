@@ -11,6 +11,7 @@ import { CallTasksModule } from './call-tasks/call-tasks.module';
 import { CacheModule } from './cache/cache.module';
 import { AuditModule } from './audit/audit.module';
 import { AuthModule } from './auth/auth.module';
+import { BarModule } from './bar/bar.module';
 import { BookingsModule } from './bookings/bookings.module';
 import { ClassesModule } from './classes/classes.module';
 import { ClientsModule } from './clients/clients.module';
@@ -98,6 +99,7 @@ function createPinoHttpConfig(): Record<string, unknown> {
     CoachesModule,
     ClassesModule,
     BookingsModule,
+    BarModule,
     WaitlistModule,
     PaymentsModule,
     GiftCardsModule,

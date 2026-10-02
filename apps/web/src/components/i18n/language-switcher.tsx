@@ -12,6 +12,7 @@ import {
   type AppUiLocale,
 } from "@/lib/enabled-locales";
 import { captureLocaleSwitchScroll } from "@/lib/locale-switch-scroll";
+import { stripRoutingLocalePrefix } from "@/lib/strip-routing-locale-prefix";
 import { setUiLocaleCookie } from "@/lib/ui-locale-cookie";
 import type { DashboardShellVariant } from "@/components/shell/dashboard-shell-types";
 import { DropdownSelect, type DropdownOption } from "@/components/ui/dropdown-select";
@@ -96,10 +97,11 @@ export function LanguageSwitcher({
       return;
     }
 
+    const nextPath = stripRoutingLocalePrefix(pathname);
     setUiLocaleCookie(next);
     captureLocaleSwitchScroll();
     startTransition(() => {
-      router.replace(pathname, { locale: next, scroll: false });
+      router.replace(nextPath, { locale: next, scroll: false });
       onAfterSelect?.();
     });
 

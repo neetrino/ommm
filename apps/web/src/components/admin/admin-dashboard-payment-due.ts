@@ -3,15 +3,39 @@ export type DashboardStudioPaymentDueItem = {
   clientName: string;
   packageId: string;
   packageName: string;
+  categoryName?: string;
+};
+
+export type PaymentDuePackageLine = {
+  packageId: string;
+  packageName: string;
+  categoryName?: string;
 };
 
 export type PaymentDueClientGroup = {
   clientId: string;
   clientName: string;
-  packages: Array<{ packageId: string; packageName: string }>;
+  packages: PaymentDuePackageLine[];
 };
 
-export const DASHBOARD_PAYMENT_DUE_PREVIEW_LIMIT = 3;
+/** Category plus plan, without repeating a category already inside the plan name. */
+export function formatPaymentDuePurchaseLabel(
+  categoryName: string | undefined,
+  packageName: string,
+): string {
+  const category = categoryName?.trim() ?? "";
+  const plan = packageName.trim();
+  if (category.length === 0) {
+    return plan;
+  }
+  if (plan.toLocaleLowerCase().includes(category.toLocaleLowerCase())) {
+    return plan;
+  }
+  return `${category} · ${plan}`;
+}
+
+export const DASHBOARD_PAYMENT_DUE_PREVIEW_LIMIT = 5;
+export const PAYMENT_DUE_CARD_VISIBLE_PACKAGES = 2;
 export const STUDIO_PAYMENT_DUE_ENDPOINT = "/reports/dashboard/payment-due";
 
 export function uniquePaymentDueClients(
@@ -38,6 +62,48 @@ export function previewPaymentDueClients(
   );
 }
 
+/** First packages shown on a card, plus how many stay hidden behind the count. */
+export function visiblePaymentDuePackages<T>(packages: readonly T[]): {
+  visible: T[];
+  hiddenCount: number;
+} {
+  const visible = packages.slice(0, PAYMENT_DUE_CARD_VISIBLE_PACKAGES);
+  return {
+    visible,
+    hiddenCount: Math.max(0, packages.length - visible.length),
+  };
+}
+
+/** People hidden behind View all, after the dashboard preview cards. */
+export function remainingPaymentDuePeopleCount(
+  items: readonly DashboardStudioPaymentDueItem[],
+): number {
+  const hidden =
+    uniquePaymentDueClients(items).length - DASHBOARD_PAYMENT_DUE_PREVIEW_LIMIT;
+  return hidden > 0 ? hidden : 0;
+}
+
+/** First clients for the dashboard, with every unpaid package kept on the card. */
+export function previewPaymentDueGroups(
+  items: readonly DashboardStudioPaymentDueItem[],
+): PaymentDueClientGroup[] {
+  return groupPaymentDueByClient(items).slice(
+    0,
+    DASHBOARD_PAYMENT_DUE_PREVIEW_LIMIT,
+  );
+}
+
+function toPackageLine(item: DashboardStudioPaymentDueItem): PaymentDuePackageLine {
+  const line: PaymentDuePackageLine = {
+    packageId: item.packageId,
+    packageName: item.packageName,
+  };
+  if (item.categoryName) {
+    line.categoryName = item.categoryName;
+  }
+  return line;
+}
+
 export function groupPaymentDueByClient(
   items: readonly DashboardStudioPaymentDueItem[],
 ): PaymentDueClientGroup[] {
@@ -50,7 +116,7 @@ export function groupPaymentDueByClient(
       groups.push({
         clientId: item.clientId,
         clientName: item.clientName,
-        packages: [{ packageId: item.packageId, packageName: item.packageName }],
+        packages: [toPackageLine(item)],
       });
       continue;
     }
@@ -58,10 +124,7 @@ export function groupPaymentDueByClient(
     if (!group) {
       continue;
     }
-    group.packages.push({
-      packageId: item.packageId,
-      packageName: item.packageName,
-    });
+    group.packages.push(toPackageLine(item));
   }
   return groups;
 }

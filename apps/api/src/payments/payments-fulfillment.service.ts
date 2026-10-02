@@ -7,13 +7,19 @@ import { ConfigService } from '@nestjs/config';
 import {
   BookingStatus,
   ClassSessionStatus,
-  GiftCardStatus,
   Prisma,
   UserPackageStatus,
 } from '@prisma/client';
-import { randomBytes } from 'node:crypto';
 import { MailService } from '../mail/mail.service';
 import { buildGiftCardDeliveryEmail } from '../mail/templates/gift-card.template';
+import { formatPaymentAmount } from './payment-email-format.util';
+import {
+  issuePurchasedGiftCard,
+  readGiftSender,
+} from './payments-gift-issue.helpers';
+import { reservePendingDropInGift } from './payments-dropin-gift';
+import { fulfillStudioCart, readCartCheckout } from './payments-cart.fulfill';
+import { decideGiftEmail, scheduleGiftEmail } from './payments-gift-delivery';
 import { PrismaService } from '../prisma/prisma.service';
 import { WhatsappBookingConfirmedService } from '../whatsapp/whatsapp-booking-confirmed.service';
 import { WhatsappNotifyService } from '../whatsapp/whatsapp-notify.service';
@@ -38,7 +44,6 @@ import { createBalancesForUserPackage } from '../packages/packages-user-package-
 import { parsePaymentMetadata } from './payments.helpers';
 import {
   INTERNAL_PAYMENT_SOURCE,
-  type GiftCardBatchSnapshot,
   type GiftEmailPayload,
   type InternalPaymentRecord,
 } from './payments.types';
@@ -258,6 +263,7 @@ export class PaymentsFulfillmentService {
   async fulfillGiftPayment(
     tx: Prisma.TransactionClient,
     payment: {
+      id: string;
       userId: string;
       amountCents: number;
       sourceId: string | null;
@@ -265,59 +271,58 @@ export class PaymentsFulfillmentService {
     },
   ): Promise<GiftEmailPayload | null> {
     const metadata = parsePaymentMetadata(payment.metadata);
-    let selectedBatch: GiftCardBatchSnapshot | null = null;
-    if (payment.sourceId) {
-      const decremented = await tx.giftCardBatch.updateMany({
-        where: {
-          id: payment.sourceId,
-          status: GiftCardStatus.ACTIVE,
-          availableQuantity: { gt: 0 },
-        },
-        data: { availableQuantity: { decrement: 1 } },
-      });
-      if (decremented.count !== 1) {
-        throw new BadRequestException('Gift card is out of stock');
-      }
-      selectedBatch = await tx.giftCardBatch.findUnique({
-        where: { id: payment.sourceId },
-        select: {
-          id: true,
-          amountAmd: true,
-          imageUrl: true,
-          expiresAt: true,
-          message: true,
-          recipientName: true,
-          recipientEmail: true,
-          availableQuantity: true,
-          status: true,
-        },
-      });
-      if (!selectedBatch) {
-        throw new BadRequestException('Gift-card batch not found');
-      }
-    }
-    const code = randomBytes(8).toString('hex').toUpperCase();
-    const recipientEmail =
-      metadata.recipientEmail || selectedBatch?.recipientEmail || undefined;
-    const recipientId = metadata.recipientId || undefined;
-    await tx.giftCard.create({
-      data: {
-        batchId: selectedBatch?.id,
-        code,
-        amountAmd: selectedBatch?.amountAmd ?? payment.amountCents,
-        balanceAmd: selectedBatch?.amountAmd ?? payment.amountCents,
-        imageUrl: selectedBatch?.imageUrl ?? undefined,
-        status: GiftCardStatus.ACTIVE,
-        purchaserId: payment.userId,
-        recipientId,
-        recipientName:
-          metadata.recipientName || selectedBatch?.recipientName || undefined,
-        recipientEmail,
-        message: metadata.message || selectedBatch?.message || undefined,
-        expiresAt: selectedBatch?.expiresAt ?? undefined,
-      },
+    const issued = await issuePurchasedGiftCard(tx, {
+      purchaserId: payment.userId,
+      amountCents: payment.amountCents,
+      sourceId: payment.sourceId,
+      metadata,
     });
-    return recipientEmail ? { to: recipientEmail, code } : null;
+    const sender = await readGiftSender(tx, payment.userId);
+    const whatsappPhone = metadata.recipientPhone?.trim() ?? '';
+    if (metadata.delivery === 'WHATSAPP' && whatsappPhone.length > 0) {
+      return {
+        to: whatsappPhone,
+        code: issued.code,
+        channel: 'WHATSAPP',
+        recipientName: issued.recipientName,
+        senderName: sender.name,
+        senderEmail: sender.email,
+        amountAmd: issued.amountAmd,
+        message: issued.message,
+      };
+    }
+    const decision = decideGiftEmail({
+      delivery: metadata.delivery,
+      deliverAt: metadata.deliverAt,
+      recipientEmail: issued.recipientEmail,
+      now: new Date(),
+    });
+    if (
+      decision === 'schedule' &&
+      metadata.deliverAt &&
+      issued.recipientEmail
+    ) {
+      await scheduleGiftEmail(
+        tx,
+        payment.id,
+        payment.metadata,
+        metadata.deliverAt,
+        issued.code,
+      );
+      return null;
+    }
+    if (decision !== 'send' || !issued.recipientEmail) {
+      return null;
+    }
+    return {
+      to: issued.recipientEmail,
+      code: issued.code,
+      recipientName: issued.recipientName,
+      senderName: sender.name,
+      senderEmail: sender.email,
+      amountAmd: issued.amountAmd,
+      message: issued.message,
+    };
   }
 
   async fulfillPaymentBySource(
@@ -327,7 +332,16 @@ export class PaymentsFulfillmentService {
     giftEmail: GiftEmailPayload | null;
     packageStockTracked: boolean;
   }> {
+    if (readCartCheckout(existing.metadata ?? null) !== null) {
+      await fulfillStudioCart(tx, existing, this);
+      return { giftEmail: null, packageStockTracked: false };
+    }
     if (existing.source === INTERNAL_PAYMENT_SOURCE.DROPIN) {
+      await reservePendingDropInGift(tx, {
+        id: existing.id,
+        userId: existing.userId,
+        metadata: existing.metadata ?? null,
+      });
       await this.fulfillDropInPayment(
         tx,
         existing.userId,
@@ -348,6 +362,7 @@ export class PaymentsFulfillmentService {
       return { giftEmail: null, packageStockTracked: false };
     }
     const giftEmail = await this.fulfillGiftPayment(tx, {
+      id: existing.id,
       userId: existing.userId,
       amountCents: existing.amountCents,
       sourceId: existing.sourceId ?? null,
@@ -356,24 +371,34 @@ export class PaymentsFulfillmentService {
     return { giftEmail, packageStockTracked: false };
   }
 
-  async sendGiftCardEmail(to: string, code: string): Promise<void> {
+  async sendGiftCardEmail(payload: GiftEmailPayload): Promise<void> {
+    if (payload.channel === 'WHATSAPP') {
+      await this.whatsapp.trySendGiftCardToPhone(payload.to, payload.code);
+      return;
+    }
+    const amountLabel =
+      payload.amountAmd === undefined || payload.amountAmd <= 0
+        ? undefined
+        : formatPaymentAmount(payload.amountAmd, 'amd');
     await this.mail.sendEmail({
-      to,
+      to: payload.to,
       ...buildGiftCardDeliveryEmail({
-        code,
+        code: payload.code,
+        recipientName: payload.recipientName,
+        senderName: payload.senderName,
+        senderEmail: payload.senderEmail,
+        amountLabel,
+        message: payload.message,
         webAppUrl: this.config.get<string>('WEB_APP_URL'),
       }),
     });
-    await this.whatsapp.trySendGiftCard(to, code);
+    await this.whatsapp.trySendGiftCard(payload.to, payload.code);
   }
 
   async emitDropInBookingRealtimeIfNeeded(
     payment: InternalPaymentRecord,
   ): Promise<void> {
-    if (payment.source !== INTERNAL_PAYMENT_SOURCE.DROPIN) {
-      return;
-    }
-    const sessionId = payment.sourceId?.trim();
+    const sessionId = cartOrDropInSessionId(payment);
     if (!sessionId) {
       return;
     }
@@ -391,4 +416,13 @@ export class PaymentsFulfillmentService {
       await this.bookingConfirmed.tryNotify(booking.id);
     }
   }
+}
+
+function cartOrDropInSessionId(
+  payment: InternalPaymentRecord,
+): string | undefined {
+  if (payment.source === INTERNAL_PAYMENT_SOURCE.DROPIN) {
+    return payment.sourceId?.trim() || undefined;
+  }
+  return readCartCheckout(payment.metadata ?? null)?.sessionId;
 }

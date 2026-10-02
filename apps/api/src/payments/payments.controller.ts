@@ -20,6 +20,7 @@ import { AdminUpdatePaymentMethodDto } from './dto/admin-update-payment-method.d
 import { AdminUpdatePaymentStatusDto } from './dto/admin-update-payment-status.dto';
 import { ConfirmDropInPaymentDto } from './dto/confirm-dropin-payment.dto';
 import { ConfirmGiftPaymentDto } from './dto/confirm-gift-payment.dto';
+import { CreateCartCheckoutDto } from './dto/create-cart-checkout.dto';
 import { CreateGiftCheckoutDto } from './dto/create-gift-checkout.dto';
 import { ListMyPaymentsQueryDto } from './dto/list-my-payments-query.dto';
 import { PaymentOutcomeQueryDto } from './dto/payment-outcome-query.dto';
@@ -36,17 +37,24 @@ export class PaymentsController {
     @Body() body: CreateGiftCheckoutDto,
   ) {
     const amountAmd = body.resolvedAmountAmd;
-    if (amountAmd === undefined) {
+    if (body.type !== 'FIXED_CLASS' && amountAmd === undefined) {
       throw new BadRequestException('Gift amount is required');
     }
     return this.payments.createGiftCheckout({
       purchaserId: user.id,
       batchId: body.batchId,
-      amountCents: amountAmd,
+      amountCents: amountAmd ?? 0,
       recipientId: body.recipientId,
       recipientName: body.recipientName,
       recipientEmail: body.recipientEmail,
+      recipientPhone: body.recipientPhone,
       message: body.message,
+      giftType: body.type,
+      classTypeId: body.classTypeId,
+      classQuantity: body.classQuantity,
+      packagePlanId: body.packagePlanId,
+      delivery: body.delivery,
+      deliverAt: body.deliverAt,
     });
   }
 
@@ -64,13 +72,27 @@ export class PaymentsController {
     );
   }
 
+  @Post('checkout/cart')
+  @UseGuards(JwtAuthGuard)
+  checkoutCart(
+    @CurrentUser() user: { id: string },
+    @Body() body: CreateCartCheckoutDto,
+  ) {
+    return this.payments.createCartCheckout(user.id, body);
+  }
+
   @Post('checkout/dropin/:sessionId')
   @UseGuards(JwtAuthGuard)
   checkoutDropIn(
     @CurrentUser() user: { id: string },
     @Param('sessionId') sessionId: string,
+    @Query('useGiftCredits') useGiftCredits?: string,
   ) {
-    return this.payments.createDropInCheckout(user.id, sessionId);
+    return this.payments.createDropInCheckout(
+      user.id,
+      sessionId,
+      useGiftCredits === 'true',
+    );
   }
 
   @Post('checkout/dropin/:reference/confirm')

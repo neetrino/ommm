@@ -6,6 +6,7 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { UpdateEnabledLocalesDto } from './dto/update-enabled-locales.dto';
 import { UpdateHomeSectionsDto } from './dto/update-home-sections.dto';
+import { UpdateGiftPolicyDto } from './dto/update-gift-policy.dto';
 import { UpdateStudioDto } from './dto/update-studio.dto';
 import { StudioService } from './studio.service';
 
@@ -47,6 +48,13 @@ export class StudioController {
   @Roles(...BACKOFFICE_WRITE_ROLES)
   updateHomeSections(@Body() dto: UpdateHomeSectionsDto) {
     return this.studio.updateHomeSections(dto.sections);
+  }
+
+  @Patch('gift-policy')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(...BACKOFFICE_WRITE_ROLES)
+  updateGiftPolicy(@Body() dto: UpdateGiftPolicyDto) {
+    return this.studio.updateGiftPolicy(dto);
   }
 
   @Patch('enabled-locales')

@@ -11,9 +11,14 @@ import { PAYMENT_STATUS_REASON } from '../payments/payment-status-reason';
 import { buildPackagePaymentDescription } from '../payments/payments-related-item.util';
 import { PrismaService } from '../prisma/prisma.service';
 import {
+  cardIdsFromAllocations,
+  stampGiftSpendOrder,
+} from '../gift-cards/gift-card-ledger';
+import {
   buildGiftCreditsPaymentMetadata,
   recordGiftCreditSpendPayment,
   reserveGiftCreditsForPackage,
+  sameGiftCardSelection,
 } from './package-gift-credits.util';
 import {
   createPaymentReference,
@@ -38,6 +43,7 @@ export async function createFullyGiftCoveredPackageSubscription(
     userId: string;
     plan: PackagePlan;
     appliedCents: number;
+    giftCardIds?: readonly string[];
   },
 ): Promise<{
   userPackageId: string;
@@ -48,6 +54,7 @@ export async function createFullyGiftCoveredPackageSubscription(
   const allocations = await reserveGiftCreditsForPackage(tx, {
     userId: params.userId,
     appliedCents: params.appliedCents,
+    cardIds: params.giftCardIds,
   });
   const userPackage = await tx.userPackage.create({
     data: buildUserPackageCreateData({
@@ -60,7 +67,7 @@ export async function createFullyGiftCoveredPackageSubscription(
     plan: params.plan,
     userPackageId: userPackage.id,
   });
-  await tx.payment.create({
+  const payment = await tx.payment.create({
     data: {
       userId: params.userId,
       amountCents: 0,
@@ -77,6 +84,11 @@ export async function createFullyGiftCoveredPackageSubscription(
         buildGiftCreditsPaymentMetadata(params.appliedCents, allocations),
       ),
     },
+  });
+  await stampGiftSpendOrder(tx, {
+    userId: params.userId,
+    orderId: payment.id,
+    cardIds: cardIdsFromAllocations(allocations),
   });
   await recordGiftCreditSpendPayment(tx, {
     userId: params.userId,
@@ -99,6 +111,7 @@ export async function createCashPackageSubscriptionWithGiftCredits(
     userId: string;
     plan: PackagePlan;
     giftCreditsAppliedCents: number;
+    giftCardIds?: readonly string[];
   },
 ): Promise<{
   userPackageId: string;
@@ -115,6 +128,7 @@ export async function createCashPackageSubscriptionWithGiftCredits(
       ? await reserveGiftCreditsForPackage(tx, {
           userId: params.userId,
           appliedCents: params.giftCreditsAppliedCents,
+          cardIds: params.giftCardIds,
         })
       : [];
   const userPackage = await tx.userPackage.create({
@@ -149,6 +163,11 @@ export async function createCashPackageSubscriptionWithGiftCredits(
       }),
     },
   });
+  await stampGiftSpendOrder(tx, {
+    userId: params.userId,
+    orderId: payment.id,
+    cardIds: cardIdsFromAllocations(allocations),
+  });
   return {
     userPackageId: userPackage.id,
     paymentId: payment.id,
@@ -165,6 +184,7 @@ export async function createPendingCardPurchaseWithGiftCredits(
     plan: PackagePlan;
     chargeCents: number;
     giftCreditsAppliedCents: number;
+    giftCardIds?: readonly string[];
   },
 ) {
   const allocations =
@@ -172,6 +192,7 @@ export async function createPendingCardPurchaseWithGiftCredits(
       ? await reserveGiftCreditsForPackage(tx, {
           userId: params.userId,
           appliedCents: params.giftCreditsAppliedCents,
+          cardIds: params.giftCardIds,
         })
       : [];
   return createPendingCardPackagePurchase(tx, {
@@ -191,15 +212,18 @@ export async function resolvePendingCardPackagePurchase(
     plan: PackagePlan;
     chargeCents: number;
     giftCreditsAppliedCents: number;
+    giftCardIds?: readonly string[];
   },
 ): Promise<{ purchase: PendingCardPackagePurchase; created: boolean }> {
-  const { userId, plan, chargeCents, giftCreditsAppliedCents } = params;
+  const { userId, plan, chargeCents, giftCreditsAppliedCents, giftCardIds } =
+    params;
   const resolved = await db.$transaction(async (tx) => {
     const existing = await findPendingCardPackagePurchase(tx, userId, plan.id);
     if (
       existing !== null &&
       existing.amountCents === chargeCents &&
-      existing.giftCreditsAppliedCents === giftCreditsAppliedCents
+      existing.giftCreditsAppliedCents === giftCreditsAppliedCents &&
+      sameGiftCardSelection(existing.giftCardIds, giftCardIds)
     ) {
       return { purchase: existing, created: false };
     }
@@ -214,6 +238,7 @@ export async function resolvePendingCardPackagePurchase(
       plan,
       chargeCents,
       giftCreditsAppliedCents,
+      giftCardIds,
     });
     return { purchase, created: true };
   });
@@ -222,7 +247,8 @@ export async function resolvePendingCardPackagePurchase(
   if (
     canonical === null ||
     canonical.amountCents !== chargeCents ||
-    canonical.giftCreditsAppliedCents !== giftCreditsAppliedCents
+    canonical.giftCreditsAppliedCents !== giftCreditsAppliedCents ||
+    !sameGiftCardSelection(canonical.giftCardIds, giftCardIds)
   ) {
     canonical = await db.$transaction(async (tx) => {
       const stale = await findPendingCardPackagePurchase(tx, userId, plan.id);
@@ -237,6 +263,7 @@ export async function resolvePendingCardPackagePurchase(
         plan,
         chargeCents,
         giftCreditsAppliedCents,
+        giftCardIds,
       });
     });
     return { purchase: canonical, created: true };

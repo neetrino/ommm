@@ -61,6 +61,32 @@ export class WhatsappNotifyService {
     }
   }
 
+  async trySendGiftCardToPhone(
+    phone: string,
+    code: string,
+  ): Promise<WhatsappSendResult> {
+    try {
+      if (!(await this.gateway.isConfigured())) {
+        return 'skipped';
+      }
+      const chatId = toWhatsappChatId(phone);
+      if (chatId === null) {
+        return 'skipped';
+      }
+      const text = renderBilingualWhatsappMessage((locale) =>
+        renderGiftCardWhatsapp(locale, { code }),
+      );
+      const sent = await this.gateway.sendText(chatId, text);
+      return sent ? 'sent' : 'failed';
+    } catch (error) {
+      this.logger.error(
+        'WhatsApp gift card phone notify failed',
+        error instanceof Error ? error.stack : undefined,
+      );
+      return 'failed';
+    }
+  }
+
   async trySendGiftCard(
     email: string,
     code: string,

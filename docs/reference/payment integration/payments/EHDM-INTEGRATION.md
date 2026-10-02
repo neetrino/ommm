@@ -83,8 +83,10 @@ One line item:
 
 - `goodName` ≤ 30 chars (package / class / gift / `Վճարում`)
 - `goodCode` = `paymentReference` or last 12 of `paymentId`
-- `price` = `amountCents` (AMD)
-- Tender: `CARD` / `CARD_TERMINAL` → `cardAmount`; cash / bank transfer / other / null → `cashAmount`
+- `price` = amount paid (`amountCents`) plus gift-card credit, when `metadata.giftCreditsAppliedCents` is positive
+- Gift-card credit is a dram discount: `discount` = applied credit, `discountType` = 2 (per unit). Omit both fields when there is no discount
+- Tender (`cardAmount` / `cashAmount`) stays the amount actually paid, not the list price
+- Tender method: `CARD` / `CARD_TERMINAL` → `cardAmount`; cash / bank transfer / other / null → `cashAmount`
 
 Never print two sale receipts for the same payment (`paymentId` unique).
 

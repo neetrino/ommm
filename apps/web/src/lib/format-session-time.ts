@@ -1,12 +1,14 @@
 import { formatDateForUi } from "@/lib/date-display";
-import { formatTimeForUi } from "@/lib/format-time-display";
+import { utcToStudioWallClockTime } from "@/lib/studio-timezone";
 
-export function formatSessionRange(
-  locale: string,
-  startsAtIso: string,
-  endsAtIso: string,
-): string {
+/** `DD/MM/YYYY HH:mm - HH:mm` in studio time — same clock as the public schedule. */
+export function formatSessionRange(startsAtIso: string, endsAtIso: string): string {
   const start = new Date(startsAtIso);
   const end = new Date(endsAtIso);
-  return `${formatDateForUi(start)} ${formatTimeForUi(start, locale)} - ${formatTimeForUi(end, locale)}`;
+  if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
+    return "";
+  }
+  const startClock = utcToStudioWallClockTime(start);
+  const endClock = utcToStudioWallClockTime(end);
+  return `${formatDateForUi(start)} ${startClock} - ${endClock}`;
 }

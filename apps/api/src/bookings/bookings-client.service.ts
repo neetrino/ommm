@@ -30,9 +30,9 @@ import {
   shouldChargePackageOnBook,
 } from '../packages/package-usage-consume.helpers';
 import {
-  resolveBookingSessionCredits,
-  shouldValidatePackageForBooking,
-} from './resolve-booking-session-credits';
+  applyBookingCredits,
+  resolveBookingCreditSplit,
+} from './bookings-class-gift';
 import { WhatsappBookingConfirmedService } from '../whatsapp/whatsapp-booking-confirmed.service';
 import type { CreateBookingDto } from './dto/create-booking.dto';
 import type { ListMyBookingsQueryDto } from './dto/list-my-bookings-query.dto';
@@ -129,11 +129,9 @@ export class BookingsClientService {
     if (booked >= session.capacity) {
       throw new BadRequestException('Session is full — join waitlist');
     }
-    const requiredSessions = resolveBookingSessionCredits({
-      session,
-      userPackageId: dto?.userPackageId,
-    });
-    const usePackageCredit = shouldValidatePackageForBooking({
+    const credits = await resolveBookingCreditSplit(this.prisma, {
+      userId,
+      classTypeId: session.classType.id,
       session,
       userPackageId: dto?.userPackageId,
     });
@@ -154,8 +152,8 @@ export class BookingsClientService {
           existingBooking?.consumptions ?? [],
         );
         const shouldCharge = shouldChargePackageOnBook({
-          usePackageCredit,
-          requiredSessions,
+          usePackageCredit: credits.usePackageCredit,
+          requiredSessions: credits.packageSessions,
           alreadyHoldsCredit,
         });
 
@@ -196,18 +194,25 @@ export class BookingsClientService {
               include: { session: { include: { classType: true } } },
             });
 
-        if (packageMembership !== null) {
-          await this.packageUsage.consumeSession({
-            tx,
-            bookingId: savedBooking.id,
-            membership: packageMembership,
-            sessionClassType: {
-              id: session.classType.id,
-              name: session.classType.name,
-            },
-            requiredSessions,
-          });
-        }
+        await applyBookingCredits(tx, {
+          bookingId: savedBooking.id,
+          userId,
+          classTypeId: session.classType.id,
+          membership: packageMembership,
+          packageSessions: credits.packageSessions,
+          giftSessions: alreadyHoldsCredit ? 0 : credits.giftSessions,
+          consumePackage: (membership, sessions) =>
+            this.packageUsage.consumeSession({
+              tx,
+              bookingId: savedBooking.id,
+              membership,
+              sessionClassType: {
+                id: session.classType.id,
+                name: session.classType.name,
+              },
+              requiredSessions: sessions,
+            }),
+        });
         return savedBooking;
       },
       { timeout: BOOKING_INTERACTIVE_TX_TIMEOUT_MS },

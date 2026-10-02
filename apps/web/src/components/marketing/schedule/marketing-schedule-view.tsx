@@ -68,7 +68,7 @@ function formatSheetDayLabel(locale: string, date: Date): string {
   const weekday = new Intl.DateTimeFormat(locale, { weekday: "short" }).format(
     date,
   );
-  return `${weekday}, ${formatDateForUi(date)}`;
+  return `${weekday}, ${formatDateForUi(toLocalIsoDate(date))}`;
 }
 
 export function MarketingScheduleView({

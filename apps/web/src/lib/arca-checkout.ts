@@ -22,6 +22,22 @@ export async function startArcaCardCheckout(
   window.location.href = result.redirectUrl;
 }
 
+/**
+ * Opens the bank payment page for a gift card.
+ * Skips the in-app summary that asks for a second click.
+ */
+export async function openGiftCardPaymentPage(
+  paymentReference: string,
+  locale: string,
+): Promise<"bank" | "simulated"> {
+  if (isArcaCheckoutEnabled()) {
+    await startArcaCardCheckout(paymentReference, locale);
+    return "bank";
+  }
+  await confirmSimulatedCardCheckout(paymentReference, "gift");
+  return "simulated";
+}
+
 /** Dev / fallback: confirm card payment in-app (no bank redirect). */
 export async function confirmSimulatedCardCheckout(
   paymentReference: string,

@@ -28,6 +28,7 @@ import {
 import { isMarketingNavLinkActive } from "@/components/marketing/marketing-nav-active";
 import { usePathname } from "@/i18n/navigation";
 import { USER_ACCOUNT_PATH } from "@/lib/role-home";
+import { stripRoutingLocalePrefix } from "@/lib/strip-routing-locale-prefix";
 
 export type {
   MarketingHeaderAccount,
@@ -52,7 +53,7 @@ export function MarketingSiteHeader({
 }: MarketingSiteHeaderProps) {
   const pathname = usePathname();
   const [publicMenuOpen, setPublicMenuOpen] = useState(false);
-  const marketingPath = pathname ?? "";
+  const marketingPath = stripRoutingLocalePrefix(pathname ?? "");
   const isMarketingHome = isMarketingHomePath(marketingPath);
   const isPolicyPage = isMarketingPolicyPath(marketingPath);
   const isWorkspaceChrome = workspaceHeaderChrome || workspaceDrawer !== undefined;

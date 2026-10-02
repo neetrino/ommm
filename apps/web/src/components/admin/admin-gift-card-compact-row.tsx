@@ -12,13 +12,12 @@ import {
   ADMIN_GIFT_CARDS_LIST_CELL,
   ADMIN_GIFT_CARDS_LIST_ROW_ACTIONS_HOVER_REVEAL,
   ADMIN_GIFT_CARDS_LIST_ROW_CLASS,
-  ADMIN_GIFT_CARDS_LIST_SPACER_CELL,
   ADMIN_GIFT_CARDS_LIST_STATUS_CELL,
 } from "@/components/admin/admin-gift-cards-list-layout";
 import type { AdminGiftCardBatchRow } from "@/components/admin/admin-gift-cards-types";
 import { AdminListMobileLabel } from "@/components/admin/admin-list-mobile-label";
-import { GiftCardThumbnail } from "@/components/gift-cards/gift-card-thumbnail";
-import { formatAmdFromCents } from "@/lib/price-amd";
+import { useGiftCardValueLabel } from "@/components/admin/admin-gift-card-value";
+import { GiftCardFace } from "@/components/gift-cards/gift-card-face";
 
 type AdminGiftCardCompactRowProps = {
   card: AdminGiftCardBatchRow;
@@ -26,6 +25,7 @@ type AdminGiftCardCompactRowProps = {
   onSelect: (card: AdminGiftCardBatchRow) => void;
   onEdit: (batchId: string) => void;
   onChanged?: () => void;
+  canDelete?: boolean;
   readOnly?: boolean;
 };
 
@@ -35,15 +35,17 @@ export function AdminGiftCardCompactRow({
   onSelect,
   onEdit,
   onChanged,
+  canDelete = false,
   readOnly = false,
 }: AdminGiftCardCompactRowProps) {
   const t = useTranslations("adminPages.giftCards");
+  const valueLabel = useGiftCardValueLabel(card, locale);
 
   return (
     <article
       role="button"
       tabIndex={0}
-      aria-label={t("openCardAria", { amount: formatAmdFromCents(card.amountAmd, locale) })}
+      aria-label={t("openCardAria", { amount: valueLabel })}
       onClick={() => onSelect(card)}
       onKeyDown={(event) => {
         if (event.key === "Enter" || event.key === " ") {
@@ -53,22 +55,17 @@ export function AdminGiftCardCompactRow({
       }}
       className={ADMIN_GIFT_CARDS_LIST_ROW_CLASS}
     >
-      <div className={ADMIN_GIFT_CARDS_LIST_CELL}>
+      <div className={`${ADMIN_GIFT_CARDS_LIST_CELL} md:text-center`}>
         <AdminListMobileLabel label={t("colImage")} />
-        <div className="h-14 w-20 overflow-hidden rounded-xl border border-white/60 bg-sage-100">
-          <GiftCardThumbnail
-            imageUrl={card.imageUrl}
-            alt={t("cardImageAlt")}
-            fallbackLabel={t("cardImageFallback")}
-            className="h-full w-full object-cover"
-          />
+        <div className="mx-auto h-14 w-20 overflow-hidden rounded-xl border border-white/60 bg-sage-100">
+          <GiftCardFace alt={t("cardImageAlt")} className="h-full w-full" />
         </div>
       </div>
 
       <div className={`${ADMIN_GIFT_CARDS_LIST_CELL} md:text-center`}>
         <AdminListMobileLabel label={t("colAmount")} />
-        <p className="text-sm font-semibold text-sage-900">
-          {formatAmdFromCents(card.amountAmd, locale)}
+        <p className="truncate text-sm font-semibold text-sage-900" title={valueLabel}>
+          {valueLabel}
         </p>
       </div>
 
@@ -95,22 +92,19 @@ export function AdminGiftCardCompactRow({
       </div>
 
       {readOnly ? null : (
-        <>
-          <div className={ADMIN_GIFT_CARDS_LIST_SPACER_CELL} aria-hidden="true" />
-
-          <div
-            className={`${ADMIN_GIFT_CARDS_LIST_ACTIONS_CELL} ${ADMIN_GIFT_CARDS_LIST_ROW_ACTIONS_HOVER_REVEAL}`}
-            onClick={(event) => event.stopPropagation()}
-            onKeyDown={(event) => event.stopPropagation()}
-          >
-            <AdminListMobileLabel label={t("colActions")} />
-            <AdminGiftCardRowActions
-              card={card}
-              onEdit={onEdit}
-              onChanged={onChanged}
-            />
-          </div>
-        </>
+        <div
+          className={`${ADMIN_GIFT_CARDS_LIST_ACTIONS_CELL} ${ADMIN_GIFT_CARDS_LIST_ROW_ACTIONS_HOVER_REVEAL}`}
+          onClick={(event) => event.stopPropagation()}
+          onKeyDown={(event) => event.stopPropagation()}
+        >
+          <AdminListMobileLabel label={t("colActions")} />
+          <AdminGiftCardRowActions
+            card={card}
+            canDelete={canDelete}
+            onEdit={onEdit}
+            onChanged={onChanged}
+          />
+        </div>
       )}
     </article>
   );

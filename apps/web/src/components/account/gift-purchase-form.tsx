@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import {
   GiftMarketCardDetailsSheet,
+  marketGiftValueLabel,
   type GiftMarketCardPreview,
   type GiftPurchaseIntent,
 } from "@/components/account/gift-market-card-details-sheet";
@@ -13,11 +14,12 @@ import { GiftCardBoardTile } from "@/components/gift-cards/gift-card-board-tile"
 import { displayGiftCardDate } from "@/components/gift-cards/gift-card-display-helpers";
 import { OmmButton } from "@/components/ui/omm-button";
 import { ApiError, apiFetch } from "@/lib/api";
-import { GIFT_CARD_CHECKOUT_PATH } from "@/lib/payment-checkout-source";
-import { formatAmdFromCents } from "@/lib/price-amd";
+import { openGiftCardPaymentPage } from "@/lib/arca-checkout";
+import { buildPaymentSuccessPath } from "@/lib/payment-result-paths";
 
 type PendingPaymentResponse = {
   paymentReference: string | null;
+  amountCents: number;
 };
 
 type GiftPurchaseFormProps = {
@@ -66,7 +68,7 @@ export function GiftPurchaseForm({ locale }: GiftPurchaseFormProps) {
   }, [t]);
 
   async function onBuy(intent: GiftPurchaseIntent) {
-    const { card, recipient } = intent;
+    const { card, recipientEmail } = intent;
     setBusyBatchId(card.id);
     setStatus(null);
     try {
@@ -75,20 +77,23 @@ export function GiftPurchaseForm({ locale }: GiftPurchaseFormProps) {
         body: JSON.stringify({
           batchId: card.id,
           amountCents: card.amountCents,
-          recipientId: recipient.id,
+          recipientEmail,
+          delivery: "EMAIL",
         }),
       });
-      const params = new URLSearchParams({
-        amountCents: card.amountCents.toString(),
-      });
-      if (payment.paymentReference !== null) {
-        params.set("reference", payment.paymentReference);
+      if (payment.paymentReference === null) {
+        setStatus(t("checkoutFailed"));
+        setBusyBatchId(null);
+        return;
       }
       setSelectedId(null);
-      router.push(`${GIFT_CARD_CHECKOUT_PATH}?${params.toString()}`);
+      const mode = await openGiftCardPaymentPage(payment.paymentReference, locale);
+      if (mode === "simulated") {
+        router.push(buildPaymentSuccessPath(payment.paymentReference, "gift"));
+        router.refresh();
+      }
     } catch (err) {
       setStatus(err instanceof ApiError ? err.message : t("checkoutFailed"));
-    } finally {
       setBusyBatchId(null);
     }
   }
@@ -106,7 +111,7 @@ export function GiftPurchaseForm({ locale }: GiftPurchaseFormProps) {
   }
 
   return (
-    <div className="space-y-4">
+    <section className="space-y-4">
       <div className={GIFT_CARD_BOARD_GRID_CLASS}>
         {items.map((item) => (
           <PurchaseGiftCardPreview
@@ -128,7 +133,7 @@ export function GiftPurchaseForm({ locale }: GiftPurchaseFormProps) {
           void onBuy(intent);
         }}
       />
-    </div>
+    </section>
   );
 }
 
@@ -145,16 +150,14 @@ function PurchaseGiftCardPreview({
 }) {
   const t = useTranslations("userPages.giftCards.purchaseForm");
   const giftCardsT = useTranslations("userPages.giftCards");
-  const amountLabel = formatAmdFromCents(item.amountCents, locale);
+  const amountLabel = marketGiftValueLabel(item, locale, giftCardsT);
 
   return (
     <GiftCardBoardTile
       amountLabel={amountLabel}
       status={item.status}
       statusLabel={giftCardsT(`statusValues.${item.status}`)}
-      imageUrl={item.imageUrl}
       imageAlt={t("selectedImageAlt")}
-      imageFallbackLabel={t("noImage")}
       openAriaLabel={t("openDetailsAria", { amount: amountLabel })}
       onOpen={onOpen}
       details={[

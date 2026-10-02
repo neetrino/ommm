@@ -410,7 +410,7 @@ export const DatePickerInput = forwardRef<DatePickerInputHandle, DatePickerInput
   }
 
   const displayValue =
-    selectedDate === null ? placeholder : formatDateForUi(selectedDate);
+    selectedDate === null ? placeholder : formatDateForUi(value);
 
   return (
     <div className={isOpen ? "relative z-[140]" : "relative"} ref={wrapperRef}>

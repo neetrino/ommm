@@ -21,6 +21,7 @@ import {
   startOfWeekSunday,
 } from "@/components/marketing/schedule/schedule-date-utils";
 import { formatDateForUi } from "@/lib/date-display";
+import { toLocalIsoDate } from "@/lib/local-iso-date";
 import {
   ArrowLeftIcon,
   ArrowRightIcon,
@@ -43,7 +44,7 @@ function formatWeekdayShort(locale: string, date: Date): string {
 }
 
 function formatSelectedLong(locale: string, date: Date): string {
-  return `${formatWeekdayShort(locale, date)}, ${formatDateForUi(date)}`;
+  return `${formatWeekdayShort(locale, date)}, ${formatDateForUi(toLocalIsoDate(date))}`;
 }
 
 function clampScheduleDay(

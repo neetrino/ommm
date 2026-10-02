@@ -11,6 +11,8 @@ type AdminPageHeroProps = {
   search?: ReactNode;
   /** Primary CTA (Add …) — full-width below search on phone, beside search on tablet+. */
   primaryAction?: ReactNode;
+  /** Full-width row under the search, inside the banner. */
+  belowSearch?: ReactNode;
   trailing?: ReactNode;
   /** Mobile-only back control below the banner (e.g. member reviews). */
   mobileBackHref?: string;
@@ -34,6 +36,7 @@ export function AdminPageHero({
   description,
   search,
   primaryAction,
+  belowSearch,
   trailing,
   mobileBackHref,
   mobileBackLabel,
@@ -56,6 +59,7 @@ export function AdminPageHero({
       >
         <HeroTitleCluster title={title} description={description} trailing={trailing} />
         <HeroSearchRow search={search} primaryAction={primaryAction} />
+        {belowSearch ? <div className="w-full basis-full">{belowSearch}</div> : null}
       </div>
       {backHref && backLabel ? (
         <CircularBackLink href={backHref} ariaLabel={backLabel} className={BELOW_BANNER_BACK_CLASS} />

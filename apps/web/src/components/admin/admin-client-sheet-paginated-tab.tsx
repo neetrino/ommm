@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { ClientHistoryList } from "@/components/admin/admin-client-drawer-sections";
 import type { ClientSheetPaginatedResponse } from "@/components/admin/admin-clients-types";
 import { OmmListPagination } from "@/components/ui/omm-list-pagination";
@@ -14,7 +14,9 @@ type ClientSheetPaginatedTabProps<T> = {
   title: string;
   empty: string;
   refreshKey?: number;
-  mapItem: (item: T) => { id: string; main: string; meta: string; extra: string | null };
+  mapItem?: (item: T) => { id: string; main: string; meta: string; extra: string | null };
+  /** Replaces the plain history rows. Used for the gift-card artwork board. */
+  renderItems?: (items: T[]) => ReactNode;
 };
 
 type PaginatedFetchResult<T> = {
@@ -31,7 +33,44 @@ export function ClientSheetPaginatedTab<T>({
   empty,
   refreshKey = 0,
   mapItem,
+  renderItems,
 }: ClientSheetPaginatedTabProps<T>) {
+  const pageState = useClientSheetPage<T>({ clientId, active, endpoint, refreshKey });
+
+  return (
+    <div className="space-y-4">
+      <ClientSheetPageBody
+        loading={pageState.loading}
+        title={title}
+        empty={empty}
+        items={pageState.items}
+        mapItem={mapItem}
+        renderItems={renderItems}
+      />
+      <OmmListPagination
+        total={pageState.total}
+        page={pageState.page}
+        pageSize={pageState.pageSize}
+        offset={pageState.offset}
+        disabled={pageState.loading}
+        onPageChange={pageState.setPage}
+        scrollOnPageChange={false}
+      />
+    </div>
+  );
+}
+
+function useClientSheetPage<T>({
+  clientId,
+  active,
+  endpoint,
+  refreshKey,
+}: {
+  clientId: string;
+  active: boolean;
+  endpoint: string;
+  refreshKey: number;
+}) {
   const [page, setPage] = useState(1);
   const [prevClientId, setPrevClientId] = useState(clientId);
   const pageSize = DEFAULT_LIST_PAGE_SIZE;
@@ -43,10 +82,36 @@ export function ClientSheetPaginatedTab<T>({
   }
 
   const fetchKey = `${clientId}:${page}:${pageSize}:${refreshKey}`;
-  const loading = active && (result === null || result.key !== fetchKey);
-  const items = result?.key === fetchKey ? result.items : [];
-  const total = result?.key === fetchKey ? result.total : 0;
+  useClientSheetFetch({ active, endpoint, page, pageSize, fetchKey, setResult });
 
+  const ready = result?.key === fetchKey;
+  const offset = (page - 1) * pageSize;
+  return {
+    page,
+    setPage,
+    pageSize,
+    loading: active && !ready,
+    items: ready ? result.items : [],
+    total: ready ? result.total : 0,
+    offset,
+  };
+}
+
+function useClientSheetFetch<T>({
+  active,
+  endpoint,
+  page,
+  pageSize,
+  fetchKey,
+  setResult,
+}: {
+  active: boolean;
+  endpoint: string;
+  page: number;
+  pageSize: number;
+  fetchKey: string;
+  setResult: (value: PaginatedFetchResult<T>) => void;
+}): void {
   useEffect(() => {
     if (!active) {
       return undefined;
@@ -57,10 +122,9 @@ export function ClientSheetPaginatedTab<T>({
       `${endpoint}?take=${pageSize}&offset=${offset}`,
     )
       .then((payload) => {
-        if (cancelled) {
-          return;
+        if (!cancelled) {
+          setResult({ key: fetchKey, items: payload.items, total: payload.total });
         }
-        setResult({ key: fetchKey, items: payload.items, total: payload.total });
       })
       .catch(() => {
         if (!cancelled) {
@@ -70,27 +134,36 @@ export function ClientSheetPaginatedTab<T>({
     return () => {
       cancelled = true;
     };
-  }, [active, endpoint, fetchKey, page, pageSize]);
+  }, [active, endpoint, fetchKey, page, pageSize, setResult]);
+}
 
-  const offset = (page - 1) * pageSize;
+function ClientSheetPageBody<T>({
+  loading,
+  title,
+  empty,
+  items,
+  mapItem,
+  renderItems,
+}: {
+  loading: boolean;
+  title: string;
+  empty: string;
+  items: T[];
+  mapItem?: (item: T) => { id: string; main: string; meta: string; extra: string | null };
+  renderItems?: (items: T[]) => ReactNode;
+}) {
+  if (renderItems !== undefined) {
+    return loading ? <p className="text-sm text-sage-500">…</p> : renderItems(items);
+  }
 
   return (
-    <div className="space-y-4">
+    <>
       <ClientHistoryList
         title={title}
         empty={loading ? "" : empty}
-        items={loading ? [] : items.map(mapItem)}
+        items={loading || mapItem === undefined ? [] : items.map(mapItem)}
       />
       {loading ? <p className="text-sm text-sage-500">…</p> : null}
-      <OmmListPagination
-        total={total}
-        page={page}
-        pageSize={pageSize}
-        offset={offset}
-        disabled={loading}
-        onPageChange={setPage}
-        scrollOnPageChange={false}
-      />
-    </div>
+    </>
   );
 }

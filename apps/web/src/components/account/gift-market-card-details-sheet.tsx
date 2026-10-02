@@ -2,11 +2,7 @@
 
 import { useCallback, useId, useState } from "react";
 import { useTranslations } from "next-intl";
-import {
-  GiftRecipientPicker,
-  formatRecipientLabel,
-  type GiftRecipientOption,
-} from "@/components/account/gift-recipient-picker";
+import { GiftRecipientEmailField } from "@/components/account/gift-recipient-picker";
 import {
   ADMIN_DETAILS_SHEET_BODY_CLASS,
   ADMIN_DETAILS_SHEET_DETAIL_LABEL_CLASS,
@@ -17,10 +13,11 @@ import {
   ADMIN_WIDE_DRAWER_PANEL_CLASS,
 } from "@/components/admin/admin-details-sheet-layout";
 import { displayGiftCardDate, giftCardStatusBadgeClass } from "@/components/gift-cards/gift-card-display-helpers";
+import { GiftCardFace } from "@/components/gift-cards/gift-card-face";
 import { OmmButton } from "@/components/ui/omm-button";
 import { OmmDrawerPortal } from "@/components/ui/omm-modal";
+import { isGiftRecipientEmail } from "@/lib/gift-recipient-email";
 import { formatAmdFromCents } from "@/lib/price-amd";
-import { resolveApiAssetUrl } from "@/lib/resolve-api-asset-url";
 
 export type GiftMarketCardPreview = {
   id: string;
@@ -30,11 +27,37 @@ export type GiftMarketCardPreview = {
   totalQuantity: number;
   expiresAt: string | null;
   status: string;
+  type?: "FIXED_VALUE" | "FIXED_CLASS";
+  classTypeId?: string | null;
+  classTypeName?: string | null;
+  classQuantity?: number;
 };
+
+type ClassGiftCopy = {
+  (key: "classGiftValue", values: { className: string; count: number }): string;
+  (key: "classGiftValueUnknown", values: { count: number }): string;
+};
+
+/** Money cards show AMD. Class cards show the class and how many sessions are on the card. */
+export function marketGiftValueLabel(
+  card: GiftMarketCardPreview,
+  locale: string,
+  t: ClassGiftCopy,
+): string {
+  if (card.type !== "FIXED_CLASS") {
+    return formatAmdFromCents(card.amountCents, locale);
+  }
+  const count = card.classQuantity ?? 0;
+  const className = card.classTypeName?.trim() ?? "";
+  if (className.length === 0) {
+    return t("classGiftValueUnknown", { count });
+  }
+  return t("classGiftValue", { className, count });
+}
 
 export type GiftPurchaseIntent = {
   card: GiftMarketCardPreview;
-  recipient: GiftRecipientOption;
+  recipientEmail: string;
 };
 
 type GiftMarketCardDetailsSheetProps = {
@@ -85,24 +108,25 @@ function GiftMarketCardDetailsSheetInner({
   const t = useTranslations("userPages.giftCards");
   const tPurchase = useTranslations("userPages.giftCards.purchaseForm");
   const titleId = useId();
-  const amountLabel = formatAmdFromCents(card.amountCents, locale);
-  const resolvedImage = resolveApiAssetUrl(card.imageUrl);
-  const [recipient, setRecipient] = useState<GiftRecipientOption | null>(null);
+  const amountLabel = marketGiftValueLabel(card, locale, t);
+  const amountFieldLabel = card.type === "FIXED_CLASS" ? t("cartClassType") : t("cardAmount");
+  const [recipientEmail, setRecipientEmail] = useState("");
   const [recipientError, setRecipientError] = useState<string | null>(null);
 
-  const canBuy = !busy && card.availableQuantity > 0 && recipient !== null;
+  const canBuy = !busy && card.availableQuantity > 0 && isGiftRecipientEmail(recipientEmail);
 
   const handleClose = useCallback(() => {
     onClose();
   }, [onClose]);
 
   function handleBuy() {
-    if (recipient === null) {
+    const email = recipientEmail.trim();
+    if (!isGiftRecipientEmail(email)) {
       setRecipientError(tPurchase("recipientRequired"));
       return;
     }
     setRecipientError(null);
-    onBuy({ card, recipient });
+    onBuy({ card, recipientEmail: email });
   }
 
   return (
@@ -122,20 +146,7 @@ function GiftMarketCardDetailsSheetInner({
 
       <div className={`${ADMIN_DETAILS_SHEET_BODY_CLASS} min-h-0 flex-1 space-y-4`}>
         <section className="overflow-hidden rounded-[24px] border border-white/60 bg-white/75 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.18)]">
-          <div className="flex w-full items-center justify-center bg-sage-100 p-4">
-            {resolvedImage ? (
-              // eslint-disable-next-line @next/next/no-img-element -- market cards may use CDN or API URLs
-              <img
-                src={resolvedImage}
-                alt={tPurchase("selectedImageAlt")}
-                className="h-auto max-h-[min(40vh,320px)] w-full object-contain"
-              />
-            ) : (
-              <div className="flex h-40 w-full items-center justify-center bg-gradient-to-br from-sand-100 via-paper to-mint-100 sm:h-48">
-                <span className="text-sm font-medium text-sage-600">{tPurchase("noImage")}</span>
-              </div>
-            )}
-          </div>
+          <GiftCardFace alt={tPurchase("selectedImageAlt")} className="aspect-[1.58/1] w-full" />
           <div className="flex flex-wrap items-center gap-2 border-t border-white/60 px-4 py-3">
             <span className={giftCardStatusBadgeClass(card.status)}>
               {t(`statusValues.${card.status}`)}
@@ -147,7 +158,7 @@ function GiftMarketCardDetailsSheetInner({
 
         <section className="rounded-[24px] border border-white/60 bg-white/75 p-4 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.18)] sm:p-5">
           <dl className="grid gap-4 text-sm sm:grid-cols-2">
-            <DetailField label={t("cardAmount")} value={amountLabel} />
+            <DetailField label={amountFieldLabel} value={amountLabel} />
             <DetailField
               label={tPurchase("availableLabel")}
               value={`${card.availableQuantity} / ${card.totalQuantity}`}
@@ -164,28 +175,15 @@ function GiftMarketCardDetailsSheetInner({
           </dl>
         </section>
 
-        <GiftRecipientPicker
-          selected={recipient}
-          onSelect={(value) => {
-            setRecipient(value);
+        <GiftRecipientEmailField
+          value={recipientEmail}
+          disabled={busy}
+          validationMessage={recipientError}
+          onChange={(value) => {
+            setRecipientEmail(value);
             setRecipientError(null);
           }}
-          disabled={busy}
         />
-
-        {recipient !== null ? (
-          <p className="text-sm text-sage-700">
-            {tPurchase("recipientSelectedSummary", {
-              name: formatRecipientLabel(recipient),
-            })}
-          </p>
-        ) : null}
-
-        {recipientError !== null ? (
-          <p className="text-sm text-red-800" role="alert">
-            {recipientError}
-          </p>
-        ) : null}
       </div>
 
       <footer

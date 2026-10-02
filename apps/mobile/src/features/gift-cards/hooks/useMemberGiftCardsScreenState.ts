@@ -9,7 +9,6 @@ import {
   fetchGiftSpendableBalance,
   fetchPurchasedGiftCards,
   fetchReceivedGiftCards,
-  redeemGiftCardCode,
   type GiftMarketCard,
   type GiftRecipientOption,
   type UserGiftCardRow,
@@ -43,12 +42,6 @@ export function useMemberGiftCardsScreenState({
   const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
   const [buyBusy, setBuyBusy] = useState(false);
   const [buyError, setBuyError] = useState<string | null>(null);
-  const [redeemCode, setRedeemCode] = useState("");
-  const [redeemBusy, setRedeemBusy] = useState(false);
-  const [redeemMessage, setRedeemMessage] = useState<{
-    kind: "ok" | "err";
-    text: string;
-  } | null>(null);
 
   const load = useCallback(async () => {
     const token = await readStoredAccessToken();
@@ -159,34 +152,6 @@ export function useMemberGiftCardsScreenState({
     [locale, router, selectedCard, tPurchase],
   );
 
-  const onRedeem = useCallback(async () => {
-    const code = redeemCode.trim();
-    if (code === "") {
-      setRedeemMessage({ kind: "err", text: t("redeemForm.failed") });
-      return;
-    }
-    const token = await readStoredAccessToken();
-    if (token === null) {
-      setRedeemMessage({ kind: "err", text: t("signInRequired") });
-      return;
-    }
-    setRedeemBusy(true);
-    setRedeemMessage(null);
-    try {
-      await redeemGiftCardCode(token, code);
-      setRedeemCode("");
-      setRedeemMessage({ kind: "ok", text: t("redeemForm.success") });
-      await load();
-    } catch (e) {
-      setRedeemMessage({
-        kind: "err",
-        text: e instanceof Error ? e.message : t("redeemForm.failed"),
-      });
-    } finally {
-      setRedeemBusy(false);
-    }
-  }, [load, redeemCode, t]);
-
   return {
     tab,
     setTab,
@@ -198,14 +163,9 @@ export function useMemberGiftCardsScreenState({
     selectedCard,
     buyBusy,
     buyError,
-    redeemCode,
-    setRedeemCode,
-    redeemBusy,
-    redeemMessage,
     reload: load,
     openCard,
     closeCard,
     confirmBuy,
-    onRedeem,
   };
 }

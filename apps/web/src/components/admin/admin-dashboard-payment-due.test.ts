@@ -6,8 +6,12 @@ import {
   studioPaymentDuePageHref,
 } from "./admin-dashboard-metrics.helpers";
 import {
+  formatPaymentDuePurchaseLabel,
   groupPaymentDueByClient,
   previewPaymentDueClients,
+  previewPaymentDueGroups,
+  remainingPaymentDuePeopleCount,
+  visiblePaymentDuePackages,
 } from "./admin-dashboard-payment-due";
 
 describe("dashboardClientsHref", () => {
@@ -28,6 +32,22 @@ describe("dashboardHomeHref", () => {
   it("uses admin dashboard for finance dashboards and manager otherwise", () => {
     assert.equal(dashboardHomeHref(true), "/admin/dashboard");
     assert.equal(dashboardHomeHref(false), "/manager/dashboard");
+  });
+});
+
+describe("formatPaymentDuePurchaseLabel", () => {
+  it("joins category and plan when the plan name does not already include it", () => {
+    assert.equal(
+      formatPaymentDuePurchaseLabel("Yoga Individual", "1 Session"),
+      "Yoga Individual · 1 Session",
+    );
+  });
+
+  it("keeps the plan name when it already contains the category", () => {
+    assert.equal(
+      formatPaymentDuePurchaseLabel("Yoga Individual", "Yoga Individual 1 Session"),
+      "Yoga Individual 1 Session",
+    );
   });
 });
 
@@ -63,13 +83,93 @@ describe("previewPaymentDueClients", () => {
       packageId: "p4",
       packageName: "Pack D",
     },
+    {
+      clientId: "c5",
+      clientName: "Eva",
+      packageId: "p5",
+      packageName: "Pack E",
+    },
+    {
+      clientId: "c6",
+      clientName: "Fay",
+      packageId: "p6",
+      packageName: "Pack F",
+    },
   ];
 
-  it("shows at most three unique people on the dashboard preview", () => {
+  it("shows at most five unique people on the dashboard preview", () => {
     assert.deepEqual(
       previewPaymentDueClients(items).map((item) => item.clientId),
-      ["c1", "c2", "c3"],
+      ["c1", "c2", "c3", "c4", "c5"],
     );
+  });
+});
+
+describe("visiblePaymentDuePackages", () => {
+  it("shows two packages and counts the rest", () => {
+    const result = visiblePaymentDuePackages(["a", "b", "c", "d"]);
+    assert.deepEqual(result, { visible: ["a", "b"], hiddenCount: 2 });
+  });
+
+  it("hides the count when there are at most two packages", () => {
+    const result = visiblePaymentDuePackages(["a"]);
+    assert.deepEqual(result, { visible: ["a"], hiddenCount: 0 });
+  });
+});
+
+describe("remainingPaymentDuePeopleCount", () => {
+  it("counts people beyond the five dashboard cards", () => {
+    const items = ["c1", "c2", "c3", "c4", "c5", "c6", "c7"].map((clientId) => ({
+      clientId,
+      clientName: clientId,
+      packageId: clientId,
+      packageName: "Pack",
+    }));
+    assert.equal(remainingPaymentDuePeopleCount(items), 2);
+  });
+
+  it("is zero when every person already fits on the dashboard", () => {
+    assert.equal(
+      remainingPaymentDuePeopleCount([
+        {
+          clientId: "c1",
+          clientName: "Ana",
+          packageId: "p1",
+          packageName: "Pack A",
+        },
+      ]),
+      0,
+    );
+  });
+});
+
+describe("previewPaymentDueGroups", () => {
+  it("keeps every package for the clients shown on the dashboard", () => {
+    const grouped = previewPaymentDueGroups([
+      {
+        clientId: "c1",
+        clientName: "Ana",
+        packageId: "p1",
+        packageName: "Pack A",
+      },
+      {
+        clientId: "c1",
+        clientName: "Ana",
+        packageId: "p1b",
+        packageName: "Pack A2",
+      },
+    ]);
+
+    assert.deepEqual(grouped, [
+      {
+        clientId: "c1",
+        clientName: "Ana",
+        packages: [
+          { packageId: "p1", packageName: "Pack A" },
+          { packageId: "p1b", packageName: "Pack A2" },
+        ],
+      },
+    ]);
   });
 });
 

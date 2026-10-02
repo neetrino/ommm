@@ -28,6 +28,8 @@ import {
   assertAdminPaymentMethodChange,
   assertAdminPaymentStatusChange,
 } from './payments-admin-mutation.util';
+import { undoStudioCartGift } from './payments-cart.refund';
+import { readCartCheckout } from './payments-cart.fulfill';
 import { withInternalPaymentUpdateFields } from './payments.helpers';
 
 @Injectable()
@@ -138,6 +140,7 @@ export class PaymentsAdminMutationService {
       }),
     });
     await this.applyPackageStatusSideEffects({
+      paymentId: payment.id,
       source: payment.source,
       sourceId: payment.sourceId,
       userId: payment.userId,
@@ -152,6 +155,7 @@ export class PaymentsAdminMutationService {
   }
 
   private async applyPackageStatusSideEffects(params: {
+    paymentId: string;
     source: PaymentSource;
     sourceId: string | null;
     userId: string;
@@ -159,6 +163,29 @@ export class PaymentsAdminMutationService {
     nextStatus: PaymentStatus;
     refundGiftCredits: boolean;
   }): Promise<void> {
+    if (
+      params.refundGiftCredits &&
+      (params.source === PaymentSource.DROPIN ||
+        readCartCheckout(params.metadata) !== null)
+    ) {
+      await refundReservedGiftCredits(this.prisma, {
+        userId: params.userId,
+        appliedCents: readGiftCreditsAppliedCents(params.metadata),
+        allocations: readGiftCreditsAllocations(params.metadata),
+        orderId: params.paymentId,
+      });
+    }
+    if (
+      readCartCheckout(params.metadata) !== null &&
+      (params.nextStatus === PaymentStatus.REFUNDED ||
+        params.nextStatus === PaymentStatus.FAILED)
+    ) {
+      await undoStudioCartGift(this.prisma, {
+        paymentId: params.paymentId,
+        userId: params.userId,
+        metadata: params.metadata,
+      });
+    }
     if (params.source !== PaymentSource.PACKAGE || params.sourceId === null) {
       return;
     }
@@ -175,6 +202,7 @@ export class PaymentsAdminMutationService {
           userId: params.userId,
           appliedCents: readGiftCreditsAppliedCents(params.metadata),
           allocations: readGiftCreditsAllocations(params.metadata),
+          orderId: params.paymentId,
         });
       }
     }

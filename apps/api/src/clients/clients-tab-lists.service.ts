@@ -11,6 +11,10 @@ import {
 } from '../common/list-order.helpers';
 import { PrismaService } from '../prisma/prisma.service';
 import { BOOKING_CANCELLED_BY_SELECT } from '../bookings/bookings-staff-cancel.helpers';
+import {
+  isGiftCreditSpendDescription,
+  readGiftCreditsAppliedCents,
+} from '../packages/package-gift-credits.util';
 import { toUserPackageActivationApi } from '../packages/packages-activation.helpers';
 import { toUserPackageGuestPassApi } from '../packages/packages-guest-pass.helpers';
 import { toUserPackageFreezeApi } from '../packages/packages-freeze.mapper';
@@ -81,6 +85,8 @@ type ClientPaymentsPage = {
     description: string | null;
     paymentMethod: string | null;
     createdAt: Date;
+    giftCreditsAppliedCents: number;
+    isGiftCreditSpend: boolean;
   }>;
   total: number;
   take: number;
@@ -90,12 +96,14 @@ type ClientPaymentsPage = {
 type ClientGiftCardsPage = {
   items: Array<{
     id: string;
+    code: string;
     amountCents: number;
     balanceCents: number;
     status: string;
     recipientEmail: string | null;
     recipientName: string | null;
     createdAt: Date;
+    expiresAt: Date | null;
     relation: 'purchased' | 'received';
   }>;
   total: number;
@@ -197,13 +205,29 @@ export class ClientsTabListsService {
           description: true,
           paymentMethod: true,
           createdAt: true,
+          metadata: true,
         },
         orderBy: { createdAt: 'desc' },
         skip: offset,
         take,
       }),
     ]);
-    return { items: rows, total, take, offset };
+    return {
+      items: rows.map((row) => ({
+        id: row.id,
+        amountCents: row.amountCents,
+        currency: row.currency,
+        status: row.status,
+        description: row.description,
+        paymentMethod: row.paymentMethod,
+        createdAt: row.createdAt,
+        giftCreditsAppliedCents: readGiftCreditsAppliedCents(row.metadata),
+        isGiftCreditSpend: isGiftCreditSpendDescription(row.description),
+      })),
+      total,
+      take,
+      offset,
+    };
   }
 
   async listPackages(
@@ -345,12 +369,14 @@ export class ClientsTabListsService {
     return {
       items: rows.map((card) => ({
         id: card.id,
+        code: card.code,
         amountCents: card.amountAmd,
         balanceCents: card.balanceAmd,
         status: card.status,
         recipientEmail: card.recipientEmail,
         recipientName: card.recipientName,
         createdAt: card.createdAt,
+        expiresAt: card.expiresAt,
         relation: card.purchaserId === userId ? 'purchased' : 'received',
       })),
       total,

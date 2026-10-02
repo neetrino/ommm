@@ -29,6 +29,7 @@ const TAB_LABEL_KEY: Record<AdminSettingsTabId, string> = {
   location: "location",
   contact: "contact",
   whatsapp: "whatsapp",
+  "gift-cards": "giftCards",
 };
 
 const SETTINGS_PILL_LAYOUT_ID = "admin-settings-olive-segmented-pill";

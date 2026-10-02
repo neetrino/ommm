@@ -143,6 +143,7 @@ export type StudioAnalyticsPayload = {
       spentCents: number;
       spendTransactionsCount: number;
       outstandingCreditsCents: number;
+      breakageCents?: number;
     };
     influencer: {
       costCents: number;
@@ -248,6 +249,7 @@ export type AnalyticsFinanceSummary = {
     spentCents: number;
     spendTransactionsCount: number;
     outstandingCreditsCents: number;
+    breakageCents?: number;
   };
 };
 

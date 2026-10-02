@@ -1,14 +1,15 @@
 "use client";
 
 import type { useTranslations } from "next-intl";
+import { GiftCardAssignSection } from "@/components/admin/admin-create-gift-card-form-sections";
 import type { AdminGiftCardFormMode } from "@/components/admin/admin-create-gift-card-form.types";
 import { AmdMoneyInput } from "@/components/ui/amd-money-input";
 import { DatePickerInput } from "@/components/ui/date-picker-input";
-import { DropdownSelect, type DropdownOption } from "@/components/ui/dropdown-select";
-import { OmmButton } from "@/components/ui/omm-button";
+import type { DropdownOption } from "@/components/ui/dropdown-select";
 
 type AdminCreateGiftCardFormFieldsProps = {
   mode: AdminGiftCardFormMode;
+  hideAmount: boolean;
   amountAmd: string;
   setAmountAmd: (value: string) => void;
   quantity: string;
@@ -25,16 +26,13 @@ type AdminCreateGiftCardFormFieldsProps = {
   expiresAt: string;
   setExpiresAt: (value: string) => void;
   recipientOptions: readonly DropdownOption<string>[];
-  imageInputRef: React.RefObject<HTMLInputElement | null>;
-  imageFile: File | null;
-  imagePreviewUrl: string | null;
-  onImageChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   busy: boolean;
   t: ReturnType<typeof useTranslations<"adminPages.giftCards">>;
 };
 
 export function AdminCreateGiftCardFormFields({
   mode,
+  hideAmount,
   amountAmd,
   setAmountAmd,
   quantity,
@@ -51,76 +49,36 @@ export function AdminCreateGiftCardFormFields({
   expiresAt,
   setExpiresAt,
   recipientOptions,
-  imageInputRef,
-  imageFile,
-  imagePreviewUrl,
-  onImageChange,
   busy,
   t,
 }: AdminCreateGiftCardFormFieldsProps) {
   return (
     <>
-      <label className="flex flex-col gap-1">
-        <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldAmount")}</span>
-        <AmdMoneyInput
-          name="amountAmd"
-          placeholder={t("fieldAmountPlaceholder")}
-          value={amountAmd}
-          onValueChange={setAmountAmd}
-          align="start"
-          disabled={busy}
-          required
-        />
-      </label>
-      <div className="flex flex-col gap-2">
-        <div className="flex items-center justify-start gap-3">
-          <OmmButton
-            type="button"
-            variant="ghost"
-            size="sm"
+      {hideAmount ? null : (
+        <label className="flex flex-col gap-1">
+          <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldAmount")}</span>
+          <AmdMoneyInput
+            name="amountAmd"
+            placeholder={t("fieldAmountPlaceholder")}
+            value={amountAmd}
+            onValueChange={setAmountAmd}
+            align="start"
             disabled={busy}
-            onClick={() => {
-              setShowAssignedUser((current) => {
-                const next = !current;
-                if (!next) {
-                  setRecipientId("");
-                }
-                return next;
-              });
-            }}
-          >
-            {t("showAssignedUserButton")}
-          </OmmButton>
-        </div>
-        {showAssignedUser ? (
-          <div className="grid gap-3">
-            <DropdownSelect
-              label={t("fieldAssignedUserPlaceholder")}
-              ariaLabel={t("fieldAssignedUser")}
-              value={recipientId}
-              options={recipientOptions}
-              onChange={setRecipientId}
-              disabled={busy}
-              wrapLabel
-              searchable
-              searchPlaceholder={t("actions.assignSearchPlaceholder")}
-              noResultsLabel={t("actions.assignSearchEmpty")}
-            />
-            <label className="flex flex-col gap-1">
-              <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldMessage")}</span>
-              <textarea
-                className="ommm-input min-h-24 resize-y"
-                placeholder={t("fieldMessagePlaceholder")}
-                value={message}
-                onChange={(event) => setMessage(event.target.value)}
-                disabled={busy}
-              />
-            </label>
-          </div>
-        ) : (
-          <p className="text-xs text-sage-500">{t("fieldAssignedUserHiddenHint")}</p>
-        )}
-      </div>
+            required
+          />
+        </label>
+      )}
+      <GiftCardAssignSection
+        showAssignedUser={showAssignedUser}
+        setShowAssignedUser={setShowAssignedUser}
+        recipientId={recipientId}
+        setRecipientId={setRecipientId}
+        message={message}
+        setMessage={setMessage}
+        recipientOptions={recipientOptions}
+        busy={busy}
+        t={t}
+      />
       <div className={mode === "edit" ? "grid gap-4 sm:grid-cols-2" : "flex flex-col gap-1"}>
         <label className="flex flex-col gap-1">
           <span className="ommm-label text-xs uppercase tracking-wide">
@@ -158,52 +116,19 @@ export function AdminCreateGiftCardFormFields({
           </div>
         ) : null}
       </div>
-      <div className="flex flex-col gap-2">
-        <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldImage")}</span>
-        <input
-          ref={imageInputRef}
-          type="file"
-          accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp"
-          className="sr-only"
-          onChange={onImageChange}
-          disabled={busy}
-        />
-        <div className="flex flex-wrap items-center gap-3">
-          <OmmButton
-            type="button"
-            variant="secondary"
-            size="sm"
-            className="cursor-pointer shadow-sm transition-transform hover:-translate-y-px"
+      {mode === "edit" ? (
+        <label className="flex flex-col gap-1">
+          <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldExpiration")}</span>
+          <DatePickerInput
+            name="expiresAt"
+            ariaLabel={t("fieldExpiration")}
+            value={expiresAt}
+            onChange={setExpiresAt}
+            disablePastDates
             disabled={busy}
-            onClick={() => imageInputRef.current?.click()}
-          >
-            Choose File
-          </OmmButton>
-          <span className="text-sm text-sage-700">{imageFile?.name ?? "No file chosen"}</span>
-        </div>
-        <span className="text-xs text-sage-500">{t("fieldImageHint")}</span>
-      </div>
-      {imagePreviewUrl !== null ? (
-        <div className="relative h-24 w-36 overflow-hidden rounded-xl border border-white/70 bg-white/70">
-          {/* eslint-disable-next-line @next/next/no-img-element -- preview image supports blob/object URLs */}
-          <img
-            src={imagePreviewUrl}
-            alt={t("fieldImagePreviewAlt")}
-            className="h-full w-full object-cover"
           />
-        </div>
+        </label>
       ) : null}
-      <label className="flex flex-col gap-1">
-        <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldExpiration")}</span>
-        <DatePickerInput
-          name="expiresAt"
-          ariaLabel={t("fieldExpiration")}
-          value={expiresAt}
-          onChange={setExpiresAt}
-          disablePastDates
-          disabled={busy}
-        />
-      </label>
     </>
   );
 }

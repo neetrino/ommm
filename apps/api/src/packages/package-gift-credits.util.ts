@@ -1,34 +1,54 @@
 import { BadRequestException } from '@nestjs/common';
 import {
   GiftCardStatus,
+  GiftCardType,
   PaymentSource,
   PaymentStatus,
   type Prisma,
 } from '@prisma/client';
+import {
+  cardIdsFromAllocations,
+  creditGiftCardAmd,
+  debitGiftCardAmd,
+} from '../gift-cards/gift-card-ledger';
+import { compareGiftCardsForSpend } from '../gift-cards/gift-card-policy';
 import { readGiftCardBalance } from '../gift-cards/gift-cards.mapper';
 import { GIFT_CREDIT_SPEND_PREFIX } from '../reports/studio-analytics.helpers';
 
-export const PACKAGE_GIFT_CREDITS_APPLIED_KEY = 'giftCreditsAppliedCents';
-export const PACKAGE_GIFT_CREDITS_ALLOCATIONS_KEY = 'giftCreditsAllocations';
-export const PACKAGE_GIFT_CREDITS_REFUNDED_KEY = 'giftCreditsRefunded';
+import {
+  PACKAGE_GIFT_CREDITS_ALLOCATIONS_KEY,
+  PACKAGE_GIFT_CREDITS_APPLIED_KEY,
+  type GiftCreditAllocation,
+} from './package-gift-credits.metadata';
 
-/** One debit from a gift card (`cardId`) or legacy wallet (`cardId: null`). */
-export type GiftCreditAllocation = {
-  cardId: string | null;
-  cents: number;
-};
+export {
+  PACKAGE_GIFT_CREDITS_ALLOCATIONS_KEY,
+  PACKAGE_GIFT_CREDITS_APPLIED_KEY,
+  PACKAGE_GIFT_CREDITS_REFUNDED_KEY,
+  reservedGiftCardIds,
+  sameGiftCardSelection,
+  type GiftCreditAllocation,
+} from './package-gift-credits.metadata';
+
+export function isGiftCreditSpendDescription(
+  description: string | null | undefined,
+): boolean {
+  return (
+    typeof description === 'string' &&
+    description.startsWith(GIFT_CREDIT_SPEND_PREFIX)
+  );
+}
 
 type GiftCreditsDb = Pick<
   Prisma.TransactionClient,
-  'user' | 'giftCard' | 'payment'
+  'user' | 'giftCard' | 'payment' | 'giftCardTransaction'
 >;
-
-const MAX_SPENDABLE_GIFT_CARDS = 50;
 
 /** Sum of legacy wallet + ACTIVE received gift-card balances (read-only). */
 export async function peekSpendableGiftCreditsCents(
   db: GiftCreditsDb,
   userId: string,
+  cardIds?: readonly string[],
 ): Promise<number> {
   const now = new Date();
   const [user, cards] = await Promise.all([
@@ -37,20 +57,48 @@ export async function peekSpendableGiftCreditsCents(
       select: { giftCreditsCents: true },
     }),
     db.giftCard.findMany({
-      where: {
-        recipientId: userId,
-        status: GiftCardStatus.ACTIVE,
-        OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
-      },
+      where: spendableGiftCardWhere(userId, now, cardIds),
       select: { id: true, balanceAmd: true },
-      take: MAX_SPENDABLE_GIFT_CARDS,
     }),
   ]);
-  const walletCents = Math.max(0, user?.giftCreditsCents ?? 0);
+  const walletCents =
+    cardIds === undefined ? Math.max(0, user?.giftCreditsCents ?? 0) : 0;
   const cardsCents = cards.reduce((sum, card) => {
     return sum + Math.max(0, readGiftCardBalance(card));
   }, 0);
   return walletCents + cardsCents;
+}
+
+function spendableGiftCardWhere(
+  userId: string,
+  now: Date,
+  cardIds?: readonly string[],
+) {
+  return {
+    recipientId: userId,
+    status: GiftCardStatus.ACTIVE,
+    type: GiftCardType.FIXED_VALUE,
+    balanceAmd: { gt: 0 },
+    OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
+    ...(cardIds !== undefined ? { id: { in: [...cardIds] } } : {}),
+  };
+}
+
+const MAX_SELECTED_GIFT_CARDS = 10;
+
+/** Drops blanks. An empty selection means “no card filter”. */
+export function selectedGiftCardIds(
+  ids: readonly string[] | undefined,
+): string[] | undefined {
+  if (ids === undefined) {
+    return undefined;
+  }
+  const unique = [
+    ...new Set(ids.map((id) => id.trim()).filter((id) => id.length > 0)),
+  ];
+  return unique.length > 0
+    ? unique.slice(0, MAX_SELECTED_GIFT_CARDS)
+    : undefined;
 }
 
 export function resolveGiftCreditsApplication(params: {
@@ -74,7 +122,13 @@ export function resolveGiftCreditsApplication(params: {
  */
 export async function reserveGiftCreditsForPackage(
   db: GiftCreditsDb,
-  params: { userId: string; appliedCents: number },
+  params: {
+    userId: string;
+    appliedCents: number;
+    orderId?: string | null;
+    /** When set, only these cards are debited. Other cards and the wallet stay. */
+    cardIds?: readonly string[];
+  },
 ): Promise<GiftCreditAllocation[]> {
   if (params.appliedCents <= 0) {
     return [];
@@ -82,40 +136,17 @@ export async function reserveGiftCreditsForPackage(
 
   const now = new Date();
   const cards = await db.giftCard.findMany({
-    where: {
-      recipientId: params.userId,
-      status: GiftCardStatus.ACTIVE,
-      OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
-    },
-    orderBy: [{ expiresAt: 'asc' }, { createdAt: 'asc' }],
-    take: MAX_SPENDABLE_GIFT_CARDS,
+    where: spendableGiftCardWhere(params.userId, now, params.cardIds),
+  });
+  cards.sort(compareGiftCardsForSpend);
+
+  const { allocations, remaining } = await debitOrderedGiftCards(db, cards, {
+    userId: params.userId,
+    appliedCents: params.appliedCents,
+    orderId: params.orderId,
   });
 
-  let remaining = params.appliedCents;
-  const allocations: GiftCreditAllocation[] = [];
-
-  for (const card of cards) {
-    if (remaining <= 0) {
-      break;
-    }
-    const balance = readGiftCardBalance(card);
-    if (balance <= 0) {
-      continue;
-    }
-    const take = Math.min(balance, remaining);
-    const nextBalance = balance - take;
-    await db.giftCard.update({
-      where: { id: card.id },
-      data: {
-        balanceAmd: nextBalance,
-        ...(nextBalance === 0 ? { status: GiftCardStatus.REDEEMED } : {}),
-      },
-    });
-    allocations.push({ cardId: card.id, cents: take });
-    remaining -= take;
-  }
-
-  if (remaining > 0) {
+  if (remaining > 0 && params.cardIds === undefined) {
     const updated = await db.user.updateMany({
       where: {
         id: params.userId,
@@ -127,13 +158,41 @@ export async function reserveGiftCreditsForPackage(
       throw new BadRequestException('Insufficient gift card credit');
     }
     allocations.push({ cardId: null, cents: remaining });
-    remaining = 0;
+    return allocations;
   }
-
   if (remaining > 0) {
     throw new BadRequestException('Insufficient gift card credit');
   }
+
   return allocations;
+}
+
+async function debitOrderedGiftCards(
+  db: GiftCreditsDb,
+  cards: Array<{ id: string; code: string; balanceAmd: number }>,
+  params: { userId: string; appliedCents: number; orderId?: string | null },
+): Promise<{ allocations: GiftCreditAllocation[]; remaining: number }> {
+  let remaining = params.appliedCents;
+  const allocations: GiftCreditAllocation[] = [];
+  for (const card of cards) {
+    if (remaining <= 0) {
+      break;
+    }
+    const debited = await debitGiftCardAmd(db, {
+      cardId: card.id,
+      knownBalance: readGiftCardBalance(card),
+      maxTake: remaining,
+      userId: params.userId,
+      code: card.code,
+      orderId: params.orderId,
+    });
+    if (debited === null || debited.taken <= 0) {
+      continue;
+    }
+    allocations.push({ cardId: card.id, cents: debited.taken });
+    remaining -= debited.taken;
+  }
+  return { allocations, remaining };
 }
 
 /** Restores card balances (and legacy wallet) from a prior reservation. */
@@ -143,6 +202,7 @@ export async function refundReservedGiftCredits(
     userId: string;
     appliedCents: number;
     allocations?: GiftCreditAllocation[] | null;
+    orderId?: string | null;
   },
 ): Promise<void> {
   if (params.appliedCents <= 0) {
@@ -175,7 +235,7 @@ export async function refundReservedGiftCredits(
     }
     const card = await db.giftCard.findUnique({
       where: { id: allocation.cardId },
-      select: { id: true, balanceAmd: true, status: true },
+      select: { id: true, code: true, balanceAmd: true, status: true },
     });
     if (card === null) {
       await db.user.update({
@@ -184,19 +244,18 @@ export async function refundReservedGiftCredits(
       });
       continue;
     }
-    const nextBalance = readGiftCardBalance(card) + allocation.cents;
-    await db.giftCard.update({
-      where: { id: card.id },
-      data: {
-        balanceAmd: nextBalance,
-        status:
-          card.status === GiftCardStatus.REDEEMED
-            ? GiftCardStatus.ACTIVE
-            : card.status,
-      },
+    await creditGiftCardAmd(db, {
+      cardId: card.id,
+      cents: allocation.cents,
+      userId: params.userId,
+      code: card.code,
+      reactivate: card.status === GiftCardStatus.REDEEMED,
+      orderId: params.orderId,
     });
   }
 }
+
+export { cardIdsFromAllocations };
 
 /** Metadata fragment for package payments that applied gift credits. */
 export function buildGiftCreditsPaymentMetadata(
@@ -240,82 +299,8 @@ export async function recordGiftCreditSpendPayment(
   });
 }
 
-export function readGiftCreditsAppliedCents(
-  metadata: Prisma.JsonValue | Prisma.InputJsonValue | null | undefined,
-): number {
-  if (
-    metadata === null ||
-    metadata === undefined ||
-    typeof metadata !== 'object' ||
-    Array.isArray(metadata)
-  ) {
-    return 0;
-  }
-  const value = (metadata as Record<string, unknown>)[
-    PACKAGE_GIFT_CREDITS_APPLIED_KEY
-  ];
-  return typeof value === 'number' && Number.isFinite(value) && value > 0
-    ? Math.floor(value)
-    : 0;
-}
-
-export function readGiftCreditsAllocations(
-  metadata: Prisma.JsonValue | Prisma.InputJsonValue | null | undefined,
-): GiftCreditAllocation[] | null {
-  if (
-    metadata === null ||
-    metadata === undefined ||
-    typeof metadata !== 'object' ||
-    Array.isArray(metadata)
-  ) {
-    return null;
-  }
-  const raw = (metadata as Record<string, unknown>)[
-    PACKAGE_GIFT_CREDITS_ALLOCATIONS_KEY
-  ];
-  if (!Array.isArray(raw)) {
-    return null;
-  }
-  const allocations: GiftCreditAllocation[] = [];
-  for (const entry of raw) {
-    if (entry === null || typeof entry !== 'object' || Array.isArray(entry)) {
-      continue;
-    }
-    const row = entry as Record<string, unknown>;
-    const cents =
-      typeof row.cents === 'number' && Number.isFinite(row.cents)
-        ? Math.floor(row.cents)
-        : 0;
-    if (cents <= 0) {
-      continue;
-    }
-    const cardId =
-      typeof row.cardId === 'string'
-        ? row.cardId
-        : row.cardId === null
-          ? null
-          : undefined;
-    if (cardId === undefined) {
-      continue;
-    }
-    allocations.push({ cardId, cents });
-  }
-  return allocations.length > 0 ? allocations : null;
-}
-
-export function wereGiftCreditsRefunded(
-  metadata: Prisma.JsonValue | Prisma.InputJsonValue | null | undefined,
-): boolean {
-  if (
-    metadata === null ||
-    metadata === undefined ||
-    typeof metadata !== 'object' ||
-    Array.isArray(metadata)
-  ) {
-    return false;
-  }
-  return (
-    (metadata as Record<string, unknown>)[PACKAGE_GIFT_CREDITS_REFUNDED_KEY] ===
-    true
-  );
-}
+export {
+  readGiftCreditsAllocations,
+  readGiftCreditsAppliedCents,
+  wereGiftCreditsRefunded,
+} from './package-gift-credits.metadata';

@@ -91,7 +91,7 @@ export class PaymentsConfirmService {
     giftEmails: GiftEmailPayload[],
   ): Promise<void> {
     for (const email of giftEmails) {
-      await this.fulfillment.sendGiftCardEmail(email.to, email.code);
+      await this.fulfillment.sendGiftCardEmail(email);
     }
   }
 }

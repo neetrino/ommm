@@ -73,6 +73,7 @@ export class ReportsExportService {
       giftSpentAgg,
       giftWalletAgg,
       giftCardsOutstandingAgg,
+      breakageAgg,
     ] = await Promise.all([
       this.prisma.payment.aggregate({
         where: { ...where, ...revenueSucceededWhere },
@@ -105,10 +106,10 @@ export class ReportsExportService {
       }),
       this.prisma.giftCard.findMany({
         where: {
-          status: GiftCardStatus.REDEEMED,
-          ...(dateFilter ? { updatedAt: dateFilter } : {}),
+          redeemedAt: { not: null },
+          ...(dateFilter ? { redeemedAt: dateFilter } : {}),
         },
-        orderBy: [{ updatedAt: 'desc' }, { id: 'desc' }],
+        orderBy: [{ redeemedAt: 'desc' }, { id: 'desc' }],
         take: 10_000,
       }),
       this.prisma.payment.aggregate({
@@ -127,6 +128,16 @@ export class ReportsExportService {
         where: {
           status: GiftCardStatus.ACTIVE,
           OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
+        },
+        _sum: { balanceAmd: true },
+      }),
+      this.prisma.giftCard.aggregate({
+        where: {
+          balanceAmd: { gt: 0 },
+          OR: [
+            { status: GiftCardStatus.EXPIRED },
+            { expiresAt: { lte: new Date() } },
+          ],
         },
         _sum: { balanceAmd: true },
       }),
@@ -190,6 +201,7 @@ export class ReportsExportService {
         outstandingCreditsCents:
           (giftWalletAgg._sum.giftCreditsCents ?? 0) +
           (giftCardsOutstandingAgg._sum.balanceAmd ?? 0),
+        breakageCents: breakageAgg._sum.balanceAmd ?? 0,
       },
       influencer,
     };
@@ -252,8 +264,8 @@ export class ReportsExportService {
       }),
       this.prisma.giftCard.findMany({
         where: {
-          status: GiftCardStatus.REDEEMED,
-          ...(dateFilter ? { updatedAt: dateFilter } : {}),
+          redeemedAt: { not: null },
+          ...(dateFilter ? { redeemedAt: dateFilter } : {}),
         },
         include: {
           recipient: {

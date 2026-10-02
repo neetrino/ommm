@@ -1,7 +1,7 @@
 "use client";
 
 import type { KeyboardEvent, MouseEvent, ReactNode } from "react";
-import { GiftCardThumbnail } from "@/components/gift-cards/gift-card-thumbnail";
+import { GiftCardFace } from "@/components/gift-cards/gift-card-face";
 import { giftCardStatusBadgeClass } from "@/components/gift-cards/gift-card-display-helpers";
 
 /** Board grid — admin gift cards directory and user gift cards page. */
@@ -40,9 +40,9 @@ type GiftCardBoardTileProps = {
   amountLabel: string;
   status: string;
   statusLabel: string;
-  imageUrl: string | null;
   imageAlt: string;
-  imageFallbackLabel: string;
+  code?: string | null;
+  codes?: readonly string[];
   details: readonly GiftCardBoardDetail[];
   openAriaLabel?: string;
   onOpen?: () => void;
@@ -59,9 +59,9 @@ export function GiftCardBoardTile({
   amountLabel,
   status,
   statusLabel,
-  imageUrl,
   imageAlt,
-  imageFallbackLabel,
+  code,
+  codes,
   details = [],
   openAriaLabel,
   onOpen,
@@ -110,12 +110,7 @@ export function GiftCardBoardTile({
       <div className="p-4 pb-3">
         <div className="overflow-hidden rounded-[20px] border border-white/90 bg-white shadow-[0_16px_36px_-18px_rgba(45,40,35,0.32)]">
           <div className="relative aspect-[1.62/1] w-full bg-gradient-to-br from-sand-50 via-paper to-mint-50">
-            <GiftCardThumbnail
-              imageUrl={imageUrl}
-              alt={imageAlt}
-              fallbackLabel={imageFallbackLabel}
-              className="h-full w-full object-cover"
-            />
+            <GiftCardFace code={code} codes={codes} alt={imageAlt} className="absolute inset-0" />
             {imageBadge ? (
               <span
                 className={`absolute left-3 top-3 rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.06em] shadow-sm ${imageBadge.className ?? "bg-white/92 text-sage-800"}`}
@@ -149,9 +144,9 @@ export function GiftCardBoardTile({
         </div>
 
         <dl className="grid gap-2.5 text-sm">
-          {details.map((detail) => (
+          {details.map((detail, index) => (
             <GiftCardBoardDetailRow
-              key={detail.label}
+              key={`${detail.label}-${index}`}
               label={detail.label}
               value={detail.value}
               valueClassName={detail.valueClassName}

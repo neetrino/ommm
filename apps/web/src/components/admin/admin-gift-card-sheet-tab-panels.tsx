@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import { AdminGiftCardActions } from "@/components/admin/admin-gift-card-actions";
+import { AdminGiftIssuedCards } from "@/components/admin/admin-gift-issued-cards";
 import {
   displayGiftCardDate,
   giftCardQuantityLabel,
@@ -25,9 +26,10 @@ import type {
   AdminGiftCardRedemptionHistory,
 } from "@/components/admin/admin-gift-cards-types";
 import { ApiError, apiFetch } from "@/lib/api";
+import { useGiftCardValueLabel } from "@/components/admin/admin-gift-card-value";
 import { formatDateForUi } from "@/lib/date-display";
 import { formatAmdFromCents } from "@/lib/price-amd";
-import { resolveApiAssetUrl } from "@/lib/resolve-api-asset-url";
+import { GiftCardFace } from "@/components/gift-cards/gift-card-face";
 
 const SECTION_CLASS =
   "rounded-[24px] border border-white/60 bg-white/75 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.18)]";
@@ -91,28 +93,14 @@ function GiftCardOverviewPanel({
   locale: string;
 }) {
   const t = useTranslations("adminPages.giftCards");
-  const resolvedImage = resolveApiAssetUrl(card.imageUrl);
   const recipient = recipientLabel(card);
   const expired = isGiftCardExpired(card);
-  const amountLabel = formatAmdFromCents(card.amountAmd, locale);
+  const amountLabel = useGiftCardValueLabel(card, locale);
 
   return (
     <div className="space-y-4">
       <section className={`${SECTION_CLASS} overflow-hidden`}>
-        <div className="flex w-full items-center justify-center bg-sage-100 p-4">
-          {resolvedImage ? (
-            // eslint-disable-next-line @next/next/no-img-element -- supports API and blob/image URLs
-            <img
-              src={resolvedImage}
-              alt={t("cardImageAlt")}
-              className="h-auto max-h-[min(40vh,320px)] w-full object-contain"
-            />
-          ) : (
-            <div className="flex h-40 w-full items-center justify-center bg-gradient-to-br from-sand-100 via-paper to-mint-100 sm:h-48">
-              <span className="text-sm font-medium text-sage-600">{t("cardImageFallback")}</span>
-            </div>
-          )}
-        </div>
+        <GiftCardFace alt={t("cardImageAlt")} className="aspect-[1.58/1] w-full" />
         <div className="flex flex-wrap items-center gap-2 border-t border-white/60 px-4 py-3">
           <span className={giftCardStatusBadgeClass(card.status)}>
             {t(`statusValues.${card.status}`)}
@@ -173,18 +161,21 @@ function GiftCardActionsPanel({
   onRemoved?: () => void;
 }) {
   return (
-    <AdminGiftCardActions
-      batchId={card.id}
-      allowDeactivate={false}
-      allowDelete={canDelete}
-      hideLifecycleActions
-      showHistoryButton={false}
-      hideAssign={!canAssign}
-      locale={locale}
-      assignableUsers={assignableUsers}
-      onChanged={onChanged}
-      onRemoved={onRemoved}
-    />
+    <>
+      <AdminGiftCardActions
+        batchId={card.id}
+        allowDeactivate={false}
+        allowDelete={canDelete}
+        hideLifecycleActions
+        showHistoryButton={false}
+        hideAssign={!canAssign}
+        locale={locale}
+        assignableUsers={assignableUsers}
+        onChanged={onChanged}
+        onRemoved={onRemoved}
+      />
+      <AdminGiftIssuedCards batchId={card.id} locale={locale} onChanged={onChanged} />
+    </>
   );
 }
 
@@ -257,7 +248,7 @@ function GiftCardHistoryPanel({ batchId, locale }: { batchId: string; locale: st
           <li className="text-sage-500">{t("historyEmpty")}</li>
         ) : (
           history.events.map((event) => (
-            <li key={`${event.type}-${event.at}`}>
+            <li key={`${event.type}-${event.at}-${event.description}`}>
               {formatDateForUi(event.at)} — {event.description}
             </li>
           ))
