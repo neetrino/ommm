@@ -223,11 +223,17 @@ async function chargePackageClassGift(
   return {
     amountCents,
     classTypeId,
-    classQuantity: packageGiftSessionCount(plan.typeSessionAllocations, classTypeId),
+    classQuantity: packageGiftSessionCount(
+      plan.typeSessionAllocations,
+      classTypeId,
+    ),
   };
 }
 
-function packageGiftSessionCount(allocations: unknown, classTypeId: string): number {
+function packageGiftSessionCount(
+  allocations: unknown,
+  classTypeId: string,
+): number {
   const match = parseStoredTypeSessionAllocations(allocations).find(
     (item) => item.classTypeId === classTypeId,
   );

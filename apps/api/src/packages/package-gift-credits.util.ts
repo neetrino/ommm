@@ -96,7 +96,9 @@ export function selectedGiftCardIds(
   const unique = [
     ...new Set(ids.map((id) => id.trim()).filter((id) => id.length > 0)),
   ];
-  return unique.length > 0 ? unique.slice(0, MAX_SELECTED_GIFT_CARDS) : undefined;
+  return unique.length > 0
+    ? unique.slice(0, MAX_SELECTED_GIFT_CARDS)
+    : undefined;
 }
 
 export function resolveGiftCreditsApplication(params: {

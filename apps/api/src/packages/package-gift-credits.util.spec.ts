@@ -7,6 +7,12 @@ import {
   reserveGiftCreditsForPackage,
 } from './package-gift-credits.util';
 
+function containing(
+  expected: Record<string, unknown>,
+): Record<string, unknown> {
+  return expect.objectContaining(expected) as Record<string, unknown>;
+}
+
 describe('package-gift-credits.util', () => {
   it('peekSpendableGiftCreditsCents sums wallet and active cards', async () => {
     const db = {
@@ -164,13 +170,18 @@ describe('package-gift-credits.util', () => {
     const updates: Array<{ id: string; data: Record<string, unknown> }> = [];
     const db = {
       giftCard: {
-        findMany: jest.fn().mockResolvedValue([
-          { id: 'card', code: 'CARD', balanceAmd: 30_000, expiresAt: null },
-        ]),
+        findMany: jest
+          .fn()
+          .mockResolvedValue([
+            { id: 'card', code: 'CARD', balanceAmd: 30_000, expiresAt: null },
+          ]),
         updateMany: jest
           .fn()
           .mockImplementation(
-            (args: { where: { id: string }; data: Record<string, unknown> }) => {
+            (args: {
+              where: { id: string };
+              data: Record<string, unknown>;
+            }) => {
               updates.push({ id: args.where.id, data: args.data });
               return Promise.resolve({ count: 1 });
             },
@@ -194,7 +205,7 @@ describe('package-gift-credits.util', () => {
     ]);
     expect(db.giftCardTransaction.create).toHaveBeenCalledWith(
       expect.objectContaining({
-        data: expect.objectContaining({
+        data: containing({
           amountAmd: 15_000,
           balanceAmdAfter: 15_000,
         }),
@@ -206,9 +217,11 @@ describe('package-gift-credits.util', () => {
     const debited: string[] = [];
     const db = {
       giftCard: {
-        findMany: jest.fn().mockResolvedValue([
-          { id: 'chosen', code: 'ONE', balanceAmd: 30_000, expiresAt: null },
-        ]),
+        findMany: jest
+          .fn()
+          .mockResolvedValue([
+            { id: 'chosen', code: 'ONE', balanceAmd: 30_000, expiresAt: null },
+          ]),
         updateMany: jest
           .fn()
           .mockImplementation((args: { where: { id: string } }) => {
@@ -230,7 +243,7 @@ describe('package-gift-credits.util', () => {
 
     expect(db.giftCard.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
-        where: expect.objectContaining({ id: { in: ['chosen'] } }),
+        where: containing({ id: { in: ['chosen'] } }),
       }),
     );
     expect(allocations).toEqual([{ cardId: 'chosen', cents: 30_000 }]);

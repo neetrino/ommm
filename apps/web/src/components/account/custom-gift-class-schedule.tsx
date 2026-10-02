@@ -77,13 +77,14 @@ type GiftPackageChoiceProps = {
 };
 
 function GiftPackageChoice(props: GiftPackageChoiceProps) {
+  const { onQuotedPriceChange } = props;
   const plans = useClassGiftPlans(props.classTypeId);
   const [packageId, setPackageId] = useState("");
   const chosen = plans.find((plan) => plan.id === packageId) ?? null;
   const quotedAmd = planPriceAmd(chosen ?? undefined);
   useEffect(() => {
-    props.onQuotedPriceChange(quotedAmd);
-  }, [quotedAmd, props.onQuotedPriceChange]);
+    onQuotedPriceChange(quotedAmd);
+  }, [quotedAmd, onQuotedPriceChange]);
   return (
     <>
       <GiftOptionSelect
