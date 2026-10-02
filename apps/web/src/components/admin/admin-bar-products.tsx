@@ -119,8 +119,10 @@ function useBarRunner(failedLabel: string) {
   }, []);
 
   useEffect(() => {
-    void refresh().catch((caught: unknown) => {
-      setError(caught instanceof ApiError ? caught.message : failedLabel);
+    queueMicrotask(() => {
+      void refresh().catch((caught: unknown) => {
+        setError(caught instanceof ApiError ? caught.message : failedLabel);
+      });
     });
   }, [failedLabel, refresh]);
 

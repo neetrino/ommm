@@ -34,8 +34,9 @@ export type CustomGiftFieldIssues = {
 /** Required-field issues only. The gift note is optional and is not checked. */
 export function customGiftFieldIssues(
   amountAmd: number | null,
-  _hasRecipient: boolean,
+  hasRecipient: boolean,
 ): CustomGiftFieldIssues {
+  void hasRecipient;
   return {
     amount: customGiftAmountIssue(amountAmd),
     recipient: null,
