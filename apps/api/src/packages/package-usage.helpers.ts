@@ -146,7 +146,9 @@ export function toEligibleBookingPackage(
     currentPeriodEnd: membership.currentPeriodEnd.toISOString(),
     includedCategories,
     guestSlotsTotal: GUEST_PASSES_ENABLED ? membership.guestSlotsTotal : 0,
-    guestSlotsRemaining: GUEST_PASSES_ENABLED ? membership.guestSlotsRemaining : 0,
+    guestSlotsRemaining: GUEST_PASSES_ENABLED
+      ? membership.guestSlotsRemaining
+      : 0,
     canBookGuest: GUEST_PASSES_ENABLED && membership.guestSlotsRemaining > 0,
   };
 }
