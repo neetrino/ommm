@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import {
   GiftMarketCardDetailsSheet,
+  marketGiftValueLabel,
   type GiftMarketCardPreview,
   type GiftPurchaseIntent,
 } from "@/components/account/gift-market-card-details-sheet";
@@ -14,10 +15,10 @@ import { displayGiftCardDate } from "@/components/gift-cards/gift-card-display-h
 import { OmmButton } from "@/components/ui/omm-button";
 import { ApiError, apiFetch } from "@/lib/api";
 import { GIFT_CARD_CHECKOUT_PATH } from "@/lib/payment-checkout-source";
-import { formatAmdFromCents } from "@/lib/price-amd";
 
 type PendingPaymentResponse = {
   paymentReference: string | null;
+  amountCents: number;
 };
 
 type GiftPurchaseFormProps = {
@@ -79,7 +80,7 @@ export function GiftPurchaseForm({ locale }: GiftPurchaseFormProps) {
         }),
       });
       const params = new URLSearchParams({
-        amountCents: card.amountCents.toString(),
+        amountCents: String(payment.amountCents ?? card.amountCents),
       });
       if (payment.paymentReference !== null) {
         params.set("reference", payment.paymentReference);
@@ -145,7 +146,7 @@ function PurchaseGiftCardPreview({
 }) {
   const t = useTranslations("userPages.giftCards.purchaseForm");
   const giftCardsT = useTranslations("userPages.giftCards");
-  const amountLabel = formatAmdFromCents(item.amountCents, locale);
+  const amountLabel = marketGiftValueLabel(item, locale, giftCardsT);
 
   return (
     <GiftCardBoardTile

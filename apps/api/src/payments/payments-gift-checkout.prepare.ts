@@ -26,7 +26,7 @@ export type GiftCheckoutRequest = {
 
 type GiftCheckoutDb = Pick<
   PrismaService,
-  'user' | 'studioSettings' | 'classType' | 'classSession'
+  'user' | 'studioSettings' | 'classType' | 'classSession' | 'giftCardBatch'
 >;
 
 /** Recipient may be a member, a name/email, or nobody. The buyer still receives the code. */
@@ -75,42 +75,67 @@ export async function prepareGiftCheckout(
   metadata: PaymentMetadata;
   description: string;
 }> {
-  const recipient = await resolveGiftCheckoutRecipient(db, params);
+  const request = await withBatchClassGift(db, params);
+  const recipient = await resolveGiftCheckoutRecipient(db, request);
   const giftType =
-    params.giftType === GiftCardType.FIXED_CLASS
+    request.giftType === GiftCardType.FIXED_CLASS
       ? GiftCardType.FIXED_CLASS
       : GiftCardType.FIXED_VALUE;
   const classShape =
     giftType === GiftCardType.FIXED_CLASS
-      ? await resolveClassGiftCharge(db, params)
+      ? await resolveClassGiftCharge(db, request)
       : null;
-  if (classShape === null && params.batchId === undefined) {
-    await assertStudioGiftAmount(db, params.amountCents);
+  if (classShape === null && request.batchId === undefined) {
+    await assertStudioGiftAmount(db, request.amountCents);
   }
-  const amountCents = classShape?.amountCents ?? params.amountCents;
+  const amountCents = classShape?.amountCents ?? request.amountCents;
   return {
     amountCents,
     description:
       classShape === null
-        ? giftValueDescription(params.batchId)
+        ? giftValueDescription(request.batchId)
         : 'Class gift card',
     metadata: {
       ...recipient,
-      ...(blankToUndefined(params.message)
-        ? { message: params.message?.trim() }
+      ...(blankToUndefined(request.message)
+        ? { message: request.message?.trim() }
         : {}),
       giftType,
-      delivery: normalizeDelivery(params.delivery),
+      delivery: normalizeDelivery(request.delivery),
       ...(classShape
         ? {
             classTypeId: classShape.classTypeId,
             classQuantity: classShape.classQuantity,
           }
         : {}),
-      ...(blankToUndefined(params.deliverAt)
-        ? { deliverAt: params.deliverAt?.trim() }
+      ...(blankToUndefined(request.deliverAt)
+        ? { deliverAt: request.deliverAt?.trim() }
         : {}),
     },
+  };
+}
+
+/** A shop batch of class sessions is priced from that class, not from a zero money amount. */
+async function withBatchClassGift(
+  db: GiftCheckoutDb,
+  params: GiftCheckoutRequest,
+): Promise<GiftCheckoutRequest> {
+  const batchId = params.batchId?.trim() ?? '';
+  if (batchId.length === 0) {
+    return params;
+  }
+  const batch = await db.giftCardBatch.findFirst({
+    where: { id: batchId },
+    select: { type: true, classTypeId: true, classQuantity: true },
+  });
+  if (batch?.type !== GiftCardType.FIXED_CLASS || !batch.classTypeId) {
+    return params;
+  }
+  return {
+    ...params,
+    giftType: GiftCardType.FIXED_CLASS,
+    classTypeId: batch.classTypeId,
+    classQuantity: batch.classQuantity,
   };
 }
 

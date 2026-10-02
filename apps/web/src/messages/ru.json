@@ -1212,6 +1212,8 @@
       "cartClassType": "Тип занятия",
       "cartPackage": "Пакет",
       "cartSession": "Занятие",
+      "classGiftValue": "{className} · {count, plural, one {# занятие} few {# занятия} many {# занятий} other {# занятия}}",
+      "classGiftValueUnknown": "{count, plural, one {# занятие} few {# занятия} many {# занятий} other {# занятия}}",
       "copyCodeSuccess": "Код скопирован в буфер обмена.",
       "copyCodeFailed": "Не удалось скопировать код.",
       "statusValues": {

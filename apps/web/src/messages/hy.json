@@ -1213,6 +1213,8 @@
       "cartClassType": "Դասի տեսակ",
       "cartPackage": "Փաթեթ",
       "cartSession": "Դաս",
+      "classGiftValue": "{className} · {count} դաս",
+      "classGiftValueUnknown": "{count} դաս",
       "copyCodeSuccess": "Կոդը պատճենվեց։",
       "copyCodeFailed": "Չհաջողվեց պատճենել կոդը։",
       "statusValues": {

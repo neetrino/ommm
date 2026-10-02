@@ -30,7 +30,33 @@ export type GiftMarketCardPreview = {
   totalQuantity: number;
   expiresAt: string | null;
   status: string;
+  type?: "FIXED_VALUE" | "FIXED_CLASS";
+  classTypeId?: string | null;
+  classTypeName?: string | null;
+  classQuantity?: number;
 };
+
+type ClassGiftCopy = {
+  (key: "classGiftValue", values: { className: string; count: number }): string;
+  (key: "classGiftValueUnknown", values: { count: number }): string;
+};
+
+/** Money cards show AMD. Class cards show the class and how many sessions are on the card. */
+export function marketGiftValueLabel(
+  card: GiftMarketCardPreview,
+  locale: string,
+  t: ClassGiftCopy,
+): string {
+  if (card.type !== "FIXED_CLASS") {
+    return formatAmdFromCents(card.amountCents, locale);
+  }
+  const count = card.classQuantity ?? 0;
+  const className = card.classTypeName?.trim() ?? "";
+  if (className.length === 0) {
+    return t("classGiftValueUnknown", { count });
+  }
+  return t("classGiftValue", { className, count });
+}
 
 export type GiftPurchaseIntent = {
   card: GiftMarketCardPreview;
@@ -85,7 +111,8 @@ function GiftMarketCardDetailsSheetInner({
   const t = useTranslations("userPages.giftCards");
   const tPurchase = useTranslations("userPages.giftCards.purchaseForm");
   const titleId = useId();
-  const amountLabel = formatAmdFromCents(card.amountCents, locale);
+  const amountLabel = marketGiftValueLabel(card, locale, t);
+  const amountFieldLabel = card.type === "FIXED_CLASS" ? t("cartClassType") : t("cardAmount");
   const [recipient, setRecipient] = useState<GiftRecipientOption | null>(null);
   const [recipientError, setRecipientError] = useState<string | null>(null);
 
@@ -133,7 +160,7 @@ function GiftMarketCardDetailsSheetInner({
 
         <section className="rounded-[24px] border border-white/60 bg-white/75 p-4 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.18)] sm:p-5">
           <dl className="grid gap-4 text-sm sm:grid-cols-2">
-            <DetailField label={t("cardAmount")} value={amountLabel} />
+            <DetailField label={amountFieldLabel} value={amountLabel} />
             <DetailField
               label={tPurchase("availableLabel")}
               value={`${card.availableQuantity} / ${card.totalQuantity}`}

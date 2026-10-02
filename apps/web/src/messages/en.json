@@ -1212,6 +1212,8 @@
       "cartClassType": "Class type",
       "cartPackage": "Package",
       "cartSession": "Class",
+      "classGiftValue": "{className} · {count, plural, one {# class} other {# classes}}",
+      "classGiftValueUnknown": "{count, plural, one {# class} other {# classes}}",
       "copyCodeSuccess": "Code copied to clipboard.",
       "copyCodeFailed": "Could not copy code.",
       "statusValues": {

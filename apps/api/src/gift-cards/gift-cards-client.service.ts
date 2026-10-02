@@ -111,6 +111,7 @@ export class GiftCardsClientService {
           status: GiftCardStatus.ACTIVE,
           availableQuantity: { gt: 0 },
         },
+        include: { classType: { select: { name: true } } },
         orderBy: { createdAt: 'desc' },
         take: 200,
       })
@@ -119,6 +120,7 @@ export class GiftCardsClientService {
           ...batch,
           amountAmd: readBatchAmount(batch),
           amountCents: readBatchAmount(batch),
+          classTypeName: readMarketClassTypeName(batch),
         })),
       );
   }
@@ -273,4 +275,13 @@ export class GiftCardsClientService {
         })),
       );
   }
+}
+
+function readMarketClassTypeName(batch: Record<string, unknown>): string | null {
+  const classType = batch.classType;
+  if (typeof classType !== 'object' || classType === null || !('name' in classType)) {
+    return null;
+  }
+  const name = classType.name;
+  return typeof name === 'string' && name.trim().length > 0 ? name : null;
 }
