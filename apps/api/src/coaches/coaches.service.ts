@@ -3,6 +3,7 @@ import type { User } from '@prisma/client';
 import type { AdminListCoachesQueryDto } from './dto/admin-list-coaches-query.dto';
 import type { AdminSalaryPayoutsQueryDto } from './dto/admin-salary-payouts-query.dto';
 import type { AdminSalarySummariesQueryDto } from './dto/admin-salary-summaries-query.dto';
+import type { CoachSalarySessionsExportQueryDto } from './dto/coach-salary-sessions-export-query.dto';
 import type { CoachSalarySessionsQueryDto } from './dto/coach-salary-sessions-query.dto';
 import type { CreateCoachDto } from './dto/create-coach.dto';
 import type { UploadCoachPhotoJsonDto } from './dto/upload-coach-photo-json.dto';
@@ -89,6 +90,13 @@ export class CoachesService {
     query: CoachSalarySessionsQueryDto = {},
   ) {
     return this.salarySessions.listForCoach(coachProfileId, query);
+  }
+
+  adminSalarySessionsExport(
+    coachProfileId: string,
+    query: CoachSalarySessionsExportQueryDto,
+  ) {
+    return this.salarySessions.listForExport(coachProfileId, query);
   }
 
   panelSalarySessions(userId: string, query: CoachSalarySessionsQueryDto = {}) {

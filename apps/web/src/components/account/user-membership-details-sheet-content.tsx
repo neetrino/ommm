@@ -21,6 +21,7 @@ import {
   ADMIN_DETAILS_SHEET_HEADER_CLASS,
   ADMIN_DETAILS_SHEET_TITLE_CLASS,
 } from "@/components/admin/admin-details-sheet-layout";
+import { GUEST_PASSES_ENABLED } from "@/lib/guest-passes";
 import { formatAmdFromCents } from "@/lib/price-amd";
 import type { UserMembershipRow, UserPackageStatus } from "@/lib/user-package-types";
 
@@ -65,6 +66,7 @@ export function MembershipDetailsSheetContent({
     display.usedSessions !== null &&
     display.totalSessions > 0;
   const guestUsed =
+    GUEST_PASSES_ENABLED &&
     membership.guestSlotsTotal != null && membership.guestSlotsTotal > 0
       ? Math.max(
           0,

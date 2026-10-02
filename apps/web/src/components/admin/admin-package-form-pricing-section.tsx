@@ -20,6 +20,7 @@ import {
 } from "@/components/admin/admin-package-form-utils";
 import { AmdMoneyInput } from "@/components/ui/amd-money-input";
 import { DatePickerInput } from "@/components/ui/date-picker-input";
+import { GUEST_PASSES_ENABLED } from "@/lib/guest-passes";
 
 type AdminPackageFormPricingSectionProps = {
   values: AdminPackageFormValues;
@@ -144,26 +145,28 @@ export function AdminPackageFormPricingSection({
             />
             <span className="text-xs text-sage-500">{t("fieldStartDateHint")}</span>
           </label>
-          <label className="flex flex-col gap-1.5">
-            <span className="ommm-label text-xs uppercase tracking-wide">
-              {t("fieldGuestCount")}
-            </span>
-            <input
-              name="guestCount"
-              type="number"
-              className={OMMM_INPUT_NUMBER_CLASS}
-              min={MIN_PACKAGE_GUEST_COUNT}
-              max={MAX_PACKAGE_GUEST_COUNT}
-              step={1}
-              inputMode="numeric"
-              value={values.guestCount}
-              onChange={(event) => onValuesChange({ guestCount: event.target.value })}
-              onKeyDown={preventNumberArrowStep}
-              placeholder={t("fieldGuestCountPlaceholder")}
-              disabled={pending}
-            />
-            <span className="text-xs text-sage-500">{t("fieldGuestCountHint")}</span>
-          </label>
+          {GUEST_PASSES_ENABLED ? (
+            <label className="flex flex-col gap-1.5">
+              <span className="ommm-label text-xs uppercase tracking-wide">
+                {t("fieldGuestCount")}
+              </span>
+              <input
+                name="guestCount"
+                type="number"
+                className={OMMM_INPUT_NUMBER_CLASS}
+                min={MIN_PACKAGE_GUEST_COUNT}
+                max={MAX_PACKAGE_GUEST_COUNT}
+                step={1}
+                inputMode="numeric"
+                value={values.guestCount}
+                onChange={(event) => onValuesChange({ guestCount: event.target.value })}
+                onKeyDown={preventNumberArrowStep}
+                placeholder={t("fieldGuestCountPlaceholder")}
+                disabled={pending}
+              />
+              <span className="text-xs text-sage-500">{t("fieldGuestCountHint")}</span>
+            </label>
+          ) : null}
           <label className="flex flex-col gap-1.5">
             <span className="ommm-label text-xs uppercase tracking-wide">
               {t("fieldFreezeMaxDays")}

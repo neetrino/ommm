@@ -5,6 +5,7 @@ import accordionStyles from "@/components/marketing/packages/packages-page-accor
 import type { ExpandedTierTableProps } from "@/components/marketing/packages/packages-page-accordion.types";
 import { PackagesPageAccordionTierRow } from "@/components/marketing/packages/packages-page-accordion-tier-row";
 import { resolvePackagesPageTierTableColumns } from "@/components/marketing/packages/packages-page-tokens";
+import { GUEST_PASSES_ENABLED } from "@/lib/guest-passes";
 
 export function PackagesPageAccordionTierTable({
   locale,
@@ -31,7 +32,9 @@ export function PackagesPageAccordionTierTable({
         <span className={accordionStyles.columnHeaderPill}>{t("packagesTableTotalSessions")}</span>
         <span className={accordionStyles.columnHeaderPill}>{t("packagesTablePrice")}</span>
         <span className={accordionStyles.columnHeaderPill}>{t("packagesTableValidity")}</span>
-        <span className={accordionStyles.columnHeaderPill}>{t("packagesTableGuests")}</span>
+        {GUEST_PASSES_ENABLED ? (
+          <span className={accordionStyles.columnHeaderPill}>{t("packagesTableGuests")}</span>
+        ) : null}
         <span className={accordionStyles.columnHeaderPill}>{t("packagesTableFreeze")}</span>
         <span
           className={`${accordionStyles.columnHeaderPill} ${accordionStyles.columnHeaderSubscribe}`}

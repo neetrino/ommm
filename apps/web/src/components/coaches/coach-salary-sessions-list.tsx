@@ -22,7 +22,6 @@ type CoachSalarySessionsListProps = {
   emptyLabel: string;
   /** Spreadsheet layout matching the admin finance drawer; cards remain available for compact UIs. */
   variant?: "cards" | "table";
-  totalsLabel?: string;
 };
 
 function buildEndpoint(
@@ -58,12 +57,12 @@ export function CoachSalarySessionsList({
   loadFailedLabel,
   emptyLabel,
   variant = "cards",
-  totalsLabel = "Totals",
 }: CoachSalarySessionsListProps) {
   const pageSize = DEFAULT_LIST_PAGE_SIZE;
   const [page, setPage] = useState(1);
   const [sessions, setSessions] = useState<CoachSalarySessionRow[]>([]);
   const [total, setTotal] = useState(0);
+  const [rangeTotalAmd, setRangeTotalAmd] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -89,12 +88,14 @@ export function CoachSalarySessionsList({
         if (!cancelled) {
           setSessions(payload.items);
           setTotal(payload.total);
+          setRangeTotalAmd(payload.paidTotalAmd);
         }
       } catch {
         if (!cancelled) {
           setError(loadFailedLabel);
           setSessions([]);
           setTotal(0);
+          setRangeTotalAmd(0);
         }
       } finally {
         if (!cancelled) {
@@ -122,7 +123,7 @@ export function CoachSalarySessionsList({
         <CoachSalarySessionsTable
           sessions={sessions}
           locale={locale}
-          totalsLabel={totalsLabel}
+          rangeTotalAmd={rangeTotalAmd}
         />
       ) : null}
       {showRows && variant === "cards" ? (

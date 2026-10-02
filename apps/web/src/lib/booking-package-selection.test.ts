@@ -27,12 +27,12 @@ function pkg(
 }
 
 describe("booking-package-selection", () => {
-  it("opens the modal when a guest pass is available", () => {
+  it("does not open the modal only because a guest pass is available", () => {
     const packages = [
       pkg({ userPackageId: "a", canBook: true, canBookGuest: true }),
     ];
-    assert.equal(shouldPromptBookingPackageSelection(packages), true);
-    assert.equal(resolveAutoBookPackageId(packages), undefined);
+    assert.equal(shouldPromptBookingPackageSelection(packages), false);
+    assert.equal(resolveAutoBookPackageId(packages), "a");
     assert.equal(hasBookablePackage(packages), true);
   });
 
@@ -42,7 +42,7 @@ describe("booking-package-selection", () => {
     assert.equal(resolveAutoBookPackageId(packages), "a");
   });
 
-  it("prefers an owner package, then a guest-only package", () => {
+  it("prefers an owner package and ignores a guest-only package", () => {
     assert.equal(
       pickDefaultBookingPackageId([
         pkg({ userPackageId: "guest", canBookGuest: true }),
@@ -55,7 +55,7 @@ describe("booking-package-selection", () => {
         pkg({ userPackageId: "empty" }),
         pkg({ userPackageId: "guest", canBookGuest: true }),
       ]),
-      "guest",
+      "empty",
     );
   });
 });

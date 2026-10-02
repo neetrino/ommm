@@ -79,7 +79,7 @@ model UserPackage {
   consumptions  BookingConsumption[]
   freezes       UserPackageFreeze[]
   packagePurchasedLog PackagePurchasedSendLog?
-  expiryReminderLog   MembershipExpiryReminderSendLog?
+  expiryReminderLogs  MembershipExpiryReminderSendLog[]
 
   @@index([userId, status])
   @@index([userId, currentPeriodEnd])

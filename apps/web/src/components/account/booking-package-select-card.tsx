@@ -9,6 +9,7 @@ import {
   BookingPackageVisitsIcon,
 } from "@/components/account/booking-package-select-card-icons";
 import type { EligibleBookingPackage } from "@/lib/eligible-booking-package";
+import { GUEST_PASSES_ENABLED } from "@/lib/guest-passes";
 
 type BookingPackageSelectCardProps = {
   pkg: EligibleBookingPackage;
@@ -63,7 +64,7 @@ export function BookingPackageSelectCard({
 }: BookingPackageSelectCardProps) {
   const t = useTranslations("forms.bookSession");
   const guestTotal = pkg.guestSlotsTotal ?? 0;
-  const showGuests = guestTotal > 0;
+  const showGuests = GUEST_PASSES_ENABLED && guestTotal > 0;
   const cardClassName = [
     styles.packageCard,
     isSelected ? styles.packageCardSelected : "",
@@ -77,13 +78,13 @@ export function BookingPackageSelectCard({
       type="button"
       className={cardClassName}
       onClick={() => {
-        if (!pkg.canBook && pkg.canBookGuest !== true) {
+        if (!pkg.canBook && !(GUEST_PASSES_ENABLED && pkg.canBookGuest === true)) {
           return;
         }
         onSelect(pkg.userPackageId);
       }}
       disabled={isDisabled}
-      aria-disabled={!pkg.canBook && pkg.canBookGuest !== true}
+      aria-disabled={!pkg.canBook && !(GUEST_PASSES_ENABLED && pkg.canBookGuest === true)}
       aria-pressed={isSelected}
     >
       <span className={styles.packageCardHeader}>

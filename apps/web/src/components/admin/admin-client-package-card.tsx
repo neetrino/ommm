@@ -17,6 +17,7 @@ import { AdminClientPackageRemoveButton } from "@/components/admin/admin-client-
 import { AdminStaffPaymentEditors } from "@/components/admin/admin-staff-payment-editors";
 import { AdminClientPackageValidityEditor } from "@/components/admin/admin-client-package-validity-editor";
 import { formatPackagePlanName } from "@/components/admin/admin-packages-display";
+import { GUEST_PASSES_ENABLED } from "@/lib/guest-passes";
 import { AdminCenterToast } from "@/components/ui/admin-center-toast";
 import { EditActionButton } from "@/components/ui/edit-action-button";
 import { formatDateForUi } from "@/lib/date-display";
@@ -143,7 +144,7 @@ export function AdminClientPackageCard({
           {remainingSummary !== null ? (
             <p className="text-sm text-sage-600">{remainingSummary}</p>
           ) : null}
-          {(item.guestSlotsTotal ?? 0) > 0 ? (
+          {GUEST_PASSES_ENABLED && (item.guestSlotsTotal ?? 0) > 0 ? (
             <p className="text-sm text-sage-600">
               {t("guestPassesUsedOfTotal", {
                 used: Math.max(

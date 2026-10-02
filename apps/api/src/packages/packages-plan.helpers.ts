@@ -9,6 +9,7 @@ import {
   type PublicPlanSource,
   type StoredTypeSessionAllocation,
 } from './packages-plan.types';
+import { GUEST_PASSES_ENABLED } from '../bookings/guest-passes.config';
 import { parsePlanStartDate } from './user-package-period.util';
 
 export function toPublicPlan(
@@ -34,7 +35,7 @@ export function toPublicPlan(
     isPopular: plan.isPopular,
     isActive: plan.isActive,
     features: plan.features,
-    guestCount: plan.guestCount,
+    guestCount: GUEST_PASSES_ENABLED ? plan.guestCount : 0,
     freezeAllowedCount: plan.freezeAllowedCount,
     freezeMaxDaysPerUse: plan.freezeMaxDaysPerUse,
     availableQuantity: plan.availableQuantity,

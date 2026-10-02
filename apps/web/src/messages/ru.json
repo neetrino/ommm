@@ -2931,7 +2931,8 @@
         "profile": "Профиль",
         "details": "Данные тренера",
         "classes": "Классы",
-        "schedule": "Расписание"
+        "schedule": "Расписание",
+        "salary": "Зарплата"
       },
       "create": {
         "panelTitle": "Добавить тренера",
@@ -4032,7 +4033,7 @@
       "addPageButton": "Добавить пакет",
       "addPageAria": "Добавить пакет в группу",
       "editPageTitle": "Редактировать пакет",
-      "editPageDescription": "Измените название, цену, срок, гостей и типы занятий для этого пакета.",
+      "editPageDescription": "Измените название, цену, срок и типы занятий для этого пакета.",
       "editPageAria": "Редактировать пакет {name}",
       "addTierTitle": "Добавить пакет",
       "addTierDescription": "Добавьте пакет с ценой и типами занятий в эту группу.",
@@ -4058,7 +4059,7 @@
       "fieldStartDateHint": "Если указана, срок действия пакета начинается с этой даты, а не с даты покупки.",
       "saveTierButton": "Добавить пакет",
       "editTierTitle": "Редактировать пакет",
-      "editTierDescription": "Измените название, цену, срок, гостей и типы занятий для этого пакета.",
+      "editTierDescription": "Измените название, цену, срок и типы занятий для этого пакета.",
       "editTierFormHeading": "Данные пакета",
       "editTierFormDescription": "Название, цена, срок, лимит гостей и типы занятий отображаются в списке группы.",
       "saveTierChangesButton": "Сохранить изменения",
@@ -4458,7 +4459,12 @@
         "metricEarnings": "Начислено",
         "metricPending": "К выплате",
         "metricPaid": "Выплачено",
-        "totals": "Итого"
+        "exportExcel": "Экспорт Excel",
+        "exporting": "Экспорт…",
+        "exportFailed": "Не удалось экспортировать зарплату за этот период.",
+        "exportRangeInvalid": "Дата начала должна быть не позже даты окончания.",
+        "exportRangeTooLong": "Выберите период не длиннее одного года.",
+        "exportRangeHint": "В Excel попадут все сессии этого диапазона, а не только текущая страница."
       }
     },
     "analytics": {
@@ -4909,6 +4915,8 @@
     "colRate": "Ставка",
     "colSalary": "Зарплата",
     "colStatus": "Статус",
+    "pageTotal": "Итого страницы",
+    "rangeTotal": "Итого за период",
     "statusPaid": "COMPLETED",
     "reasons": {
       "PAID": "Начислено: {amount}",
@@ -5059,8 +5067,7 @@
       "breakdownHint": "Зарплата начисляется только за занятия, на которые кто-то реально пришёл.",
       "breakdownLoading": "Загрузка сессий…",
       "breakdownLoadFailed": "Не удалось загрузить сессии.",
-      "breakdownEmpty": "Сессии за этот месяц не найдены.",
-      "breakdownTotals": "Итого"
+      "breakdownEmpty": "Сессии за этот месяц не найдены."
     }
   },
   "contentAdminPages": {

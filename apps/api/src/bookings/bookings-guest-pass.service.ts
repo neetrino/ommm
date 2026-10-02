@@ -15,6 +15,7 @@ import { ScheduleService } from '../schedule/schedule.service';
 import { StaffActivityService } from '../staff-activity/staff-activity.service';
 import { WaitlistService } from '../waitlist/waitlist.service';
 import { BOOKING_INTERACTIVE_TX_TIMEOUT_MS } from './bookings.constants';
+import { GUEST_PASSES_ENABLED } from './guest-passes.config';
 import { readGuestPassName } from './bookings-guest-pass.constants';
 import type { CreateBookingDto } from './dto/create-booking.dto';
 
@@ -30,6 +31,9 @@ export class BookingsGuestPassService {
   ) {}
 
   async bookGuest(userId: string, sessionId: string, dto: CreateBookingDto) {
+    if (!GUEST_PASSES_ENABLED) {
+      throw new BadRequestException('Guest passes are not available');
+    }
     const guestName = readGuestPassName(dto.guestName);
     if (guestName === null) {
       throw new BadRequestException('Guest name is required');

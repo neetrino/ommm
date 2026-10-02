@@ -6,6 +6,7 @@ import { AdminBookingRowActions } from "@/components/admin/admin-booking-row-act
 import { AdminBookingStatusPicker } from "@/components/admin/admin-booking-status-picker";
 import { normalizeBookingStatusBadgePaymentMethod } from "@/components/admin/admin-booking-list-badges";
 import { formatPackagePlanName } from "@/components/admin/admin-packages-display";
+import { GUEST_PASSES_ENABLED } from "@/lib/guest-passes";
 import {
   ADMIN_DETAILS_SHEET_BODY_CLASS,
   ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS,
@@ -197,7 +198,7 @@ export function AdminBookingDetailsSheet({
                 locale,
               )}
             />
-            {row.guestName ? (
+            {GUEST_PASSES_ENABLED && row.guestName ? (
               <DetailRow label={t("bookingDetailsGuest")} value={row.guestName} />
             ) : null}
             {row.package !== null ? (
