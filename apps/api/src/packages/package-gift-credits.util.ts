@@ -25,6 +25,8 @@ export {
   PACKAGE_GIFT_CREDITS_ALLOCATIONS_KEY,
   PACKAGE_GIFT_CREDITS_APPLIED_KEY,
   PACKAGE_GIFT_CREDITS_REFUNDED_KEY,
+  reservedGiftCardIds,
+  sameGiftCardSelection,
   type GiftCreditAllocation,
 } from './package-gift-credits.metadata';
 
@@ -46,6 +48,7 @@ type GiftCreditsDb = Pick<
 export async function peekSpendableGiftCreditsCents(
   db: GiftCreditsDb,
   userId: string,
+  cardIds?: readonly string[],
 ): Promise<number> {
   const now = new Date();
   const [user, cards] = await Promise.all([
@@ -54,21 +57,46 @@ export async function peekSpendableGiftCreditsCents(
       select: { giftCreditsCents: true },
     }),
     db.giftCard.findMany({
-      where: {
-        recipientId: userId,
-        status: GiftCardStatus.ACTIVE,
-        type: GiftCardType.FIXED_VALUE,
-        balanceAmd: { gt: 0 },
-        OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
-      },
+      where: spendableGiftCardWhere(userId, now, cardIds),
       select: { id: true, balanceAmd: true },
     }),
   ]);
-  const walletCents = Math.max(0, user?.giftCreditsCents ?? 0);
+  const walletCents =
+    cardIds === undefined ? Math.max(0, user?.giftCreditsCents ?? 0) : 0;
   const cardsCents = cards.reduce((sum, card) => {
     return sum + Math.max(0, readGiftCardBalance(card));
   }, 0);
   return walletCents + cardsCents;
+}
+
+function spendableGiftCardWhere(
+  userId: string,
+  now: Date,
+  cardIds?: readonly string[],
+) {
+  return {
+    recipientId: userId,
+    status: GiftCardStatus.ACTIVE,
+    type: GiftCardType.FIXED_VALUE,
+    balanceAmd: { gt: 0 },
+    OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
+    ...(cardIds !== undefined ? { id: { in: [...cardIds] } } : {}),
+  };
+}
+
+const MAX_SELECTED_GIFT_CARDS = 10;
+
+/** Drops blanks. An empty selection means “no card filter”. */
+export function selectedGiftCardIds(
+  ids: readonly string[] | undefined,
+): string[] | undefined {
+  if (ids === undefined) {
+    return undefined;
+  }
+  const unique = [
+    ...new Set(ids.map((id) => id.trim()).filter((id) => id.length > 0)),
+  ];
+  return unique.length > 0 ? unique.slice(0, MAX_SELECTED_GIFT_CARDS) : undefined;
 }
 
 export function resolveGiftCreditsApplication(params: {
@@ -92,7 +120,13 @@ export function resolveGiftCreditsApplication(params: {
  */
 export async function reserveGiftCreditsForPackage(
   db: GiftCreditsDb,
-  params: { userId: string; appliedCents: number; orderId?: string | null },
+  params: {
+    userId: string;
+    appliedCents: number;
+    orderId?: string | null;
+    /** When set, only these cards are debited. Other cards and the wallet stay. */
+    cardIds?: readonly string[];
+  },
 ): Promise<GiftCreditAllocation[]> {
   if (params.appliedCents <= 0) {
     return [];
@@ -100,13 +134,7 @@ export async function reserveGiftCreditsForPackage(
 
   const now = new Date();
   const cards = await db.giftCard.findMany({
-    where: {
-      recipientId: params.userId,
-      status: GiftCardStatus.ACTIVE,
-      type: GiftCardType.FIXED_VALUE,
-      balanceAmd: { gt: 0 },
-      OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
-    },
+    where: spendableGiftCardWhere(params.userId, now, params.cardIds),
   });
   cards.sort(compareGiftCardsForSpend);
 
@@ -116,7 +144,7 @@ export async function reserveGiftCreditsForPackage(
     orderId: params.orderId,
   });
 
-  if (remaining > 0) {
+  if (remaining > 0 && params.cardIds === undefined) {
     const updated = await db.user.updateMany({
       where: {
         id: params.userId,
@@ -128,6 +156,10 @@ export async function reserveGiftCreditsForPackage(
       throw new BadRequestException('Insufficient gift card credit');
     }
     allocations.push({ cardId: null, cents: remaining });
+    return allocations;
+  }
+  if (remaining > 0) {
+    throw new BadRequestException('Insufficient gift card credit');
   }
 
   return allocations;

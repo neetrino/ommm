@@ -37,6 +37,32 @@ export function readGiftCreditsAllocations(
   return parseAllocations(raw);
 }
 
+/** Card ids actually reserved on a payment. Wallet rows are omitted. */
+export function reservedGiftCardIds(
+  metadata: Prisma.JsonValue | Prisma.InputJsonValue | null | undefined,
+): string[] {
+  const allocations = readGiftCreditsAllocations(metadata) ?? [];
+  return allocations
+    .flatMap((row) => (row.cardId === null ? [] : [row.cardId]))
+    .sort();
+}
+
+/** `requested` omitted keeps older checkouts that did not choose cards. */
+export function sameGiftCardSelection(
+  existing: readonly string[],
+  requested: readonly string[] | undefined,
+): boolean {
+  if (requested === undefined) {
+    return true;
+  }
+  const left = [...existing].sort();
+  const right = [...new Set(requested)].sort();
+  if (left.length !== right.length) {
+    return false;
+  }
+  return left.every((id, index) => id === right[index]);
+}
+
 export function wereGiftCreditsRefunded(
   metadata: Prisma.JsonValue | Prisma.InputJsonValue | null | undefined,
 ): boolean {

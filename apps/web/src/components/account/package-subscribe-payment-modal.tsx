@@ -38,6 +38,13 @@ import {
   type ManualPaymentMethod,
 } from "@/lib/manual-payment-method";
 import type { PackageSubscribePlanOption } from "@/lib/package-subscribe-plan-option";
+import type { UserGiftCardRow } from "@/components/account/user-gift-cards-types";
+import {
+  appliedPackageGiftCents,
+  selectedGiftBalanceCents,
+  spendableGiftCardChoices,
+  type SpendableGiftCardChoice,
+} from "@/lib/spendable-gift-card-choices";
 
 type PackageSubscribePaymentModalProps = {
   isOpen: boolean;
@@ -139,13 +146,20 @@ function PackageSubscribePaymentModalSession({
   const [error, setError] = useState<string | null>(null);
   const [spendableGiftCents, setSpendableGiftCents] = useState(0);
   const [useGiftCredits, setUseGiftCredits] = useState(false);
+  const [giftCards, setGiftCards] = useState<SpendableGiftCardChoice[]>([]);
+  const [selectedGiftCardIds, setSelectedGiftCardIds] = useState<string[]>([]);
 
   const selectedPlan = plans.find((plan) => plan.id === selectedPlanId) ?? plans[0];
   const sheetTitle = step === "success" ? t("successTitle") : t("title");
-  const appliedGiftCents =
-    useGiftCredits && selectedPlan
-      ? Math.min(spendableGiftCents, selectedPlan.finalPriceCents)
-      : 0;
+  const choosingCards = giftCards.length > 0;
+  const selectedCardCents = selectedGiftBalanceCents(giftCards, selectedGiftCardIds);
+  const appliedGiftCents = appliedPackageGiftCents({
+    choosingCards,
+    selectedCardCents,
+    useGiftCredits,
+    spendableGiftCents,
+    priceCents: selectedPlan?.finalPriceCents ?? 0,
+  });
   const amountDueCents = selectedPlan
     ? selectedPlan.finalPriceCents - appliedGiftCents
     : 0;
@@ -154,20 +168,26 @@ function PackageSubscribePaymentModalSession({
     let cancelled = false;
     async function loadSpendable() {
       try {
-        const result = await apiFetch<SpendableGiftBalanceResponse>(
-          "/gift-cards/me/spendable-balance",
-        );
+        const [balance, received] = await Promise.all([
+          apiFetch<SpendableGiftBalanceResponse>("/gift-cards/me/spendable-balance"),
+          apiFetch<UserGiftCardRow[]>("/gift-cards/me/received"),
+        ]);
         if (cancelled) {
           return;
         }
-        const cents = Math.max(0, result.spendableCents);
+        const cents = Math.max(0, balance.spendableCents);
         setSpendableGiftCents(cents);
+        setGiftCards(
+          spendableGiftCardChoices(Array.isArray(received) ? received : []),
+        );
         if (cents <= 0) {
           setUseGiftCredits(false);
         }
       } catch {
         if (!cancelled) {
           setSpendableGiftCents(0);
+          setGiftCards([]);
+          setSelectedGiftCardIds([]);
           setUseGiftCredits(false);
         }
       }
@@ -196,7 +216,12 @@ function PackageSubscribePaymentModalSession({
           planId: selectedPlan.id,
           paymentMethod,
           locale,
-          useGiftCredits: useGiftCredits && spendableGiftCents > 0,
+          useGiftCredits: choosingCards
+            ? selectedGiftCardIds.length > 0
+            : useGiftCredits && spendableGiftCents > 0,
+          ...(choosingCards && selectedGiftCardIds.length > 0
+            ? { giftCardIds: selectedGiftCardIds }
+            : {}),
         }),
       });
       const dueCents =
@@ -258,12 +283,15 @@ function PackageSubscribePaymentModalSession({
           <PackageSubscribeGiftCreditsToggle
             fieldId={giftCreditsFieldId}
             checked={useGiftCredits}
-            disabled={busy || spendableGiftCents <= 0}
+            disabled={busy || (!choosingCards && spendableGiftCents <= 0)}
             spendableCents={spendableGiftCents}
             appliedCents={appliedGiftCents}
             amountDueCents={amountDueCents}
             locale={locale}
+            cards={giftCards}
+            selectedIds={selectedGiftCardIds}
             onChange={setUseGiftCredits}
+            onSelectedIdsChange={setSelectedGiftCardIds}
           />
           {error !== null ? (
             <p className="shrink-0 text-sm text-red-800" role="alert">

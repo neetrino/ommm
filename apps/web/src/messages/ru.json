@@ -5277,6 +5277,7 @@
       "giftCreditsLegend": "Подарочная карта",
       "giftCreditsAvailable": "Доступно: {amount}",
       "giftCreditsAvailableHint": "Примените доступный кредит к этому пакету.",
+      "giftCardChooseHint": "Выберите, какую подарочную карту использовать.",
       "giftCreditsUnavailable": "На этом аккаунте пока нет подарочного кредита.",
       "giftCreditsApplied": "Скидка по подарочной карте",
       "amountDue": "К оплате",

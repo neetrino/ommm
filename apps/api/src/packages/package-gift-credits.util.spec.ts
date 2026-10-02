@@ -160,6 +160,42 @@ describe('package-gift-credits.util', () => {
     });
   });
 
+  it('reserveGiftCreditsForPackage debits only the chosen card', async () => {
+    const debited: string[] = [];
+    const db = {
+      giftCard: {
+        findMany: jest.fn().mockResolvedValue([
+          { id: 'chosen', code: 'ONE', balanceAmd: 30_000, expiresAt: null },
+        ]),
+        updateMany: jest
+          .fn()
+          .mockImplementation((args: { where: { id: string } }) => {
+            debited.push(args.where.id);
+            return Promise.resolve({ count: 1 });
+          }),
+      },
+      giftCardTransaction: {
+        create: jest.fn().mockResolvedValue({ id: 'tx' }),
+      },
+      user: { updateMany: jest.fn() },
+    };
+
+    const allocations = await reserveGiftCreditsForPackage(db as never, {
+      userId: 'u1',
+      appliedCents: 30_000,
+      cardIds: ['chosen'],
+    });
+
+    expect(db.giftCard.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ id: { in: ['chosen'] } }),
+      }),
+    );
+    expect(allocations).toEqual([{ cardId: 'chosen', cents: 30_000 }]);
+    expect(debited).toEqual(['chosen']);
+    expect(db.user.updateMany).not.toHaveBeenCalled();
+  });
+
   it('reserveGiftCreditsForPackage throws when balance is insufficient', async () => {
     const db = {
       giftCard: {

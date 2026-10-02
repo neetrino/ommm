@@ -1,5 +1,7 @@
 import { ManualPaymentMethod } from '@prisma/client';
 import {
+  ArrayMaxSize,
+  IsArray,
   IsBoolean,
   IsEnum,
   IsOptional,
@@ -39,4 +41,12 @@ export class SubscribePackageDto {
   )
   @IsBoolean()
   useGiftCredits?: boolean;
+
+  /** Spend only these received cards. Omitted keeps the pooled balance. */
+  @IsOptional()
+  @IsArray()
+  @ArrayMaxSize(10)
+  @IsString({ each: true })
+  @MaxLength(64, { each: true })
+  giftCardIds?: string[];
 }
