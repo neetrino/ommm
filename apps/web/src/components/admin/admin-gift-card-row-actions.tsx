@@ -69,8 +69,8 @@ export function AdminGiftCardRowActions({
     setPendingConfirm(isActive ? "deactivate" : "activate");
   }
 
-  function openDelete(event: React.MouseEvent<HTMLButtonElement>): void {
-    event.stopPropagation();
+  function openDelete(event?: React.MouseEvent<HTMLButtonElement>): void {
+    event?.stopPropagation();
     if (disabled || !canDelete) {
       return;
     }
