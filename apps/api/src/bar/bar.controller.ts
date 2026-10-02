@@ -32,7 +32,7 @@ export class BarController {
   @Patch('admin/products/:id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(...BACKOFFICE_WRITE_ROLES)
-  setActive(@Param('id') id: string, @Body() dto: UpdateBarProductDto) {
-    return this.bar.setActive(id, dto.active);
+  update(@Param('id') id: string, @Body() dto: UpdateBarProductDto) {
+    return this.bar.update(id, dto);
   }
 }

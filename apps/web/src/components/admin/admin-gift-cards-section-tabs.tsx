@@ -16,6 +16,7 @@ export const GIFT_CARDS_BAR_SECTION = "bar";
 
 const SECTIONS = ["cards", "bar"] as const;
 const SECTION_COLUMN_COUNT = 2;
+const SECTION_ICON_CLASS = "h-4 w-4 shrink-0";
 
 export type GiftCardsSection = (typeof SECTIONS)[number];
 
@@ -79,12 +80,59 @@ export function AdminGiftCardsSectionTabs() {
             role="tab"
             aria-selected={active}
             onClick={() => selectSection(item)}
-            className={oliveSegmentedSegmentClassName(active, SECTION_COLUMN_COUNT)}
+            className={`${oliveSegmentedSegmentClassName(active, SECTION_COLUMN_COUNT)} gap-1.5`}
           >
+            <SectionTabIcon section={item} />
             {t(item)}
           </button>
         );
       })}
     </div>
+  );
+}
+
+function SectionTabIcon({ section }: { section: GiftCardsSection }) {
+  if (section === "bar") {
+    return <BarTabIcon className={SECTION_ICON_CLASS} />;
+  }
+  return <GiftCardTabIcon className={SECTION_ICON_CLASS} />;
+}
+
+function GiftCardTabIcon({ className }: { className: string }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.75}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden
+    >
+      <rect x="3" y="8" width="18" height="13" rx="2" />
+      <path d="M12 8v13M3 13h18" />
+      <path d="M12 8c-1.8-2.6-5-2.8-5-.6S10.2 8 12 8c1.8-2.6 5-2.8 5-.6S13.8 8 12 8" />
+    </svg>
+  );
+}
+
+function BarTabIcon({ className }: { className: string }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.75}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden
+    >
+      <path d="M8 3h8l-1.1 6.4a2.9 2.9 0 0 1-5.8 0L8 3z" />
+      <path d="M12 12.4V18M9 21h6" />
+    </svg>
   );
 }
