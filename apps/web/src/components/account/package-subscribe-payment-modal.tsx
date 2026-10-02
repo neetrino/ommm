@@ -6,6 +6,10 @@ import { useTranslations } from "next-intl";
 import { PackageSubscribePlanPicker } from "@/components/account/package-subscribe-plan-picker";
 import { PackageSubscribeGiftCreditsToggle } from "@/components/account/package-subscribe-gift-credits-toggle";
 import {
+  PACKAGE_GIFT_HINT_MS,
+  PackageGiftCardHint,
+} from "@/components/account/package-gift-card-hint";
+import {
   MemberHubMobileSheet,
   useMemberHubMobileSheetClose,
 } from "@/components/account/member-hub-mobile-sheet";
@@ -148,6 +152,7 @@ function PackageSubscribePaymentModalSession({
   const [useGiftCredits, setUseGiftCredits] = useState(false);
   const [giftCards, setGiftCards] = useState<SpendableGiftCardChoice[]>([]);
   const [selectedGiftCardIds, setSelectedGiftCardIds] = useState<string[]>([]);
+  const [giftHintNonce, setGiftHintNonce] = useState(0);
 
   const selectedPlan = plans.find((plan) => plan.id === selectedPlanId) ?? plans[0];
   const sheetTitle = step === "success" ? t("successTitle") : t("title");
@@ -198,8 +203,20 @@ function PackageSubscribePaymentModalSession({
     };
   }, []);
 
+  useEffect(() => {
+    if (giftHintNonce === 0) {
+      return;
+    }
+    const timer = window.setTimeout(() => setGiftHintNonce(0), PACKAGE_GIFT_HINT_MS);
+    return () => window.clearTimeout(timer);
+  }, [giftHintNonce]);
+
   function handlePlanSelect(planId: string) {
     setSelectedPlanId(planId);
+    if (giftCards.length === 0) {
+      return;
+    }
+    setGiftHintNonce((nonce) => nonce + 1);
   }
 
   async function onConfirm(event: React.FormEvent<HTMLFormElement>) {
@@ -273,6 +290,7 @@ function PackageSubscribePaymentModalSession({
       <SuccessPanel onDone={onCloseSheet} />
     ) : (
       <form onSubmit={(event) => void onConfirm(event)} className={PACKAGE_SUBSCRIBE_FORM_CLASS}>
+        {giftHintNonce > 0 ? <PackageGiftCardHint message={t("giftCardHint")} /> : null}
         <div className={`${PACKAGE_SUBSCRIBE_FORM_SCROLL_CLASS} ${formStyles.formScroll}`}>
           <PackageSubscribePlanPicker
             plans={plans}

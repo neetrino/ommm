@@ -213,7 +213,7 @@ function GiftCreditSummary({
   );
 }
 
-function GiftCreditsIcon() {
+export function GiftCreditsIcon() {
   return (
     <svg
       className={formStyles.giftCreditsIcon}

@@ -5280,6 +5280,7 @@
       "giftCardChooseHint": "Выберите, какую подарочную карту использовать.",
       "giftCardSelectAll": "Выбрать все",
       "giftCardRemainder": "Останется на карте",
+      "giftCardHint": "У вас есть подарочная карта. Её можно использовать для этого пакета.",
       "giftCreditsUnavailable": "На этом аккаунте пока нет подарочного кредита.",
       "giftCreditsApplied": "Скидка по подарочной карте",
       "amountDue": "К оплате",

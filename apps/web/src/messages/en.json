@@ -5282,6 +5282,7 @@
       "giftCardChooseHint": "Choose which gift cards to use.",
       "giftCardSelectAll": "Select all",
       "giftCardRemainder": "Stays on the card",
+      "giftCardHint": "You have a gift card. You can use it for this package.",
       "giftCreditsUnavailable": "No gift card credit on this account yet.",
       "giftCreditsApplied": "Gift credit applied",
       "amountDue": "Amount due",
