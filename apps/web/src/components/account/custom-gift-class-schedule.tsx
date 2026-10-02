@@ -12,6 +12,8 @@ import { formatSessionRange } from "@/lib/format-session-time";
 import { formatAmdFromCents } from "@/lib/price-amd";
 
 type GiftPlan = CartPlanOption & {
+  priceCents?: number;
+  finalPriceCents?: number;
   typeSessionAllocations?: ReadonlyArray<{ classTypeId: string; sessionCount?: number }>;
 };
 
@@ -34,6 +36,7 @@ type CustomGiftClassChoicesProps = {
   packageLabel: string;
   sessionLabel: string;
   skipLabel: string;
+  priceCaption: string;
   onClassTypeChange: (classTypeId: string) => void;
   onClassSessionsChange: (classSessions: string) => void;
   onQuotedPriceChange: (amountAmd: number | null) => void;
@@ -62,6 +65,7 @@ export function CustomGiftClassChoices(props: CustomGiftClassChoicesProps) {
           packageLabel={props.packageLabel}
           sessionLabel={props.sessionLabel}
           skipLabel={props.skipLabel}
+          priceCaption={props.priceCaption}
           onClassSessionsChange={props.onClassSessionsChange}
           onQuotedPriceChange={props.onQuotedPriceChange}
         />
@@ -76,6 +80,7 @@ type GiftPackageAndClassProps = {
   packageLabel: string;
   sessionLabel: string;
   skipLabel: string;
+  priceCaption: string;
   onClassSessionsChange: (classSessions: string) => void;
   onQuotedPriceChange: (amountAmd: number | null) => void;
 };
@@ -83,8 +88,13 @@ type GiftPackageAndClassProps = {
 function GiftPackageAndClass(props: GiftPackageAndClassProps) {
   const catalog = useGiftClassCatalog(props.classTypeId);
   const pick = useGiftClassPick(catalog.plans, props.classTypeId, props.onClassSessionsChange);
-  const unitAmd = latestSessionPriceAmd(catalog.sessions);
   const packages = plansForClassType(catalog.plans, props.classTypeId);
+  const quotedAmd = quoteClassGiftAmd({
+    sessions: catalog.sessions,
+    plans: catalog.plans,
+    packageId: pick.packageId,
+    classTypeId: props.classTypeId,
+  });
   useClassGiftQuote({
     sessions: catalog.sessions,
     plans: catalog.plans,
@@ -98,7 +108,7 @@ function GiftPackageAndClass(props: GiftPackageAndClassProps) {
         label={props.packageLabel}
         value={pick.packageId}
         disabled={props.disabled}
-        options={packageGiftOptions(props.skipLabel, packages, props.classTypeId, unitAmd)}
+        options={packageGiftOptions(props.skipLabel, packages)}
         onChange={pick.choosePackage}
       />
       <GiftOptionSelect
@@ -108,6 +118,7 @@ function GiftPackageAndClass(props: GiftPackageAndClassProps) {
         options={sessionOptions(props.skipLabel, catalog.sessions)}
         onChange={pick.chooseSession}
       />
+      <ClassGiftPrice caption={props.priceCaption} amountAmd={quotedAmd} />
     </>
   );
 }
@@ -186,6 +197,10 @@ function quoteClassGiftAmd(input: {
   packageId: string;
   classTypeId: string;
 }): number | null {
+  const packagePrice = planPriceAmd(input.plans.find((plan) => plan.id === input.packageId));
+  if (packagePrice !== null) {
+    return packagePrice;
+  }
   const unit = latestSessionPriceAmd(input.sessions);
   if (unit === null) {
     return null;
@@ -195,6 +210,26 @@ function quoteClassGiftAmd(input: {
       ? packageSessionCount(input.plans, input.packageId, input.classTypeId)
       : 1;
   return unit * quantity;
+}
+
+function planPriceAmd(plan: GiftPlan | undefined): number | null {
+  if (!plan) {
+    return null;
+  }
+  const amount = plan.finalPriceCents ?? plan.priceCents ?? 0;
+  return amount > 0 ? amount : null;
+}
+
+function ClassGiftPrice({ caption, amountAmd }: { caption: string; amountAmd: number | null }) {
+  if (amountAmd === null) {
+    return null;
+  }
+  return (
+    <p className="flex items-baseline justify-between gap-3 border-t border-sage-200/70 pt-4">
+      <span className="ommm-label text-xs uppercase tracking-wide">{caption}</span>
+      <span className="font-serif text-2xl leading-none text-sage-900">{formatAmdFromCents(amountAmd)}</span>
+    </p>
+  );
 }
 
 function latestSessionPriceAmd(sessions: readonly GiftSession[]): number | null {
@@ -230,24 +265,22 @@ function namedOptions(emptyLabel: string, rows: readonly NamedRow[]): OmmSelectO
 function packageGiftOptions(
   emptyLabel: string,
   plans: readonly GiftPlan[],
-  classTypeId: string,
-  unitAmd: number | null,
 ): OmmSelectOption<string>[] {
   return [
     { value: "", label: emptyLabel },
     ...plans.map((plan) => ({
       value: plan.id,
-      label: packageOptionLabel(plan, classTypeId, unitAmd),
+      label: packageOptionLabel(plan),
     })),
   ];
 }
 
-function packageOptionLabel(plan: GiftPlan, classTypeId: string, unitAmd: number | null): string {
-  if (unitAmd === null) {
+function packageOptionLabel(plan: GiftPlan): string {
+  const price = planPriceAmd(plan);
+  if (price === null) {
     return plan.name;
   }
-  const amount = unitAmd * packageSessionCount([plan], plan.id, classTypeId);
-  return `${plan.name} · ${formatAmdFromCents(amount)}`;
+  return `${plan.name} · ${formatAmdFromCents(price)}`;
 }
 
 function sessionOptions(emptyLabel: string, sessions: readonly GiftSession[]): OmmSelectOption<string>[] {
@@ -262,8 +295,5 @@ function sessionOptions(emptyLabel: string, sessions: readonly GiftSession[]): O
 
 function sessionOptionLabel(session: GiftSession): string {
   const when = `${session.classType.name} · ${formatSessionRange(session.startsAt, session.endsAt)}`;
-  if (session.priceCents <= 0) {
-    return when;
-  }
-  return `${when} · ${formatAmdFromCents(session.priceCents)}`;
+  return session.priceCents > 0 ? `${when} · ${formatAmdFromCents(session.priceCents)}` : when;
 }

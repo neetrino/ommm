@@ -160,6 +160,7 @@ function ClassGiftFields({
       packageLabel={page("cartPackage")}
       sessionLabel={page("cartSession")}
       skipLabel={page("cartSkip")}
+      priceCaption={t("priceLabel")}
       onClassTypeChange={onClassTypeChange}
       onClassSessionsChange={onClassSessionsChange}
       onQuotedPriceChange={onQuotedPriceChange}
