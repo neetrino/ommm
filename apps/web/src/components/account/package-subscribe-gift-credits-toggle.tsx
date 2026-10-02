@@ -25,6 +25,7 @@ function GiftCardChoiceList({
   disabled,
   locale,
   hint,
+  selectAllLabel,
   onSelectedIdsChange,
 }: {
   cards: readonly SpendableGiftCardChoice[];
@@ -32,12 +33,18 @@ function GiftCardChoiceList({
   disabled: boolean;
   locale: string;
   hint: string;
+  selectAllLabel: string;
   onSelectedIdsChange: (ids: string[]) => void;
 }) {
   const selected = new Set(selectedIds);
   return (
     <div className="space-y-2">
-      <p className={formStyles.giftCreditsHint}>{hint}</p>
+      <GiftCardSelectAll
+        hint={hint}
+        label={selectAllLabel}
+        disabled={disabled || cards.every((card) => selected.has(card.id))}
+        onSelect={() => onSelectedIdsChange(cards.map((card) => card.id))}
+      />
       <ul className={formStyles.giftCardChoices}>
         {cards.map((card) => (
           <li key={card.id}>
@@ -59,6 +66,32 @@ function GiftCardChoiceList({
           </li>
         ))}
       </ul>
+    </div>
+  );
+}
+
+function GiftCardSelectAll({
+  hint,
+  label,
+  disabled,
+  onSelect,
+}: {
+  hint: string;
+  label: string;
+  disabled: boolean;
+  onSelect: () => void;
+}) {
+  return (
+    <div className={formStyles.giftCardChoiceHeader}>
+      <p className={formStyles.giftCreditsHint}>{hint}</p>
+      <button
+        type="button"
+        className={formStyles.giftCardSelectAll}
+        disabled={disabled}
+        onClick={onSelect}
+      >
+        {label}
+      </button>
     </div>
   );
 }
@@ -235,6 +268,7 @@ export function PackageSubscribeGiftCreditsToggle({
             disabled={disabled}
             locale={locale}
             hint={t("giftCardChooseHint")}
+            selectAllLabel={t("giftCardSelectAll")}
             onSelectedIdsChange={onSelectedIdsChange}
           />
         ) : (

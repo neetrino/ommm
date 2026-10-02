@@ -5280,6 +5280,7 @@
       "giftCreditsAvailable": "Available: {amount}",
       "giftCreditsAvailableHint": "Apply your available credit to this package.",
       "giftCardChooseHint": "Choose which gift cards to use.",
+      "giftCardSelectAll": "Select all",
       "giftCreditsUnavailable": "No gift card credit on this account yet.",
       "giftCreditsApplied": "Gift credit applied",
       "amountDue": "Amount due",

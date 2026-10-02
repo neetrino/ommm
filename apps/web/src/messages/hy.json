@@ -5281,6 +5281,7 @@
       "giftCreditsAvailable": "Հասանելի՝ {amount}",
       "giftCreditsAvailableHint": "Կիրառեք հասանելի գումարը այս փաթեթի վրա։",
       "giftCardChooseHint": "Ընտրիր, թե որ նվեր քարտն ես օգտագործում։",
+      "giftCardSelectAll": "Ընտրել բոլորը",
       "giftCreditsUnavailable": "Այս հաշվում դեռ նվեր քարտի գումար չկա։",
       "giftCreditsApplied": "Նվեր քարտի զեղչ",
       "amountDue": "Վճարման ենթակա",
