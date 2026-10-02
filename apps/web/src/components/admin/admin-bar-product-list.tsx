@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { BarNameField, BarPriceField } from "@/components/admin/admin-bar-fields";
 import { AnimatedToggleSwitch } from "@/components/ui/animated-toggle-switch";
+import { AdminRowIconButton } from "@/components/ui/admin-row-icon-button";
 import { EditActionButton } from "@/components/ui/edit-action-button";
 import { OmmButton } from "@/components/ui/omm-button";
 import { formatAmdFromMajor } from "@/lib/price-amd";
@@ -56,7 +57,8 @@ function BarProductView(props: {
   onToggle: () => void;
 }) {
   const t = useTranslations("adminPages.giftCards.actions");
-  const statusLabel = props.product.active ? t("barActive") : t("barInactive");
+  const tCards = useTranslations("adminPages.giftCards");
+  const statusLabel = props.product.active ? tCards("deactivateGiftCard") : tCards("activateGiftCard");
   return (
     <div
       className={`flex flex-col gap-3 px-4 py-3.5 sm:flex-row sm:items-center sm:justify-between ${
@@ -68,18 +70,17 @@ function BarProductView(props: {
         <p className="mt-0.5 text-sm text-sage-500">{formatAmdFromMajor(props.product.priceAmd)}</p>
       </div>
       <div className="flex shrink-0 items-center gap-2">
-        <button
-          type="button"
-          role="switch"
-          aria-checked={props.product.active}
-          aria-label={statusLabel}
+        <AdminRowIconButton
+          ariaLabel={statusLabel}
+          title={statusLabel}
+          className="ommm-admin-row-icon-button-toggle"
           disabled={props.busy}
-          className="inline-flex items-center gap-2 rounded-full px-1 py-1 text-xs font-semibold uppercase tracking-[0.08em] text-sage-700 disabled:opacity-50"
+          aria-checked={props.product.active}
+          role="switch"
           onClick={props.onToggle}
         >
           <AnimatedToggleSwitch checked={props.product.active} />
-          {statusLabel}
-        </button>
+        </AdminRowIconButton>
         <EditActionButton
           label={t("barEdit")}
           ariaLabel={t("barEditAria", { name: props.product.name })}

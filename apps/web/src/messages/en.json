@@ -3723,8 +3723,6 @@
         "barName": "Name",
         "barPrice": "Price AMD",
         "barAdd": "Add",
-        "barActive": "On sale",
-        "barInactive": "Hidden",
         "barEdit": "Edit",
         "barSave": "Save",
         "barCancel": "Cancel",

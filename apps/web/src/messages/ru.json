@@ -3711,8 +3711,6 @@
         "barName": "Название",
         "barPrice": "Цена AMD",
         "barAdd": "Добавить",
-        "barActive": "В продаже",
-        "barInactive": "Скрыто",
         "barEdit": "Изменить",
         "barSave": "Сохранить",
         "barCancel": "Отмена",
