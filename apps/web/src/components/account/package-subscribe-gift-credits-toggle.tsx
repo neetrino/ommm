@@ -3,7 +3,11 @@
 import { useTranslations } from "next-intl";
 import formStyles from "@/components/account/package-subscribe-payment-form.module.css";
 import { formatAmdFromCents } from "@/lib/price-amd";
-import type { SpendableGiftCardChoice } from "@/lib/spendable-gift-card-choices";
+import {
+  remainingGiftCents,
+  selectedGiftBalanceCents,
+  type SpendableGiftCardChoice,
+} from "@/lib/spendable-gift-card-choices";
 
 type PackageSubscribeGiftCreditsToggleProps = {
   fieldId: string;
@@ -166,14 +170,18 @@ function PooledGiftCreditOption({
 function GiftCreditSummary({
   appliedLabel,
   dueLabel,
+  remainderLabel,
   appliedCents,
   amountDueCents,
+  remainderCents,
   locale,
 }: {
   appliedLabel: string;
   dueLabel: string;
+  remainderLabel: string;
   appliedCents: number;
   amountDueCents: number;
+  remainderCents: number;
   locale: string;
 }) {
   return (
@@ -184,6 +192,14 @@ function GiftCreditSummary({
           −{formatAmdFromCents(appliedCents, locale)}
         </dd>
       </div>
+      {remainderCents > 0 ? (
+        <div className={formStyles.giftCreditsSummaryRow}>
+          <dt>{remainderLabel}</dt>
+          <dd className={formStyles.giftCreditsDueValue}>
+            {formatAmdFromCents(remainderCents, locale)}
+          </dd>
+        </div>
+      ) : null}
       <div className={formStyles.giftCreditsSummaryRow}>
         <dt>{dueLabel}</dt>
         <dd className={formStyles.giftCreditsDueValue}>
@@ -290,8 +306,15 @@ export function PackageSubscribeGiftCreditsToggle({
           <GiftCreditSummary
             appliedLabel={t("giftCreditsApplied")}
             dueLabel={t("amountDue")}
+            remainderLabel={t("giftCardRemainder")}
             appliedCents={appliedCents}
             amountDueCents={amountDueCents}
+            remainderCents={remainingGiftCents(
+              choosingCards
+                ? selectedGiftBalanceCents(cards, selectedIds)
+                : spendableCents,
+              appliedCents,
+            )}
             locale={locale}
           />
         ) : null}

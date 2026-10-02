@@ -42,6 +42,11 @@ export function appliedPackageGiftCents(input: {
   return Math.min(input.spendableGiftCents, input.priceCents);
 }
 
+/** What stays on the selected cards after this purchase. */
+export function remainingGiftCents(selectedCents: number, appliedCents: number): number {
+  return Math.max(0, selectedCents - appliedCents);
+}
+
 export function selectedGiftBalanceCents(
   cards: readonly SpendableGiftCardChoice[],
   selectedIds: readonly string[],

@@ -160,6 +160,48 @@ describe('package-gift-credits.util', () => {
     });
   });
 
+  it('reserveGiftCreditsForPackage leaves the unused part of a card', async () => {
+    const updates: Array<{ id: string; data: Record<string, unknown> }> = [];
+    const db = {
+      giftCard: {
+        findMany: jest.fn().mockResolvedValue([
+          { id: 'card', code: 'CARD', balanceAmd: 30_000, expiresAt: null },
+        ]),
+        updateMany: jest
+          .fn()
+          .mockImplementation(
+            (args: { where: { id: string }; data: Record<string, unknown> }) => {
+              updates.push({ id: args.where.id, data: args.data });
+              return Promise.resolve({ count: 1 });
+            },
+          ),
+      },
+      giftCardTransaction: {
+        create: jest.fn().mockResolvedValue({ id: 'tx' }),
+      },
+      user: { updateMany: jest.fn() },
+    };
+
+    const allocations = await reserveGiftCreditsForPackage(db as never, {
+      userId: 'u1',
+      appliedCents: 15_000,
+      cardIds: ['card'],
+    });
+
+    expect(allocations).toEqual([{ cardId: 'card', cents: 15_000 }]);
+    expect(updates).toEqual([
+      { id: 'card', data: { balanceAmd: { decrement: 15_000 } } },
+    ]);
+    expect(db.giftCardTransaction.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          amountAmd: 15_000,
+          balanceAmdAfter: 15_000,
+        }),
+      }),
+    );
+  });
+
   it('reserveGiftCreditsForPackage debits only the chosen card', async () => {
     const debited: string[] = [];
     const db = {
