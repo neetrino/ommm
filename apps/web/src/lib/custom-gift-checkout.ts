@@ -69,10 +69,10 @@ function customGiftAmountIssue(
 /** Starts a pending custom-amount gift checkout and returns its reference. */
 export async function startCustomGiftCheckout(input: {
   amountAmd: number;
-  message: string;
+  message?: string;
   options: GiftCheckoutOptions;
 }): Promise<{ reference: string | null; amountCents: number }> {
-  const note = input.message.trim();
+  const note = input.message?.trim() ?? "";
   const payment = await apiFetch<PendingPaymentResponse>("/payments/checkout/gift", {
     method: "POST",
     body: JSON.stringify({

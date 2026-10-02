@@ -11,15 +11,12 @@ import { OmmButton } from "@/components/ui/omm-button";
 import { FORM_INVALID_FIELD_CLASS, FormErrorBanner } from "@/components/ui/form-validation";
 import { GiftAmountChoices } from "@/components/account/gift-amount-choices";
 import { GiftCardFace } from "@/components/gift-cards/gift-card-face";
-import { CUSTOM_GIFT_MESSAGE_MAX_LENGTH } from "@/lib/custom-gift-card.constants";
 
 const PLAIN_LABEL_CLASS = "ommm-label text-xs uppercase tracking-wide";
 
 export type CustomGiftFormProps = {
   amountId: string;
-  messageId: string;
   amountRaw: string;
-  message: string;
   recipient: GiftRecipientOption | null;
   error: string | null;
   amountError: string | null;
@@ -29,7 +26,6 @@ export type CustomGiftFormProps = {
   amountChoices: readonly { amountAmd: number; label: string }[];
   selectedAmountAmd: number | null;
   onAmountChange: (value: string) => void;
-  onMessageChange: (value: string) => void;
   onRecipientChange: (value: GiftRecipientOption | null) => void;
   onSubmit: (event: FormEvent) => void;
   /** Gift type, then class fields when the gift is class sessions. */
@@ -74,14 +70,6 @@ export function CustomGiftForm(props: CustomGiftFormProps) {
         onSelect={props.onRecipientChange}
       />
       {props.extras}
-      <CustomGiftNote
-        id={props.messageId}
-        label={t("messageLabel")}
-        placeholder={t("messagePlaceholder")}
-        value={props.message}
-        disabled={props.busy}
-        onChange={props.onMessageChange}
-      />
       <FormErrorBanner message={props.error} variant="inline" />
       <CustomGiftSubmitRow
         busy={props.busy}
@@ -171,37 +159,5 @@ function CustomGiftAmount({
         onSelect={(amountAmd) => onAmountPick(String(amountAmd))}
       />
     </div>
-  );
-}
-
-function CustomGiftNote({
-  id,
-  label,
-  placeholder,
-  value,
-  disabled,
-  onChange,
-}: {
-  id: string;
-  label: string;
-  placeholder: string;
-  value: string;
-  disabled: boolean;
-  onChange: (value: string) => void;
-}) {
-  return (
-    <label className="flex flex-col gap-1" htmlFor={id}>
-      <span className={PLAIN_LABEL_CLASS}>{label}</span>
-      <textarea
-        id={id}
-        rows={3}
-        maxLength={CUSTOM_GIFT_MESSAGE_MAX_LENGTH}
-        disabled={disabled}
-        value={value}
-        placeholder={placeholder}
-        className="ommm-input min-h-24 resize-y"
-        onChange={(event) => onChange(event.target.value)}
-      />
-    </label>
   );
 }

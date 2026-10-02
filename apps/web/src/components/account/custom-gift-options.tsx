@@ -3,10 +3,6 @@
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { CustomGiftClassChoices } from "@/components/account/custom-gift-class-schedule";
-import {
-  GiftOptionDate,
-  GiftOptionText,
-} from "@/components/account/custom-gift-option-fields";
 import { DropdownSelect, type DropdownOption } from "@/components/ui/dropdown-select";
 import { apiFetch } from "@/lib/api";
 
@@ -21,18 +17,12 @@ type CustomGiftOptionsProps = {
   classTypeId: string;
   classSessions: string;
   delivery: CustomGiftDelivery;
-  deliverAt: string;
-  guestName: string;
-  guestEmail: string;
   disabled: boolean;
   onKindChange: (kind: CustomGiftKind) => void;
   onClassTypeChange: (classTypeId: string) => void;
   onClassSessionsChange: (classSessions: string) => void;
   onQuotedPriceChange: (amountAmd: number | null) => void;
   onDeliveryChange: (delivery: CustomGiftDelivery) => void;
-  onDeliverAtChange: (deliverAt: string) => void;
-  onGuestNameChange: (guestName: string) => void;
-  onGuestEmailChange: (guestEmail: string) => void;
   t: GiftCopy;
 };
 
@@ -72,63 +62,18 @@ export function CustomGiftKindSection(props: CustomGiftOptionsProps) {
   );
 }
 
-/** Delivery channel, send date, and a guest who does not have an account yet. */
+/** How the gift is delivered. */
 export function CustomGiftDeliverySection(props: CustomGiftOptionsProps) {
   return (
-    <div className="grid gap-3">
-      <GiftDeliveryFields {...props} />
-    </div>
-  );
-}
-
-function GiftDeliveryFields({
-  delivery,
-  deliverAt,
-  guestName,
-  guestEmail,
-  disabled,
-  t,
-  onDeliveryChange,
-  onDeliverAtChange,
-  onGuestNameChange,
-  onGuestEmailChange,
-}: CustomGiftOptionsProps) {
-  return (
-    <>
-      <DropdownSelect
-        label={t("deliveryLabel")}
-        ariaLabel={t("deliveryLabel")}
-        value={delivery}
-        options={deliveryOptions(t)}
-        disabled={disabled}
-        wrapLabel
-        onChange={(value) => onDeliveryChange(readDelivery(value))}
-      />
-      <GiftOptionDate
-        label={t("deliverAtLabel")}
-        value={deliverAt}
-        disabled={disabled}
-        plain
-        onChange={onDeliverAtChange}
-      />
-      <GiftOptionText
-        label={t("guestNameLabel")}
-        value={guestName}
-        disabled={disabled}
-        plain
-        placeholder={t("guestNamePlaceholder")}
-        onChange={onGuestNameChange}
-      />
-      <GiftOptionText
-        label={t("guestEmailLabel")}
-        value={guestEmail}
-        disabled={disabled}
-        plain
-        placeholder={t("guestEmailPlaceholder")}
-        onChange={onGuestEmailChange}
-        type="email"
-      />
-    </>
+    <DropdownSelect
+      label={props.t("deliveryLabel")}
+      ariaLabel={props.t("deliveryLabel")}
+      value={props.delivery}
+      options={deliveryOptions(props.t)}
+      disabled={props.disabled}
+      wrapLabel
+      onChange={(value) => props.onDeliveryChange(readDelivery(value))}
+    />
   );
 }
 

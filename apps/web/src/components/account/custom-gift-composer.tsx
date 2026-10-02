@@ -43,18 +43,13 @@ export function CustomGiftComposer({ locale }: CustomGiftComposerProps) {
   const t = useTranslations("userPages.giftCards.customGift");
   const router = useRouter();
   const amountId = useId();
-  const messageId = useId();
   const [amountRaw, setAmountRaw] = useState(String(CUSTOM_GIFT_CARD_MIN_AMD));
   const [recipient, setRecipient] = useState<GiftRecipientOption | null>(null);
-  const [message, setMessage] = useState("");
   const [kind, setKind] = useState<CustomGiftKind>("FIXED_VALUE");
   const [classTypeId, setClassTypeId] = useState("");
   const [classSessions, setClassSessions] = useState("1");
   const [classPriceAmd, setClassPriceAmd] = useState<number | null>(null);
   const [delivery, setDelivery] = useState<CustomGiftDelivery>("EMAIL");
-  const [deliverAt, setDeliverAt] = useState("");
-  const [guestName, setGuestName] = useState("");
-  const [guestEmail, setGuestEmail] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [amountError, setAmountError] = useState<string | null>(null);
   const [recipientError, setRecipientError] = useState<string | null>(null);
@@ -67,9 +62,7 @@ export function CustomGiftComposer({ locale }: CustomGiftComposerProps) {
   return (
     <CustomGiftForm
       amountId={amountId}
-      messageId={messageId}
       amountRaw={amountRaw}
-      message={message}
       recipient={recipient}
       error={error}
       amountError={amountError}
@@ -86,18 +79,12 @@ export function CustomGiftComposer({ locale }: CustomGiftComposerProps) {
           classTypeId={classTypeId}
           classSessions={classSessions}
           delivery={delivery}
-          deliverAt={deliverAt}
-          guestName={guestName}
-          guestEmail={guestEmail}
           disabled={busy}
           onKindChange={setKind}
           onClassTypeChange={setClassTypeId}
           onClassSessionsChange={setClassSessions}
           onQuotedPriceChange={setClassPriceAmd}
           onDeliveryChange={setDelivery}
-          onDeliverAtChange={setDeliverAt}
-          onGuestNameChange={setGuestName}
-          onGuestEmailChange={setGuestEmail}
           t={t}
         />
       }
@@ -105,7 +92,6 @@ export function CustomGiftComposer({ locale }: CustomGiftComposerProps) {
         setAmountRaw(value);
         setAmountError(null);
       }}
-      onMessageChange={setMessage}
       onRecipientChange={(value) => {
         setRecipient(value);
         setRecipientError(null);
@@ -116,18 +102,12 @@ export function CustomGiftComposer({ locale }: CustomGiftComposerProps) {
           classTypeId={classTypeId}
           classSessions={classSessions}
           delivery={delivery}
-          deliverAt={deliverAt}
-          guestName={guestName}
-          guestEmail={guestEmail}
           disabled={busy}
           onKindChange={setKind}
           onClassTypeChange={setClassTypeId}
           onClassSessionsChange={setClassSessions}
           onQuotedPriceChange={setClassPriceAmd}
           onDeliveryChange={setDelivery}
-          onDeliverAtChange={setDeliverAt}
-          onGuestNameChange={setGuestName}
-          onGuestEmailChange={setGuestEmail}
           t={t}
         />
       }
@@ -135,14 +115,10 @@ export function CustomGiftComposer({ locale }: CustomGiftComposerProps) {
         void submitComposer(event, {
           amountRaw,
           recipient,
-          message,
           kind,
           classTypeId,
           classSessions,
           delivery,
-          deliverAt,
-          guestName,
-          guestEmail,
           classRequired: t("classRequired"),
           checkoutFailed: t("checkoutFailed"),
           copy: composerCopy(t, minLabel, maxLabel),
@@ -221,14 +197,10 @@ async function submitComposer(
   input: {
     amountRaw: string;
     recipient: GiftRecipientOption | null;
-    message: string;
     kind: CustomGiftKind;
     classTypeId: string;
     classSessions: string;
     delivery: CustomGiftDelivery;
-    deliverAt: string;
-    guestName: string;
-    guestEmail: string;
     classRequired: string;
     checkoutFailed: string;
     copy: ComposerCopy;
@@ -265,15 +237,11 @@ async function submitComposer(
   try {
     const started = await startCustomGiftCheckout({
       amountAmd: amountAmd ?? 0,
-      message: input.message,
       options: {
         ...(recipient ? { recipientId: recipient.id } : {}),
-        ...(input.guestName.trim() ? { recipientName: input.guestName.trim() } : {}),
-        ...(input.guestEmail.trim() ? { recipientEmail: input.guestEmail.trim() } : {}),
         type: input.kind,
         delivery: input.delivery,
         ...(isClassGift ? { classTypeId: input.classTypeId, classQuantity: sessions } : {}),
-        ...(input.deliverAt ? { deliverAt: `${input.deliverAt}T12:00:00.000Z` } : {}),
       },
     });
     input.goToCheckout(started.amountCents, started.reference);
