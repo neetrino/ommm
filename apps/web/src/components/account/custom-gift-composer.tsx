@@ -2,9 +2,7 @@
 
 import { useId, useState, type FormEvent } from "react";
 import { useTranslations } from "next-intl";
-import {
-  CustomGiftForm,
-} from "@/components/account/custom-gift-form-view";
+import { CustomGiftForm } from "@/components/account/custom-gift-form-view";
 import { useRouter } from "@/i18n/navigation";
 import { ApiError } from "@/lib/api";
 import {
@@ -26,7 +24,7 @@ import {
 import { useGiftAmountPolicy } from "@/components/account/use-gift-amount-policy";
 import { focusFormField } from "@/components/ui/form-validation";
 import { openGiftCardPaymentPage } from "@/lib/arca-checkout";
-import { isGiftRecipientEmail } from "@/lib/gift-recipient-email";
+import { giftDestinationIssue, giftDestinationPayload } from "@/lib/gift-recipient-email";
 import { buildPaymentSuccessPath } from "@/lib/payment-result-paths";
 import { formatAmdFromCents, parseAmdMoneyInput } from "@/lib/price-amd";
 
@@ -39,6 +37,7 @@ type ComposerCopy = {
   amountMin: string;
   amountMax: string;
   recipientRequired: string;
+  phoneRequired: string;
 };
 
 export function CustomGiftComposer({ locale }: CustomGiftComposerProps) {
@@ -47,6 +46,7 @@ export function CustomGiftComposer({ locale }: CustomGiftComposerProps) {
   const amountId = useId();
   const [amountRaw, setAmountRaw] = useState(String(CUSTOM_GIFT_CARD_MIN_AMD));
   const [recipientEmail, setRecipientEmail] = useState("");
+  const [recipientPhone, setRecipientPhone] = useState("");
   const [kind, setKind] = useState<CustomGiftKind>("FIXED_VALUE");
   const [classTypeId, setClassTypeId] = useState("");
   const [classSessions, setClassSessions] = useState("1");
@@ -67,6 +67,8 @@ export function CustomGiftComposer({ locale }: CustomGiftComposerProps) {
       amountId={amountId}
       amountRaw={amountRaw}
       recipientEmail={recipientEmail}
+      recipientPhone={recipientPhone}
+      delivery={delivery}
       error={error}
       amountError={amountError}
       recipientError={recipientError}
@@ -100,6 +102,10 @@ export function CustomGiftComposer({ locale }: CustomGiftComposerProps) {
         setRecipientEmail(value);
         setRecipientError(null);
       }}
+      onRecipientPhoneChange={(value) => {
+        setRecipientPhone(value);
+        setRecipientError(null);
+      }}
       extras={
         <CustomGiftDeliverySection
           kind={kind}
@@ -112,7 +118,10 @@ export function CustomGiftComposer({ locale }: CustomGiftComposerProps) {
           onClassSessionsChange={setClassSessions}
           onPackagePlanChange={setClassPackageId}
           onQuotedPriceChange={setClassPriceAmd}
-          onDeliveryChange={setDelivery}
+          onDeliveryChange={(value) => {
+            setDelivery(value);
+            setRecipientError(null);
+          }}
           t={t}
         />
       }
@@ -120,6 +129,7 @@ export function CustomGiftComposer({ locale }: CustomGiftComposerProps) {
         void submitComposer(event, {
           amountRaw,
           recipientEmail,
+          recipientPhone,
           kind,
           classTypeId,
           classSessions,
@@ -178,7 +188,7 @@ function customGiftErrorText(reason: CustomGiftInputError, copy: ComposerCopy): 
 }
 
 type GiftErrorTranslator = {
-  (key: "amountRequired" | "recipientRequired"): string;
+  (key: "amountRequired" | "recipientRequired" | "phoneRequired"): string;
   (key: "amountMin", values: { min: string }): string;
   (key: "amountMax", values: { max: string }): string;
 };
@@ -193,6 +203,7 @@ function composerCopy(
     amountMin: t("amountMin", { min: minLabel }),
     amountMax: t("amountMax", { max: maxLabel }),
     recipientRequired: t("recipientRequired"),
+    phoneRequired: t("phoneRequired"),
   };
 }
 
@@ -215,6 +226,7 @@ async function submitComposer(
   input: {
     amountRaw: string;
     recipientEmail: string;
+    recipientPhone: string;
     kind: CustomGiftKind;
     classTypeId: string;
     classSessions: string;
@@ -236,10 +248,20 @@ async function submitComposer(
   const sessions = Number.parseInt(input.classSessions, 10);
   const issues = customGiftFieldIssues(
     isClassGift ? CUSTOM_GIFT_CARD_MIN_AMD : amountAmd,
-    isGiftRecipientEmail(input.recipientEmail),
+    true,
   );
   const amountMessage = fieldIssueText(issues.amount, input.copy);
-  const recipientMessage = issues.recipient === null ? null : input.copy.recipientRequired;
+  const destination = giftDestinationIssue(
+    input.delivery,
+    input.recipientEmail,
+    input.recipientPhone,
+  );
+  const recipientMessage =
+    destination === "phone"
+      ? input.copy.phoneRequired
+      : destination === "email"
+        ? input.copy.recipientRequired
+        : null;
   input.setAmountError(amountMessage);
   input.setRecipientError(recipientMessage);
   if (isClassGift && !classGiftReady(input.classTypeId, input.classPackageId, sessions)) {
@@ -256,7 +278,7 @@ async function submitComposer(
     const started = await startCustomGiftCheckout({
       amountAmd: amountAmd ?? 0,
       options: {
-        recipientEmail: input.recipientEmail.trim(),
+        ...giftDestinationPayload(input.delivery, input.recipientEmail, input.recipientPhone),
         type: input.kind,
         delivery: input.delivery,
         ...(isClassGift

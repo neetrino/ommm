@@ -47,6 +47,7 @@ export class PaymentsController {
       recipientId: body.recipientId,
       recipientName: body.recipientName,
       recipientEmail: body.recipientEmail,
+      recipientPhone: body.recipientPhone,
       message: body.message,
       giftType: body.type,
       classTypeId: body.classTypeId,

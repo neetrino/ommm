@@ -16,6 +16,7 @@ export type PaymentMetadata = {
   recipientId?: string;
   recipientName?: string;
   recipientEmail?: string;
+  recipientPhone?: string;
   message?: string;
   giftType?: 'FIXED_VALUE' | 'FIXED_CLASS';
   classTypeId?: string;
@@ -27,6 +28,7 @@ export type PaymentMetadata = {
 export type GiftEmailPayload = {
   to: string;
   code: string;
+  channel?: 'EMAIL' | 'WHATSAPP';
   recipientName?: string;
   senderName?: string;
   amountAmd?: number;

@@ -48,6 +48,12 @@ export class CreateGiftCheckoutDto {
   @MaxLength(200)
   recipientEmail?: string;
 
+  /** WhatsApp number when delivery is WHATSAPP. */
+  @IsOptional()
+  @IsString()
+  @MaxLength(32)
+  recipientPhone?: string;
+
   @IsOptional()
   @IsString()
   @MaxLength(2000)

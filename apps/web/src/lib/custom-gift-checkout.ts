@@ -14,6 +14,7 @@ export type GiftCheckoutOptions = {
   recipientId?: string;
   recipientName?: string;
   recipientEmail?: string;
+  recipientPhone?: string;
   type?: "FIXED_VALUE" | "FIXED_CLASS";
   classTypeId?: string;
   classQuantity?: number;

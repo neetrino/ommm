@@ -21,6 +21,7 @@ export type GiftCheckoutRequest = {
   recipientId?: string;
   recipientName?: string;
   recipientEmail?: string;
+  recipientPhone?: string;
   message?: string;
   giftType?: 'FIXED_VALUE' | 'FIXED_CLASS';
   classTypeId?: string;
@@ -113,6 +114,9 @@ export async function prepareGiftCheckout(
         : {}),
       giftType,
       delivery: normalizeDelivery(request.delivery),
+      ...(blankToUndefined(request.recipientPhone)
+        ? { recipientPhone: request.recipientPhone?.trim() }
+        : {}),
       ...(classShape
         ? {
             classTypeId: classShape.classTypeId,

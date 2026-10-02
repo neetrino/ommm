@@ -2,7 +2,8 @@
 
 import type { FormEvent, ReactNode } from "react";
 import { useTranslations } from "next-intl";
-import { GiftRecipientEmailField } from "@/components/account/gift-recipient-picker";
+import { GiftDeliveryFields } from "@/components/account/gift-recipient-picker";
+import type { CustomGiftDelivery } from "@/components/account/custom-gift-options";
 import { AmdMoneyInput } from "@/components/ui/amd-money-input";
 import { OmmButton } from "@/components/ui/omm-button";
 import { FORM_INVALID_FIELD_CLASS, FormErrorBanner } from "@/components/ui/form-validation";
@@ -15,6 +16,8 @@ export type CustomGiftFormProps = {
   amountId: string;
   amountRaw: string;
   recipientEmail: string;
+  recipientPhone: string;
+  delivery: CustomGiftDelivery;
   error: string | null;
   amountError: string | null;
   recipientError: string | null;
@@ -24,6 +27,7 @@ export type CustomGiftFormProps = {
   selectedAmountAmd: number | null;
   onAmountChange: (value: string) => void;
   onRecipientEmailChange: (value: string) => void;
+  onRecipientPhoneChange: (value: string) => void;
   onSubmit: (event: FormEvent) => void;
   /** Gift type, then class fields when the gift is class sessions. */
   leading?: ReactNode;
@@ -59,14 +63,16 @@ export function CustomGiftForm(props: CustomGiftFormProps) {
           onAmountChange={props.onAmountChange}
         />
       ) : null}
-      <GiftRecipientEmailField
-        embedded
-        value={props.recipientEmail}
+      {props.extras}
+      <GiftDeliveryFields
+        delivery={props.delivery}
+        email={props.recipientEmail}
+        phone={props.recipientPhone}
         disabled={props.busy}
         validationMessage={props.recipientError}
-        onChange={props.onRecipientEmailChange}
+        onEmailChange={props.onRecipientEmailChange}
+        onPhoneChange={props.onRecipientPhoneChange}
       />
-      {props.extras}
       <FormErrorBanner message={props.error} variant="inline" />
       <CustomGiftSubmitRow
         busy={props.busy}

@@ -277,6 +277,18 @@ export class PaymentsFulfillmentService {
       sourceId: payment.sourceId,
       metadata,
     });
+    const whatsappPhone = metadata.recipientPhone?.trim() ?? '';
+    if (metadata.delivery === 'WHATSAPP' && whatsappPhone.length > 0) {
+      return {
+        to: whatsappPhone,
+        code: issued.code,
+        channel: 'WHATSAPP',
+        recipientName: issued.recipientName,
+        senderName: await readGiftSenderName(tx, payment.userId),
+        amountAmd: issued.amountAmd,
+        message: issued.message,
+      };
+    }
     const decision = decideGiftEmail({
       delivery: metadata.delivery,
       deliverAt: metadata.deliverAt,
@@ -357,6 +369,10 @@ export class PaymentsFulfillmentService {
   }
 
   async sendGiftCardEmail(payload: GiftEmailPayload): Promise<void> {
+    if (payload.channel === 'WHATSAPP') {
+      await this.whatsapp.trySendGiftCardToPhone(payload.to, payload.code);
+      return;
+    }
     const amountLabel =
       payload.amountAmd === undefined || payload.amountAmd <= 0
         ? undefined

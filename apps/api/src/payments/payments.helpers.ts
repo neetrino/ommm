@@ -68,6 +68,7 @@ export function parsePaymentMetadata(
     recipientId: readString(value, 'recipientId'),
     recipientName: readString(value, 'recipientName'),
     recipientEmail: readString(value, 'recipientEmail'),
+    recipientPhone: readString(value, 'recipientPhone'),
     message: readString(value, 'message'),
     giftType: readGiftType(value),
     classTypeId: readString(value, 'classTypeId'),
