@@ -123,7 +123,7 @@ describe('branded email templates', () => {
     expect(visibleText(samples[7])).not.toMatch(/\bFrom\b/);
   });
 
-  it('congratulates a gift recipient with amount, sender, and note', () => {
+  it('congratulates a gift recipient with the gift, sender, and note', () => {
     const html = renderGiftCardEmail({
       code: 'OMMM-4821',
       accountUrl: SAMPLE_URL,
@@ -136,7 +136,9 @@ describe('branded email templates', () => {
     expect(html).toContain('A gift for you');
     expect(text).toContain('Hi Jasmine,');
     expect(text).toContain('Aren');
-    expect(text).toContain('30,000');
+    expect(text).toContain('Your gift');
+    expect(text).toContain('30,000 ֏ to use at the studio');
+    expect(text).not.toMatch(/\bAmount\b/);
     expect(text).toContain('Happy birthday');
     expect(html).toContain('Create your account');
     expect(text).toContain('enter this code');

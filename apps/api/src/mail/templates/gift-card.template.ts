@@ -32,7 +32,7 @@ export type GiftCardEmailParams = {
 export function renderGiftCardEmail(params: GiftCardEmailParams): string {
   return renderBrandedEmail({
     title: 'A gift for you',
-    preheader: 'Enter your Ommm gift card code to add it to your account',
+    preheader: 'A gift is waiting for you at Ommm',
     bodyHtml: buildGiftCardEmailBody(params),
   });
 }
@@ -42,8 +42,8 @@ function buildGiftCardEmailBody(params: GiftCardEmailParams): string {
   const note = params.message?.trim() ?? '';
   const intro =
     sender.length > 0
-      ? `${sender} sent you an Ommm gift card. Create your account, then enter this code to add the gift.`
-      : 'Someone sent you an Ommm gift card. Create your account, then enter this code to add the gift.';
+      ? `${sender} is giving you a gift at Ommm. Create your account, then enter this code to add it.`
+      : 'Someone is giving you a gift at Ommm. Create your account, then enter this code to add it.';
   const parts = [
     renderEmailHeading('A gift for you'),
     renderEmailGreeting(params.recipientName ?? ''),
@@ -66,7 +66,10 @@ function renderGiftDetailCard(
 ): string {
   const rows: EmailDetailRow[] = [];
   if (amountLabel && amountLabel.trim().length > 0) {
-    rows.push({ label: 'Amount', value: amountLabel.trim() });
+    rows.push({
+      label: 'Your gift',
+      value: `${amountLabel.trim()} to use at the studio`,
+    });
   }
   if (sender.length > 0) {
     rows.push({ label: 'From', value: sender });
