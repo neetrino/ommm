@@ -225,9 +225,11 @@ function ClassGiftPrice({ caption, amountAmd }: { caption: string; amountAmd: nu
     return null;
   }
   return (
-    <p className="flex items-baseline justify-between gap-3 border-t border-sage-200/70 pt-4">
-      <span className="ommm-label text-xs uppercase tracking-wide">{caption}</span>
-      <span className="font-serif text-2xl leading-none text-sage-900">{formatAmdFromCents(amountAmd)}</span>
+    <p className="flex items-center justify-between gap-4 rounded-[20px] border border-sand-500/40 bg-sand-100 px-5 py-4">
+      <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-sand-700">{caption}</span>
+      <span className="font-serif text-[2rem] leading-none tracking-tight text-sage-950">
+        {formatAmdFromCents(amountAmd)}
+      </span>
     </p>
   );
 }
