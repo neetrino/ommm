@@ -1190,6 +1190,7 @@
       "cardCode": "Код",
       "cardMessage": "Сообщение",
       "activityTitle": "Операции",
+      "cardHistory": "История",
       "activityKinds": {
         "ISSUE": "Выпущена",
         "REDEEM": "Добавлена на счёт",

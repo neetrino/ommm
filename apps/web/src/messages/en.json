@@ -1190,6 +1190,7 @@
       "cardCode": "Code",
       "cardMessage": "Message",
       "activityTitle": "Activity",
+      "cardHistory": "History",
       "activityKinds": {
         "ISSUE": "Issued",
         "REDEEM": "Added to account",

@@ -13,6 +13,7 @@ import {
   ADMIN_DETAILS_SHEET_DETAIL_VALUE_CLASS,
 } from "@/components/admin/admin-details-sheet-layout";
 import { formatAmdFromCents } from "@/lib/price-amd";
+import { UserGiftCardHistory } from "@/components/account/user-gift-card-history";
 import { GiftCardFace } from "@/components/gift-cards/gift-card-face";
 
 const SECTION_CLASS =
@@ -116,6 +117,7 @@ export function UserGiftCardSheetContent({ card, locale }: UserGiftCardSheetCont
           ) : null}
         </dl>
       </section>
+      <UserGiftCardHistory code={card.code} locale={locale} />
     </div>
   );
 }

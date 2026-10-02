@@ -1191,6 +1191,7 @@
       "cardCode": "Կոդ",
       "cardMessage": "Հաղորդագրություն",
       "activityTitle": "Գործողություններ",
+      "cardHistory": "Պատմություն",
       "activityKinds": {
         "ISSUE": "Թողարկված",
         "REDEEM": "Ավելացված է հաշվին",
