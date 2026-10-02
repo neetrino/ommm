@@ -135,7 +135,6 @@ export function AdminCreateGiftCardForm({
           classQuantity: isClassGift ? classGift.sessions : undefined,
           recipientId: recipientId.trim().length > 0 ? recipientId.trim() : undefined,
           message: message.trim().length > 0 ? message.trim() : undefined,
-          expiresAt: expiresAt.trim().length > 0 ? expiresAt.trim() : undefined,
         }),
       });
       if (created == null) {

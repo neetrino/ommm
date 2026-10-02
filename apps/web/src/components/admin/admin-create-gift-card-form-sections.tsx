@@ -28,7 +28,7 @@ export function GiftCardAssignSection({
   t: GiftCardFormCopy;
 }) {
   return (
-    <div className="flex flex-col gap-3 rounded-[20px] border border-white/70 bg-white/55 p-4">
+    <div className="flex flex-col gap-3 rounded-[20px] border border-sand-500/40 bg-sand-100 p-4">
       <div className="flex items-center justify-between gap-3">
         <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldAssignedUser")}</span>
         <OmmButton
