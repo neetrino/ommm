@@ -3,9 +3,11 @@
 import { useId } from "react";
 import { useTranslations } from "next-intl";
 import { CustomGiftComposer } from "@/components/account/custom-gift-composer";
-import { ADMIN_CREATE_SHEET_HEADER_CLASS } from "@/components/admin/admin-details-sheet-layout";
-import { adminFormModalPanelClass } from "@/components/admin/admin-mobile-sheet-layout";
-import { OmmModalPortal } from "@/components/ui/omm-modal";
+import { AdminSheetPortal } from "@/components/admin/admin-sheet-portal";
+import {
+  ADMIN_CREATE_SHEET_HEADER_CLASS,
+  ADMIN_WIDE_DRAWER_PANEL_CLASS,
+} from "@/components/admin/admin-details-sheet-layout";
 
 type CustomGiftComposerModalProps = {
   isOpen: boolean;
@@ -13,9 +15,10 @@ type CustomGiftComposerModalProps = {
   onClose: () => void;
 };
 
-const MODAL_OVERLAY_CLASS = "ommm-modal-overlay z-[140] items-center p-3 sm:p-4";
+const USER_GIFT_SHEET_OVERLAY_CLASS =
+  "ommm-drawer-overlay z-[140] max-sm:items-end max-sm:justify-center sm:items-end sm:justify-end";
 
-/** Custom gift purchase, using the same sheet chrome as the admin create form. */
+/** Custom gift purchase, opened as a sheet from the right. */
 export function CustomGiftComposerModal({
   isOpen,
   locale,
@@ -25,17 +28,18 @@ export function CustomGiftComposerModal({
   const titleId = useId();
 
   return (
-    <OmmModalPortal
+    <AdminSheetPortal
+      presentation="drawer"
       isOpen={isOpen}
       onClose={onClose}
       useOverlayPortalRoot
-      dialogRole="dialog"
       ariaLabelledBy={titleId}
       backdropAriaLabel={t("closeModal")}
-      overlayClassName={MODAL_OVERLAY_CLASS}
-      panelClassName={adminFormModalPanelClass("max-w-lg")}
+      drawerOverlayClassName={USER_GIFT_SHEET_OVERLAY_CLASS}
+      drawerPanelClassName={ADMIN_WIDE_DRAWER_PANEL_CLASS}
+      zIndexClass="z-[140]"
     >
-      <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-paper">
         <header className={ADMIN_CREATE_SHEET_HEADER_CLASS}>
           <div className="min-w-0">
             <h2
@@ -55,11 +59,11 @@ export function CustomGiftComposerModal({
             <CloseIcon />
           </button>
         </header>
-        <div className="ommm-soft-scroll min-h-0 flex-1 overflow-y-auto overscroll-y-contain bg-paper p-5 sm:p-6">
+        <div className="ommm-soft-scroll min-h-0 flex-1 overflow-y-auto overscroll-y-contain p-5 sm:p-6">
           {isOpen ? <CustomGiftComposer locale={locale} /> : null}
         </div>
       </div>
-    </OmmModalPortal>
+    </AdminSheetPortal>
   );
 }
 

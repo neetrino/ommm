@@ -6,11 +6,12 @@ import { useSearchParams } from "next/navigation";
 import { useRouter } from "@/i18n/navigation";
 import { usePathname } from "@/i18n/navigation";
 import { AdminSheetPortal } from "@/components/admin/admin-sheet-portal";
-import { adminFormModalPanelClass } from "@/components/admin/admin-mobile-sheet-layout";
 import {
   ADMIN_CREATE_SHEET_BODY_SHELL_CLASS,
   ADMIN_CREATE_SHEET_HEADER_CLASS,
+  ADMIN_DETAILS_SHEET_OVERLAY_CLASS,
   ADMIN_SHEET_PHONE_HIDE_CLOSE_CLASS,
+  ADMIN_WIDE_DRAWER_PANEL_CLASS,
 } from "@/components/admin/admin-details-sheet-layout";
 import { AdminCreateGiftCardForm } from "@/components/admin/admin-create-gift-card-form";
 import { AdminGiftCardsCreateButton } from "@/components/admin/admin-gift-cards-create-button";
@@ -216,14 +217,13 @@ function AdminGiftCardsShellInner({
 
       {!readOnly ? (
         <AdminSheetPortal
-          presentation="modal"
+          presentation="drawer"
           isOpen={isModalOpen}
           onClose={closeModal}
           backdropAriaLabel={t("modalBackdropClose")}
           ariaLabelledBy={titleId}
-          modalOverlayClassName="ommm-modal-overlay z-50 items-center p-3 sm:p-4"
-          modalPanelClassName={adminFormModalPanelClass("max-w-lg")}
-          zIndexClass="z-50"
+          drawerOverlayClassName={ADMIN_DETAILS_SHEET_OVERLAY_CLASS}
+          drawerPanelClassName={ADMIN_WIDE_DRAWER_PANEL_CLASS}
         >
           <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
             <div className={ADMIN_CREATE_SHEET_HEADER_CLASS}>
