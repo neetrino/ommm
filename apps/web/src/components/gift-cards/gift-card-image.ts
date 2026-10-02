@@ -6,7 +6,7 @@ export const DEFAULT_GIFT_CARD_IMAGE_SRC = "/gift-cards/ommm-gift-card-face.jpg?
 
 /**
  * Custom upload when present, otherwise the shared gift-card artwork.
- * Blob and data URLs are kept for in-browser previews.
+ * Valid blob URLs are kept for in-browser previews.
  */
 export function resolveGiftCardDisplaySrc(
   imageUrl: string | null | undefined,
@@ -15,8 +15,12 @@ export function resolveGiftCardDisplaySrc(
   if (trimmed.length === 0) {
     return DEFAULT_GIFT_CARD_IMAGE_SRC;
   }
-  if (trimmed.startsWith("blob:") || trimmed.startsWith("data:")) {
-    return trimmed;
+  const localPreview = sanitizeImageSrcUrl(trimmed, {
+    allowBlob: true,
+    allowRemoteHttp: false,
+  });
+  if (localPreview !== null) {
+    return localPreview;
   }
   const remote = resolveApiAssetUrl(trimmed);
   const safe = remote !== undefined ? sanitizeImageSrcUrl(remote) : null;
