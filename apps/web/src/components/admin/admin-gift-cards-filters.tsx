@@ -8,7 +8,6 @@ import {
 } from "@/components/admin/admin-gift-cards-filter-fields";
 import { AdminGiftCardsViewSwitcher } from "@/components/admin/admin-gift-cards-view-switcher";
 import { ListPageSearchFilters } from "@/components/shared/search/list-page-search-filters";
-import { AdminGiftCardsExcelImport } from "@/components/admin/admin-gift-cards-excel-import";
 import { AdminGiftPlacedCardsButton } from "@/components/admin/admin-gift-placed-cards";
 import { AdminPageHeroActionButton } from "@/components/admin/admin-page-hero-action-button";
 import { AdminPageHero } from "@/components/admin/admin-page-hero";
@@ -48,7 +47,6 @@ type AdminGiftCardsFiltersProps = {
   onReset: () => void;
   onViewChange: (mode: AdminGiftCardsViewMode) => void;
   onCreate: () => void;
-  onImported: (message: string) => void;
   /** Staff layout: search row only (hero lives in StaffListPageLayout). */
   variant?: "full" | "embedded";
   hideCreate?: boolean;
@@ -79,7 +77,6 @@ export function AdminGiftCardsFilters({
   onReset,
   onViewChange,
   onCreate,
-  onImported,
   variant = "full",
   hideCreate = false,
 }: AdminGiftCardsFiltersProps) {
@@ -219,9 +216,6 @@ export function AdminGiftCardsFilters({
       primaryAction={
         <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
           <AdminGiftPlacedCardsButton />
-          {hideCreate ? null : (
-            <AdminGiftCardsExcelImport onImported={onImported} />
-          )}
           {hideCreate ? null : (
             <AdminPageHeroActionButton type="button" onClick={onCreate}>
               <AddGiftCardGlyph className="h-5 w-5 shrink-0" />

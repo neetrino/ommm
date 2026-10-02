@@ -142,11 +142,6 @@ function AdminGiftCardsShellInner({
     );
   }, [closeModal, router, showBanner, t]);
 
-  const onImported = useCallback((message: string) => {
-    router.refresh();
-    showBanner(message);
-  }, [router, showBanner]);
-
   useEffect(() => {
     return () => {
       if (bannerTimerRef.current !== null) {
@@ -173,7 +168,6 @@ function AdminGiftCardsShellInner({
       viewMode={viewMode}
       onViewChange={setViewMode}
       onCreate={openModal}
-      onImported={onImported}
       variant={isStaff ? "embedded" : "full"}
       hideCreate={readOnly || isStaff}
     />
