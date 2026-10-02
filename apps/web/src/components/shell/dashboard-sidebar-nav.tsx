@@ -24,11 +24,17 @@ import {
   WORKSPACE_ROUTE_PREFETCH,
 } from "@/lib/workspace-nav-link";
 
+const ADMIN_MUTED_NAV_HREFS = new Set(["/admin/guest-users"]);
+
 /** Stable across soft navigations so Framer can morph the active pill. */
 const OLIVE_NAV_PILL_LAYOUT_ID = "ommm-olive-nav-active-pill";
 
 function navActive(pathname: string, href: string) {
   return dashboardNavPathActive(pathname, href);
+}
+
+function isAdminMutedNavItem(variant: DashboardShellVariant, href: string) {
+  return variant === "admin" && ADMIN_MUTED_NAV_HREFS.has(href);
 }
 
 function accentBorder(variant: DashboardShellVariant) {
@@ -53,9 +59,15 @@ function oliveNavIconSlug(
   return null;
 }
 
-function rowBase(variant: DashboardShellVariant, collapsed: boolean) {
+function rowBase(
+  variant: DashboardShellVariant,
+  collapsed: boolean,
+  muted: boolean,
+) {
   if (isOliveDashboardShell(variant)) {
-    return "ommm-admin-nav-link";
+    return muted
+      ? "ommm-admin-nav-link ommm-admin-nav-link-muted"
+      : "ommm-admin-nav-link";
   }
   const gap = collapsed ? "justify-center gap-0 px-0" : "gap-3 px-3";
   const base = `flex w-full items-center rounded-xl py-2.5 text-sm font-medium transition-colors border-l-4 ${gap}`;
@@ -68,9 +80,15 @@ function rowBase(variant: DashboardShellVariant, collapsed: boolean) {
   return `${base} border-transparent text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900`;
 }
 
-function rowActive(variant: DashboardShellVariant, collapsed: boolean) {
+function rowActive(
+  variant: DashboardShellVariant,
+  collapsed: boolean,
+  muted: boolean,
+) {
   if (isOliveDashboardShell(variant)) {
-    return "ommm-admin-nav-link ommm-admin-nav-link-active";
+    return muted
+      ? "ommm-admin-nav-link ommm-admin-nav-link-muted ommm-admin-nav-link-active"
+      : "ommm-admin-nav-link ommm-admin-nav-link-active";
   }
   const gap = collapsed ? "justify-center gap-0 px-0" : "gap-3 px-3";
   const border = accentBorder(variant);
@@ -118,6 +136,10 @@ export function DashboardSidebarNav({
   const { activePathname: softActivePathname, onNavItemClick } =
     useOliveNavOptimisticActive(pathname);
   const activePathname = allowHardNavigate ? hardActivePathname : softActivePathname;
+  const isAdmin = variant === "admin";
+  const firstMutedIndex = isAdmin
+    ? items.findIndex((item) => isAdminMutedNavItem(variant, item.href))
+    : -1;
 
   return (
     <LayoutGroup id={olivePillLayoutId}>
@@ -127,17 +149,19 @@ export function DashboardSidebarNav({
         }
         aria-label={tShell("dashboardNavAria")}
       >
-        {items.map((item) => {
+        {items.map((item, index) => {
           const active = navActive(activePathname, item.href);
+          const muted = isAdminMutedNavItem(variant, item.href);
           const oliveIconSlug = isOliveShell
             ? oliveNavIconSlug(variant, item)
             : null;
+          const showMutedDivider = isAdmin && index === firstMutedIndex;
           const useHardNavigate =
             allowHardNavigate && shouldMemberHardNavigate(pathname, item.href);
 
           const rowClassName = active
-            ? rowActive(variant, collapsed)
-            : rowBase(variant, collapsed);
+            ? rowActive(variant, collapsed, muted)
+            : rowBase(variant, collapsed, muted);
 
           const rowContent = (
             <>
@@ -163,31 +187,36 @@ export function DashboardSidebarNav({
             </>
           );
 
-          return useHardNavigate ? (
-            <a
-              key={item.href}
-              href={localizedWorkspaceHref(locale, item.href)}
-              title={collapsed ? item.label : undefined}
-              aria-current={active ? "page" : undefined}
-              className={rowClassName}
-              onClick={(event) =>
-                onHardNavigateClick(event, item.href, onNavigate)
-              }
-            >
-              {rowContent}
-            </a>
-          ) : (
-            <Link
-              key={item.href}
-              href={item.href}
-              prefetch={isOliveShell ? WORKSPACE_ROUTE_PREFETCH : undefined}
-              title={collapsed ? item.label : undefined}
-              aria-current={active ? "page" : undefined}
-              className={rowClassName}
-              onClick={() => onNavItemClick(item.href, onNavigate)}
-            >
-              {rowContent}
-            </Link>
+          return (
+            <div key={item.href}>
+              {showMutedDivider ? (
+                <div className="ommm-admin-nav-divider" aria-hidden />
+              ) : null}
+              {useHardNavigate ? (
+                <a
+                  href={localizedWorkspaceHref(locale, item.href)}
+                  title={collapsed ? item.label : undefined}
+                  aria-current={active ? "page" : undefined}
+                  className={rowClassName}
+                  onClick={(event) =>
+                    onHardNavigateClick(event, item.href, onNavigate)
+                  }
+                >
+                  {rowContent}
+                </a>
+              ) : (
+                <Link
+                  href={item.href}
+                  prefetch={isOliveShell ? WORKSPACE_ROUTE_PREFETCH : undefined}
+                  title={collapsed ? item.label : undefined}
+                  aria-current={active ? "page" : undefined}
+                  className={rowClassName}
+                  onClick={() => onNavItemClick(item.href, onNavigate)}
+                >
+                  {rowContent}
+                </Link>
+              )}
+            </div>
           );
         })}
       </nav>
