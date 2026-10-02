@@ -20,7 +20,7 @@ export function resolveGiftCardDisplaySrc(
     allowRemoteHttp: false,
   });
   if (localPreview !== null) {
-    return localPreview;
+    return encodeURI(localPreview);
   }
   const remote = resolveApiAssetUrl(trimmed);
   const safe = remote !== undefined ? sanitizeImageSrcUrl(remote) : null;
