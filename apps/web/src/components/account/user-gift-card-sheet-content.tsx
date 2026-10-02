@@ -4,16 +4,13 @@ import { useTranslations } from "next-intl";
 import type { UserGiftCardWithSource } from "@/lib/merge-user-gift-cards";
 import { Link } from "@/i18n/navigation";
 import {
-  displayGiftCardDate,
   giftCardStatusBadgeClass,
   isGiftCardDateExpired,
 } from "@/components/gift-cards/gift-card-display-helpers";
-import {
-  ADMIN_DETAILS_SHEET_DETAIL_LABEL_CLASS,
-  ADMIN_DETAILS_SHEET_DETAIL_VALUE_CLASS,
-} from "@/components/admin/admin-details-sheet-layout";
+import { ADMIN_DETAILS_SHEET_DETAIL_LABEL_CLASS } from "@/components/admin/admin-details-sheet-layout";
 import { formatAmdFromCents } from "@/lib/price-amd";
 import { UserGiftCardHistory } from "@/components/account/user-gift-card-history";
+import { UserGiftCardSheetFacts } from "@/components/account/user-gift-card-sheet-facts";
 import { GiftCardFace } from "@/components/gift-cards/gift-card-face";
 
 const SECTION_CLASS =
@@ -29,7 +26,6 @@ export function UserGiftCardSheetContent({ card, locale }: UserGiftCardSheetCont
   const amountLabel = formatAmdFromCents(card.amountCents, locale);
   const balanceLabel = formatAmdFromCents(card.balanceCents, locale);
   const expired = isGiftCardDateExpired(card.status, card.expiresAt);
-  const recipient = card.recipientName?.trim() || card.recipientEmail?.trim() || "";
 
   return (
     <div className="space-y-4">
@@ -64,59 +60,7 @@ export function UserGiftCardSheetContent({ card, locale }: UserGiftCardSheetCont
 
       {canSpendGiftCard(card, expired) ? <GiftCardUseNow label={t("useNow")} /> : null}
 
-      <section className={`${SECTION_CLASS} p-4 sm:p-5`}>
-        <dl className="grid gap-4 text-sm sm:grid-cols-2">
-          <div className="sm:col-span-2">
-            <dt className={ADMIN_DETAILS_SHEET_DETAIL_LABEL_CLASS}>{t("cardCode")}</dt>
-            <dd className="mt-1 flex flex-wrap items-center gap-3">
-              <span className={`font-mono ${ADMIN_DETAILS_SHEET_DETAIL_VALUE_CLASS}`}>{card.code}</span>
-              <button
-                type="button"
-                className="rounded-full border border-sand-500/30 bg-white px-3 py-1 text-xs font-semibold text-sage-800"
-                onClick={() => {
-                  void navigator.clipboard.writeText(card.code);
-                }}
-              >
-                {t("copyCode")}
-              </button>
-              <a
-                className="rounded-full border border-sand-500/30 bg-white px-3 py-1 text-xs font-semibold text-sage-800"
-                href={whatsAppShareHref(card.code)}
-                target="_blank"
-                rel="noreferrer"
-              >
-                {t("shareWhatsApp")}
-              </a>
-              <button
-                type="button"
-                className="rounded-full border border-sand-500/30 bg-white px-3 py-1 text-xs font-semibold text-sage-800"
-                onClick={() => window.print()}
-              >
-                {t("printCard")}
-              </button>
-              <a
-                href={`/api/v1/gift-cards/me/${card.id}/pdf`}
-                className="rounded-full border border-sand-500/30 bg-white px-3 py-1 text-xs font-semibold text-sage-800"
-              >
-                {t("downloadPdf")}
-              </a>
-            </dd>
-          </div>
-          <DetailField label={t("cardCreated")} value={displayGiftCardDate(card.createdAt)} />
-          <DetailField
-            label={t("cardExpiration")}
-            value={
-              card.expiresAt !== null ? displayGiftCardDate(card.expiresAt) : t("cardNoExpiration")
-            }
-          />
-          {recipient.length > 0 ? (
-            <DetailField label={t("cardRecipient")} value={recipient} />
-          ) : null}
-          {card.message ? (
-            <DetailField label={t("cardMessage")} value={card.message} className="sm:col-span-2" />
-          ) : null}
-        </dl>
-      </section>
+      <UserGiftCardSheetFacts card={card} />
       <UserGiftCardHistory code={card.code} locale={locale} />
     </div>
   );
@@ -141,26 +85,4 @@ function MetricCard({ label, value }: { label: string; value: string }) {
       <p className="mt-1 text-lg font-semibold text-sage-900">{value}</p>
     </div>
   );
-}
-
-function DetailField({
-  label,
-  value,
-  className = "",
-}: {
-  label: string;
-  value: string;
-  className?: string;
-}) {
-  return (
-    <div className={className}>
-      <dt className={ADMIN_DETAILS_SHEET_DETAIL_LABEL_CLASS}>{label}</dt>
-      <dd className={`mt-1 break-words ${ADMIN_DETAILS_SHEET_DETAIL_VALUE_CLASS}`}>{value}</dd>
-    </div>
-  );
-}
-
-function whatsAppShareHref(code: string): string {
-  const text = encodeURIComponent(`Ommm gift card: ${code}`);
-  return `https://wa.me/?text=${text}`;
 }
