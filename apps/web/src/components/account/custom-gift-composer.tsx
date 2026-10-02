@@ -12,8 +12,8 @@ import {
   CUSTOM_GIFT_CARD_MIN_AMD,
 } from "@/lib/custom-gift-card.constants";
 import {
+  customGiftAmountBelowMin,
   customGiftFieldIssues,
-  floorCustomGiftAmountRaw,
   startCustomGiftCheckout,
   type CustomGiftInputError,
 } from "@/lib/custom-gift-checkout";
@@ -94,7 +94,7 @@ export function CustomGiftComposer({ locale }: CustomGiftComposerProps) {
       }
       onAmountChange={(value) => {
         setAmountRaw(value);
-        setAmountError(null);
+        setAmountError(customGiftAmountBelowMin(value) ? t("amountMin", { min: minLabel }) : null);
       }}
       onRecipientEmailChange={(value) => {
         setRecipientEmail(value);
@@ -117,12 +117,8 @@ export function CustomGiftComposer({ locale }: CustomGiftComposerProps) {
         />
       }
       onSubmit={(event) => {
-        const giftAmountRaw = floorCustomGiftAmountRaw(amountRaw);
-        if (giftAmountRaw !== amountRaw) {
-          setAmountRaw(giftAmountRaw);
-        }
         void submitComposer(event, {
-          amountRaw: giftAmountRaw,
+          amountRaw,
           recipientEmail,
           kind,
           classTypeId,

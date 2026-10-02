@@ -8,8 +8,6 @@ import { OmmButton } from "@/components/ui/omm-button";
 import { FORM_INVALID_FIELD_CLASS, FormErrorBanner } from "@/components/ui/form-validation";
 import { GiftAmountChoices } from "@/components/account/gift-amount-choices";
 import { GiftCardFace } from "@/components/gift-cards/gift-card-face";
-import { CUSTOM_GIFT_CARD_MIN_AMD } from "@/lib/custom-gift-card.constants";
-import { floorCustomGiftAmountRaw } from "@/lib/custom-gift-checkout";
 
 const PLAIN_LABEL_CLASS = "ommm-label text-xs uppercase tracking-wide";
 
@@ -130,11 +128,12 @@ function GiftAmountField({
       data-form-field="amount"
       aria-invalid={amountError !== null}
       aria-describedby={`${amountId}-hint`}
-      className={amountError !== null ? FORM_INVALID_FIELD_CLASS : ""}
-      onBlur={() => onAmountChange(floorCustomGiftAmountRaw(amountRaw))}
-      onValueChange={(value) =>
-        onAmountChange(value.length === 0 ? String(CUSTOM_GIFT_CARD_MIN_AMD) : value)
+      className={
+        amountError !== null
+          ? `${FORM_INVALID_FIELD_CLASS} focus:border-red-400 focus:ring-red-400/20`
+          : ""
       }
+      onValueChange={onAmountChange}
     />
   );
 }

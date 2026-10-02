@@ -8,7 +8,7 @@ import {
 import {
   customGiftFieldIssues,
   customGiftInputError,
-  floorCustomGiftAmountRaw,
+  customGiftAmountBelowMin,
 } from "@/lib/custom-gift-checkout";
 import {
   GIFT_CELEBRATION_MAX_AGE_DAYS,
@@ -50,10 +50,10 @@ describe("customGiftInputError", () => {
     });
   });
 
-  it("keeps the gift amount at the 30,000 floor", () => {
-    assert.equal(floorCustomGiftAmountRaw(""), String(CUSTOM_GIFT_CARD_MIN_AMD));
-    assert.equal(floorCustomGiftAmountRaw("15000"), String(CUSTOM_GIFT_CARD_MIN_AMD));
-    assert.equal(floorCustomGiftAmountRaw("70000"), "70000");
+  it("flags a typed amount under the 30,000 floor", () => {
+    assert.equal(customGiftAmountBelowMin(""), false);
+    assert.equal(customGiftAmountBelowMin("15000"), true);
+    assert.equal(customGiftAmountBelowMin("70000"), false);
   });
 
   it("accepts the minimum and rejects outside the range", () => {

@@ -52,13 +52,10 @@ export function customGiftInputError(
   return issues.amount ?? issues.recipient;
 }
 
-/** Empty or too-small drafts become the 30,000 AMD floor. */
-export function floorCustomGiftAmountRaw(raw: string): string {
+/** True when the typed amount is present and under the 30,000 AMD floor. */
+export function customGiftAmountBelowMin(raw: string): boolean {
   const parsed = parseAmdMoneyInput(raw);
-  if (parsed === null || parsed < CUSTOM_GIFT_CARD_MIN_AMD) {
-    return String(CUSTOM_GIFT_CARD_MIN_AMD);
-  }
-  return String(parsed);
+  return parsed !== null && parsed < CUSTOM_GIFT_CARD_MIN_AMD;
 }
 
 function customGiftAmountIssue(
