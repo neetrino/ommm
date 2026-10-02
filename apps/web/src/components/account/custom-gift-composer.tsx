@@ -24,8 +24,9 @@ import {
 } from "@/components/account/custom-gift-options";
 import { useGiftAmountPolicy } from "@/components/account/use-gift-amount-policy";
 import { focusFormField } from "@/components/ui/form-validation";
-import { GIFT_CARD_CHECKOUT_PATH } from "@/lib/payment-checkout-source";
+import { openGiftCardPaymentPage } from "@/lib/arca-checkout";
 import { isGiftRecipientEmail } from "@/lib/gift-recipient-email";
+import { buildPaymentSuccessPath } from "@/lib/payment-result-paths";
 import { formatAmdFromCents, parseAmdMoneyInput } from "@/lib/price-amd";
 
 type CustomGiftComposerProps = {
@@ -130,9 +131,11 @@ export function CustomGiftComposer({ locale }: CustomGiftComposerProps) {
           setAmountError,
           setRecipientError,
           setBusy,
-          goToCheckout: (amountAmd, reference) => {
-            router.push(giftCheckoutHref(amountAmd, reference));
-          },
+          goToCheckout: (reference) =>
+            continueGiftToPayment(reference, locale, (href) => {
+              router.push(href);
+              router.refresh();
+            }),
         });
       }}
     />
@@ -192,12 +195,18 @@ function composerCopy(
   };
 }
 
-function giftCheckoutHref(amountAmd: number, reference: string | null): string {
-  const params = new URLSearchParams({ amountCents: String(amountAmd) });
-  if (reference) {
-    params.set("reference", reference);
+async function continueGiftToPayment(
+  reference: string | null,
+  locale: string,
+  goToSuccess: (href: string) => void,
+): Promise<void> {
+  if (reference === null) {
+    throw new Error("Gift checkout is missing a payment reference");
   }
-  return `${GIFT_CARD_CHECKOUT_PATH}?${params.toString()}`;
+  const mode = await openGiftCardPaymentPage(reference, locale);
+  if (mode === "simulated") {
+    goToSuccess(buildPaymentSuccessPath(reference, "gift"));
+  }
 }
 
 async function submitComposer(
@@ -217,7 +226,7 @@ async function submitComposer(
     setAmountError: (value: string | null) => void;
     setRecipientError: (value: string | null) => void;
     setBusy: (value: boolean) => void;
-    goToCheckout: (amountAmd: number, reference: string | null) => void;
+    goToCheckout: (reference: string | null) => Promise<void>;
   },
 ): Promise<void> {
   event.preventDefault();
@@ -258,7 +267,7 @@ async function submitComposer(
           : {}),
       },
     });
-    input.goToCheckout(started.amountCents, started.reference);
+    await input.goToCheckout(started.reference);
   } catch (err) {
     input.setError(err instanceof ApiError ? err.message : input.checkoutFailed);
     input.setBusy(false);

@@ -14,7 +14,8 @@ import { GiftCardBoardTile } from "@/components/gift-cards/gift-card-board-tile"
 import { displayGiftCardDate } from "@/components/gift-cards/gift-card-display-helpers";
 import { OmmButton } from "@/components/ui/omm-button";
 import { ApiError, apiFetch } from "@/lib/api";
-import { GIFT_CARD_CHECKOUT_PATH } from "@/lib/payment-checkout-source";
+import { openGiftCardPaymentPage } from "@/lib/arca-checkout";
+import { buildPaymentSuccessPath } from "@/lib/payment-result-paths";
 
 type PendingPaymentResponse = {
   paymentReference: string | null;
@@ -80,17 +81,19 @@ export function GiftPurchaseForm({ locale }: GiftPurchaseFormProps) {
           delivery: "EMAIL",
         }),
       });
-      const params = new URLSearchParams({
-        amountCents: String(payment.amountCents ?? card.amountCents),
-      });
-      if (payment.paymentReference !== null) {
-        params.set("reference", payment.paymentReference);
+      if (payment.paymentReference === null) {
+        setStatus(t("checkoutFailed"));
+        setBusyBatchId(null);
+        return;
       }
       setSelectedId(null);
-      router.push(`${GIFT_CARD_CHECKOUT_PATH}?${params.toString()}`);
+      const mode = await openGiftCardPaymentPage(payment.paymentReference, locale);
+      if (mode === "simulated") {
+        router.push(buildPaymentSuccessPath(payment.paymentReference, "gift"));
+        router.refresh();
+      }
     } catch (err) {
       setStatus(err instanceof ApiError ? err.message : t("checkoutFailed"));
-    } finally {
       setBusyBatchId(null);
     }
   }
