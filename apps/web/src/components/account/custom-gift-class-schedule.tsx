@@ -8,20 +8,11 @@ import {
 } from "@/components/account/studio-cart-class-plans";
 import type { OmmSelectOption } from "@/components/ui/omm-select-dropdown";
 import { apiFetch } from "@/lib/api";
-import { formatSessionRange } from "@/lib/format-session-time";
 import { formatAmdFromCents } from "@/lib/price-amd";
 
 type GiftPlan = CartPlanOption & {
   priceCents?: number;
   finalPriceCents?: number;
-};
-
-type GiftSession = {
-  id: string;
-  startsAt: string;
-  endsAt: string;
-  priceCents: number;
-  classType: { id: string; name: string };
 };
 
 type NamedRow = { id: string; name: string };
@@ -33,15 +24,15 @@ type CustomGiftClassChoicesProps = {
   classPlaceholder: string;
   classTypeLabel: string;
   packageLabel: string;
-  sessionLabel: string;
   skipLabel: string;
   priceCaption: string;
   onClassTypeChange: (classTypeId: string) => void;
   onClassSessionsChange: (classSessions: string) => void;
+  onPackagePlanChange?: (packagePlanId: string) => void;
   onQuotedPriceChange: (amountAmd: number | null) => void;
 };
 
-/** Class type, then that type's packages, then a scheduled class with its time. */
+/** Class type, then a package. The recipient picks the day later. */
 export function CustomGiftClassChoices(props: CustomGiftClassChoicesProps) {
   return (
     <div className="grid gap-4">
@@ -53,19 +44,20 @@ export function CustomGiftClassChoices(props: CustomGiftClassChoicesProps) {
         onChange={(value) => {
           props.onClassTypeChange(value);
           props.onClassSessionsChange("");
+          props.onPackagePlanChange?.("");
           props.onQuotedPriceChange(null);
         }}
       />
       {props.classTypeId.length > 0 ? (
-        <GiftPackageAndClass
+        <GiftPackageChoice
           key={props.classTypeId}
           classTypeId={props.classTypeId}
           disabled={props.disabled}
           packageLabel={props.packageLabel}
-          sessionLabel={props.sessionLabel}
           skipLabel={props.skipLabel}
           priceCaption={props.priceCaption}
           onClassSessionsChange={props.onClassSessionsChange}
+          onPackagePlanChange={props.onPackagePlanChange}
           onQuotedPriceChange={props.onQuotedPriceChange}
         />
       ) : null}
@@ -73,142 +65,74 @@ export function CustomGiftClassChoices(props: CustomGiftClassChoicesProps) {
   );
 }
 
-type GiftPackageAndClassProps = {
+type GiftPackageChoiceProps = {
   classTypeId: string;
   disabled: boolean;
   packageLabel: string;
-  sessionLabel: string;
   skipLabel: string;
   priceCaption: string;
   onClassSessionsChange: (classSessions: string) => void;
+  onPackagePlanChange?: (packagePlanId: string) => void;
   onQuotedPriceChange: (amountAmd: number | null) => void;
 };
 
-function GiftPackageAndClass(props: GiftPackageAndClassProps) {
-  const catalog = useGiftClassCatalog(props.classTypeId);
-  const pick = useGiftClassPick(catalog.plans, props.classTypeId, props.onClassSessionsChange);
-  const packages = plansForClassType(catalog.plans, props.classTypeId);
-  const quotedAmd = quoteClassGiftAmd({
-    sessions: catalog.sessions,
-    plans: catalog.plans,
-    packageId: pick.packageId,
-    classTypeId: props.classTypeId,
-  });
-  useClassGiftQuote({
-    sessions: catalog.sessions,
-    plans: catalog.plans,
-    packageId: pick.packageId,
-    classTypeId: props.classTypeId,
-    onQuotedPriceChange: props.onQuotedPriceChange,
-  });
+function GiftPackageChoice(props: GiftPackageChoiceProps) {
+  const plans = useClassGiftPlans(props.classTypeId);
+  const [packageId, setPackageId] = useState("");
+  const chosen = plans.find((plan) => plan.id === packageId) ?? null;
+  const quotedAmd = planPriceAmd(chosen ?? undefined);
+  useEffect(() => {
+    props.onQuotedPriceChange(quotedAmd);
+  }, [quotedAmd, props.onQuotedPriceChange]);
   return (
     <>
       <GiftOptionSelect
         label={props.packageLabel}
-        value={pick.packageId}
+        value={packageId}
         disabled={props.disabled}
-        options={packageGiftOptions(props.skipLabel, packages)}
-        onChange={pick.choosePackage}
-      />
-      <GiftOptionSelect
-        label={props.sessionLabel}
-        value={pick.sessionId}
-        disabled={props.disabled}
-        options={sessionOptions(props.skipLabel, catalog.sessions)}
-        onChange={pick.chooseSession}
+        options={packageGiftOptions(props.skipLabel, plansForClassType(plans, props.classTypeId))}
+        onChange={(nextPackageId) => {
+          setPackageId(nextPackageId);
+          publishPackageGift(plans, props.classTypeId, nextPackageId, props);
+        }}
       />
       <ClassGiftPrice caption={props.priceCaption} amountAmd={quotedAmd} />
     </>
   );
 }
 
-function useGiftClassPick(
-  plans: readonly GiftPlan[],
-  classTypeId: string,
-  onClassSessionsChange: (classSessions: string) => void,
-) {
-  const [packageId, setPackageId] = useState("");
-  const [sessionId, setSessionId] = useState("");
-  function choosePackage(nextPackageId: string): void {
-    setPackageId(nextPackageId);
-    onClassSessionsChange(publishedSessions(plans, classTypeId, nextPackageId, sessionId));
-  }
-  function chooseSession(nextSessionId: string): void {
-    setSessionId(nextSessionId);
-    onClassSessionsChange(publishedSessions(plans, classTypeId, packageId, nextSessionId));
-  }
-  return { packageId, sessionId, choosePackage, chooseSession };
-}
-
-function publishedSessions(
+function publishPackageGift(
   plans: readonly GiftPlan[],
   classTypeId: string,
   packageId: string,
-  sessionId: string,
-): string {
-  if (sessionId.length === 0) {
-    return "";
+  props: Pick<GiftPackageChoiceProps, "onClassSessionsChange" | "onPackagePlanChange">,
+): void {
+  const plan = plans.find((item) => item.id === packageId);
+  if (!plan) {
+    props.onClassSessionsChange("");
+    props.onPackagePlanChange?.("");
+    return;
   }
-  return String(packageSessionCount(plans, packageId, classTypeId));
+  props.onClassSessionsChange(String(packageSessionCount(plan, classTypeId)));
+  props.onPackagePlanChange?.(plan.id);
 }
 
-function useGiftClassCatalog(classTypeId: string): {
-  plans: readonly GiftPlan[];
-  sessions: readonly GiftSession[];
-} {
+function useClassGiftPlans(classTypeId: string): readonly GiftPlan[] {
   const [plans, setPlans] = useState<readonly GiftPlan[]>([]);
-  const [sessions, setSessions] = useState<readonly GiftSession[]>([]);
   useEffect(() => {
     let cancelled = false;
-    void Promise.all([
-      apiFetch<GiftPlan[]>("/packages/plans").catch(() => []),
-      apiFetch<GiftSession[]>(`/classes/sessions?typeId=${encodeURIComponent(classTypeId)}`).catch(() => []),
-    ]).then(([nextPlans, nextSessions]) => {
-      if (!cancelled) {
-        setPlans(nextPlans);
-        setSessions(nextSessions);
-      }
-    });
+    void apiFetch<GiftPlan[]>("/packages/plans")
+      .catch(() => [])
+      .then((nextPlans) => {
+        if (!cancelled) {
+          setPlans(nextPlans);
+        }
+      });
     return () => {
       cancelled = true;
     };
   }, [classTypeId]);
-  return { plans, sessions };
-}
-
-/** Drop-in price of the latest priced class, times the package session count. */
-function useClassGiftQuote(input: {
-  sessions: readonly GiftSession[];
-  plans: readonly GiftPlan[];
-  packageId: string;
-  classTypeId: string;
-  onQuotedPriceChange: (amountAmd: number | null) => void;
-}): void {
-  const { sessions, plans, packageId, classTypeId, onQuotedPriceChange } = input;
-  useEffect(() => {
-    onQuotedPriceChange(quoteClassGiftAmd({ sessions, plans, packageId, classTypeId }));
-  }, [sessions, plans, packageId, classTypeId, onQuotedPriceChange]);
-}
-
-function quoteClassGiftAmd(input: {
-  sessions: readonly GiftSession[];
-  plans: readonly GiftPlan[];
-  packageId: string;
-  classTypeId: string;
-}): number | null {
-  const packagePrice = planPriceAmd(input.plans.find((plan) => plan.id === input.packageId));
-  if (packagePrice !== null) {
-    return packagePrice;
-  }
-  const unit = latestSessionPriceAmd(input.sessions);
-  if (unit === null) {
-    return null;
-  }
-  const quantity =
-    input.packageId.length > 0
-      ? packageSessionCount(input.plans, input.packageId, input.classTypeId)
-      : 1;
-  return unit * quantity;
+  return plans;
 }
 
 function planPriceAmd(plan: GiftPlan | undefined): number | null {
@@ -233,26 +157,8 @@ function ClassGiftPrice({ caption, amountAmd }: { caption: string; amountAmd: nu
   );
 }
 
-function latestSessionPriceAmd(sessions: readonly GiftSession[]): number | null {
-  let latest: GiftSession | null = null;
-  for (const session of sessions) {
-    if (session.priceCents <= 0) {
-      continue;
-    }
-    if (latest === null || session.startsAt > latest.startsAt) {
-      latest = session;
-    }
-  }
-  return latest?.priceCents ?? null;
-}
-
-function packageSessionCount(
-  plans: readonly GiftPlan[],
-  packageId: string,
-  classTypeId: string,
-): number {
-  const plan = plans.find((item) => item.id === packageId);
-  const allocation = plan?.typeSessionAllocations?.find((item) => item.classTypeId === classTypeId);
+function packageSessionCount(plan: GiftPlan, classTypeId: string): number {
+  const allocation = plan.typeSessionAllocations?.find((item) => item.classTypeId === classTypeId);
   if (allocation?.sessionCount !== undefined && allocation.sessionCount > 0) {
     return allocation.sessionCount;
   }
@@ -282,19 +188,4 @@ function packageOptionLabel(plan: GiftPlan): string {
     return plan.name;
   }
   return `${plan.name} · ${formatAmdFromCents(price)}`;
-}
-
-function sessionOptions(emptyLabel: string, sessions: readonly GiftSession[]): OmmSelectOption<string>[] {
-  return [
-    { value: "", label: emptyLabel },
-    ...sessions.map((session) => ({
-      value: session.id,
-      label: sessionOptionLabel(session),
-    })),
-  ];
-}
-
-function sessionOptionLabel(session: GiftSession): string {
-  const when = `${session.classType.name} · ${formatSessionRange(session.startsAt, session.endsAt)}`;
-  return session.priceCents > 0 ? `${when} · ${formatAmdFromCents(session.priceCents)}` : when;
 }

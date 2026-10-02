@@ -21,6 +21,7 @@ type CustomGiftOptionsProps = {
   onKindChange: (kind: CustomGiftKind) => void;
   onClassTypeChange: (classTypeId: string) => void;
   onClassSessionsChange: (classSessions: string) => void;
+  onPackagePlanChange?: (packagePlanId: string) => void;
   onQuotedPriceChange: (amountAmd: number | null) => void;
   onDeliveryChange: (delivery: CustomGiftDelivery) => void;
   t: GiftCopy;
@@ -43,6 +44,7 @@ export function CustomGiftKindSection(props: CustomGiftOptionsProps) {
           props.onKindChange(next);
           if (next !== "FIXED_CLASS") {
             props.onClassTypeChange("");
+            props.onPackagePlanChange?.("");
             props.onQuotedPriceChange(null);
           }
         }}
@@ -55,6 +57,7 @@ export function CustomGiftKindSection(props: CustomGiftOptionsProps) {
           t={props.t}
           onClassTypeChange={props.onClassTypeChange}
           onClassSessionsChange={props.onClassSessionsChange}
+          onPackagePlanChange={props.onPackagePlanChange}
           onQuotedPriceChange={props.onQuotedPriceChange}
         />
       ) : null}
@@ -84,6 +87,7 @@ function ClassGiftFields({
   t,
   onClassTypeChange,
   onClassSessionsChange,
+  onPackagePlanChange,
   onQuotedPriceChange,
 }: {
   classTypeId: string;
@@ -92,6 +96,7 @@ function ClassGiftFields({
   t: GiftCopy;
   onClassTypeChange: (classTypeId: string) => void;
   onClassSessionsChange: (classSessions: string) => void;
+  onPackagePlanChange?: (packagePlanId: string) => void;
   onQuotedPriceChange: (amountAmd: number | null) => void;
 }) {
   const page = useTranslations("userPages.giftCards");
@@ -103,11 +108,11 @@ function ClassGiftFields({
       classPlaceholder={t("classPlaceholder")}
       classTypeLabel={page("cartClassType")}
       packageLabel={page("cartPackage")}
-      sessionLabel={page("cartSession")}
       skipLabel={page("cartSkip")}
       priceCaption={t("priceLabel")}
       onClassTypeChange={onClassTypeChange}
       onClassSessionsChange={onClassSessionsChange}
+      onPackagePlanChange={onPackagePlanChange}
       onQuotedPriceChange={onQuotedPriceChange}
     />
   );

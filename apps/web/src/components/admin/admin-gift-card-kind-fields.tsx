@@ -118,7 +118,6 @@ function ClassSessionFields({
       classPlaceholder={custom("classPlaceholder")}
       classTypeLabel={page("cartClassType")}
       packageLabel={page("cartPackage")}
-      sessionLabel={page("cartSession")}
       skipLabel={page("cartSkip")}
       priceCaption={custom("priceLabel")}
       onClassTypeChange={onClassTypeChange}

@@ -16,6 +16,7 @@ export type GiftCheckoutOptions = {
   type?: "FIXED_VALUE" | "FIXED_CLASS";
   classTypeId?: string;
   classQuantity?: number;
+  packagePlanId?: string;
   delivery?: "EMAIL" | "WHATSAPP" | "PRINT";
   deliverAt?: string;
 };

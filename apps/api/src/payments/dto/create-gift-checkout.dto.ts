@@ -68,6 +68,12 @@ export class CreateGiftCheckoutDto {
   @Min(1)
   classQuantity?: number;
 
+  /** Package being gifted. The recipient chooses the class day later. */
+  @IsOptional()
+  @IsString()
+  @MaxLength(191)
+  packagePlanId?: string;
+
   @IsOptional()
   @IsIn(['EMAIL', 'WHATSAPP', 'PRINT'])
   delivery?: 'EMAIL' | 'WHATSAPP' | 'PRINT';

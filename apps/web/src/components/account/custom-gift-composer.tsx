@@ -48,6 +48,7 @@ export function CustomGiftComposer({ locale }: CustomGiftComposerProps) {
   const [kind, setKind] = useState<CustomGiftKind>("FIXED_VALUE");
   const [classTypeId, setClassTypeId] = useState("");
   const [classSessions, setClassSessions] = useState("1");
+  const [classPackageId, setClassPackageId] = useState("");
   const [classPriceAmd, setClassPriceAmd] = useState<number | null>(null);
   const [delivery, setDelivery] = useState<CustomGiftDelivery>("EMAIL");
   const [error, setError] = useState<string | null>(null);
@@ -83,6 +84,7 @@ export function CustomGiftComposer({ locale }: CustomGiftComposerProps) {
           onKindChange={setKind}
           onClassTypeChange={setClassTypeId}
           onClassSessionsChange={setClassSessions}
+          onPackagePlanChange={setClassPackageId}
           onQuotedPriceChange={setClassPriceAmd}
           onDeliveryChange={setDelivery}
           t={t}
@@ -106,6 +108,7 @@ export function CustomGiftComposer({ locale }: CustomGiftComposerProps) {
           onKindChange={setKind}
           onClassTypeChange={setClassTypeId}
           onClassSessionsChange={setClassSessions}
+          onPackagePlanChange={setClassPackageId}
           onQuotedPriceChange={setClassPriceAmd}
           onDeliveryChange={setDelivery}
           t={t}
@@ -118,6 +121,7 @@ export function CustomGiftComposer({ locale }: CustomGiftComposerProps) {
           kind,
           classTypeId,
           classSessions,
+          classPackageId,
           delivery,
           classRequired: t("classRequired"),
           checkoutFailed: t("checkoutFailed"),
@@ -143,6 +147,10 @@ function fieldIssueText(
     return null;
   }
   return customGiftErrorText(reason, copy);
+}
+
+function classGiftReady(classTypeId: string, packagePlanId: string, sessions: number): boolean {
+  return classTypeId.length > 0 && packagePlanId.length > 0 && Number.isFinite(sessions) && sessions >= 1;
 }
 
 function focusMissingGiftField(form: EventTarget | null, amountMissing: boolean): void {
@@ -200,6 +208,7 @@ async function submitComposer(
     kind: CustomGiftKind;
     classTypeId: string;
     classSessions: string;
+    classPackageId: string;
     delivery: CustomGiftDelivery;
     classRequired: string;
     checkoutFailed: string;
@@ -223,7 +232,7 @@ async function submitComposer(
   const recipientMessage = issues.recipient === null ? null : input.copy.recipientRequired;
   input.setAmountError(amountMessage);
   input.setRecipientError(recipientMessage);
-  if (isClassGift && (input.classTypeId.length === 0 || !Number.isFinite(sessions) || sessions < 1)) {
+  if (isClassGift && !classGiftReady(input.classTypeId, input.classPackageId, sessions)) {
     input.setError(input.classRequired);
     return;
   }
@@ -240,7 +249,13 @@ async function submitComposer(
         recipientEmail: input.recipientEmail.trim(),
         type: input.kind,
         delivery: input.delivery,
-        ...(isClassGift ? { classTypeId: input.classTypeId, classQuantity: sessions } : {}),
+        ...(isClassGift
+          ? {
+              classTypeId: input.classTypeId,
+              classQuantity: sessions,
+              packagePlanId: input.classPackageId,
+            }
+          : {}),
       },
     });
     input.goToCheckout(started.amountCents, started.reference);

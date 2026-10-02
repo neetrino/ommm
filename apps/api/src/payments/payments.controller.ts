@@ -51,6 +51,7 @@ export class PaymentsController {
       giftType: body.type,
       classTypeId: body.classTypeId,
       classQuantity: body.classQuantity,
+      packagePlanId: body.packagePlanId,
       delivery: body.delivery,
       deliverAt: body.deliverAt,
     });
