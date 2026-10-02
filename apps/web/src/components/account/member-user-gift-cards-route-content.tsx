@@ -3,7 +3,6 @@ import { getTranslations } from "next-intl/server";
 import { GiftCardActivityList, type GiftCardActivityRow } from "@/components/account/gift-card-activity-list";
 import { GiftShopPanel } from "@/components/account/gift-shop-panel";
 import { UserGiftCardRedeemForm } from "@/components/account/user-gift-card-redeem-form";
-import { StudioCartForm } from "@/components/account/studio-cart-form";
 import { UserGiftCardsBoard } from "@/components/account/user-gift-cards-board";
 import type { UserGiftCardRow } from "@/components/account/user-gift-cards-types";
 import { UserGiftCardsView } from "@/components/account/user-gift-cards-view";
@@ -59,12 +58,7 @@ export async function MemberUserGiftCardsRouteContent({
           <UserGiftCardsBoard locale={locale} cards={mergedCards} loadError={loadError} />
         </div>
       }
-      shopPanel={
-        <div className="space-y-10">
-          <GiftShopPanel locale={locale} />
-          <StudioCartForm />
-        </div>
-      }
+      shopPanel={<GiftShopPanel locale={locale} />}
     />
   );
 }

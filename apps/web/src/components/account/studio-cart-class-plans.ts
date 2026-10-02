@@ -16,17 +16,6 @@ export function plansForClassType(
   return plans.filter((plan) => planCoversClassType(plan, classTypeId));
 }
 
-export function packageMatchesClassType(
-  plans: readonly CartPlanOption[],
-  packageId: string,
-  classTypeId: string,
-): boolean {
-  if (packageId === "" || classTypeId.trim() === "") {
-    return false;
-  }
-  return plans.some((plan) => plan.id === packageId && planCoversClassType(plan, classTypeId));
-}
-
 function planCoversClassType(plan: CartPlanOption, classTypeId: string): boolean {
   const allocations = plan.typeSessionAllocations ?? [];
   if (allocations.length > 0) {
