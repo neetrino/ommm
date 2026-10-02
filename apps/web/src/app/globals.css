@@ -104,8 +104,6 @@ input[type="number"]::-webkit-outer-spin-button {
   --ommm-admin-olive: #97907c;
   --ommm-admin-cream: #fbf5d5;
   --ommm-admin-page: #ede9dd;
-  --ommm-admin-olive-muted: #c5bf9f;
-  --ommm-admin-olive-muted-hover: #d4ceb0;
   --ommm-admin-shadow-soft: 0 12px 32px -24px rgba(45, 40, 35, 0.22);
   --ommm-admin-shadow-nav-active: 0 10px 28px -18px rgba(45, 40, 35, 0.28);
 
@@ -996,11 +994,6 @@ input[type="number"]::-webkit-outer-spin-button {
     @apply relative flex flex-col gap-0 py-0;
   }
 
-  .ommm-admin-nav-divider {
-    @apply mx-6 my-2 border-t;
-    border-color: rgba(251, 245, 213, 0.16);
-  }
-
   .ommm-admin-nav-icon {
     @apply inline-flex h-5 w-6 shrink-0 items-center justify-center;
   }
@@ -1035,19 +1028,6 @@ input[type="number"]::-webkit-outer-spin-button {
 
   .ommm-admin-nav-link-active:hover {
     background-color: transparent;
-    color: var(--ommm-admin-olive);
-  }
-
-  .ommm-admin-nav-link-muted {
-    color: var(--ommm-admin-olive-muted);
-  }
-
-  .ommm-admin-nav-link-muted:hover:not(.ommm-admin-nav-link-active) {
-    color: var(--ommm-admin-olive-muted-hover);
-    background-color: rgba(251, 245, 213, 0.08);
-  }
-
-  .ommm-admin-nav-link-muted.ommm-admin-nav-link-active {
     color: var(--ommm-admin-olive);
   }
 
