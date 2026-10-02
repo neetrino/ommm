@@ -116,19 +116,20 @@ export function AdminCreateGiftCardFormFields({
           </div>
         ) : null}
       </div>
-      {mode === "create" ? null : (
-        <label className="flex flex-col gap-1">
-          <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldExpiration")}</span>
-          <DatePickerInput
-            name="expiresAt"
-            ariaLabel={t("fieldExpiration")}
-            value={expiresAt}
-            onChange={setExpiresAt}
-            disablePastDates
-            disabled={busy}
-          />
-        </label>
-      )}
+      <label className="flex flex-col gap-1">
+        <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldExpiration")}</span>
+        <DatePickerInput
+          name="expiresAt"
+          ariaLabel={t("fieldExpiration")}
+          value={expiresAt}
+          onChange={setExpiresAt}
+          disablePastDates
+          disabled={busy}
+        />
+        {mode === "create" && expiresAt.trim().length === 0 ? (
+          <p className="text-xs text-sage-500">{t("createValidityNote")}</p>
+        ) : null}
+      </label>
     </>
   );
 }

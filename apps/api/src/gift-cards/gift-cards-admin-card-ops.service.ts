@@ -3,7 +3,7 @@ import { GiftCardStatus, GiftCardTransactionKind, GiftCardType } from '@prisma/c
 import { AuditService } from '../audit/audit.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { convertGiftBalances, type GiftConvertDirection } from './gift-card-convert';
-import { giftCardCsv } from './gift-card-issue';
+import { buildIssuedCardsWorkbook } from './gift-card-excel-file';
 import { quoteClassUnitPriceAmd } from '../payments/payments-gift-checkout.prepare';
 import { readGiftCardBalance } from './gift-cards.mapper';
 
@@ -107,7 +107,7 @@ export class GiftCardsAdminCardOpsService {
     return this.adjustBalance(id, next, actorId);
   }
 
-  async exportBatchCsv(batchId: string): Promise<string> {
+  async exportBatchXlsx(batchId: string): Promise<Buffer> {
     const batch = await this.prisma.giftCardBatch.findUnique({
       where: { id: batchId },
       select: { id: true },
@@ -128,7 +128,7 @@ export class GiftCardsAdminCardOpsService {
         expiresAt: true,
       },
     });
-    return giftCardCsv(cards);
+    return buildIssuedCardsWorkbook(cards);
   }
 
   private async requireCard(id: string) {

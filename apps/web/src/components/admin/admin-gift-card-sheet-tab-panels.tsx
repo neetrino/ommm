@@ -26,6 +26,7 @@ import type {
   AdminGiftCardRedemptionHistory,
 } from "@/components/admin/admin-gift-cards-types";
 import { ApiError, apiFetch } from "@/lib/api";
+import { useGiftCardValueLabel } from "@/components/admin/admin-gift-card-value";
 import { formatDateForUi } from "@/lib/date-display";
 import { formatAmdFromCents } from "@/lib/price-amd";
 import { GiftCardFace } from "@/components/gift-cards/gift-card-face";
@@ -94,7 +95,7 @@ function GiftCardOverviewPanel({
   const t = useTranslations("adminPages.giftCards");
   const recipient = recipientLabel(card);
   const expired = isGiftCardExpired(card);
-  const amountLabel = formatAmdFromCents(card.amountAmd, locale);
+  const amountLabel = useGiftCardValueLabel(card, locale);
 
   return (
     <div className="space-y-4">

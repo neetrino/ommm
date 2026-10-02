@@ -121,22 +121,31 @@ function AdminGiftCardsShellInner({
     router.replace(`${pathname}?${params.toString()}`, { scroll: false });
   }, [pathname, router, searchParams]);
 
-  const onCreated = useCallback((createdCount: number) => {
+  const showBanner = useCallback((message: string) => {
     if (bannerTimerRef.current !== null) {
       clearTimeout(bannerTimerRef.current);
     }
-    closeModal();
-    router.refresh();
-    setBanner(
-      createdCount > 1
-        ? t("messages.createSuccessMany", { count: createdCount })
-        : t("messages.createSuccess"),
-    );
+    setBanner(message);
     bannerTimerRef.current = setTimeout(() => {
       setBanner(null);
       bannerTimerRef.current = null;
     }, BANNER_MS);
-  }, [closeModal, router, t]);
+  }, []);
+
+  const onCreated = useCallback((createdCount: number) => {
+    closeModal();
+    router.refresh();
+    showBanner(
+      createdCount > 1
+        ? t("messages.createSuccessMany", { count: createdCount })
+        : t("messages.createSuccess"),
+    );
+  }, [closeModal, router, showBanner, t]);
+
+  const onImported = useCallback((message: string) => {
+    router.refresh();
+    showBanner(message);
+  }, [router, showBanner]);
 
   useEffect(() => {
     return () => {
@@ -164,6 +173,7 @@ function AdminGiftCardsShellInner({
       viewMode={viewMode}
       onViewChange={setViewMode}
       onCreate={openModal}
+      onImported={onImported}
       variant={isStaff ? "embedded" : "full"}
       hideCreate={readOnly || isStaff}
     />

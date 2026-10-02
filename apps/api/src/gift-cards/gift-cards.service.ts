@@ -5,6 +5,7 @@ import type { AdminUpdateGiftCardBatchDto } from './dto/admin-update-gift-card-b
 import type { ListAdminGiftCardBatchesQueryDto } from './dto/list-admin-gift-card-batches-query.dto';
 import type { ListMyGiftCardsQueryDto } from './dto/list-my-gift-cards-query.dto';
 import { GiftCardsAdminCardOpsService } from './gift-cards-admin-card-ops.service';
+import { GiftCardsAdminImportService } from './gift-cards-admin-import.service';
 import { GiftCardsAdminBatchLifecycleService } from './gift-cards-admin-batch-lifecycle.service';
 import { GiftCardsAdminBatchWriteService } from './gift-cards-admin-batch-write.service';
 import { GiftCardsAdminBoardService } from './gift-cards-admin-board.service';
@@ -20,6 +21,7 @@ export class GiftCardsService {
     private readonly adminBatchWrite: GiftCardsAdminBatchWriteService,
     private readonly adminBatchLifecycle: GiftCardsAdminBatchLifecycleService,
     private readonly adminCardOps: GiftCardsAdminCardOpsService,
+    private readonly adminImport: GiftCardsAdminImportService,
   ) {}
 
   listMine(userId: string, query: ListMyGiftCardsQueryDto = {}) {
@@ -143,7 +145,14 @@ export class GiftCardsService {
     return this.client.buildOwnedPdf(userId, cardId);
   }
 
-  exportBatchCsv(batchId: string) {
-    return this.adminCardOps.exportBatchCsv(batchId);
+  exportBatchXlsx(batchId: string) {
+    return this.adminCardOps.exportBatchXlsx(batchId);
+  }
+
+  importGiftExcel(
+    adminId: string,
+    file: { originalname: string; mimetype: string; size: number; buffer: Buffer } | undefined,
+  ) {
+    return this.adminImport.importWorkbook(adminId, file);
   }
 }

@@ -155,11 +155,11 @@ async function main() {
   const searchText = JSON.stringify(searchRows);
   assert(search.status === 200 && searchText.includes(batchId), `search by code finds the batch (${search.status})`);
 
-  const csv = await request(`/gift-cards/admin/batches/${batchId}/export`, {
+  const exported = await request(`/gift-cards/admin/batches/${batchId}/export`, {
     cookie: adminCookie,
     raw: true,
   });
-  assert(csv.status === 200 && csv.text.includes(code), 'csv export contains the code');
+  assert(exported.status === 200 && exported.text.startsWith('PK'), 'excel export is an xlsx workbook');
 
   const historyBefore = await request(`/gift-cards/admin/${minted[0].id}/redemptions`, {
     cookie: adminCookie,

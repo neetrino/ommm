@@ -68,6 +68,7 @@ export function buildGiftCardBatchWhere(
             ],
           },
         },
+        { classType: { name: containsInsensitive(token) } },
         { recipientEmail: containsInsensitive(token) },
         { recipientName: containsInsensitive(token) },
         { message: containsInsensitive(token) },

@@ -2,7 +2,7 @@ import { GiftCardStatus, GiftCardType } from '@prisma/client';
 import {
   buildMintedGiftCardRows,
   claimPreissuedGiftCard,
-  giftCardCsv,
+  parseGiftExpiresAt,
   resolveIssuedExpiresAt,
 } from './gift-card-issue';
 
@@ -60,19 +60,9 @@ describe('gift-card-issue', () => {
     });
   });
 
-  it('escapes csv cells', () => {
-    const csv = giftCardCsv([
-      {
-        code: 'A,B',
-        status: 'ACTIVE',
-        balanceAmd: 10,
-        balanceClasses: 0,
-        recipientEmail: 'a"b@example.com',
-        redeemedAt: null,
-        expiresAt: null,
-      },
-    ]);
-    expect(csv).toContain('"A,B"');
-    expect(csv).toContain('"a""b@example.com"');
+  it('reads an explicit expiration date', () => {
+    const expiresAt = parseGiftExpiresAt('2027-02-10');
+    expect(expiresAt?.toISOString()).toBe('2027-02-10T12:00:00.000Z');
+    expect(parseGiftExpiresAt('')).toBeUndefined();
   });
 });

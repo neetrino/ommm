@@ -1,5 +1,5 @@
 import { BadRequestException } from '@nestjs/common';
-import { GiftCardStatus } from '@prisma/client';
+import { GiftCardStatus, GiftCardType } from '@prisma/client';
 
 export type GiftCardBatchDelegateLike = {
   findMany: (args: {
@@ -31,6 +31,9 @@ export type GiftCardBatchDelegateLike = {
 export type AdminBoardBatchRow = {
   id: string;
   amountAmd: number;
+  type?: GiftCardType;
+  classQuantity?: number;
+  classType?: { name: string } | null;
   imageUrl: string | null;
   status: GiftCardStatus;
   totalQuantity: number;
@@ -161,13 +164,16 @@ function purchaserDisplayName(
 }
 
 export function serializeAdminBoardBatch(batch: AdminBoardBatchRow) {
-  const { giftCards, ...rest } = batch;
+  const { giftCards, classType, ...rest } = batch;
   const codes = rest.codes ?? giftCards?.map((card) => card.code) ?? [];
   return {
     ...rest,
     codes,
     amountAmd: readBatchAmount(batch),
     amountCents: readBatchAmount(batch),
+    type: rest.type ?? GiftCardType.FIXED_VALUE,
+    classQuantity: rest.classQuantity ?? 0,
+    classTypeName: classType?.name ?? null,
   };
 }
 

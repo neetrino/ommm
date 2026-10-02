@@ -1,0 +1,17 @@
+export type GiftImportIssueCode =
+  | "empty_sheet"
+  | "missing_columns"
+  | "no_rows"
+  | "too_many_rows"
+  | "invalid_kind"
+  | "invalid_amount"
+  | "missing_class"
+  | "invalid_sessions"
+  | "invalid_quantity"
+  | "invalid_email"
+  | "invalid_expires"
+  | "invalid_message"
+  | "class_not_found"
+  | "ambiguous_class"
+  | "recipient_not_found"
+  | "create_failed";

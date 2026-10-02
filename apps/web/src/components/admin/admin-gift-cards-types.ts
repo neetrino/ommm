@@ -10,6 +10,9 @@ export type GiftCardStatus = (typeof GIFT_CARD_STATUSES)[number];
 export type AdminGiftCardBatchRow = {
   id: string;
   amountAmd: number;
+  type?: "FIXED_VALUE" | "FIXED_CLASS";
+  classQuantity?: number;
+  classTypeName?: string | null;
   imageUrl: string | null;
   status: GiftCardStatus;
   totalQuantity: number;

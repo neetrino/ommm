@@ -63,6 +63,18 @@ export function generateGiftCardCode(): string {
   return randomBytes(GIFT_CODE_BYTES).toString('hex').toUpperCase();
 }
 
+export function parseGiftExpiresAt(value: string | undefined): Date | undefined {
+  const trimmed = value?.trim() ?? '';
+  if (trimmed.length === 0) {
+    return undefined;
+  }
+  const parsed = new Date(trimmed.includes('T') ? trimmed : `${trimmed}T12:00:00.000Z`);
+  if (Number.isNaN(parsed.getTime())) {
+    throw new BadRequestException('Invalid expiresAt date');
+  }
+  return parsed;
+}
+
 export function resolveIssuedExpiresAt(
   explicit: Date | null | undefined,
   from = new Date(),
@@ -93,30 +105,6 @@ export function buildMintedGiftCardRows(
     message: input.message,
     expiresAt: input.expiresAt,
   }));
-}
-
-export function giftCardCsv(rows: Array<{
-  code: string;
-  status: string;
-  balanceAmd: number;
-  balanceClasses: number;
-  recipientEmail: string | null;
-  redeemedAt: Date | null;
-  expiresAt: Date | null;
-}>): string {
-  const header = 'code,status,balanceAmd,balanceClasses,recipientEmail,redeemedAt,expiresAt';
-  const lines = rows.map((row) =>
-    [
-      csvCell(row.code),
-      csvCell(row.status),
-      String(row.balanceAmd),
-      String(row.balanceClasses),
-      csvCell(row.recipientEmail ?? ''),
-      csvCell(row.redeemedAt?.toISOString() ?? ''),
-      csvCell(row.expiresAt?.toISOString() ?? ''),
-    ].join(','),
-  );
-  return [header, ...lines].join('\n');
 }
 
 type ClaimDb = Pick<Prisma.TransactionClient, 'giftCard'>;
@@ -173,11 +161,4 @@ export function issueLedgerRows(
     balanceAmdAfter: card.balanceAmd,
     balanceClassesAfter: card.balanceClasses,
   }));
-}
-
-function csvCell(value: string): string {
-  if (/[",\n]/.test(value)) {
-    return `"${value.replace(/"/g, '""')}"`;
-  }
-  return value;
 }

@@ -7,8 +7,8 @@ import {
 } from "@/components/admin/admin-gift-card-display-helpers";
 import { AdminGiftCardRowActions } from "@/components/admin/admin-gift-card-row-actions";
 import type { AdminGiftCardBatchRow } from "@/components/admin/admin-gift-cards-types";
+import { useGiftCardValueLabel } from "@/components/admin/admin-gift-card-value";
 import { GiftCardBoardTile } from "@/components/gift-cards/gift-card-board-tile";
-import { formatAmdFromCents } from "@/lib/price-amd";
 
 type AdminGiftCardBoardCardProps = {
   card: AdminGiftCardBatchRow;
@@ -30,16 +30,15 @@ export function AdminGiftCardBoardCard({
   readOnly = false,
 }: AdminGiftCardBoardCardProps) {
   const t = useTranslations("adminPages.giftCards");
+  const valueLabel = useGiftCardValueLabel(card, locale);
 
   return (
     <GiftCardBoardTile
-      amountLabel={formatAmdFromCents(card.amountAmd, locale)}
+      amountLabel={valueLabel}
       status={card.status}
       statusLabel={t(`statusValues.${card.status}`)}
       imageAlt={t("cardImageAlt")}
-      openAriaLabel={t("openCardAria", {
-        amount: formatAmdFromCents(card.amountAmd, locale),
-      })}
+      openAriaLabel={t("openCardAria", { amount: valueLabel })}
       onOpen={() => onSelect(card)}
       details={[
         { label: t("colCreated"), value: displayGiftCardDate(card.createdAt) },

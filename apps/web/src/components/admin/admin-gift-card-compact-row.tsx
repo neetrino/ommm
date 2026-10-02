@@ -17,8 +17,8 @@ import {
 } from "@/components/admin/admin-gift-cards-list-layout";
 import type { AdminGiftCardBatchRow } from "@/components/admin/admin-gift-cards-types";
 import { AdminListMobileLabel } from "@/components/admin/admin-list-mobile-label";
+import { useGiftCardValueLabel } from "@/components/admin/admin-gift-card-value";
 import { GiftCardFace } from "@/components/gift-cards/gift-card-face";
-import { formatAmdFromCents } from "@/lib/price-amd";
 
 type AdminGiftCardCompactRowProps = {
   card: AdminGiftCardBatchRow;
@@ -40,12 +40,13 @@ export function AdminGiftCardCompactRow({
   readOnly = false,
 }: AdminGiftCardCompactRowProps) {
   const t = useTranslations("adminPages.giftCards");
+  const valueLabel = useGiftCardValueLabel(card, locale);
 
   return (
     <article
       role="button"
       tabIndex={0}
-      aria-label={t("openCardAria", { amount: formatAmdFromCents(card.amountAmd, locale) })}
+      aria-label={t("openCardAria", { amount: valueLabel })}
       onClick={() => onSelect(card)}
       onKeyDown={(event) => {
         if (event.key === "Enter" || event.key === " ") {
@@ -64,8 +65,8 @@ export function AdminGiftCardCompactRow({
 
       <div className={`${ADMIN_GIFT_CARDS_LIST_CELL} md:text-center`}>
         <AdminListMobileLabel label={t("colAmount")} />
-        <p className="text-sm font-semibold text-sage-900">
-          {formatAmdFromCents(card.amountAmd, locale)}
+        <p className="truncate text-sm font-semibold text-sage-900" title={valueLabel}>
+          {valueLabel}
         </p>
       </div>
 

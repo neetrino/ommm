@@ -218,10 +218,13 @@ export class GiftCardsController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(...BACKOFFICE_WRITE_ROLES)
   async exportBatch(@Param('id') id: string, @Res() res: Response) {
-    const csv = await this.giftCards.exportBatchCsv(id);
-    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
-    res.setHeader('Content-Disposition', `attachment; filename="gift-cards-${id}.csv"`);
-    res.send(csv);
+    const file = await this.giftCards.exportBatchXlsx(id);
+    res.setHeader(
+      'Content-Type',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    );
+    res.setHeader('Content-Disposition', `attachment; filename="gift-cards-${id}.xlsx"`);
+    res.send(file);
   }
 
   @Patch('admin/cards/:id/expires')

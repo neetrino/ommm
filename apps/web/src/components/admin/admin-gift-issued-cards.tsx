@@ -54,8 +54,8 @@ export function AdminGiftIssuedCards({ batchId, locale, onChanged }: AdminGiftIs
     <section className="mt-4 space-y-3 rounded-[24px] border border-white/70 bg-white/80 p-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h3 className="text-sm font-semibold text-sage-900">{t("issuedCards")}</h3>
-        <OmmButton type="button" variant="secondary" size="sm" onClick={() => void downloadBatchCsv(batchId)}>
-          {t("exportCsv")}
+        <OmmButton type="button" variant="secondary" size="sm" onClick={() => void downloadBatchWorkbook(batchId)}>
+          {t("exportExcel")}
         </OmmButton>
       </div>
       {error !== null ? <p className="text-sm text-red-800">{error}</p> : null}
@@ -174,7 +174,7 @@ function toDateInput(value: string | null): string {
   return value.slice(0, 10);
 }
 
-async function downloadBatchCsv(batchId: string): Promise<void> {
+async function downloadBatchWorkbook(batchId: string): Promise<void> {
   const response = await fetch(`/api/v1/gift-cards/admin/batches/${batchId}/export`, {
     credentials: "include",
   });
@@ -185,7 +185,7 @@ async function downloadBatchCsv(batchId: string): Promise<void> {
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
-  link.download = `gift-cards-${batchId}.csv`;
+  link.download = `gift-cards-${batchId}.xlsx`;
   link.click();
   URL.revokeObjectURL(url);
 }

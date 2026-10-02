@@ -11,9 +11,10 @@ import type { AdminUpdateGiftCardBatchDto } from './dto/admin-update-gift-card-b
 import {
   buildMintedGiftCardRows,
   issueLedgerRows,
+  parseGiftExpiresAt,
   resolveAdminGiftShape,
+  resolveIssuedExpiresAt,
 } from './gift-card-issue';
-import { defaultGiftCardExpiresAt } from './gift-card-policy';
 import {
   type GiftCardBatchSnapshot,
   giftCardBatchDelegate,
@@ -54,7 +55,7 @@ export class GiftCardsAdminBatchWriteService {
     }
     const recipientEmail = dto.recipientEmail ?? recipient?.email ?? null;
     const recipientName = dto.recipientName ?? recipient?.name ?? null;
-    const issuedExpiresAt = defaultGiftCardExpiresAt(new Date());
+    const issuedExpiresAt = resolveIssuedExpiresAt(parseGiftExpiresAt(dto.expiresAt));
     const batch = await this.prisma.$transaction(async (tx) => {
         const created = await tx.giftCardBatch.create({
           data: {
