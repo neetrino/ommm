@@ -1,4 +1,5 @@
 import {
+  buildContactUrl,
   buildRegisterUrl,
   resolveEmailLocale,
   resolveWebAppUrl,
@@ -21,9 +22,28 @@ import {
 
 export const GIFT_CARD_EMAIL_SUBJECT = 'A gift for you — Ommm';
 
+export const PHYSICAL_GIFT_CARD_EMAIL_SUBJECT = 'Your gift is waiting at Ommm';
+
+/** Printed on the public site and on the physical-card pickup email. */
+export const OMMM_PICKUP_ADDRESS =
+  '25 Pushkin St, Yerevan, Soho Business Centre, 4th floor';
+
+export const OMMM_PICKUP_PHONE = '+374 60 500 400';
+
 export type GiftCardEmailParams = {
   code: string;
   accountUrl: string;
+  recipientName?: string;
+  senderName?: string;
+  senderEmail?: string;
+  amountLabel?: string;
+  message?: string;
+};
+
+export type PhysicalGiftCardEmailParams = {
+  pickupUrl: string;
+  studioAddress: string;
+  studioPhone: string;
   recipientName?: string;
   senderName?: string;
   senderEmail?: string;
@@ -99,6 +119,47 @@ function renderGiftSenderCard(name: string, email: string): string {
 </table>`;
 }
 
+/** Pickup email: the code stays on the printed card, not in the inbox. */
+export function renderPhysicalGiftCardEmail(
+  params: PhysicalGiftCardEmailParams,
+): string {
+  return renderBrandedEmail({
+    title: 'Your gift is waiting',
+    preheader: 'Come to Ommm Wellness to collect your gift card',
+    bodyHtml: buildPhysicalGiftCardEmailBody(params),
+  });
+}
+
+function buildPhysicalGiftCardEmailBody(
+  params: PhysicalGiftCardEmailParams,
+): string {
+  const sender = params.senderName?.trim() ?? '';
+  const note = params.message?.trim() ?? '';
+  const intro =
+    sender.length > 0
+      ? `${sender} gave you a gift at Ommm Wellness. Your physical card is waiting at the studio. Come in to collect it.`
+      : 'You received a gift at Ommm Wellness. Your physical card is waiting at the studio. Come in to collect it.';
+  const parts = [
+    renderEmailHeading('A gift for you'),
+    renderEmailGreeting(params.recipientName ?? ''),
+    renderEmailText(intro),
+    renderGiftSenderCard(sender, params.senderEmail?.trim() ?? ''),
+    renderGiftDetailCard(params.amountLabel),
+    note.length > 0 ? renderEmailQuote(note) : '',
+    renderEmailDetailCard([
+      { label: 'Collect it at', value: 'Ommm Wellness' },
+      { label: 'Address', value: params.studioAddress },
+      { label: 'Phone', value: params.studioPhone },
+    ]),
+    renderEmailCtaButton('Find the studio', params.pickupUrl),
+    renderEmailMutedNote(
+      'The code is printed on the card. After you collect it, create an account and enter that code under Gift cards.',
+    ),
+    renderEmailSignoff(),
+  ];
+  return parts.filter((part) => part.length > 0).join('');
+}
+
 /** Subject + HTML ready for `MailService.sendEmail`. */
 export function buildGiftCardDeliveryEmail(params: {
   code: string;
@@ -109,15 +170,30 @@ export function buildGiftCardDeliveryEmail(params: {
   senderEmail?: string;
   amountLabel?: string;
   message?: string;
+  format?: 'DIGITAL' | 'PHYSICAL';
 }): { subject: string; html: string } {
+  const webAppUrl = resolveWebAppUrl(params.webAppUrl);
+  const locale = resolveEmailLocale(params.locale);
+  if (params.format === 'PHYSICAL') {
+    return {
+      subject: PHYSICAL_GIFT_CARD_EMAIL_SUBJECT,
+      html: renderPhysicalGiftCardEmail({
+        pickupUrl: buildContactUrl(webAppUrl, locale),
+        studioAddress: OMMM_PICKUP_ADDRESS,
+        studioPhone: OMMM_PICKUP_PHONE,
+        recipientName: params.recipientName,
+        senderName: params.senderName,
+        senderEmail: params.senderEmail,
+        amountLabel: params.amountLabel,
+        message: params.message,
+      }),
+    };
+  }
   return {
     subject: GIFT_CARD_EMAIL_SUBJECT,
     html: renderGiftCardEmail({
       code: params.code,
-      accountUrl: buildRegisterUrl(
-        resolveWebAppUrl(params.webAppUrl),
-        resolveEmailLocale(params.locale),
-      ),
+      accountUrl: buildRegisterUrl(webAppUrl, locale),
       recipientName: params.recipientName,
       senderName: params.senderName,
       senderEmail: params.senderEmail,

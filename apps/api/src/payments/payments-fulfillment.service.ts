@@ -322,6 +322,9 @@ export class PaymentsFulfillmentService {
       senderEmail: sender.email,
       amountAmd: issued.amountAmd,
       message: issued.message,
+      ...(metadata.format === 'PHYSICAL'
+        ? { format: 'PHYSICAL' as const }
+        : {}),
     };
   }
 
@@ -389,6 +392,7 @@ export class PaymentsFulfillmentService {
         senderEmail: payload.senderEmail,
         amountLabel,
         message: payload.message,
+        format: payload.format,
         webAppUrl: this.config.get<string>('WEB_APP_URL'),
       }),
     });

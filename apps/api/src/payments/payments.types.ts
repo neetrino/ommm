@@ -39,6 +39,7 @@ export type GiftEmailPayload = {
   senderEmail?: string;
   amountAmd?: number;
   message?: string;
+  format?: 'DIGITAL' | 'PHYSICAL';
 };
 
 export type GiftCardBatchSnapshot = {

@@ -2,7 +2,7 @@ import { PaymentSource, PaymentStatus } from '@prisma/client';
 import type { Prisma } from '@prisma/client';
 import { mergeArcaMetadata } from './arca/arca-metadata.util';
 import type { PrismaService } from '../prisma/prisma.service';
-import type { PaymentMetadata } from './payments.types';
+import type { GiftEmailPayload, PaymentMetadata } from './payments.types';
 
 const DUE_GIFT_EMAIL_SCAN = 100;
 
@@ -50,12 +50,7 @@ export async function scheduleGiftEmail(
 /** Sends gift emails whose deliverAt has passed. Safe to run from the half-hour cron. */
 export async function dispatchDueGiftEmails(
   prisma: PrismaService,
-  send: (payload: {
-    to: string;
-    code: string;
-    amountAmd?: number;
-    message?: string;
-  }) => Promise<void>,
+  send: (payload: GiftEmailPayload) => Promise<void>,
   now = new Date(),
 ): Promise<number> {
   const rows = await prisma.payment.findMany({
@@ -73,8 +68,9 @@ export async function dispatchDueGiftEmails(
     await send({
       to: due.to,
       code: due.code,
-      amountAmd: row.amountCents,
+      amountAmd: due.amountAmd ?? row.amountCents,
       message: due.message,
+      ...(due.format === 'PHYSICAL' ? { format: 'PHYSICAL' as const } : {}),
     });
     await prisma.payment.update({
       where: { id: row.id },
@@ -90,7 +86,13 @@ export async function dispatchDueGiftEmails(
 function readDueGiftEmail(
   metadata: Prisma.JsonValue | null,
   now: Date,
-): { to: string; code: string; message?: string } | null {
+): {
+  to: string;
+  code: string;
+  message?: string;
+  amountAmd?: number;
+  format?: 'PHYSICAL';
+} | null {
   if (
     metadata === null ||
     typeof metadata !== 'object' ||
@@ -116,9 +118,12 @@ function readDueGiftEmail(
   if (Number.isNaN(due.getTime()) || due > now) {
     return null;
   }
+  const faceAmd = record.giftFaceAmd;
   return {
     to,
     code,
     message: typeof record.message === 'string' ? record.message : undefined,
+    ...(typeof faceAmd === 'number' ? { amountAmd: faceAmd } : {}),
+    ...(record.format === 'PHYSICAL' ? { format: 'PHYSICAL' as const } : {}),
   };
 }
