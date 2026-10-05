@@ -60,6 +60,9 @@ export class BookingsAdminListService {
         cancelledBy: {
           select: BOOKING_CANCELLED_BY_SELECT,
         },
+        createdBy: {
+          select: BOOKING_CANCELLED_BY_SELECT,
+        },
       },
       orderBy: { createdAt: 'desc' },
       take: 500,

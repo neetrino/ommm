@@ -96,13 +96,19 @@ export class PaymentsFulfillmentService {
         where: { id: existing.id },
         data: {
           status: BookingStatus.BOOKED,
+          createdByUserId: userId,
           cancelledAt: null,
           attendedAt: null,
         },
       });
     } else {
       await tx.booking.create({
-        data: { userId, sessionId, status: BookingStatus.BOOKED },
+        data: {
+          userId,
+          sessionId,
+          status: BookingStatus.BOOKED,
+          createdByUserId: userId,
+        },
       });
     }
     if (booked + 1 >= classSession.capacity) {

@@ -52,6 +52,9 @@ const bookingInclude = Prisma.validator<Prisma.BookingInclude>()({
   cancelledBy: {
     select: BOOKING_CANCELLED_BY_SELECT,
   },
+  createdBy: {
+    select: BOOKING_CANCELLED_BY_SELECT,
+  },
 });
 
 type BookingRecord = Prisma.BookingGetPayload<{
@@ -66,6 +69,7 @@ type ClientBookingsPage = {
     attendedAt: Date | null;
     cancelledAt: Date | null;
     cancelledBy: BookingRecord['cancelledBy'];
+    createdBy: BookingRecord['createdBy'];
     createdAt: Date;
     guestName: string | null;
     guestPassSlot: number;

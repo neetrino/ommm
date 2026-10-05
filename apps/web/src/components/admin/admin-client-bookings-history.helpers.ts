@@ -1,4 +1,9 @@
 import { isAdminCancellableBookingStatus } from "@/components/admin/admin-booking-cancel.helpers";
+import {
+  isDashboardShellRole,
+  sessionCancelledByDisplayName,
+  type DashboardShellRole,
+} from "@/components/admin/admin-session-registrations-types";
 import type { ClientSheetBookingItem } from "@/components/admin/admin-clients-types";
 
 const BOOKING_CANCEL_STAFF_ROLES = [
@@ -26,8 +31,27 @@ export function canCancelHistoryBooking(
   return isAdminCancellableBookingStatus(booking.status);
 }
 
-export function isBookingCancelStaffRole(role: string): boolean {
+export function isBookingStaffRole(role: string): boolean {
   return BOOKING_CANCEL_STAFF_ROLES.some((value) => value === role);
+}
+
+export type BookingActorCopy = {
+  client: string;
+  staff: (input: { name: string; role: string }) => string;
+  roleLabel: (role: DashboardShellRole) => string;
+};
+
+function bookingActorStaffText(
+  actor: BookingHistoryCancelledBy,
+  copy: BookingActorCopy,
+): string {
+  const role = isDashboardShellRole(actor.role)
+    ? copy.roleLabel(actor.role)
+    : actor.role;
+  return copy.staff({
+    name: sessionCancelledByDisplayName(actor),
+    role,
+  });
 }
 
 /**
@@ -41,8 +65,37 @@ export function bookingHistoryCancelActorKind(
   if (cancelledAt == null) {
     return null;
   }
-  if (cancelledBy != null && isBookingCancelStaffRole(cancelledBy.role)) {
+  if (cancelledBy != null && isBookingStaffRole(cancelledBy.role)) {
     return "staff";
   }
   return "client";
+}
+
+export function bookingHistoryCancelledByText(
+  cancelledAt: string | null | undefined,
+  cancelledBy: BookingHistoryCancelledBy | null | undefined,
+  copy: BookingActorCopy,
+): string | null {
+  const kind = bookingHistoryCancelActorKind(cancelledAt, cancelledBy);
+  if (kind === "client") {
+    return copy.client;
+  }
+  if (kind !== "staff" || cancelledBy == null) {
+    return null;
+  }
+  return bookingActorStaffText(cancelledBy, copy);
+}
+
+/** Null when the creator was not recorded (bookings from before this field). */
+export function bookingHistoryBookedByText(
+  createdBy: BookingHistoryCancelledBy | null | undefined,
+  copy: BookingActorCopy,
+): string | null {
+  if (createdBy == null) {
+    return null;
+  }
+  if (!isBookingStaffRole(createdBy.role)) {
+    return copy.client;
+  }
+  return bookingActorStaffText(createdBy, copy);
 }

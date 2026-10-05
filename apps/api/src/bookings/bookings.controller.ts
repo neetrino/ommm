@@ -59,7 +59,7 @@ export class BookingsController {
     @Param('sessionId') sessionId: string,
     @Body() dto: CreateBookingDto,
   ) {
-    return this.bookings.book(user.id, sessionId, dto);
+    return this.bookings.book(user.id, sessionId, dto, user.id);
   }
 
   @Get('me')

@@ -69,8 +69,12 @@ export class WaitlistService {
     return this.admin.remove(entryId);
   }
 
-  promoteToBooking(entryId: string, targetSessionId: string) {
-    return this.admin.promoteToBooking(entryId, targetSessionId);
+  promoteToBooking(
+    entryId: string,
+    targetSessionId: string,
+    actorUserId: string,
+  ) {
+    return this.admin.promoteToBooking(entryId, targetSessionId, actorUserId);
   }
 
   manualNotify(

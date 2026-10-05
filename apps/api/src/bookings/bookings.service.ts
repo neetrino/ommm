@@ -34,11 +34,21 @@ export class BookingsService {
     return this.client.listPurchasePlansForSession(sessionId);
   }
 
-  book(userId: string, sessionId: string, dto?: CreateBookingDto) {
+  book(
+    userId: string,
+    sessionId: string,
+    dto: CreateBookingDto | undefined,
+    createdByUserId: string,
+  ) {
     if (readGuestPassName(dto?.guestName) !== null) {
-      return this.guestPass.bookGuest(userId, sessionId, dto ?? {});
+      return this.guestPass.bookGuest(
+        userId,
+        sessionId,
+        dto ?? {},
+        createdByUserId,
+      );
     }
-    return this.client.book(userId, sessionId, dto);
+    return this.client.book(userId, sessionId, dto, createdByUserId);
   }
 
   registerCancelIntent(userId: string, bookingId: string) {

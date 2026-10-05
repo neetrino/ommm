@@ -111,6 +111,13 @@ export type ClientSheetBookingItem = {
     email: string;
     role: string;
   } | null;
+  createdBy?: {
+    id: string;
+    name: string | null;
+    lastName: string | null;
+    email: string;
+    role: string;
+  } | null;
   createdAt: string;
   guestName?: string | null;
   guestPassSlot?: number;

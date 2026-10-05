@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useTranslations } from "next-intl";
+import { isBookingStaffRole } from "@/components/admin/admin-client-bookings-history.helpers";
 import { ADMIN_SCHEDULE_STATUS_BADGE_CLASS } from "@/components/admin/admin-schedule-session-list-badges";
 import {
   isDashboardShellRole,
@@ -84,6 +85,24 @@ function cancelledByCaption(
     return t("status.CANCELLED");
   }
   return t("cancelledBy", {
+    name: sessionCancelledByDisplayName(actor),
+    role: isDashboardShellRole(actor.role) ? tRoles(actor.role) : actor.role,
+  });
+}
+
+function bookedByCaption(
+  row: SessionRegistrationRow,
+  t: ReturnType<typeof useTranslations<"adminPages.classes.registrationsModal">>,
+  tRoles: ReturnType<typeof useTranslations<"dashboard.shell.roles">>,
+): string | null {
+  const actor = row.createdBy ?? null;
+  if (actor === null) {
+    return null;
+  }
+  if (!isBookingStaffRole(actor.role)) {
+    return t("bookedByClient");
+  }
+  return t("bookedByStaff", {
     name: sessionCancelledByDisplayName(actor),
     role: isDashboardShellRole(actor.role) ? tRoles(actor.role) : actor.role,
   });
@@ -177,6 +196,7 @@ export function AdminSessionRegistrationRow({
   const outcome = sessionRegistrationOutcome(row.status);
   const metaSpacing = variant === "card" ? "mt-0.5" : "";
   const cancelledCaption = cancelledByCaption(row, t, tRoles);
+  const bookedCaption = bookedByCaption(row, t, tRoles);
 
   return (
     <li className={`${ROW_VARIANT_CLASS[variant]} ${cancelledCaption !== null ? "opacity-70" : ""}`}>
@@ -190,6 +210,11 @@ export function AdminSessionRegistrationRow({
         />
         <p className="truncate text-xs text-sage-500">{memberContactLine(row.user)}</p>
         <p className={`truncate text-[11px] text-sage-400 ${metaSpacing}`}>{registeredLabel}</p>
+        {bookedCaption !== null ? (
+          <p className={`truncate text-[11px] font-medium text-sage-600 ${metaSpacing}`}>
+            {bookedCaption}
+          </p>
+        ) : null}
         {cancelledCaption !== null ? (
           <p className={`truncate text-[11px] font-medium text-rose-700 ${metaSpacing}`}>
             {cancelledCaption}

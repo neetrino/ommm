@@ -2762,7 +2762,9 @@
         "withCoach": "Coach: {name}",
         "coachUnknown": "Coach not assigned",
         "cancelledByClient": "Cancelled by the client",
-        "cancelledByStaff": "Cancelled by {role}: {name}"
+        "cancelledByStaff": "Cancelled by {role}: {name}",
+        "bookedByClient": "Booked by the client",
+        "bookedByStaff": "Booked by {role}: {name}"
       },
       "deleteClient": "Delete client",
       "deleteConfirm": "Delete this client permanently? This cannot be undone.",
@@ -3405,6 +3407,8 @@
         "addStartedConfirmDescription": "Add {name} to this class? They will be marked as attended, and a session will be deducted from their package.",
         "addStartedConfirmLabel": "Add visitor",
         "cancelledBy": "Cancelled by {name} ({role})",
+        "bookedByClient": "Booked by the client",
+        "bookedByStaff": "Booked by {name} ({role})",
         "status": {
           "COMPLETED": "Attended",
           "MISSED": "Missed",

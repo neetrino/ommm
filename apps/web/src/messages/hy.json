@@ -2763,7 +2763,9 @@
         "withCoach": "Մարզիչ: {name}",
         "coachUnknown": "Մարզիչ նշանակված չէ",
         "cancelledByClient": "Չեղարկել է հաճախորդը",
-        "cancelledByStaff": "Չեղարկել է {role}: {name}"
+        "cancelledByStaff": "Չեղարկել է {role}: {name}",
+        "bookedByClient": "Գրանցել է հաճախորդը",
+        "bookedByStaff": "Գրանցել է {role}: {name}"
       },
       "deleteClient": "Ջնջել հաճախորդին",
       "deleteConfirm": "Ջնջե՞լ այս հաճախորդին մշտապես։ Գործողությունը հետարկելի չէ։",
@@ -3406,6 +3408,8 @@
         "addStartedConfirmDescription": "Ավելացնե՞լ {name}-ին այս դասին։ Նա կնշվի որպես մասնակցած, և սեսիան կհանվի փաթեթից։",
         "addStartedConfirmLabel": "Ավելացնել այցելու",
         "cancelledBy": "Չեղարկել է {name} ({role})",
+        "bookedByClient": "Գրանցել է հաճախորդը",
+        "bookedByStaff": "Գրանցել է {name} ({role})",
         "status": {
           "COMPLETED": "Մասնակցել է",
           "MISSED": "Բաց է թողել",

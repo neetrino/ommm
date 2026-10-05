@@ -30,7 +30,12 @@ export class BookingsGuestPassService {
     private readonly staffActivity: StaffActivityService,
   ) {}
 
-  async bookGuest(userId: string, sessionId: string, dto: CreateBookingDto) {
+  async bookGuest(
+    userId: string,
+    sessionId: string,
+    dto: CreateBookingDto,
+    createdByUserId: string,
+  ) {
     if (!GUEST_PASSES_ENABLED) {
       throw new BadRequestException('Guest passes are not available');
     }
@@ -52,6 +57,7 @@ export class BookingsGuestPassService {
       guestName,
       userPackageId: dto.userPackageId,
       channel: dto.channel ?? BookingChannel.WEBSITE,
+      createdByUserId,
       session,
     });
     await this.afterGuestBooked(
@@ -87,6 +93,7 @@ export class BookingsGuestPassService {
     guestName: string;
     userPackageId: string;
     channel: BookingChannel;
+    createdByUserId: string;
     session: {
       id: string;
       startsAt: Date;
@@ -120,6 +127,7 @@ export class BookingsGuestPassService {
             channel: params.channel,
             guestName: params.guestName,
             guestPassSlot,
+            createdByUserId: params.createdByUserId,
           },
           include: { session: { include: { classType: true } } },
         });

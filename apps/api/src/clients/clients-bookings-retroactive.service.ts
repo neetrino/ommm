@@ -200,6 +200,7 @@ export class ClientsBookingsRetroactiveService {
     tx: Prisma.TransactionClient,
     existingId: string | undefined,
     params: {
+      actorId: string;
       clientId: string;
       session: RetroactiveLoadedSession;
       now: Date;
@@ -213,6 +214,7 @@ export class ClientsBookingsRetroactiveService {
           status: BookingStatus.COMPLETED,
           channel: BookingChannel.WEBSITE,
           attendedAt: params.now,
+          createdByUserId: params.actorId,
         },
       });
     }
@@ -222,6 +224,7 @@ export class ClientsBookingsRetroactiveService {
         status: BookingStatus.COMPLETED,
         cancelledAt: null,
         attendedAt: params.now,
+        createdByUserId: params.actorId,
       },
     });
   }

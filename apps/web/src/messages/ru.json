@@ -2760,7 +2760,9 @@
         "withCoach": "Тренер: {name}",
         "coachUnknown": "Тренер не назначен",
         "cancelledByClient": "Отменил клиент",
-        "cancelledByStaff": "Отменил {role}: {name}"
+        "cancelledByStaff": "Отменил {role}: {name}",
+        "bookedByClient": "Записал клиент",
+        "bookedByStaff": "Записал {role}: {name}"
       },
       "deleteClient": "Удалить клиента",
       "deleteConfirm": "Удалить этого клиента навсегда? Это действие нельзя отменить.",
@@ -3403,6 +3405,8 @@
         "addStartedConfirmDescription": "Добавить {name} на это занятие? Клиент будет отмечен как присутствовавший, и занятие спишется с пакета.",
         "addStartedConfirmLabel": "Добавить посетителя",
         "cancelledBy": "Отменил {name} ({role})",
+        "bookedByClient": "Записал клиент",
+        "bookedByStaff": "Записал {name} ({role})",
         "status": {
           "COMPLETED": "Присутствовал",
           "MISSED": "Пропущено",

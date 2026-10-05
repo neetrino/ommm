@@ -33,6 +33,7 @@ model User {
   coachProfile      CoachProfile?
   bookings          Booking[]
   bookingsCancelled Booking[] @relation("BookingCancelledBy")
+  bookingsCreated   Booking[] @relation("BookingCreatedBy")
   userPackages      UserPackage[]
   packagesRemoved   UserPackage[] @relation("UserPackageRemovedBy")
   packageFreezesInitiated UserPackageFreeze[] @relation("UserPackageFreezeInitiator")

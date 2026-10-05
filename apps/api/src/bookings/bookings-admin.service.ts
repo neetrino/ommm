@@ -208,6 +208,9 @@ export class BookingsAdminService {
         cancelledBy: {
           select: BOOKING_CANCELLED_BY_SELECT,
         },
+        createdBy: {
+          select: BOOKING_CANCELLED_BY_SELECT,
+        },
       },
     });
     if (!booking) {
