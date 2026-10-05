@@ -88,7 +88,7 @@ describe('NotificationsCronService', () => {
     jest.spyOn(Date, 'now').mockReturnValue(yerevanWallTimeMs(wallTime));
     const booking = bookingFixture(startsAt);
     const { cron, prisma, mail, whatsapp } = createCron(true);
-    prisma.booking.findMany.mockImplementation(async (args: ReminderQuery) =>
+    prisma.booking.findMany.mockImplementation((args: ReminderQuery) =>
       queryIncludesStart(startsAt, args) ? [booking] : [],
     );
     await cron.sendClassReminders();
