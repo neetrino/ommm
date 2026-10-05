@@ -94,7 +94,7 @@ export function sessionRegistrationOutcome(
 }
 
 export function sessionCancelledByDisplayName(
-  actor: Pick<SessionRegistrationCancelledBy, "name" | "lastName" | "email">,
+  actor: SessionRegistrationCancelledBy,
 ): string {
   return userDisplayName(actor.name, actor.lastName, actor.email);
 }

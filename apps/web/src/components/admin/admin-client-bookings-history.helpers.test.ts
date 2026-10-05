@@ -8,6 +8,7 @@ import {
 } from "./admin-client-bookings-history.helpers";
 
 const MANAGER = {
+  id: "manager-1",
   name: "Lilit",
   lastName: "Sargsyan",
   email: "lilit@ommm.am",

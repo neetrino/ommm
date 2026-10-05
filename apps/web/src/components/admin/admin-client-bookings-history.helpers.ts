@@ -3,6 +3,7 @@ import {
   isDashboardShellRole,
   sessionCancelledByDisplayName,
   type DashboardShellRole,
+  type SessionRegistrationCancelledBy,
 } from "@/components/admin/admin-session-registrations-types";
 import type { ClientSheetBookingItem } from "@/components/admin/admin-clients-types";
 
@@ -13,12 +14,7 @@ const BOOKING_CANCEL_STAFF_ROLES = [
   "ADMIN",
 ] as const;
 
-export type BookingHistoryCancelledBy = {
-  name: string | null;
-  lastName: string | null;
-  email: string;
-  role: string;
-};
+export type BookingHistoryCancelledBy = SessionRegistrationCancelledBy;
 
 export type BookingHistoryCancelActorKind = "client" | "staff";
 
