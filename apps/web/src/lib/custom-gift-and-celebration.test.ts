@@ -10,6 +10,7 @@ import {
   customGiftInputError,
   customGiftAmountBelowMin,
 } from "@/lib/custom-gift-checkout";
+import { giftPayableAmd, PHYSICAL_GIFT_CARD_FEE_AMD } from "@/lib/gift-card-medium";
 import {
   GIFT_CELEBRATION_MAX_AGE_DAYS,
   selectUnseenGiftCelebration,
@@ -60,6 +61,17 @@ describe("customGiftInputError", () => {
     assert.equal(customGiftInputError(CUSTOM_GIFT_CARD_MIN_AMD, true), null);
     assert.equal(customGiftInputError(CUSTOM_GIFT_CARD_MIN_AMD - 1, true), "amountMin");
     assert.equal(customGiftInputError(CUSTOM_GIFT_CARD_MAX_AMD + 1, true), "amountMax");
+  });
+});
+
+describe("giftPayableAmd", () => {
+  it("adds the print fee only when the card is physical", () => {
+    assert.equal(giftPayableAmd({ faceAmd: 30_000, medium: "DIGITAL" }), 30_000);
+    assert.equal(
+      giftPayableAmd({ faceAmd: 30_000, medium: "PHYSICAL" }),
+      30_000 + PHYSICAL_GIFT_CARD_FEE_AMD,
+    );
+    assert.equal(giftPayableAmd({ faceAmd: null, medium: "PHYSICAL" }), null);
   });
 });
 

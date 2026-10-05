@@ -3,6 +3,7 @@ import {
   CUSTOM_GIFT_CARD_MAX_AMD,
   CUSTOM_GIFT_CARD_MIN_AMD,
 } from "@/lib/custom-gift-card.constants";
+import type { GiftCardMedium } from "@/lib/gift-card-medium";
 import { parseAmdMoneyInput } from "@/lib/price-amd";
 
 type PendingPaymentResponse = {
@@ -20,6 +21,7 @@ export type GiftCheckoutOptions = {
   classQuantity?: number;
   packagePlanId?: string;
   delivery?: "EMAIL" | "WHATSAPP" | "PRINT";
+  format?: GiftCardMedium;
   deliverAt?: string;
 };
 

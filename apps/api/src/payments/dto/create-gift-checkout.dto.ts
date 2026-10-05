@@ -84,6 +84,11 @@ export class CreateGiftCheckoutDto {
   @IsIn(['EMAIL', 'WHATSAPP', 'PRINT'])
   delivery?: 'EMAIL' | 'WHATSAPP' | 'PRINT';
 
+  /** Digital is free. Physical adds the print fee on the server. */
+  @IsOptional()
+  @IsIn(['DIGITAL', 'PHYSICAL'])
+  format?: 'DIGITAL' | 'PHYSICAL';
+
   @IsOptional()
   @IsISO8601()
   deliverAt?: string;

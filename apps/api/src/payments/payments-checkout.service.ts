@@ -56,7 +56,10 @@ export class PaymentsCheckoutService {
   async createGiftCheckout(params: Parameters<typeof prepareGiftCheckout>[1]) {
     const prepared = await prepareGiftCheckout(this.prisma, params);
     if (prepared.metadata.giftType !== 'FIXED_CLASS') {
-      await this.assertGiftCheckoutAmount(params.batchId, prepared.amountCents);
+      await this.assertGiftCheckoutAmount(
+        params.batchId,
+        prepared.metadata.giftFaceAmd ?? prepared.amountCents,
+      );
     }
     return this.prisma.payment.create({
       data: withInternalPaymentCreateFields({
