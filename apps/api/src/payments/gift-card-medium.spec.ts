@@ -4,6 +4,7 @@ import {
   PHYSICAL_GIFT_CARD_FEE_AMD,
   giftCheckoutChargeAmd,
   normalizeGiftCardMedium,
+  giftEmailAmountAmd,
   purchasedGiftFaceAmd,
 } from './gift-card-medium';
 
@@ -37,6 +38,23 @@ describe('gift card medium', () => {
         batchAmountAmd: 20_000,
       }),
     ).toBe(20_000);
+  });
+
+  it('writes only the gift amount in the delivery email', () => {
+    expect(
+      giftEmailAmountAmd({
+        giftFaceAmd: 40_000,
+        chargedAmd: 43_000,
+        physicalFeeAmd: PHYSICAL_GIFT_CARD_FEE_AMD,
+      }),
+    ).toBe(40_000);
+    expect(
+      giftEmailAmountAmd({
+        chargedAmd: 43_000,
+        physicalFeeAmd: PHYSICAL_GIFT_CARD_FEE_AMD,
+      }),
+    ).toBe(40_000);
+    expect(giftEmailAmountAmd({ chargedAmd: 40_000 })).toBe(40_000);
   });
 
   it('reads format and face value back from payment metadata', () => {

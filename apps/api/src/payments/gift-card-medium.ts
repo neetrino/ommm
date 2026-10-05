@@ -37,3 +37,17 @@ export function purchasedGiftFaceAmd(input: {
   }
   return input.giftFaceAmd ?? input.chargedAmd;
 }
+
+/** The gift letter names the gift that was given. The printed-card fee stays off that line. */
+export function giftEmailAmountAmd(input: {
+  giftFaceAmd?: number;
+  chargedAmd: number;
+  physicalFeeAmd?: number;
+}): number | undefined {
+  if (input.giftFaceAmd !== undefined && input.giftFaceAmd > 0) {
+    return input.giftFaceAmd;
+  }
+  const feeAmd = input.physicalFeeAmd ?? 0;
+  const giftAmd = input.chargedAmd - feeAmd;
+  return giftAmd > 0 ? giftAmd : undefined;
+}

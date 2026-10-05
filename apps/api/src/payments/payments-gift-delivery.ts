@@ -1,6 +1,7 @@
 import { PaymentSource, PaymentStatus } from '@prisma/client';
 import type { Prisma } from '@prisma/client';
 import { mergeArcaMetadata } from './arca/arca-metadata.util';
+import { giftEmailAmountAmd } from './gift-card-medium';
 import type { PrismaService } from '../prisma/prisma.service';
 import type { GiftEmailPayload, PaymentMetadata } from './payments.types';
 
@@ -68,7 +69,11 @@ export async function dispatchDueGiftEmails(
     await send({
       to: due.to,
       code: due.code,
-      amountAmd: due.amountAmd ?? row.amountCents,
+      amountAmd: giftEmailAmountAmd({
+        giftFaceAmd: due.giftFaceAmd,
+        chargedAmd: row.amountCents,
+        physicalFeeAmd: due.physicalFeeAmd,
+      }),
       message: due.message,
       ...(due.format === 'PHYSICAL' ? { format: 'PHYSICAL' as const } : {}),
     });
@@ -90,7 +95,8 @@ function readDueGiftEmail(
   to: string;
   code: string;
   message?: string;
-  amountAmd?: number;
+  giftFaceAmd?: number;
+  physicalFeeAmd?: number;
   format?: 'PHYSICAL';
 } | null {
   if (
@@ -118,12 +124,16 @@ function readDueGiftEmail(
   if (Number.isNaN(due.getTime()) || due > now) {
     return null;
   }
-  const faceAmd = record.giftFaceAmd;
   return {
     to,
     code,
     message: typeof record.message === 'string' ? record.message : undefined,
-    ...(typeof faceAmd === 'number' ? { amountAmd: faceAmd } : {}),
+    giftFaceAmd: readOptionalAmount(record.giftFaceAmd),
+    physicalFeeAmd: readOptionalAmount(record.physicalFeeAmd),
     ...(record.format === 'PHYSICAL' ? { format: 'PHYSICAL' as const } : {}),
   };
+}
+
+function readOptionalAmount(value: unknown): number | undefined {
+  return typeof value === 'number' && value > 0 ? value : undefined;
 }

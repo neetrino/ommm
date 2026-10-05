@@ -38,6 +38,21 @@ import {
 const HOUR_MS = 60 * 60 * 1000;
 const MINUTE_MS = 60 * 1000;
 
+/**
+ * Sessions already due for this reminder, plus a short lookback for missed ticks.
+ * Ending at `now + hoursBefore` keeps the previous cron tick from sending early.
+ */
+export function classReminderSessionWindow(
+  nowMs: number,
+  hoursBefore: number,
+): { start: Date; end: Date } {
+  const endMs = nowMs + hoursBefore * HOUR_MS;
+  return {
+    start: new Date(endMs - CLASS_REMINDER_WINDOW_MINUTES * MINUTE_MS),
+    end: new Date(endMs),
+  };
+}
+
 type ClassReminderBooking = {
   id: string;
   user: {
@@ -90,9 +105,9 @@ export class NotificationsCronService {
     nowMs: number,
     hoursBefore: number,
   ): Promise<void> {
-    const windowStart = new Date(nowMs + hoursBefore * HOUR_MS);
-    const windowEnd = new Date(
-      windowStart.getTime() + CLASS_REMINDER_WINDOW_MINUTES * MINUTE_MS,
+    const { start: windowStart, end: windowEnd } = classReminderSessionWindow(
+      nowMs,
+      hoursBefore,
     );
     const bookings = await this.prisma.booking.findMany({
       where: {

@@ -66,7 +66,7 @@ describe('NotificationsCronService', () => {
     expect(prisma.booking.findMany).not.toHaveBeenCalled();
   });
 
-  it('queries both 24h and 2h windows', async () => {
+  it('queries a trailing 24h and 2h window that ends at the due instant', async () => {
     jest
       .spyOn(Date, 'now')
       .mockReturnValue(Date.parse('2026-09-21T15:00:00.000Z'));
@@ -84,13 +84,13 @@ describe('NotificationsCronService', () => {
     );
     expect(windows).toEqual([
       {
-        from: '2026-09-22T15:00:00.000Z',
-        to: '2026-09-22T15:35:00.000Z',
+        from: '2026-09-22T14:25:00.000Z',
+        to: '2026-09-22T15:00:00.000Z',
         status: BookingStatus.BOOKED,
       },
       {
-        from: '2026-09-21T17:00:00.000Z',
-        to: '2026-09-21T17:35:00.000Z',
+        from: '2026-09-21T16:25:00.000Z',
+        to: '2026-09-21T17:00:00.000Z',
         status: BookingStatus.BOOKED,
       },
     ]);
