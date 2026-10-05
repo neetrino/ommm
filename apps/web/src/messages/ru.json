@@ -1293,6 +1293,11 @@
         "kindLabel": "Тип подарка",
         "kindMoney": "Деньги",
         "kindClass": "Занятия",
+        "formatLabel": "Цифровая или физическая",
+        "formatDigital": "Цифровая",
+        "formatDigitalHint": "Бесплатно",
+        "formatPhysical": "Физическая",
+        "formatPhysicalHint": "+{fee}",
         "classLabel": "Занятие",
         "classPlaceholder": "Выберите занятие",
         "sessionsLabel": "Количество занятий",
@@ -2755,7 +2760,10 @@
         "withCoach": "Тренер: {name}",
         "coachUnknown": "Тренер не назначен",
         "cancelledByClient": "Отменил клиент",
-        "cancelledByStaff": "Отменил {role}: {name}"
+        "cancelledByStaff": "Отменил {role}: {name}",
+        "bookedByClient": "Записал клиент",
+        "bookedByStaff": "Записал {role}: {name}",
+        "bookedByRole": "Записал {role}"
       },
       "deleteClient": "Удалить клиента",
       "deleteConfirm": "Удалить этого клиента навсегда? Это действие нельзя отменить.",
@@ -3398,6 +3406,9 @@
         "addStartedConfirmDescription": "Добавить {name} на это занятие? Клиент будет отмечен как присутствовавший, и занятие спишется с пакета.",
         "addStartedConfirmLabel": "Добавить посетителя",
         "cancelledBy": "Отменил {name} ({role})",
+        "bookedByClient": "Записал клиент",
+        "bookedByStaff": "Записал {name} ({role})",
+        "bookedByRole": "Записал {role}",
         "status": {
           "COMPLETED": "Присутствовал",
           "MISSED": "Пропущено",

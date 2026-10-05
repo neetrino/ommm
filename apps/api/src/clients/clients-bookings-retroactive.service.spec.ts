@@ -148,6 +148,7 @@ describe('ClientsBookingsRetroactiveService', () => {
             sessionId: string;
             status: BookingStatus;
             attendedAt: Date;
+            createdByUserId: string;
           };
         },
       ]
@@ -159,6 +160,7 @@ describe('ClientsBookingsRetroactiveService', () => {
       sessionId: 'session-1',
       status: BookingStatus.COMPLETED,
       attendedAt: NOW,
+      createdByUserId: 'admin-1',
     });
     expect(ctx.packageUsage.consumeSession).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -193,6 +195,7 @@ describe('ClientsBookingsRetroactiveService', () => {
         status: BookingStatus.COMPLETED,
         cancelledAt: null,
         attendedAt: NOW,
+        createdByUserId: 'admin-1',
       },
     });
     expect(ctx.packageUsage.consumeSession).toHaveBeenCalledWith(

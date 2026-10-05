@@ -66,7 +66,11 @@ export class WaitlistAdminService {
     return { ok: true };
   }
 
-  async promoteToBooking(entryId: string, targetSessionId: string) {
+  async promoteToBooking(
+    entryId: string,
+    targetSessionId: string,
+    actorUserId: string,
+  ) {
     const entry = await this.prisma.waitlistEntry.findUnique({
       where: { id: entryId },
       include: { session: true },
@@ -115,12 +119,14 @@ export class WaitlistAdminService {
                 userId: entry.userId,
                 sessionId: session.id,
                 status: BookingStatus.BOOKED,
+                createdByUserId: actorUserId,
               },
             })
           : await tx.booking.update({
               where: { id: existingBooking.id },
               data: {
                 status: BookingStatus.BOOKED,
+                createdByUserId: actorUserId,
                 cancelledAt: null,
                 attendedAt: null,
               },

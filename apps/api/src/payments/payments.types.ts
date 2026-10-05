@@ -22,6 +22,11 @@ export type PaymentMetadata = {
   classTypeId?: string;
   classQuantity?: number;
   delivery?: 'EMAIL' | 'WHATSAPP' | 'PRINT';
+  /** Printed card or a digital code. Digital is free. */
+  format?: 'DIGITAL' | 'PHYSICAL';
+  /** Gift value before the physical-card fee. The charged payment can be higher. */
+  giftFaceAmd?: number;
+  physicalFeeAmd?: number;
   deliverAt?: string;
 };
 
@@ -34,6 +39,7 @@ export type GiftEmailPayload = {
   senderEmail?: string;
   amountAmd?: number;
   message?: string;
+  format?: 'DIGITAL' | 'PHYSICAL';
 };
 
 export type GiftCardBatchSnapshot = {

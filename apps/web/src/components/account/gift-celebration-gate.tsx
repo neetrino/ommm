@@ -7,6 +7,8 @@ import type { UserGiftCardRow } from "@/components/account/user-gift-cards-types
 import { usePathname } from "@/i18n/navigation";
 import { apiFetch } from "@/lib/api";
 import {
+  dismissGiftCelebration,
+  isGiftCelebrationDismissed,
   markGiftCelebrationSeen,
   readSeenGiftCelebrationIds,
   selectUnseenGiftCelebration,
@@ -30,6 +32,7 @@ export function GiftCelebrationGate({ deferAutoPrompt }: GiftCelebrationGateProp
   const [dismissedId, setDismissedId] = useState<string | null>(null);
 
   if (
+    isGiftCelebrationDismissed() ||
     deferAutoPrompt ||
     isGiftPaymentPath(pathname) ||
     card === null ||
@@ -43,6 +46,7 @@ export function GiftCelebrationGate({ deferAutoPrompt }: GiftCelebrationGateProp
       card={card}
       locale={locale}
       onClose={() => {
+        dismissGiftCelebration();
         markGiftCelebrationSeen(card.id);
         setDismissedId(card.id);
       }}
@@ -57,6 +61,9 @@ function useUnseenGiftCelebration(
   const [card, setCard] = useState<UserGiftCardRow | null>(null);
 
   useEffect(() => {
+    if (isGiftCelebrationDismissed()) {
+      return;
+    }
     if (deferred) {
       return;
     }

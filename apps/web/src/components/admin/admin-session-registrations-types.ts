@@ -14,6 +14,7 @@ export type SessionRegistrationRow = {
   createdAt: string;
   cancelledAt?: string | null;
   cancelledBy?: SessionRegistrationCancelledBy | null;
+  createdBy?: SessionRegistrationCancelledBy | null;
   user: {
     id: string;
     name: string | null;

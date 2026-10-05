@@ -74,8 +74,18 @@ export function parsePaymentMetadata(
     classTypeId: readString(value, 'classTypeId'),
     classQuantity: readPositiveInt(value, 'classQuantity'),
     delivery: readDelivery(value),
+    format: readGiftMedium(value),
+    giftFaceAmd: readPositiveInt(value, 'giftFaceAmd'),
+    physicalFeeAmd: readPositiveInt(value, 'physicalFeeAmd'),
     deliverAt: readString(value, 'deliverAt'),
   };
+}
+
+function readGiftMedium(value: object): PaymentMetadata['format'] {
+  const candidate = (value as Record<string, unknown>).format;
+  return candidate === 'DIGITAL' || candidate === 'PHYSICAL'
+    ? candidate
+    : undefined;
 }
 
 function readGiftType(value: object): PaymentMetadata['giftType'] {

@@ -10,7 +10,9 @@ import {
   customGiftInputError,
   customGiftAmountBelowMin,
 } from "@/lib/custom-gift-checkout";
+import { giftPayableAmd, PHYSICAL_GIFT_CARD_FEE_AMD } from "@/lib/gift-card-medium";
 import {
+  dismissGiftCelebration,
   GIFT_CELEBRATION_MAX_AGE_DAYS,
   selectUnseenGiftCelebration,
 } from "@/lib/gift-celebration";
@@ -63,6 +65,17 @@ describe("customGiftInputError", () => {
   });
 });
 
+describe("giftPayableAmd", () => {
+  it("adds the print fee only when the card is physical", () => {
+    assert.equal(giftPayableAmd({ faceAmd: 30_000, medium: "DIGITAL" }), 30_000);
+    assert.equal(
+      giftPayableAmd({ faceAmd: 30_000, medium: "PHYSICAL" }),
+      30_000 + PHYSICAL_GIFT_CARD_FEE_AMD,
+    );
+    assert.equal(giftPayableAmd({ faceAmd: null, medium: "PHYSICAL" }), null);
+  });
+});
+
 describe("selectUnseenGiftCelebration", () => {
   it("picks the newest unseen active gift inside the window", () => {
     const older = new Date(NOW - 2 * 24 * 60 * 60 * 1000).toISOString();
@@ -94,5 +107,36 @@ describe("selectUnseenGiftCelebration", () => {
       NOW,
     );
     assert.equal(chosen, null);
+  });
+
+  it("stays closed after the member dismisses it once", () => {
+    const store = new Map<string, string>();
+    const previousWindow = globalThis.window;
+    Object.defineProperty(globalThis, "window", {
+      configurable: true,
+      value: {
+        localStorage: {
+          getItem: (key: string) => store.get(key) ?? null,
+          setItem: (key: string, value: string) => {
+            store.set(key, value);
+          },
+        },
+      },
+    });
+    try {
+      const fresh = card({ id: "gift", createdAt: new Date(NOW).toISOString() });
+      assert.equal(selectUnseenGiftCelebration([fresh], new Set(), NOW)?.id, "gift");
+      dismissGiftCelebration();
+      assert.equal(selectUnseenGiftCelebration([fresh], new Set(), NOW), null);
+    } finally {
+      if (previousWindow === undefined) {
+        Reflect.deleteProperty(globalThis, "window");
+      } else {
+        Object.defineProperty(globalThis, "window", {
+          configurable: true,
+          value: previousWindow,
+        });
+      }
+    }
   });
 });

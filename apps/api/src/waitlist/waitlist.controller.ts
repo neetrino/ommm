@@ -81,8 +81,12 @@ export class WaitlistController {
   @Post('entries/:id/promote')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN, Role.MANAGER)
-  promote(@Param('id') id: string, @Body() dto: PromoteWaitlistEntryDto) {
-    return this.waitlist.promoteToBooking(id, dto.targetSessionId);
+  promote(
+    @CurrentUser() user: { id: string },
+    @Param('id') id: string,
+    @Body() dto: PromoteWaitlistEntryDto,
+  ) {
+    return this.waitlist.promoteToBooking(id, dto.targetSessionId, user.id);
   }
 
   @Post('entries/:id/notify')

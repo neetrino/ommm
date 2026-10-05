@@ -54,6 +54,7 @@ export class PaymentsController {
       classQuantity: body.classQuantity,
       packagePlanId: body.packagePlanId,
       delivery: body.delivery,
+      format: body.format,
       deliverAt: body.deliverAt,
     });
   }

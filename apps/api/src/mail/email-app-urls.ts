@@ -45,6 +45,11 @@ export function buildRegisterUrl(webAppUrl: string, locale: string): string {
   return buildEmailAppPath(webAppUrl, locale, 'register');
 }
 
+/** Public contact page, used when a physical gift must be collected at the studio. */
+export function buildContactUrl(webAppUrl: string, locale: string): string {
+  return buildEmailAppPath(webAppUrl, locale, 'contact');
+}
+
 /** Gift cards page for redeem / view CTAs. */
 export function buildMemberGiftCardsUrl(
   webAppUrl: string,

@@ -74,10 +74,11 @@ export class ClientsController {
   @Post(':id/bookings')
   @Roles(...BACKOFFICE_WRITE_ROLES)
   createBooking(
+    @CurrentUser() actor: User,
     @Param('id') id: string,
     @Body() dto: AdminCreateClientBookingDto,
   ) {
-    return this.bookingsCreate.createForClient(id, dto);
+    return this.bookingsCreate.createForClient(actor.id, id, dto);
   }
 
   @Get(':id/bookable-sessions')

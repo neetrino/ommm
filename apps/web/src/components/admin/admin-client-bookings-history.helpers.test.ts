@@ -1,12 +1,14 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
+  bookingHistoryBookedByText,
   bookingHistoryCancelActorKind,
   canCancelHistoryBooking,
-  isBookingCancelStaffRole,
+  isBookingStaffRole,
 } from "./admin-client-bookings-history.helpers";
 
 const MANAGER = {
+  id: "manager-1",
   name: "Lilit",
   lastName: "Sargsyan",
   email: "lilit@ommm.am",
@@ -15,11 +17,11 @@ const MANAGER = {
 
 describe("booking history cancel actor", () => {
   it("treats manager, admin, content admin, and coach as staff", () => {
-    assert.equal(isBookingCancelStaffRole("MANAGER"), true);
-    assert.equal(isBookingCancelStaffRole("ADMIN"), true);
-    assert.equal(isBookingCancelStaffRole("CONTENT_ADMIN"), true);
-    assert.equal(isBookingCancelStaffRole("COACH"), true);
-    assert.equal(isBookingCancelStaffRole("USER"), false);
+    assert.equal(isBookingStaffRole("MANAGER"), true);
+    assert.equal(isBookingStaffRole("ADMIN"), true);
+    assert.equal(isBookingStaffRole("CONTENT_ADMIN"), true);
+    assert.equal(isBookingStaffRole("COACH"), true);
+    assert.equal(isBookingStaffRole("USER"), false);
   });
 
   it("returns null when the booking is not cancelled", () => {
@@ -48,6 +50,26 @@ describe("booking history cancel actor", () => {
     assert.equal(
       bookingHistoryCancelActorKind("2026-09-10T12:00:00.000Z", null),
       "client",
+    );
+  });
+
+  it("labels a member booking as the client and a staff booking by name", () => {
+    const copy = {
+      client: "client",
+      staff: (input: { name: string; role: string }) =>
+        `${input.role}:${input.name}`,
+      roleOnly: (input: { role: string }) => input.role,
+      roleLabel: (role: string) => role,
+    };
+    assert.equal(bookingHistoryBookedByText(null, copy), null);
+    assert.equal(
+      bookingHistoryBookedByText({ ...MANAGER, role: "USER" }, copy),
+      "client",
+    );
+    assert.equal(bookingHistoryBookedByText(MANAGER, copy), "MANAGER:Lilit Sargsyan");
+    assert.equal(
+      bookingHistoryBookedByText({ ...MANAGER, role: "ADMIN" }, copy),
+      "ADMIN",
     );
   });
 

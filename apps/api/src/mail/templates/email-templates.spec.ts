@@ -3,7 +3,12 @@ import { renderBroadcastEmail } from './broadcast.template';
 import { renderClassCancelledEmail } from './class-cancelled.template';
 import { renderClassReminderEmail } from './class-reminder.template';
 import { renderClientInviteEmail } from './client-invite.template';
-import { renderGiftCardEmail } from './gift-card.template';
+import {
+  OMMM_PICKUP_ADDRESS,
+  OMMM_PICKUP_PHONE,
+  renderGiftCardEmail,
+  renderPhysicalGiftCardEmail,
+} from './gift-card.template';
 import { renderPaymentAdminNotificationEmail } from './payment-admin-notification.template';
 import { renderPaymentCashPendingCustomerEmail } from './payment-cash-pending-customer.template';
 import { renderPaymentCustomerConfirmationEmail } from './payment-customer-confirmation.template';
@@ -145,6 +150,28 @@ describe('branded email templates', () => {
     expect(text).toContain('Happy birthday');
     expect(html).toContain('Create your account');
     expect(text).toContain('enter this code');
+    expect(text).not.toMatch(/https?:\/\//);
+  });
+
+  it('tells a physical-card recipient to collect the gift at the studio', () => {
+    const html = renderPhysicalGiftCardEmail({
+      pickupUrl: SAMPLE_URL,
+      studioAddress: OMMM_PICKUP_ADDRESS,
+      studioPhone: OMMM_PICKUP_PHONE,
+      recipientName: 'Jasmine',
+      senderName: 'Aren Petrosyan',
+      amountLabel: '30,000 ֏',
+      message: 'Happy birthday',
+    });
+    const text = visibleText(html);
+    expect(text).toContain('Hi Jasmine,');
+    expect(text).toContain('physical card is waiting at the studio');
+    expect(text).toContain('Ommm Wellness');
+    expect(text).toContain(OMMM_PICKUP_ADDRESS);
+    expect(text).toContain(OMMM_PICKUP_PHONE);
+    expect(text).toContain('The code is printed on the card');
+    expect(text).not.toContain('OMMM-4821');
+    expect(html).toContain('Find the studio');
     expect(text).not.toMatch(/https?:\/\//);
   });
 });

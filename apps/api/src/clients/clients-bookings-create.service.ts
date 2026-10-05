@@ -45,12 +45,21 @@ export class ClientsBookingsCreateService {
     private readonly packageUsage: PackageUsageService,
   ) {}
 
-  async createForClient(clientId: string, dto: AdminCreateClientBookingDto) {
+  async createForClient(
+    actorUserId: string,
+    clientId: string,
+    dto: AdminCreateClientBookingDto,
+  ) {
     await this.assertClientExists(clientId);
-    return this.bookings.book(clientId, dto.sessionId, {
-      userPackageId: dto.userPackageId,
-      guestName: dto.guestName,
-    });
+    return this.bookings.book(
+      clientId,
+      dto.sessionId,
+      {
+        userPackageId: dto.userPackageId,
+        guestName: dto.guestName,
+      },
+      actorUserId,
+    );
   }
 
   async listEligiblePackages(clientId: string, sessionId: string) {

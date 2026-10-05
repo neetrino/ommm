@@ -10,6 +10,9 @@ model Booking {
   cancelledAt       DateTime?
   cancelledByUserId String?
   cancelledBy       User?     @relation("BookingCancelledBy", fields: [cancelledByUserId], references: [id], onDelete: SetNull)
+  /// Staff or member who created or rebooked this seat. Null on rows booked before this was recorded.
+  createdByUserId   String?
+  createdBy         User?     @relation("BookingCreatedBy", fields: [createdByUserId], references: [id], onDelete: SetNull)
   /// 0 = owner booking; 1+ = guest-pass companion on the same session.
   guestPassSlot Int           @default(0)
   guestName     String?
@@ -28,6 +31,7 @@ model Booking {
   @@index([userId])
   @@index([status, createdAt])
   @@index([cancelledByUserId])
+  @@index([createdByUserId])
 }
 
 model BookingNote {

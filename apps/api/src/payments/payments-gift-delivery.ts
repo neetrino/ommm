@@ -1,8 +1,9 @@
 import { PaymentSource, PaymentStatus } from '@prisma/client';
 import type { Prisma } from '@prisma/client';
 import { mergeArcaMetadata } from './arca/arca-metadata.util';
+import { giftEmailAmountAmd } from './gift-card-medium';
 import type { PrismaService } from '../prisma/prisma.service';
-import type { PaymentMetadata } from './payments.types';
+import type { GiftEmailPayload, PaymentMetadata } from './payments.types';
 
 const DUE_GIFT_EMAIL_SCAN = 100;
 
@@ -50,12 +51,7 @@ export async function scheduleGiftEmail(
 /** Sends gift emails whose deliverAt has passed. Safe to run from the half-hour cron. */
 export async function dispatchDueGiftEmails(
   prisma: PrismaService,
-  send: (payload: {
-    to: string;
-    code: string;
-    amountAmd?: number;
-    message?: string;
-  }) => Promise<void>,
+  send: (payload: GiftEmailPayload) => Promise<void>,
   now = new Date(),
 ): Promise<number> {
   const rows = await prisma.payment.findMany({
@@ -73,8 +69,13 @@ export async function dispatchDueGiftEmails(
     await send({
       to: due.to,
       code: due.code,
-      amountAmd: row.amountCents,
+      amountAmd: giftEmailAmountAmd({
+        giftFaceAmd: due.giftFaceAmd,
+        chargedAmd: row.amountCents,
+        physicalFeeAmd: due.physicalFeeAmd,
+      }),
       message: due.message,
+      ...(due.format === 'PHYSICAL' ? { format: 'PHYSICAL' as const } : {}),
     });
     await prisma.payment.update({
       where: { id: row.id },
@@ -90,7 +91,14 @@ export async function dispatchDueGiftEmails(
 function readDueGiftEmail(
   metadata: Prisma.JsonValue | null,
   now: Date,
-): { to: string; code: string; message?: string } | null {
+): {
+  to: string;
+  code: string;
+  message?: string;
+  giftFaceAmd?: number;
+  physicalFeeAmd?: number;
+  format?: 'PHYSICAL';
+} | null {
   if (
     metadata === null ||
     typeof metadata !== 'object' ||
@@ -120,5 +128,12 @@ function readDueGiftEmail(
     to,
     code,
     message: typeof record.message === 'string' ? record.message : undefined,
+    giftFaceAmd: readOptionalAmount(record.giftFaceAmd),
+    physicalFeeAmd: readOptionalAmount(record.physicalFeeAmd),
+    ...(record.format === 'PHYSICAL' ? { format: 'PHYSICAL' as const } : {}),
   };
+}
+
+function readOptionalAmount(value: unknown): number | undefined {
+  return typeof value === 'number' && value > 0 ? value : undefined;
 }

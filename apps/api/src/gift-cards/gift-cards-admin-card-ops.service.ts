@@ -15,7 +15,7 @@ import {
   type GiftConvertDirection,
 } from './gift-card-convert';
 import { buildIssuedCardsWorkbook } from './gift-card-excel-file';
-import { quoteClassUnitPriceAmd } from '../payments/payments-gift-checkout.prepare';
+import { quoteClassUnitPriceAmd } from '../payments/payments-gift-class-charge';
 import { readGiftCardBalance } from './gift-cards.mapper';
 
 @Injectable()

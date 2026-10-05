@@ -104,7 +104,12 @@ export class BookingsClientService {
     return this.packages.listPlansCoveringClassType(session.classTypeId);
   }
 
-  async book(userId: string, sessionId: string, dto?: CreateBookingDto) {
+  async book(
+    userId: string,
+    sessionId: string,
+    dto: CreateBookingDto | undefined,
+    createdByUserId: string,
+  ) {
     const session = await this.prisma.classSession.findUnique({
       where: { id: sessionId },
       include: { classType: { select: { id: true, name: true, slug: true } } },
@@ -179,6 +184,7 @@ export class BookingsClientService {
               data: {
                 status: BookingStatus.BOOKED,
                 channel: dto?.channel ?? BookingChannel.WEBSITE,
+                createdByUserId,
                 cancelledAt: null,
                 attendedAt: null,
               },
@@ -190,6 +196,7 @@ export class BookingsClientService {
                 sessionId,
                 status: BookingStatus.BOOKED,
                 channel: dto?.channel ?? BookingChannel.WEBSITE,
+                createdByUserId,
               },
               include: { session: { include: { classType: true } } },
             });

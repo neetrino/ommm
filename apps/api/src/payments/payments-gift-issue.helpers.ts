@@ -11,6 +11,7 @@ import {
   resolveIssuedExpiresAt,
 } from '../gift-cards/gift-card-issue';
 import { formatCustomerDisplayName } from './payment-email-format.util';
+import { purchasedGiftFaceAmd } from './gift-card-medium';
 import type { GiftCardBatchSnapshot, PaymentMetadata } from './payments.types';
 
 export type IssuedGiftCard = {
@@ -80,7 +81,11 @@ export async function issuePurchasedGiftCard(
     selectedBatch?.recipientName,
   );
   const message = firstText(params.metadata.message, selectedBatch?.message);
-  const amountAmd = selectedBatch?.amountAmd ?? params.amountCents;
+  const amountAmd = purchasedGiftFaceAmd({
+    batchAmountAmd: selectedBatch?.amountAmd,
+    giftFaceAmd: params.metadata.giftFaceAmd,
+    chargedAmd: params.amountCents,
+  });
   const expiresAt = resolveIssuedExpiresAt(selectedBatch?.expiresAt);
   if (selectedBatch) {
     const claimed = await claimPreissuedGiftCard(tx, {

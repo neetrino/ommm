@@ -13,6 +13,7 @@ import {
 import { MailService } from '../mail/mail.service';
 import { buildGiftCardDeliveryEmail } from '../mail/templates/gift-card.template';
 import { formatPaymentAmount } from './payment-email-format.util';
+import { giftEmailAmountAmd } from './gift-card-medium';
 import {
   issuePurchasedGiftCard,
   readGiftSender,
@@ -95,13 +96,19 @@ export class PaymentsFulfillmentService {
         where: { id: existing.id },
         data: {
           status: BookingStatus.BOOKED,
+          createdByUserId: userId,
           cancelledAt: null,
           attendedAt: null,
         },
       });
     } else {
       await tx.booking.create({
-        data: { userId, sessionId, status: BookingStatus.BOOKED },
+        data: {
+          userId,
+          sessionId,
+          status: BookingStatus.BOOKED,
+          createdByUserId: userId,
+        },
       });
     }
     if (booked + 1 >= classSession.capacity) {
@@ -287,7 +294,7 @@ export class PaymentsFulfillmentService {
         recipientName: issued.recipientName,
         senderName: sender.name,
         senderEmail: sender.email,
-        amountAmd: issued.amountAmd,
+        amountAmd: emailedGiftAmount(metadata, payment.amountCents),
         message: issued.message,
       };
     }
@@ -320,8 +327,11 @@ export class PaymentsFulfillmentService {
       recipientName: issued.recipientName,
       senderName: sender.name,
       senderEmail: sender.email,
-      amountAmd: issued.amountAmd,
+      amountAmd: emailedGiftAmount(metadata, payment.amountCents),
       message: issued.message,
+      ...(metadata.format === 'PHYSICAL'
+        ? { format: 'PHYSICAL' as const }
+        : {}),
     };
   }
 
@@ -389,6 +399,7 @@ export class PaymentsFulfillmentService {
         senderEmail: payload.senderEmail,
         amountLabel,
         message: payload.message,
+        format: payload.format,
         webAppUrl: this.config.get<string>('WEB_APP_URL'),
       }),
     });
@@ -416,6 +427,17 @@ export class PaymentsFulfillmentService {
       await this.bookingConfirmed.tryNotify(booking.id);
     }
   }
+}
+
+function emailedGiftAmount(
+  metadata: { giftFaceAmd?: number; physicalFeeAmd?: number },
+  chargedAmd: number,
+): number | undefined {
+  return giftEmailAmountAmd({
+    giftFaceAmd: metadata.giftFaceAmd,
+    chargedAmd,
+    physicalFeeAmd: metadata.physicalFeeAmd,
+  });
 }
 
 function cartOrDropInSessionId(

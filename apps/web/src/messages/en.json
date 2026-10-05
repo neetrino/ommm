@@ -1293,6 +1293,11 @@
         "kindLabel": "Gift type",
         "kindMoney": "Money",
         "kindClass": "Class sessions",
+        "formatLabel": "Digital or physical",
+        "formatDigital": "Digital",
+        "formatDigitalHint": "Free",
+        "formatPhysical": "Physical",
+        "formatPhysicalHint": "+{fee}",
         "classLabel": "Class",
         "classPlaceholder": "Choose a class",
         "sessionsLabel": "Sessions",
@@ -2757,7 +2762,10 @@
         "withCoach": "Coach: {name}",
         "coachUnknown": "Coach not assigned",
         "cancelledByClient": "Cancelled by the client",
-        "cancelledByStaff": "Cancelled by {role}: {name}"
+        "cancelledByStaff": "Cancelled by {role}: {name}",
+        "bookedByClient": "Booked by the client",
+        "bookedByStaff": "Booked by {role}: {name}",
+        "bookedByRole": "Booked by {role}"
       },
       "deleteClient": "Delete client",
       "deleteConfirm": "Delete this client permanently? This cannot be undone.",
@@ -3400,6 +3408,9 @@
         "addStartedConfirmDescription": "Add {name} to this class? They will be marked as attended, and a session will be deducted from their package.",
         "addStartedConfirmLabel": "Add visitor",
         "cancelledBy": "Cancelled by {name} ({role})",
+        "bookedByClient": "Booked by the client",
+        "bookedByStaff": "Booked by {name} ({role})",
+        "bookedByRole": "Booked by {role}",
         "status": {
           "COMPLETED": "Attended",
           "MISSED": "Missed",
