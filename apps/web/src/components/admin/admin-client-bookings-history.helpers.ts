@@ -86,16 +86,29 @@ export function bookingHistoryCancelledByText(
   return bookingActorStaffText(cancelledBy, copy);
 }
 
+export type BookingBookedByMark = {
+  kind: BookingHistoryCancelActorKind;
+  label: string;
+};
+
+/** Null when the creator was not recorded (bookings from before this field). */
+export function bookingHistoryBookedByMark(
+  createdBy: BookingHistoryCancelledBy | null | undefined,
+  copy: BookingActorCopy,
+): BookingBookedByMark | null {
+  if (createdBy == null) {
+    return null;
+  }
+  if (!isBookingStaffRole(createdBy.role)) {
+    return { kind: "client", label: copy.client };
+  }
+  return { kind: "staff", label: bookingActorStaffText(createdBy, copy) };
+}
+
 /** Null when the creator was not recorded (bookings from before this field). */
 export function bookingHistoryBookedByText(
   createdBy: BookingHistoryCancelledBy | null | undefined,
   copy: BookingActorCopy,
 ): string | null {
-  if (createdBy == null) {
-    return null;
-  }
-  if (!isBookingStaffRole(createdBy.role)) {
-    return copy.client;
-  }
-  return bookingActorStaffText(createdBy, copy);
+  return bookingHistoryBookedByMark(createdBy, copy)?.label ?? null;
 }

@@ -5,8 +5,9 @@ import { useTranslations } from "next-intl";
 import { resolveSessionCoachName } from "@/components/account/session-coach-line";
 import { GUEST_PASSES_ENABLED } from "@/lib/guest-passes";
 import { isPastAdminCancelBookingStatus } from "@/components/admin/admin-booking-cancel.helpers";
+import { BookingBookedByBadge } from "@/components/admin/admin-booking-booked-by-badge";
 import {
-  bookingHistoryBookedByText,
+  bookingHistoryBookedByMark,
   bookingHistoryCancelledByText,
   canCancelHistoryBooking,
 } from "@/components/admin/admin-client-bookings-history.helpers";
@@ -174,7 +175,7 @@ export function AdminClientBookingsHistory({
                     roleLabel,
                   },
                 );
-                const bookedByLabel = bookingHistoryBookedByText(booking.createdBy, {
+                const bookedBy = bookingHistoryBookedByMark(booking.createdBy, {
                   client: t("drawer.bookedByClient"),
                   staff: (input) => t("drawer.bookedByStaff", input),
                   roleLabel,
@@ -205,8 +206,8 @@ export function AdminClientBookingsHistory({
                         {bookingHistoryMetaLine(booking, locale)}
                       </p>
                       <p className="mt-1 text-xs text-sage-500">{signedUp}</p>
-                      {bookedByLabel !== null ? (
-                        <p className="text-xs font-medium text-sage-700">{bookedByLabel}</p>
+                      {bookedBy !== null ? (
+                        <BookingBookedByBadge kind={bookedBy.kind} label={bookedBy.label} />
                       ) : null}
                       {extra !== null ? (
                         <p className="text-xs text-sage-500">{extra}</p>
