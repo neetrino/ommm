@@ -178,6 +178,7 @@ export function AdminClientBookingsHistory({
                 const bookedBy = bookingHistoryBookedByMark(booking.createdBy, {
                   client: t("drawer.bookedByClient"),
                   staff: (input) => t("drawer.bookedByStaff", input),
+                  roleOnly: (input) => t("drawer.bookedByRole", input),
                   roleLabel,
                 });
                 const signedUp = `${t("drawer.signedUp")} ${formatDateTimeForUi(booking.createdAt, locale)}`;

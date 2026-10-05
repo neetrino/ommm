@@ -41,13 +41,38 @@ export type BookingActorCopy = {
   roleLabel: (role: DashboardShellRole) => string;
 };
 
+export type BookingBookedByCopy = BookingActorCopy & {
+  /** Admin bookings show the role only, without the person's name. */
+  roleOnly: (input: { role: string }) => string;
+};
+
+function bookingActorRoleLabel(
+  actor: BookingHistoryCancelledBy,
+  copy: BookingActorCopy,
+): string {
+  return isDashboardShellRole(actor.role)
+    ? copy.roleLabel(actor.role)
+    : actor.role;
+}
+
 function bookingActorStaffText(
   actor: BookingHistoryCancelledBy,
   copy: BookingActorCopy,
 ): string {
-  const role = isDashboardShellRole(actor.role)
-    ? copy.roleLabel(actor.role)
-    : actor.role;
+  return copy.staff({
+    name: sessionCancelledByDisplayName(actor),
+    role: bookingActorRoleLabel(actor, copy),
+  });
+}
+
+function bookingBookedByStaffText(
+  actor: BookingHistoryCancelledBy,
+  copy: BookingBookedByCopy,
+): string {
+  const role = bookingActorRoleLabel(actor, copy);
+  if (actor.role === "ADMIN") {
+    return copy.roleOnly({ role });
+  }
   return copy.staff({
     name: sessionCancelledByDisplayName(actor),
     role,
@@ -94,7 +119,7 @@ export type BookingBookedByMark = {
 /** Null when the creator was not recorded (bookings from before this field). */
 export function bookingHistoryBookedByMark(
   createdBy: BookingHistoryCancelledBy | null | undefined,
-  copy: BookingActorCopy,
+  copy: BookingBookedByCopy,
 ): BookingBookedByMark | null {
   if (createdBy == null) {
     return null;
@@ -102,13 +127,13 @@ export function bookingHistoryBookedByMark(
   if (!isBookingStaffRole(createdBy.role)) {
     return { kind: "client", label: copy.client };
   }
-  return { kind: "staff", label: bookingActorStaffText(createdBy, copy) };
+  return { kind: "staff", label: bookingBookedByStaffText(createdBy, copy) };
 }
 
 /** Null when the creator was not recorded (bookings from before this field). */
 export function bookingHistoryBookedByText(
   createdBy: BookingHistoryCancelledBy | null | undefined,
-  copy: BookingActorCopy,
+  copy: BookingBookedByCopy,
 ): string | null {
   return bookingHistoryBookedByMark(createdBy, copy)?.label ?? null;
 }

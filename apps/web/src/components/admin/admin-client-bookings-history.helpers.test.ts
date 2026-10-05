@@ -57,6 +57,7 @@ describe("booking history cancel actor", () => {
       client: "client",
       staff: (input: { name: string; role: string }) =>
         `${input.role}:${input.name}`,
+      roleOnly: (input: { role: string }) => input.role,
       roleLabel: (role: string) => role,
     };
     assert.equal(bookingHistoryBookedByText(null, copy), null);
@@ -65,6 +66,10 @@ describe("booking history cancel actor", () => {
       "client",
     );
     assert.equal(bookingHistoryBookedByText(MANAGER, copy), "MANAGER:Lilit Sargsyan");
+    assert.equal(
+      bookingHistoryBookedByText({ ...MANAGER, role: "ADMIN" }, copy),
+      "ADMIN",
+    );
   });
 
   it("hides cancel after the booking is already cancelled", () => {

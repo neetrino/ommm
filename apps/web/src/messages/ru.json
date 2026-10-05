@@ -2762,7 +2762,8 @@
         "cancelledByClient": "Отменил клиент",
         "cancelledByStaff": "Отменил {role}: {name}",
         "bookedByClient": "Записал клиент",
-        "bookedByStaff": "Записал {role}: {name}"
+        "bookedByStaff": "Записал {role}: {name}",
+        "bookedByRole": "Записал {role}"
       },
       "deleteClient": "Удалить клиента",
       "deleteConfirm": "Удалить этого клиента навсегда? Это действие нельзя отменить.",
@@ -3407,6 +3408,7 @@
         "cancelledBy": "Отменил {name} ({role})",
         "bookedByClient": "Записал клиент",
         "bookedByStaff": "Записал {name} ({role})",
+        "bookedByRole": "Записал {role}",
         "status": {
           "COMPLETED": "Присутствовал",
           "MISSED": "Пропущено",

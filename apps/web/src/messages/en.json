@@ -2764,7 +2764,8 @@
         "cancelledByClient": "Cancelled by the client",
         "cancelledByStaff": "Cancelled by {role}: {name}",
         "bookedByClient": "Booked by the client",
-        "bookedByStaff": "Booked by {role}: {name}"
+        "bookedByStaff": "Booked by {role}: {name}",
+        "bookedByRole": "Booked by {role}"
       },
       "deleteClient": "Delete client",
       "deleteConfirm": "Delete this client permanently? This cannot be undone.",
@@ -3409,6 +3410,7 @@
         "cancelledBy": "Cancelled by {name} ({role})",
         "bookedByClient": "Booked by the client",
         "bookedByStaff": "Booked by {name} ({role})",
+        "bookedByRole": "Booked by {role}",
         "status": {
           "COMPLETED": "Attended",
           "MISSED": "Missed",

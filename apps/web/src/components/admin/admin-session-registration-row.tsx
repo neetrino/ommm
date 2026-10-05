@@ -3,10 +3,7 @@
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { BookingBookedByBadge } from "@/components/admin/admin-booking-booked-by-badge";
-import {
-  isBookingStaffRole,
-  type BookingBookedByMark,
-} from "@/components/admin/admin-client-bookings-history.helpers";
+import { bookingHistoryBookedByMark } from "@/components/admin/admin-client-bookings-history.helpers";
 import { ADMIN_SCHEDULE_STATUS_BADGE_CLASS } from "@/components/admin/admin-schedule-session-list-badges";
 import {
   isDashboardShellRole,
@@ -98,21 +95,14 @@ function bookedByMark(
   row: SessionRegistrationRow,
   t: ReturnType<typeof useTranslations<"adminPages.classes.registrationsModal">>,
   tRoles: ReturnType<typeof useTranslations<"dashboard.shell.roles">>,
-): BookingBookedByMark | null {
-  const actor = row.createdBy ?? null;
-  if (actor === null) {
-    return null;
-  }
-  if (!isBookingStaffRole(actor.role)) {
-    return { kind: "client", label: t("bookedByClient") };
-  }
-  return {
-    kind: "staff",
-    label: t("bookedByStaff", {
-      name: sessionCancelledByDisplayName(actor),
-      role: isDashboardShellRole(actor.role) ? tRoles(actor.role) : actor.role,
-    }),
-  };
+) {
+  return bookingHistoryBookedByMark(row.createdBy, {
+    client: t("bookedByClient"),
+    staff: (input) => t("bookedByStaff", input),
+    roleOnly: (input) => t("bookedByRole", input),
+    roleLabel: (role) =>
+      isDashboardShellRole(role) ? tRoles(role) : role,
+  });
 }
 
 function MemberAvatar({
