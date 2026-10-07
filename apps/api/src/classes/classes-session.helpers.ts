@@ -47,6 +47,12 @@ export type ClassSessionWithRecurrence = ClassSession & {
   recurrenceCount: number | null;
 };
 
+export const OCCUPIED_SESSION_BOOKING_STATUSES = [
+  BookingStatus.BOOKED,
+  BookingStatus.COMPLETED,
+  BookingStatus.MISSED,
+] as const;
+
 export const ADMIN_SESSION_INCLUDE =
   Prisma.validator<Prisma.ClassSessionInclude>()({
     classType: true,
@@ -62,13 +68,7 @@ export const ADMIN_SESSION_INCLUDE =
       select: {
         bookings: {
           where: {
-            status: {
-              in: [
-                BookingStatus.BOOKED,
-                BookingStatus.COMPLETED,
-                BookingStatus.MISSED,
-              ],
-            },
+            status: { in: [...OCCUPIED_SESSION_BOOKING_STATUSES] },
           },
         },
       },
@@ -303,15 +303,31 @@ export function resolveAdminSessionStatus(params: {
     return ClassSessionStatus.FINISHED;
   }
 
-  if (
-    (status === ClassSessionStatus.ACTIVE ||
-      status === ClassSessionStatus.FULL) &&
-    bookedCount >= capacity
-  ) {
-    return ClassSessionStatus.FULL;
-  }
+  return resolveCapacitySessionStatus(bookedCount, capacity);
+}
 
-  return status;
+/** ACTIVE/FULL follow occupancy. Cancelled, draft, and finished stay as requested. */
+export function resolveEditedSessionStatus(params: {
+  status: ClassSessionStatus;
+  bookedCount: number;
+  capacity: number;
+}): ClassSessionStatus {
+  if (
+    params.status !== ClassSessionStatus.ACTIVE &&
+    params.status !== ClassSessionStatus.FULL
+  ) {
+    return params.status;
+  }
+  return resolveCapacitySessionStatus(params.bookedCount, params.capacity);
+}
+
+export function resolveCapacitySessionStatus(
+  bookedCount: number,
+  capacity: number,
+): ClassSessionStatus {
+  return bookedCount >= capacity
+    ? ClassSessionStatus.FULL
+    : ClassSessionStatus.ACTIVE;
 }
 
 export function mapAdminSessionRows(

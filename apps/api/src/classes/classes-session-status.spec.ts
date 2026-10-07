@@ -51,4 +51,16 @@ describe('resolveAdminSessionStatus', () => {
       }),
     ).toBe(ClassSessionStatus.FULL);
   });
+
+  it('reopens FULL when booked count is below capacity', () => {
+    expect(
+      resolveAdminSessionStatus({
+        status: ClassSessionStatus.FULL,
+        endsAt: new Date('2026-08-20T15:00:00.000Z'),
+        bookedCount: 1,
+        capacity: 10,
+        now,
+      }),
+    ).toBe(ClassSessionStatus.ACTIVE);
+  });
 });
