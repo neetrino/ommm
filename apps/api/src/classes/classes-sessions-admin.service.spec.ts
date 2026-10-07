@@ -247,6 +247,11 @@ describe('ClassesSessionsAdminService.updateSessionStatus', () => {
   });
 });
 
+type SessionUpdateCall = {
+  where: { id: string };
+  data: { capacity?: number; status: ClassSessionStatus };
+};
+
 describe('ClassesSessionsAdminService.updateSession capacity', () => {
   const existing = {
     id: 'session-1',
@@ -264,7 +269,9 @@ describe('ClassesSessionsAdminService.updateSession capacity', () => {
 
   function buildService(bookedCount: number) {
     const offerNextIfSlot = jest.fn().mockResolvedValue(undefined);
-    const update = jest.fn().mockResolvedValue(undefined);
+    const update = jest
+      .fn<Promise<void>, [SessionUpdateCall]>()
+      .mockResolvedValue(undefined);
     const prisma = {
       classSession: {
         findUnique: jest
@@ -312,12 +319,10 @@ describe('ClassesSessionsAdminService.updateSession capacity', () => {
       status: ClassSessionStatus.FULL,
     });
 
-    expect(update).toHaveBeenCalledWith(
-      expect.objectContaining({
-        where: { id: 'session-1' },
-        data: expect.objectContaining({ capacity: 10, status: 'ACTIVE' }),
-      }),
-    );
+    const saved = update.mock.calls[0]?.[0];
+    expect(saved?.where).toEqual({ id: 'session-1' });
+    expect(saved?.data.capacity).toBe(10);
+    expect(saved?.data.status).toBe(ClassSessionStatus.ACTIVE);
     expect(offerNextIfSlot).toHaveBeenCalledWith('session-1');
   });
 });
