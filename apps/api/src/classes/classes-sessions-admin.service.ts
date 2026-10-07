@@ -14,16 +14,19 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { RealtimePublisherService } from '../realtime/realtime-publisher.service';
 import { ScheduleService } from '../schedule/schedule.service';
+import { WaitlistService } from '../waitlist/waitlist.service';
 import { ClassesSessionCancelCascadeService } from './classes-session-cancel-cascade.service';
 import { resolveCreatedSessionStatus } from './classes-session-create-status';
 import {
   ADMIN_SESSION_INCLUDE,
+  OCCUPIED_SESSION_BOOKING_STATUSES,
   assertTimeRange,
   buildBatchSessionData,
   buildRecurrencePayloadForCreate,
   buildRecurrencePayloadForUpdate,
   mapAdminSessionRows,
   normalizeOptional,
+  resolveEditedSessionStatus,
   type AdminSessionRow,
   type ClassSessionWithRecurrence,
 } from './classes-session.helpers';
@@ -51,6 +54,7 @@ export class ClassesSessionsAdminService {
     private readonly realtime: RealtimePublisherService,
     private readonly cancelCascade: ClassesSessionCancelCascadeService,
     private readonly statusTransition: BookingsStatusTransitionService,
+    private readonly waitlist: WaitlistService,
   ) {}
 
   async listSessionsAdmin(
@@ -213,6 +217,15 @@ export class ClassesSessionsAdminService {
     const becomingFinished =
       dto.status === ClassSessionStatus.FINISHED &&
       existing.status !== ClassSessionStatus.FINISHED;
+    const nextCapacity = dto.capacity ?? existing.capacity;
+    const nextStatus = await this.statusAfterEdit(
+      id,
+      dto.status ?? existing.status,
+      nextCapacity,
+    );
+    const reopened =
+      existing.status === ClassSessionStatus.FULL &&
+      nextStatus === ClassSessionStatus.ACTIVE;
 
     await this.prisma.classSession.update({
       where: { id },
@@ -228,7 +241,7 @@ export class ClassesSessionsAdminService {
         }),
         ...(dto.startsAt !== undefined && { startsAt }),
         ...(dto.endsAt !== undefined && { endsAt }),
-        ...(dto.capacity !== undefined && { capacity: dto.capacity }),
+        ...(dto.capacity !== undefined && { capacity: nextCapacity }),
         ...(dto.level !== undefined && {
           level: normalizeOptional(dto.level),
         }),
@@ -239,13 +252,16 @@ export class ClassesSessionsAdminService {
         ...(dto.sessionRequirement !== undefined && {
           sessionRequirement: dto.sessionRequirement,
         }),
-        ...(dto.status !== undefined && { status: dto.status }),
+        status: nextStatus,
         recurrencePattern: recurrence.recurrencePattern,
         recurrenceWeekdays: recurrence.recurrenceWeekdays,
         recurrenceEndsAt: recurrence.recurrenceEndsAt,
         recurrenceCount: recurrence.recurrenceCount,
       },
     });
+    if (reopened) {
+      await this.waitlist.offerNextIfSlot(id);
+    }
     if (becomingCancelled) {
       await this.cancelCascade.apply(id);
     }
@@ -297,6 +313,30 @@ export class ClassesSessionsAdminService {
     }
     await this.prisma.classSession.delete({ where: { id } });
     await this.invalidatePublicScheduleAndEmit(id);
+  }
+
+  private async statusAfterEdit(
+    sessionId: string,
+    requestedStatus: ClassSessionStatus,
+    capacity: number,
+  ): Promise<ClassSessionStatus> {
+    if (
+      requestedStatus !== ClassSessionStatus.ACTIVE &&
+      requestedStatus !== ClassSessionStatus.FULL
+    ) {
+      return requestedStatus;
+    }
+    const bookedCount = await this.prisma.booking.count({
+      where: {
+        sessionId,
+        status: { in: [...OCCUPIED_SESSION_BOOKING_STATUSES] },
+      },
+    });
+    return resolveEditedSessionStatus({
+      status: requestedStatus,
+      bookedCount,
+      capacity,
+    });
   }
 
   private async invalidatePublicScheduleAndEmit(

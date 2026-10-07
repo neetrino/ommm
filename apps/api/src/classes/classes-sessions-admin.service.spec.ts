@@ -1,4 +1,5 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { ClassSessionStatus } from '@prisma/client';
 import { ClassesSessionsAdminService } from './classes-sessions-admin.service';
 
 type SessionCounts = { bookings: number; waitlistEntries: number };
@@ -29,6 +30,7 @@ describe('ClassesSessionsAdminService.deleteSession', () => {
         finishPastClassSessions: jest.fn().mockResolvedValue(0),
         onSessionFinished: jest.fn(),
       } as never,
+      { offerNextIfSlot: jest.fn().mockResolvedValue(undefined) } as never,
     );
     return { service, deleteFn };
   }
@@ -111,6 +113,7 @@ describe('ClassesSessionsAdminService class type archive', () => {
         finishPastClassSessions: jest.fn().mockResolvedValue(0),
         onSessionFinished: jest.fn(),
       } as never,
+      { offerNextIfSlot: jest.fn().mockResolvedValue(undefined) } as never,
     );
 
     await expect(
@@ -157,6 +160,7 @@ describe('ClassesSessionsAdminService.updateSessionStatus', () => {
         finishPastClassSessions: jest.fn().mockResolvedValue(0),
         onSessionFinished: jest.fn(),
       } as never,
+      { offerNextIfSlot: jest.fn().mockResolvedValue(undefined) } as never,
     );
 
     await service.updateSessionStatus('session-1', 'CANCELLED');
@@ -194,6 +198,7 @@ describe('ClassesSessionsAdminService.updateSessionStatus', () => {
         finishPastClassSessions: jest.fn().mockResolvedValue(0),
         onSessionFinished: jest.fn(),
       } as never,
+      { offerNextIfSlot: jest.fn().mockResolvedValue(undefined) } as never,
     );
 
     await service.updateSessionStatus('session-1', 'ACTIVE');
@@ -230,6 +235,7 @@ describe('ClassesSessionsAdminService.updateSessionStatus', () => {
         finishPastClassSessions: jest.fn().mockResolvedValue(0),
         onSessionFinished: jest.fn(),
       } as never,
+      { offerNextIfSlot: jest.fn().mockResolvedValue(undefined) } as never,
     );
 
     await service.cancelSession('session-1');
@@ -238,5 +244,85 @@ describe('ClassesSessionsAdminService.updateSessionStatus', () => {
       data: { status: 'CANCELLED' },
     });
     expect(cancelCascade.apply).toHaveBeenCalledWith('session-1');
+  });
+});
+
+type SessionUpdateCall = {
+  where: { id: string };
+  data: { capacity?: number; status: ClassSessionStatus };
+};
+
+describe('ClassesSessionsAdminService.updateSession capacity', () => {
+  const existing = {
+    id: 'session-1',
+    classTypeId: 'ct-1',
+    coachId: 'coach-1',
+    startsAt: new Date('2026-10-08T13:00:00.000Z'),
+    endsAt: new Date('2026-10-08T13:50:00.000Z'),
+    status: 'FULL',
+    capacity: 1,
+    recurrencePattern: 'NONE',
+    recurrenceWeekdays: [],
+    recurrenceEndsAt: null,
+    recurrenceCount: null,
+  };
+
+  function buildService(bookedCount: number) {
+    const offerNextIfSlot = jest.fn().mockResolvedValue(undefined);
+    const update = jest
+      .fn<Promise<void>, [SessionUpdateCall]>()
+      .mockResolvedValue(undefined);
+    const prisma = {
+      classSession: {
+        findUnique: jest
+          .fn()
+          .mockResolvedValueOnce(existing)
+          .mockResolvedValueOnce({
+            ...existing,
+            capacity: 10,
+            _count: { bookings: bookedCount },
+          }),
+        update,
+      },
+      booking: { count: jest.fn().mockResolvedValue(bookedCount) },
+      coachProfile: {
+        findUnique: jest.fn().mockResolvedValue({
+          assignedClassTypeIds: ['ct-1'],
+          isActive: true,
+        }),
+      },
+    };
+    const service = new ClassesSessionsAdminService(
+      prisma as never,
+      {
+        assertClassTypeExists: jest.fn().mockResolvedValue(undefined),
+      } as never,
+      {
+        invalidatePublicCache: jest.fn().mockResolvedValue(undefined),
+      } as never,
+      { emitPublicScheduleSession: jest.fn() } as never,
+      { apply: jest.fn() } as never,
+      {
+        finishPastClassSessions: jest.fn(),
+        onSessionFinished: jest.fn(),
+      } as never,
+      { offerNextIfSlot } as never,
+    );
+    return { service, update, offerNextIfSlot };
+  }
+
+  it('reopens FULL when the edited capacity is above the booked count', async () => {
+    const { service, update, offerNextIfSlot } = buildService(1);
+
+    await service.updateSession('session-1', {
+      capacity: 10,
+      status: ClassSessionStatus.FULL,
+    });
+
+    const saved = update.mock.calls[0]?.[0];
+    expect(saved?.where).toEqual({ id: 'session-1' });
+    expect(saved?.data.capacity).toBe(10);
+    expect(saved?.data.status).toBe(ClassSessionStatus.ACTIVE);
+    expect(offerNextIfSlot).toHaveBeenCalledWith('session-1');
   });
 });
