@@ -2,6 +2,7 @@ import {
   normalizePackageCategoryKey,
   normalizePackageCategoryLabel,
 } from "@/components/admin/package-category-utils";
+import { resolvePublicPackageTotalSessions } from "@/components/marketing/packages/public-package-tier-display";
 import type { PublicPackagePlan } from "@/lib/public-package-plan";
 
 export type PublicPackageCategoryGroup = {
@@ -9,6 +10,38 @@ export type PublicPackageCategoryGroup = {
   label: string;
   plans: PublicPackagePlan[];
 };
+
+/** Ascending total sessions. Plans without a session total sort last. */
+export function comparePublicPackagePlansByTotalSessions(
+  left: PublicPackagePlan,
+  right: PublicPackagePlan,
+): number {
+  const bySessions = compareOptionalSessionCount(
+    resolvePublicPackageTotalSessions(left),
+    resolvePublicPackageTotalSessions(right),
+  );
+  if (bySessions !== 0) {
+    return bySessions;
+  }
+  const byName = left.name.localeCompare(right.name);
+  if (byName !== 0) {
+    return byName;
+  }
+  return left.id.localeCompare(right.id);
+}
+
+function compareOptionalSessionCount(left: number | null, right: number | null): number {
+  if (left === null && right === null) {
+    return 0;
+  }
+  if (left === null) {
+    return 1;
+  }
+  if (right === null) {
+    return -1;
+  }
+  return left - right;
+}
 
 /** Matches Admin table rows — only priced tiers are shown publicly. */
 export function isConfiguredPublicPackagePlan(plan: PublicPackagePlan): boolean {
@@ -43,24 +76,7 @@ export function groupPublicPlansByCategory(
   return [...bySlug.values()]
     .map((category) => ({
       ...category,
-      plans: [...category.plans].sort((left, right) => {
-        if (left.displayOrder !== right.displayOrder) {
-          return left.displayOrder - right.displayOrder;
-        }
-        const leftPrice =
-          typeof left.discountedPriceCents === "number" &&
-          left.discountedPriceCents > 0 &&
-          left.discountedPriceCents < left.priceCents
-            ? left.discountedPriceCents
-            : left.priceCents;
-        const rightPrice =
-          typeof right.discountedPriceCents === "number" &&
-          right.discountedPriceCents > 0 &&
-          right.discountedPriceCents < right.priceCents
-            ? right.discountedPriceCents
-            : right.priceCents;
-        return leftPrice - rightPrice;
-      }),
+      plans: [...category.plans].sort(comparePublicPackagePlansByTotalSessions),
     }))
     .sort((left, right) => left.label.localeCompare(right.label));
 }

@@ -1,3 +1,4 @@
+import { resolvePublicPackageTotalSessions } from "./formatPackageDisplay";
 import type { PublicPackagePlan } from "./publicPackagePlan";
 
 export type PublicPackageCategoryGroup = {
@@ -42,26 +43,41 @@ export function groupVisiblePublicPackageCategories(
       ...category,
       plans: category.plans
         .filter(isConfiguredPublicPackagePlan)
-        .sort((left, right) => {
-          if (left.displayOrder !== right.displayOrder) {
-            return left.displayOrder - right.displayOrder;
-          }
-          return resolvePlanFinalPriceCents(left) - resolvePlanFinalPriceCents(right);
-        }),
+        .sort(comparePlansByTotalSessions),
     }))
     .filter((category) => category.plans.length > 0)
     .sort((left, right) => left.label.localeCompare(right.label));
 }
 
-function resolvePlanFinalPriceCents(plan: PublicPackagePlan): number {
-  if (
-    typeof plan.discountedPriceCents === "number" &&
-    plan.discountedPriceCents > 0 &&
-    plan.discountedPriceCents < plan.priceCents
-  ) {
-    return plan.discountedPriceCents;
+function comparePlansByTotalSessions(
+  left: PublicPackagePlan,
+  right: PublicPackagePlan,
+): number {
+  const bySessions = compareOptionalSessionCount(
+    resolvePublicPackageTotalSessions(left),
+    resolvePublicPackageTotalSessions(right),
+  );
+  if (bySessions !== 0) {
+    return bySessions;
   }
-  return plan.priceCents;
+  const byName = left.name.localeCompare(right.name);
+  if (byName !== 0) {
+    return byName;
+  }
+  return left.id.localeCompare(right.id);
+}
+
+function compareOptionalSessionCount(left: number | null, right: number | null): number {
+  if (left === null && right === null) {
+    return 0;
+  }
+  if (left === null) {
+    return 1;
+  }
+  if (right === null) {
+    return -1;
+  }
+  return left - right;
 }
 
 export function categoryHasMultiplePricedTiers(

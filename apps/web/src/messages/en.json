@@ -3981,7 +3981,7 @@
         "statusActive": "Active only",
         "statusInactive": "Inactive only",
         "sort": "Sort",
-        "sortDisplayOrder": "Display order",
+        "sortDisplayOrder": "Total sessions",
         "sortNewest": "Newest first",
         "sortOldest": "Oldest first",
         "sortPriceHigh": "Highest price",

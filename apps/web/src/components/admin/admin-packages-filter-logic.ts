@@ -1,3 +1,4 @@
+import { compareAdminPackagesByTotalSessions } from "@/components/admin/admin-package-type-sessions.util";
 import type {
   AdminPackageRow,
   PackageFilterValues,
@@ -129,7 +130,7 @@ export function sortPackages(
         return a.priceCents - b.priceCents;
       case "displayOrder":
       default:
-        return a.displayOrder - b.displayOrder || a.name.localeCompare(b.name);
+        return compareAdminPackagesByTotalSessions(a, b);
     }
   });
   return rows;
