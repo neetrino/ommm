@@ -23,17 +23,18 @@ import {
 } from "@/components/ui/date-picker-manual-entry";
 import { isBeforeCalendarDate, parseIsoDate } from "@/components/ui/date-picker-utils";
 
-const SEGMENT_FIELD_CLASS =
-  "!flex-none rounded-md text-center font-medium tabular-nums transition-colors focus:bg-sand-100";
+const SEGMENT_FIELD_CLASS = [
+  "!min-w-0 !flex-none rounded-md text-center font-medium tabular-nums",
+  "transition-colors focus:bg-sand-100",
+].join(" ");
 
 const SEGMENT_WIDTH_CLASS: Record<DateSegmentPart, string> = {
-  day: `!w-8 !min-w-8 ${SEGMENT_FIELD_CLASS}`,
-  month: `!w-8 !min-w-8 ${SEGMENT_FIELD_CLASS}`,
-  year: `!w-12 !min-w-12 ${SEGMENT_FIELD_CLASS}`,
+  day: `!w-7 ${SEGMENT_FIELD_CLASS}`,
+  month: `!w-7 ${SEGMENT_FIELD_CLASS}`,
+  year: `!w-12 ${SEGMENT_FIELD_CLASS}`,
 };
 
-const DATE_SEGMENT_SLASH_CLASS =
-  "select-none px-px text-xs leading-none text-sage-300";
+const DATE_SEGMENT_SLASH_CLASS = "select-none text-sm leading-none text-sage-300";
 
 const SEGMENT_PLACEHOLDER: Record<DateSegmentPart, string> = {
   day: "DD",
@@ -232,7 +233,7 @@ export function DatePickerManualField({
   const draft = useManualDateDraft(groupRef, value, onChange, minDate);
 
   return (
-    <div ref={groupRef} className="flex min-w-0 flex-1 flex-nowrap items-center">
+    <div ref={groupRef} className="flex w-auto min-w-0 shrink-0 flex-nowrap items-center">
       {DATE_SEGMENT_PARTS.map((part, index) => (
         <span key={part} className="inline-flex items-center">
           {index > 0 ? (
@@ -244,6 +245,7 @@ export function DatePickerManualField({
             id={part === "day" ? id : undefined}
             data-date-part={part}
             type="text"
+            size={part === "year" ? 4 : 2}
             inputMode="numeric"
             autoComplete="off"
             spellCheck={false}

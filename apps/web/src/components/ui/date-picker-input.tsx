@@ -314,7 +314,7 @@ export const DatePickerInput = forwardRef<DatePickerInputHandle, DatePickerInput
     <button
       ref={triggerRef}
       type="button"
-      className="inline-flex size-5 shrink-0 items-center justify-center rounded-md text-sage-500 transition-colors hover:bg-sand-100 hover:text-sage-700 disabled:pointer-events-none disabled:opacity-50"
+      className="inline-flex size-6 shrink-0 items-center justify-center rounded-full text-sage-500 transition-colors hover:bg-sand-100 hover:text-sage-700 disabled:pointer-events-none disabled:opacity-50"
       aria-label={ariaLabel}
       aria-haspopup="dialog"
       aria-expanded={isOpen}
@@ -328,10 +328,10 @@ export const DatePickerInput = forwardRef<DatePickerInputHandle, DatePickerInput
   if (allowManualEntry) {
     const fieldShellClass = bare
       ? `flex min-w-0 flex-1 items-center gap-1 ${containerClassName}`.trim()
-      : `ommm-input flex items-center gap-2 ${containerClassName}`.trim();
+      : `ommm-input flex min-w-0 items-center justify-between gap-2 ${containerClassName}`.trim();
 
     return (
-      <div className={isOpen ? "relative z-[140]" : "relative"} ref={wrapperRef}>
+      <div className={isOpen ? "relative z-[140] min-w-0" : "relative min-w-0"} ref={wrapperRef}>
         <input type="hidden" name={name} value={value} required={required} />
         <div className={fieldShellClass} ref={fieldShellRef}>
           <DatePickerManualField
@@ -344,8 +344,10 @@ export const DatePickerInput = forwardRef<DatePickerInputHandle, DatePickerInput
             inputClassName={inputClassName}
             minDate={resolvedMinDate}
           />
-          {clearDateControl}
-          {calendarTrigger}
+          <span className="inline-flex shrink-0 items-center gap-1">
+            {clearDateControl}
+            {calendarTrigger}
+          </span>
         </div>
         {calendarPopup}
       </div>

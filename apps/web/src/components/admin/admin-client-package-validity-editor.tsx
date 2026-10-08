@@ -124,7 +124,7 @@ export function AdminClientPackageValidityEditor({
         onSubmit={(event) => void handleSubmit(event)}
       >
         <div className="space-y-1.5">
-          <div className="flex items-start gap-2 sm:gap-3">
+          <div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-start gap-2">
             <AdminSheetEditableField
               className="min-w-0 flex-1"
               label={t("packages.activationDate")}
@@ -143,7 +143,7 @@ export function AdminClientPackageValidityEditor({
               />
             </AdminSheetEditableField>
             <span
-              className="mt-7 shrink-0 select-none px-0.5 font-serif text-lg leading-none text-sand-400"
+              className="mt-8 shrink-0 select-none font-serif text-lg leading-none text-sand-400/90"
               aria-hidden="true"
             >
               –
