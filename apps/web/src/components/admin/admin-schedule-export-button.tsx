@@ -178,6 +178,7 @@ function ExportDateField({
         onChange={onChange}
         ariaLabel={label}
         allowManualEntry
+        showSegmentLabels
       />
     </label>
   );

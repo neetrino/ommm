@@ -21,20 +21,8 @@ import {
   type DateSegmentPart,
   type DateSegments,
 } from "@/components/ui/date-picker-manual-entry";
+import { DateSegmentColumn } from "@/components/ui/date-picker-manual-segment";
 import { isBeforeCalendarDate, parseIsoDate } from "@/components/ui/date-picker-utils";
-
-const SEGMENT_FIELD_CLASS = [
-  "!min-w-0 !flex-none rounded-md text-center font-medium tabular-nums",
-  "transition-colors focus:bg-sand-100",
-].join(" ");
-
-const SEGMENT_WIDTH_CLASS: Record<DateSegmentPart, string> = {
-  day: `!w-7 ${SEGMENT_FIELD_CLASS}`,
-  month: `!w-7 ${SEGMENT_FIELD_CLASS}`,
-  year: `!w-12 ${SEGMENT_FIELD_CLASS}`,
-};
-
-const DATE_SEGMENT_SLASH_CLASS = "select-none text-sm leading-none text-sage-300";
 
 const SEGMENT_PLACEHOLDER: Record<DateSegmentPart, string> = {
   day: "DD",
@@ -51,6 +39,7 @@ type DatePickerManualFieldProps = {
   placeholder: string;
   inputClassName: string;
   minDate?: Date;
+  showSegmentLabels?: boolean;
 };
 
 type ManualDateDraft = {
@@ -228,6 +217,7 @@ export function DatePickerManualField({
   placeholder,
   inputClassName,
   minDate,
+  showSegmentLabels = false,
 }: DatePickerManualFieldProps) {
   const groupRef = useRef<HTMLDivElement>(null);
   const draft = useManualDateDraft(groupRef, value, onChange, minDate);
@@ -235,33 +225,23 @@ export function DatePickerManualField({
   return (
     <div ref={groupRef} className="flex w-auto min-w-0 shrink-0 flex-nowrap items-center">
       {DATE_SEGMENT_PARTS.map((part, index) => (
-        <span key={part} className="inline-flex items-center">
-          {index > 0 ? (
-            <span className={DATE_SEGMENT_SLASH_CLASS} aria-hidden="true">
-              /
-            </span>
-          ) : null}
-          <input
-            id={part === "day" ? id : undefined}
-            data-date-part={part}
-            type="text"
-            size={part === "year" ? 4 : 2}
-            inputMode="numeric"
-            autoComplete="off"
-            spellCheck={false}
-            maxLength={dateSegmentMaxLength(part)}
-            disabled={disabled}
-            className={`${inputClassName} ${SEGMENT_WIDTH_CLASS[part]}`}
-            value={draft.segments[part]}
-            placeholder={placeholderFor(placeholder, part)}
-            aria-label={ariaLabel === undefined ? part : `${ariaLabel} ${part}`}
-            onFocus={draft.handleFocus}
-            onChange={(event) => draft.handleSegmentChange(part, event.target.value)}
-            onKeyDown={(event) => handleSegmentKeyDown(part, event, draft.focusPart)}
-            onPaste={draft.handlePaste}
-            onBlur={draft.handleBlur}
-          />
-        </span>
+        <DateSegmentColumn
+          key={part}
+          id={part === "day" ? id : undefined}
+          part={part}
+          index={index}
+          label={showSegmentLabels ? SEGMENT_PLACEHOLDER[part] : null}
+          disabled={disabled}
+          inputClassName={inputClassName}
+          value={draft.segments[part]}
+          placeholder={placeholderFor(placeholder, part)}
+          ariaLabel={ariaLabel === undefined ? part : `${ariaLabel} ${part}`}
+          onFocus={draft.handleFocus}
+          onChange={(rawValue) => draft.handleSegmentChange(part, rawValue)}
+          onKeyDown={(event) => handleSegmentKeyDown(part, event, draft.focusPart)}
+          onPaste={draft.handlePaste}
+          onBlur={draft.handleBlur}
+        />
       ))}
     </div>
   );
