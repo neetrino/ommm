@@ -5,19 +5,22 @@ export const SCHEDULE_EXPORT_TOO_MANY = "schedule_export_too_many";
 
 type DownloadAdminScheduleWorkbookInput = {
   locale: string;
-  from: string;
-  to: string;
+  /** Inclusive studio days. Omit both to export every class. */
+  from?: string;
+  to?: string;
 };
 
-/** Downloads every class in the chosen inclusive studio date range. */
+/** Downloads classes for a date range, or every class when no range is set. */
 export async function downloadAdminScheduleWorkbook(
   input: DownloadAdminScheduleWorkbookInput,
 ): Promise<void> {
   const params = new URLSearchParams({
-    from: input.from,
-    to: input.to,
     locale: exportLocale(input.locale),
   });
+  if (input.from && input.to) {
+    params.set("from", input.from);
+    params.set("to", input.to);
+  }
   const response = await fetch(
     `${API_PREFIX}/classes/admin/sessions/export?${params.toString()}`,
     { credentials: "include", cache: "no-store" },

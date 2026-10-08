@@ -27,7 +27,8 @@ export function AdminScheduleExportButton({ locale }: { locale: string }) {
   const today = scheduleTodayIsoDate();
   const [from, setFrom] = useState(today);
   const [to, setTo] = useState(today);
-  const { exporting, error, clearError, exportSchedule } = useScheduleWorkbookDownload(locale);
+  const { busy, error, clearError, exportSchedule } = useScheduleWorkbookDownload(locale);
+  const exporting = busy !== null;
 
   return (
     <>
@@ -46,6 +47,7 @@ export function AdminScheduleExportButton({ locale }: { locale: string }) {
         from={from}
         to={to}
         exporting={exporting}
+        exportingAll={busy === "all"}
         error={error}
         onFromChange={setFrom}
         onToChange={setTo}
@@ -55,7 +57,10 @@ export function AdminScheduleExportButton({ locale }: { locale: string }) {
           }
         }}
         onExport={() => {
-          void exportSchedule(from, to, () => setOpen(false));
+          void exportSchedule({ from, to }, () => setOpen(false));
+        }}
+        onExportAll={() => {
+          void exportSchedule(null, () => setOpen(false));
         }}
       />
     </>
@@ -67,11 +72,13 @@ type AdminScheduleExportDialogProps = {
   from: string;
   to: string;
   exporting: boolean;
+  exportingAll: boolean;
   error: ScheduleExportError | null;
   onFromChange: (value: string) => void;
   onToChange: (value: string) => void;
   onClose: () => void;
   onExport: () => void;
+  onExportAll: () => void;
 };
 
 function AdminScheduleExportDialog({
@@ -79,11 +86,13 @@ function AdminScheduleExportDialog({
   from,
   to,
   exporting,
+  exportingAll,
   error,
   onFromChange,
   onToChange,
   onClose,
   onExport,
+  onExportAll,
 }: AdminScheduleExportDialogProps) {
   const t = useTranslations("adminPages.classes.export");
   const titleId = useId();
@@ -109,8 +118,10 @@ function AdminScheduleExportDialog({
       <ExportDialogActions
         issue={issue}
         exporting={exporting}
+        exportingAll={exportingAll}
         onClose={onClose}
         onExport={onExport}
+        onExportAll={onExportAll}
       />
     </OmmModalPortal>
   );
@@ -201,57 +212,78 @@ function ExportDialogNotice({
 function ExportDialogActions({
   issue,
   exporting,
+  exportingAll,
   onClose,
   onExport,
+  onExportAll,
 }: {
   issue: ScheduleExportRangeIssue | null;
   exporting: boolean;
+  exportingAll: boolean;
   onClose: () => void;
   onExport: () => void;
+  onExportAll: () => void;
 }) {
   const t = useTranslations("adminPages.classes.export");
   return (
-    <div className="mt-5 flex flex-wrap items-center justify-end gap-2">
-      <OmmButton type="button" variant="ghost" size="sm" disabled={exporting} onClick={onClose}>
-        {t("cancel")}
-      </OmmButton>
+    <div className="mt-5 flex flex-wrap items-center justify-between gap-2">
       <OmmButton
         type="button"
-        variant="primary"
+        variant="secondary"
         size="sm"
         className="inline-flex items-center gap-2"
-        disabled={issue !== null || exporting}
-        aria-busy={exporting}
-        onClick={onExport}
+        disabled={exporting}
+        aria-busy={exportingAll}
+        onClick={onExportAll}
       >
         <DownloadGlyph className="h-3.5 w-3.5" />
-        {exporting ? t("exporting") : t("exportExcel")}
+        {exportingAll ? t("exporting") : t("all")}
       </OmmButton>
+      <div className="flex flex-wrap items-center justify-end gap-2">
+        <OmmButton type="button" variant="ghost" size="sm" disabled={exporting} onClick={onClose}>
+          {t("cancel")}
+        </OmmButton>
+        <OmmButton
+          type="button"
+          variant="primary"
+          size="sm"
+          className="inline-flex items-center gap-2"
+          disabled={issue !== null || exporting}
+          aria-busy={exporting && !exportingAll}
+          onClick={onExport}
+        >
+          <DownloadGlyph className="h-3.5 w-3.5" />
+          {exporting && !exportingAll ? t("exporting") : t("exportExcel")}
+        </OmmButton>
+      </div>
     </div>
   );
 }
 
 function useScheduleWorkbookDownload(locale: string) {
-  const [exporting, setExporting] = useState(false);
+  const [busy, setBusy] = useState<"range" | "all" | null>(null);
   const [error, setError] = useState<ScheduleExportError | null>(null);
 
   async function exportSchedule(
-    from: string,
-    to: string,
+    range: { from: string; to: string } | null,
     onSuccess: () => void,
   ): Promise<void> {
-    setExporting(true);
+    setBusy(range === null ? "all" : "range");
     setError(null);
     try {
-      await downloadAdminScheduleWorkbook({ locale, from, to });
+      await downloadAdminScheduleWorkbook({
+        locale,
+        from: range?.from,
+        to: range?.to,
+      });
       onSuccess();
     } catch (cause) {
       const code = cause instanceof Error ? cause.message : "";
       setError(code === SCHEDULE_EXPORT_TOO_MANY ? "exportTooMany" : "exportFailed");
     } finally {
-      setExporting(false);
+      setBusy(null);
     }
   }
 
-  return { exporting, error, clearError: () => setError(null), exportSchedule };
+  return { busy, error, clearError: () => setError(null), exportSchedule };
 }
