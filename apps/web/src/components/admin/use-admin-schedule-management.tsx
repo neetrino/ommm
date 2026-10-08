@@ -45,7 +45,6 @@ import {
 import {
   resolveScheduleListDateRange,
   SCHEDULE_STRIP_ALL_VALUE,
-  scheduleFiltersToApiParams,
 } from "@/components/admin/admin-schedule-url";
 import {
   addCalendarMonths,
@@ -286,17 +285,6 @@ export function useAdminScheduleManagement({
     [packageOptions, validSelectedPackageIds],
   );
 
-  const exportQuery = useMemo(
-    () =>
-      scheduleFiltersToApiParams(
-        filters,
-        quickFilters,
-        selectedClassTypeIds,
-        stripDay,
-      ).toString(),
-    [filters, quickFilters, selectedClassTypeIds, stripDay],
-  );
-
   const sessionClassTypeOptions = useMemo(
     () => buildSessionClassTypeOptions(classTypes),
     [classTypes],
@@ -515,7 +503,6 @@ export function useAdminScheduleManagement({
     handleSelectStripDay,
     handleSelectAllStripDays,
     filters,
-    exportQuery,
     listPage,
     listPagination,
     setListPage,

@@ -5,16 +5,19 @@ export const SCHEDULE_EXPORT_TOO_MANY = "schedule_export_too_many";
 
 type DownloadAdminScheduleWorkbookInput = {
   locale: string;
-  /** Filter query already built for `GET /classes/admin/sessions`. */
-  query: string;
+  from: string;
+  to: string;
 };
 
-/** Downloads the schedule workbook for the current admin filters. */
+/** Downloads every class in the chosen inclusive studio date range. */
 export async function downloadAdminScheduleWorkbook(
   input: DownloadAdminScheduleWorkbookInput,
 ): Promise<void> {
-  const params = new URLSearchParams(input.query);
-  params.set("locale", exportLocale(input.locale));
+  const params = new URLSearchParams({
+    from: input.from,
+    to: input.to,
+    locale: exportLocale(input.locale),
+  });
   const response = await fetch(
     `${API_PREFIX}/classes/admin/sessions/export?${params.toString()}`,
     { credentials: "include", cache: "no-store" },

@@ -3231,7 +3231,15 @@
         "exportExcel": "Export Excel",
         "exporting": "Exporting…",
         "exportFailed": "Could not export the schedule.",
-        "exportTooMany": "Too many classes match these filters. Narrow the date range and try again."
+        "exportTooMany": "Too many classes in this date range. Narrow it and try again.",
+        "dialogTitle": "Export schedule",
+        "dialogDescription": "Choose the dates to include. The file contains every class in that range.",
+        "fromDate": "From",
+        "toDate": "To",
+        "rangeInvalid": "The start date must be on or before the end date.",
+        "rangeTooLong": "The range can be at most one year.",
+        "cancel": "Cancel",
+        "closeAria": "Close"
       },
       "classTypes": {
         "modalTitle": "Class types",

@@ -66,7 +66,7 @@ export function AdminScheduleManagement(props: AdminScheduleManagementProps) {
             />
           }
           primaryAction={
-            <AdminScheduleExportButton locale={locale} query={schedule.exportQuery} />
+            <AdminScheduleExportButton locale={locale} />
           }
           metrics={
             <div className="space-y-3">
@@ -123,7 +123,7 @@ export function AdminScheduleManagement(props: AdminScheduleManagementProps) {
         }
         primaryAction={
           <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-start">
-            <AdminScheduleExportButton locale={locale} query={schedule.exportQuery} />
+            <AdminScheduleExportButton locale={locale} />
             {caps.canCreate ? (
               <AdminPageHeroActionButton type="button" onClick={schedule.openAddClassModal}>
                 <PlusIcon className="h-5 w-5 shrink-0" />
