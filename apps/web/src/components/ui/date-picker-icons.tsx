@@ -74,6 +74,23 @@ export function DatePickerChevronsRight({ className }: { className?: string }) {
   );
 }
 
+export function DatePickerClearGlyph({ className }: { className?: string }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.85}
+      strokeLinecap="round"
+      className={className}
+      aria-hidden
+    >
+      <path d="M7 7l10 10M17 7 7 17" />
+    </svg>
+  );
+}
+
 export function DatePickerCalendarGlyph({ className }: { className?: string }) {
   return (
     <svg
