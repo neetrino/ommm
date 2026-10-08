@@ -3227,6 +3227,12 @@
       "errorCoachesLoadFriendly": "Coach data is unavailable right now. Please try again shortly.",
       "coachFallback": "Coach",
       "addClassButton": "Add Class",
+      "export": {
+        "exportExcel": "Export Excel",
+        "exporting": "Exporting…",
+        "exportFailed": "Could not export the schedule.",
+        "exportTooMany": "Too many classes match these filters. Narrow the date range and try again."
+      },
       "classTypes": {
         "modalTitle": "Class types",
         "modalBackdropClose": "Close dialog",

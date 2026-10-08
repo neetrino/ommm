@@ -7,10 +7,12 @@ import {
   Param,
   Post,
   Query,
+  Res,
   UseGuards,
 } from '@nestjs/common';
 import { SkipThrottle } from '@nestjs/throttler';
 import { ClassSessionStatus } from '@prisma/client';
+import type { Response } from 'express';
 import {
   BACKOFFICE_DELETE_ROLES,
   BACKOFFICE_WRITE_ROLES,
@@ -20,6 +22,14 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { resolvePublicScheduleRange } from '../schedule/public-schedule-range';
 import { ClassesService } from './classes.service';
+import { SCHEDULE_XLSX_CONTENT_TYPE } from './classes-sessions-export.constants';
+import {
+  scheduleExportContentDisposition,
+  scheduleExportFilename,
+  toScheduleExportSession,
+} from './classes-sessions-export-rows';
+import { buildScheduleSessionsXlsx } from './classes-sessions-xlsx';
+import { AdminExportSessionsQueryDto } from './dto/admin-export-sessions-query.dto';
 import { AdminListSessionsQueryDto } from './dto/admin-list-sessions-query.dto';
 import { CreateClassTypeDto } from './dto/create-class-type.dto';
 import { CreateSessionBatchDto } from './dto/create-session-batch.dto';
@@ -88,6 +98,25 @@ export class ClassesController {
     return this.classes.listSessionsAdmin(query);
   }
 
+  /** Workbook of every class matching the current admin schedule filters. */
+  @Get('admin/sessions/export')
+  @SkipThrottle()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(...BACKOFFICE_WRITE_ROLES)
+  async exportAdminSessions(
+    @Query() query: AdminExportSessionsQueryDto,
+    @Res() res: Response,
+  ): Promise<void> {
+    const sessions = await this.classes.listSessionsForExport(query);
+    const buffer = await buildScheduleSessionsXlsx({
+      locale: query.locale,
+      from: query.from,
+      to: query.to,
+      items: sessions.map(toScheduleExportSession),
+    });
+    sendScheduleWorkbook(res, buffer, query.from, query.to);
+  }
+
   @Post('sessions')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(...BACKOFFICE_WRITE_ROLES)
@@ -132,4 +161,19 @@ export class ClassesController {
   deleteSession(@Param('id') id: string) {
     return this.classes.deleteSession(id);
   }
+}
+
+function sendScheduleWorkbook(
+  res: Response,
+  buffer: Buffer,
+  from?: string,
+  to?: string,
+): void {
+  const filename = scheduleExportFilename(from, to);
+  res.setHeader('Content-Type', SCHEDULE_XLSX_CONTENT_TYPE);
+  res.setHeader(
+    'Content-Disposition',
+    scheduleExportContentDisposition(filename),
+  );
+  res.send(buffer);
 }

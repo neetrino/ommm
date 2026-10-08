@@ -51,6 +51,10 @@ export class ClassesService {
     return this.sessionsAdminService.listSessionsAdmin(query);
   }
 
+  listSessionsForExport(query: AdminListSessionsQueryDto) {
+    return this.sessionsAdminService.listSessionsForExport(query);
+  }
+
   createSession(dto: CreateSessionDto) {
     return this.sessionsAdminService.createSession(dto);
   }

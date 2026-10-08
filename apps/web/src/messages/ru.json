@@ -3225,6 +3225,12 @@
       "errorCoachesLoadFriendly": "Данные тренеров сейчас недоступны. Попробуйте ещё раз чуть позже.",
       "coachFallback": "Тренер",
       "addClassButton": "Добавить занятие",
+      "export": {
+        "exportExcel": "Экспорт Excel",
+        "exporting": "Экспорт…",
+        "exportFailed": "Не удалось экспортировать расписание.",
+        "exportTooMany": "По этим фильтрам слишком много занятий. Сузьте диапазон дат и попробуйте снова."
+      },
       "classTypes": {
         "modalTitle": "Типы занятий",
         "modalBackdropClose": "Закрыть окно",

@@ -3228,6 +3228,12 @@
       "errorCoachesLoadFriendly": "Մարզիչների տվյալները ժամանակավորապես անհասանելի են։ Փորձեք մի փոքր ուշ։",
       "coachFallback": "Մարզիչ",
       "addClassButton": "Ավելացնել դաս",
+      "export": {
+        "exportExcel": "Արտահանել Excel",
+        "exporting": "Արտահանվում է…",
+        "exportFailed": "Չհաջողվեց արտահանել ժամանակացույցը։",
+        "exportTooMany": "Ֆիլտրերին համապատասխանում են չափազանց շատ դասեր։ Նեղացրեք ամսաթվերի միջակայքը և կրկին փորձեք։"
+      },
       "classTypes": {
         "modalTitle": "Դասերի տեսակներ",
         "modalBackdropClose": "Փակել պատուհանը",

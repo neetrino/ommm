@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { AdminScheduleExportButton } from "@/components/admin/admin-schedule-export-button";
 import { AdminPageHero } from "@/components/admin/admin-page-hero";
 import { AdminScheduleManagementToast } from "@/components/admin/admin-schedule-management-toast";
 import { AdminScheduleSessionDetailsSheet } from "@/components/admin/admin-schedule-session-details-sheet";
@@ -64,6 +65,9 @@ export function AdminScheduleManagement(props: AdminScheduleManagementProps) {
               resetLabel={schedule.t("filters.reset")}
             />
           }
+          primaryAction={
+            <AdminScheduleExportButton locale={locale} query={schedule.exportQuery} />
+          }
           metrics={
             <div className="space-y-3">
               <SummaryGrid summary={schedule.summary} />
@@ -118,12 +122,15 @@ export function AdminScheduleManagement(props: AdminScheduleManagementProps) {
           />
         }
         primaryAction={
-          caps.canCreate ? (
-            <AdminPageHeroActionButton type="button" onClick={schedule.openAddClassModal}>
-              <PlusIcon className="h-5 w-5 shrink-0" />
-              {schedule.t("addClassButton")}
-            </AdminPageHeroActionButton>
-          ) : null
+          <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-start">
+            <AdminScheduleExportButton locale={locale} query={schedule.exportQuery} />
+            {caps.canCreate ? (
+              <AdminPageHeroActionButton type="button" onClick={schedule.openAddClassModal}>
+                <PlusIcon className="h-5 w-5 shrink-0" />
+                {schedule.t("addClassButton")}
+              </AdminPageHeroActionButton>
+            ) : null}
+          </div>
         }
       />
       <div className="space-y-3">
