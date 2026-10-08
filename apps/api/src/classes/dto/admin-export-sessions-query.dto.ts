@@ -13,11 +13,11 @@ export type ScheduleExportLocale = (typeof SCHEDULE_EXPORT_LOCALES)[number];
 export class AdminExportSessionsQueryDto extends AdminListSessionsQueryDto {
   @IsOptional()
   @Matches(ISO_DAY)
-  override from?: string;
+  override from: string | undefined = undefined;
 
   @IsOptional()
   @Matches(ISO_DAY)
-  override to?: string;
+  override to: string | undefined = undefined;
 
   @IsOptional()
   @IsIn(SCHEDULE_EXPORT_LOCALES)
