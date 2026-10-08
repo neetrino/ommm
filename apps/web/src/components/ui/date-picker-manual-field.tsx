@@ -77,14 +77,13 @@ function shouldAdvanceSegment(previous: string, next: string, part: DateSegmentP
   return next.length > previous.length && next.length === dateSegmentMaxLength(part);
 }
 
-function commitVisibleDraft(
-  draft: DateSegments | null,
+function publishCompleteDraft(
+  segments: DateSegments,
   value: string,
   minDate: Date | undefined,
   onChange: (nextValue: string) => void,
 ): void {
-  const current = draft ?? dateSegmentsFromIso(value);
-  const next = dateSegmentsToIso(current);
+  const next = dateSegmentsToIso(segments);
   if (next !== null && next !== value && !isBlockedByMinDate(next, minDate)) {
     onChange(next);
   }
@@ -139,7 +138,9 @@ function blurDateDraft(
   const current = draftRef.current;
   draftRef.current = null;
   setDraft(null);
-  commitVisibleDraft(current, value, minDate, onChange);
+  if (current !== null) {
+    publishCompleteDraft(current, value, minDate, onChange);
+  }
 }
 
 function focusDatePart(group: HTMLDivElement | null, part: DateSegmentPart | null): void {
@@ -167,9 +168,17 @@ function useManualDateDraft(
     focusPart,
     handleSegmentChange(part, rawValue) {
       applySegmentEdit(draftRef, value, part, rawValue, setDraft, focusPart);
+      const current = draftRef.current;
+      if (current !== null) {
+        publishCompleteDraft(current, value, minDate, onChange);
+      }
     },
     handlePaste(event) {
       applyPastedDate(event, draftRef, setDraft, focusPart);
+      const current = draftRef.current;
+      if (current !== null) {
+        publishCompleteDraft(current, value, minDate, onChange);
+      }
     },
     handleBlur(event) {
       blurDateDraft(event, groupRef.current, draftRef, value, minDate, onChange, setDraft);

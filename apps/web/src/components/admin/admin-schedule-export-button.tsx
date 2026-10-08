@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useId, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { AdminPageHeroActionButton } from "@/components/admin/admin-page-hero-action-button";
 import {
@@ -21,21 +21,32 @@ import { scheduleTodayIsoDate } from "@/lib/local-iso-date";
 
 type ScheduleExportError = "exportFailed" | "exportTooMany";
 
+function writeExportDate(
+  ref: { current: string },
+  setValue: (value: string) => void,
+  value: string,
+): void {
+  ref.current = value;
+  setValue(value);
+}
+
 export function AdminScheduleExportButton({ locale }: { locale: string }) {
   const t = useTranslations("adminPages.classes.export");
   const [open, setOpen] = useState(false);
   const today = scheduleTodayIsoDate();
   const [from, setFrom] = useState(today);
   const [to, setTo] = useState(today);
-  const { busy, error, clearError, exportSchedule } = useScheduleWorkbookDownload(locale);
-  const exporting = busy !== null;
+  const fromRef = useRef(today);
+  const toRef = useRef(today);
+  const download = useScheduleWorkbookDownload(locale);
+  const exporting = download.busy !== null;
 
   return (
     <>
       <AdminPageHeroActionButton
         type="button"
         onClick={() => {
-          clearError();
+          download.clearError();
           setOpen(true);
         }}
       >
@@ -47,20 +58,21 @@ export function AdminScheduleExportButton({ locale }: { locale: string }) {
         from={from}
         to={to}
         exporting={exporting}
-        exportingAll={busy === "all"}
-        error={error}
-        onFromChange={setFrom}
-        onToChange={setTo}
+        exportingAll={download.busy === "all"}
+        error={download.error}
+        onFromChange={(value) => writeExportDate(fromRef, setFrom, value)}
+        onToChange={(value) => writeExportDate(toRef, setTo, value)}
         onClose={() => {
-          if (!exporting) {
-            setOpen(false);
-          }
+          if (!exporting) setOpen(false);
         }}
         onExport={() => {
-          void exportSchedule({ from, to }, () => setOpen(false));
+          void download.exportSchedule(
+            { from: fromRef.current, to: toRef.current },
+            () => setOpen(false),
+          );
         }}
         onExportAll={() => {
-          void exportSchedule(null, () => setOpen(false));
+          void download.exportSchedule(null, () => setOpen(false));
         }}
       />
     </>
@@ -264,7 +276,6 @@ function ExportDialogActions({
 function useScheduleWorkbookDownload(locale: string) {
   const [busy, setBusy] = useState<"range" | "all" | null>(null);
   const [error, setError] = useState<ScheduleExportError | null>(null);
-
   async function exportSchedule(
     range: { from: string; to: string } | null,
     onSuccess: () => void,
@@ -285,6 +296,5 @@ function useScheduleWorkbookDownload(locale: string) {
       setBusy(null);
     }
   }
-
   return { busy, error, clearError: () => setError(null), exportSchedule };
 }
