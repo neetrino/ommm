@@ -23,11 +23,17 @@ import {
 } from "@/components/ui/date-picker-manual-entry";
 import { isBeforeCalendarDate, parseIsoDate } from "@/components/ui/date-picker-utils";
 
+const SEGMENT_FIELD_CLASS =
+  "!flex-none rounded-md text-center font-medium tabular-nums transition-colors focus:bg-sand-100";
+
 const SEGMENT_WIDTH_CLASS: Record<DateSegmentPart, string> = {
-  day: "!w-[3ch] !min-w-[3ch] !flex-none text-center",
-  month: "!w-[3ch] !min-w-[3ch] !flex-none text-center",
-  year: "!w-[5.5ch] !min-w-[5.5ch] !flex-none text-center",
+  day: `!w-8 !min-w-8 ${SEGMENT_FIELD_CLASS}`,
+  month: `!w-8 !min-w-8 ${SEGMENT_FIELD_CLASS}`,
+  year: `!w-12 !min-w-12 ${SEGMENT_FIELD_CLASS}`,
 };
+
+const DATE_SEGMENT_SLASH_CLASS =
+  "select-none px-px text-xs leading-none text-sage-300";
 
 const SEGMENT_PLACEHOLDER: Record<DateSegmentPart, string> = {
   day: "DD",
@@ -47,10 +53,6 @@ type DatePickerManualFieldProps = {
 };
 
 type ManualDateDraft = {
-  groupRef: RefObject<HTMLDivElement | null>;
-  dayRef: RefObject<HTMLInputElement | null>;
-  monthRef: RefObject<HTMLInputElement | null>;
-  yearRef: RefObject<HTMLInputElement | null>;
   segments: DateSegments;
   focusPart: (part: DateSegmentPart | null) => void;
   handleSegmentChange: (part: DateSegmentPart, rawValue: string) => void;
@@ -150,30 +152,27 @@ function blurDateDraft(
   commitVisibleDraft(current, value, minDate, onChange);
 }
 
+function focusDatePart(group: HTMLDivElement | null, part: DateSegmentPart | null): void {
+  if (group === null || part === null) {
+    return;
+  }
+  group.querySelector<HTMLInputElement>(`[data-date-part="${part}"]`)?.focus();
+}
+
 function useManualDateDraft(
+  groupRef: RefObject<HTMLDivElement | null>,
   value: string,
   onChange: (nextValue: string) => void,
   minDate: Date | undefined,
 ): ManualDateDraft {
-  const groupRef = useRef<HTMLDivElement>(null);
-  const dayRef = useRef<HTMLInputElement>(null);
-  const monthRef = useRef<HTMLInputElement>(null);
-  const yearRef = useRef<HTMLInputElement>(null);
   const [draft, setDraft] = useState<DateSegments | null>(null);
   const draftRef = useRef<DateSegments | null>(null);
 
   function focusPart(part: DateSegmentPart | null): void {
-    const target = part === "day" ? dayRef : part === "month" ? monthRef : yearRef;
-    if (part !== null) {
-      target.current?.focus();
-    }
+    focusDatePart(groupRef.current, part);
   }
 
   return {
-    groupRef,
-    dayRef,
-    monthRef,
-    yearRef,
     segments: draft ?? dateSegmentsFromIso(value),
     focusPart,
     handleSegmentChange(part, rawValue) {
@@ -229,20 +228,21 @@ export function DatePickerManualField({
   inputClassName,
   minDate,
 }: DatePickerManualFieldProps) {
-  const draft = useManualDateDraft(value, onChange, minDate);
+  const groupRef = useRef<HTMLDivElement>(null);
+  const draft = useManualDateDraft(groupRef, value, onChange, minDate);
 
   return (
-    <div ref={draft.groupRef} className="flex min-w-0 flex-1 flex-nowrap items-center">
+    <div ref={groupRef} className="flex min-w-0 flex-1 flex-nowrap items-center">
       {DATE_SEGMENT_PARTS.map((part, index) => (
         <span key={part} className="inline-flex items-center">
           {index > 0 ? (
-            <span className="select-none px-px text-sm text-sage-400" aria-hidden="true">
+            <span className={DATE_SEGMENT_SLASH_CLASS} aria-hidden="true">
               /
             </span>
           ) : null}
           <input
             id={part === "day" ? id : undefined}
-            ref={part === "day" ? draft.dayRef : part === "month" ? draft.monthRef : draft.yearRef}
+            data-date-part={part}
             type="text"
             inputMode="numeric"
             autoComplete="off"

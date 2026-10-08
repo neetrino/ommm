@@ -123,50 +123,56 @@ export function AdminClientPackageValidityEditor({
         className={`${ADMIN_SHEET_FORM_SECTION_CLASS} space-y-4`}
         onSubmit={(event) => void handleSubmit(event)}
       >
-        <div className="flex items-start gap-2 sm:gap-3">
-          <AdminSheetEditableField
-            className="min-w-0 flex-1"
-            label={t("packages.activationDate")}
-            error={activationError}
-            hint={t("packages.activationDateOptionalHint")}
-          >
-            <DatePickerInput
-              name="activationDate"
-              value={activationDate}
-              disabled={submitting}
-              allowManualEntry
-              placeholder="DD/MM/YYYY"
-              onChange={(nextValue) => {
-                setActivationDate(nextValue);
-                setActivationError(undefined);
-              }}
-            />
-          </AdminSheetEditableField>
-          <span
-            className="mt-7 shrink-0 select-none px-0.5 font-serif text-lg leading-none text-sand-400"
-            aria-hidden="true"
-          >
-            –
-          </span>
-          <AdminSheetEditableField
-            className="min-w-0 flex-1"
-            label={t("packages.expirationDate")}
-            required
-            error={expirationError}
-          >
-            <DatePickerInput
-              name="expirationDate"
-              value={expirationDate}
+        <div className="space-y-1.5">
+          <div className="flex items-start gap-2 sm:gap-3">
+            <AdminSheetEditableField
+              className="min-w-0 flex-1"
+              label={t("packages.activationDate")}
+              error={activationError}
+            >
+              <DatePickerInput
+                name="activationDate"
+                value={activationDate}
+                disabled={submitting}
+                allowManualEntry
+                placeholder="DD/MM/YYYY"
+                onChange={(nextValue) => {
+                  setActivationDate(nextValue);
+                  setActivationError(undefined);
+                }}
+              />
+            </AdminSheetEditableField>
+            <span
+              className="mt-7 shrink-0 select-none px-0.5 font-serif text-lg leading-none text-sand-400"
+              aria-hidden="true"
+            >
+              –
+            </span>
+            <AdminSheetEditableField
+              className="min-w-0 flex-1"
+              label={t("packages.expirationDate")}
               required
-              disabled={submitting}
-              allowManualEntry
-              placeholder="DD/MM/YYYY"
-              onChange={(nextValue) => {
-                setExpirationDate(nextValue);
-                setExpirationError(undefined);
-              }}
-            />
-          </AdminSheetEditableField>
+              error={expirationError}
+            >
+              <DatePickerInput
+                name="expirationDate"
+                value={expirationDate}
+                required
+                disabled={submitting}
+                allowManualEntry
+                placeholder="DD/MM/YYYY"
+                onChange={(nextValue) => {
+                  setExpirationDate(nextValue);
+                  setExpirationError(undefined);
+                }}
+              />
+            </AdminSheetEditableField>
+          </div>
+          {activationError === undefined ? (
+            <p className="text-[11px] leading-snug text-sage-500">
+              {t("packages.activationDateOptionalHint")}
+            </p>
+          ) : null}
         </div>
         <div className="flex flex-wrap items-center justify-end gap-2">
           <OmmButton

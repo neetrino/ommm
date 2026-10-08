@@ -5,7 +5,10 @@ import { createPortal } from "react-dom";
 import { formatDateForUi } from "@/lib/date-display";
 import { DatePickerCalendarPopup } from "@/components/ui/date-picker-calendar-popup";
 import { DatePickerManualField } from "@/components/ui/date-picker-manual-field";
-import { DatePickerCalendarGlyph } from "@/components/ui/date-picker-icons";
+import {
+  DatePickerCalendarGlyph,
+  DatePickerClearGlyph,
+} from "@/components/ui/date-picker-icons";
 import {
   DATE_PICKER_FALLBACK_POPUP_HEIGHT,
   DATE_PICKER_POPUP_EDGE_MARGIN,
@@ -284,7 +287,7 @@ export const DatePickerInput = forwardRef<DatePickerInputHandle, DatePickerInput
       <span
         role="button"
         tabIndex={disabled ? -1 : 0}
-        className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[15px] leading-none text-sage-500 transition-colors hover:bg-sand-100 hover:text-sage-700"
+        className="inline-flex size-6 shrink-0 items-center justify-center rounded-full text-sage-400 transition-colors hover:bg-sand-100 hover:text-sage-700"
         onClick={(event) => {
           event.stopPropagation();
           if (!disabled) {
@@ -303,7 +306,7 @@ export const DatePickerInput = forwardRef<DatePickerInputHandle, DatePickerInput
         }}
         aria-label="Clear date"
       >
-        x
+        <DatePickerClearGlyph className="size-3.5" />
       </span>
     ) : null;
 
