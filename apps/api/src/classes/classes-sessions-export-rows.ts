@@ -55,9 +55,7 @@ export function toScheduleExportSession(
   };
 }
 
-export function scheduleExportHeaderCells(
-  copy: ScheduleExportCopy,
-): string[] {
+export function scheduleExportHeaderCells(copy: ScheduleExportCopy): string[] {
   return [
     copy.date,
     copy.weekday,

@@ -23,16 +23,14 @@ const TABLE_BORDER = {
   right: THIN_EDGE,
 };
 
-const STATUS_TONE: Record<
-  ClassSessionStatus,
-  { fill: string; font: string }
-> = {
-  ACTIVE: { fill: 'FFD1FAE5', font: 'FF065F46' },
-  FULL: { fill: 'FFFFFBEB', font: 'FF78350F' },
-  CANCELLED: { fill: 'FFFEE2E2', font: 'FFB91C1C' },
-  DRAFT: { fill: 'FFF4EFE6', font: 'FF6B5C4C' },
-  FINISHED: { fill: 'FFF3F6F3', font: 'FF4B6358' },
-};
+const STATUS_TONE: Record<ClassSessionStatus, { fill: string; font: string }> =
+  {
+    ACTIVE: { fill: 'FFD1FAE5', font: 'FF065F46' },
+    FULL: { fill: 'FFFFFBEB', font: 'FF78350F' },
+    CANCELLED: { fill: 'FFFEE2E2', font: 'FFB91C1C' },
+    DRAFT: { fill: 'FFF4EFE6', font: 'FF6B5C4C' },
+    FINISHED: { fill: 'FFF3F6F3', font: 'FF4B6358' },
+  };
 
 const NUMBER_COLUMNS = new Set<number>(SCHEDULE_XLSX_NUMBER_COLUMNS);
 

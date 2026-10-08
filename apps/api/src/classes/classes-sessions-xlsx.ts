@@ -84,7 +84,10 @@ function applyScheduleSheetLayout(
   const lastRow = SCHEDULE_XLSX_HEADER_ROW + Math.max(itemCount, 0);
   sheet.autoFilter = {
     from: { row: SCHEDULE_XLSX_HEADER_ROW, column: 1 },
-    to: { row: Math.max(lastRow, SCHEDULE_XLSX_HEADER_ROW), column: SCHEDULE_XLSX_COLUMN_COUNT },
+    to: {
+      row: Math.max(lastRow, SCHEDULE_XLSX_HEADER_ROW),
+      column: SCHEDULE_XLSX_COLUMN_COUNT,
+    },
   };
   sheet.views = [
     {

@@ -39,7 +39,9 @@ describe('schedule workbook', () => {
     const sheet = workbook.getWorksheet('Schedule');
     expect(sheet?.getCell('A1').value).toBe('Ժամանակացույց');
     expect(sheet?.getCell('A2').value).toBe('08/10/2026 · 1 դաս');
-    expect(sheet?.getCell(`A${SCHEDULE_XLSX_HEADER_ROW}`).value).toBe('Ամսաթիվ');
+    expect(sheet?.getCell(`A${SCHEDULE_XLSX_HEADER_ROW}`).value).toBe(
+      'Ամսաթիվ',
+    );
     expect(sheet?.getCell(`E${SCHEDULE_XLSX_HEADER_ROW}`).value).toBe('Դաս');
     expect(sheet?.getCell(`A${SCHEDULE_XLSX_HEADER_ROW + 1}`).value).toBe(
       '08/10/2026',
