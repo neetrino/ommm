@@ -2,13 +2,9 @@
 
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import {
-  formatBirthdayInput,
-  formatDateForUi,
-  formatIsoDateToUi,
-  parseBirthdayDisplayToIso,
-} from "@/lib/date-display";
+import { formatDateForUi } from "@/lib/date-display";
 import { DatePickerCalendarPopup } from "@/components/ui/date-picker-calendar-popup";
+import { DatePickerManualField } from "@/components/ui/date-picker-manual-field";
 import { DatePickerCalendarGlyph } from "@/components/ui/date-picker-icons";
 import {
   DATE_PICKER_FALLBACK_POPUP_HEIGHT,
@@ -85,8 +81,6 @@ export const DatePickerInput = forwardRef<DatePickerInputHandle, DatePickerInput
   const [visibleMonth, setVisibleMonth] = useState<Date>(() =>
     startOfMonth(selectedDate ?? new Date()),
   );
-  const [manualDraft, setManualDraft] = useState("");
-  const [isManualFocused, setIsManualFocused] = useState(false);
 
   const closePicker = useCallback(() => {
     setIsOpen(false);
@@ -140,13 +134,6 @@ export const DatePickerInput = forwardRef<DatePickerInputHandle, DatePickerInput
     }
     return new Date(minDate.getFullYear(), minDate.getMonth(), minDate.getDate());
   }, [disablePastDates, minDate, today]);
-
-  const resolvedManualDisplay = useMemo(() => {
-    if (value.trim().length === 0) {
-      return "";
-    }
-    return formatIsoDateToUi(value);
-  }, [value]);
 
   useEffect(() => {
     if (!isOpen) {
@@ -237,31 +224,6 @@ export const DatePickerInput = forwardRef<DatePickerInputHandle, DatePickerInput
       window.removeEventListener("scroll", updatePopupPosition, true);
     };
   }, [isOpen, updatePopupPosition]);
-
-  const commitManualDraft = useCallback(
-    (draft: string) => {
-      const trimmed = draft.trim();
-      if (trimmed.length === 0) {
-        onChange("");
-        return;
-      }
-      const iso = parseBirthdayDisplayToIso(trimmed);
-      if (iso === null) {
-        onChange("");
-        return;
-      }
-      const parsed = parseIsoDate(iso);
-      if (
-        parsed !== null &&
-        resolvedMinDate !== undefined &&
-        isBeforeCalendarDate(parsed, resolvedMinDate)
-      ) {
-        return;
-      }
-      onChange(iso);
-    },
-    [onChange, resolvedMinDate],
-  );
 
   const calendarPopup =
     isOpen && popupPosition !== null
@@ -361,7 +323,6 @@ export const DatePickerInput = forwardRef<DatePickerInputHandle, DatePickerInput
   ) : null;
 
   if (allowManualEntry) {
-    const manualValue = isManualFocused ? manualDraft : resolvedManualDisplay;
     const fieldShellClass = bare
       ? `flex min-w-0 flex-1 items-center gap-1 ${containerClassName}`.trim()
       : `ommm-input flex items-center gap-2 ${containerClassName}`.trim();
@@ -370,36 +331,15 @@ export const DatePickerInput = forwardRef<DatePickerInputHandle, DatePickerInput
       <div className={isOpen ? "relative z-[140]" : "relative"} ref={wrapperRef}>
         <input type="hidden" name={name} value={value} required={required} />
         <div className={fieldShellClass} ref={fieldShellRef}>
-          <input
+          <DatePickerManualField
             id={id}
-            type="text"
-            inputMode="numeric"
-            autoComplete="off"
-            maxLength={10}
-            className={inputClassName}
-            value={manualValue}
-            placeholder={placeholder}
-            aria-label={ariaLabel}
+            value={value}
+            onChange={onChange}
             disabled={disabled}
-            onFocus={() => {
-              setManualDraft(resolvedManualDisplay);
-              setIsManualFocused(true);
-            }}
-            onChange={(event) => {
-              setManualDraft(formatBirthdayInput(event.target.value));
-            }}
-            onBlur={() => {
-              commitManualDraft(manualDraft);
-              setIsManualFocused(false);
-            }}
-            onKeyDown={(event) => {
-              if (event.key === "Enter") {
-                event.preventDefault();
-                commitManualDraft(manualDraft);
-                setIsManualFocused(false);
-                event.currentTarget.blur();
-              }
-            }}
+            ariaLabel={ariaLabel}
+            placeholder={placeholder}
+            inputClassName={inputClassName}
+            minDate={resolvedMinDate}
           />
           {clearDateControl}
           {calendarTrigger}
