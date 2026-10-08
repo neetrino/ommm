@@ -33,6 +33,8 @@ export type DatePickerInputProps = {
   placeholder?: string;
   /** Enables DD/MM/YYYY typing alongside the calendar picker. */
   allowManualEntry?: boolean;
+  /** Prints DD / MM / YYYY above the manual day, month, and year segments. */
+  showSegmentLabels?: boolean;
   /** Skips the outer `ommm-input` shell for embedding in compact fields. */
   bare?: boolean;
   inputClassName?: string;
@@ -65,6 +67,7 @@ export const DatePickerInput = forwardRef<DatePickerInputHandle, DatePickerInput
       ariaLabel,
       placeholder = "DD/MM/YYYY",
       allowManualEntry = false,
+      showSegmentLabels = false,
       bare = false,
       inputClassName = DEFAULT_MANUAL_INPUT_CLASS,
       containerClassName = "",
@@ -326,9 +329,10 @@ export const DatePickerInput = forwardRef<DatePickerInputHandle, DatePickerInput
   ) : null;
 
   if (allowManualEntry) {
+    const segmentAlign = showSegmentLabels ? "items-end" : "items-center";
     const fieldShellClass = bare
-      ? `flex min-w-0 flex-1 items-center gap-1 ${containerClassName}`.trim()
-      : `ommm-input flex min-w-0 items-center justify-between gap-2 ${containerClassName}`.trim();
+      ? `flex min-w-0 flex-1 ${segmentAlign} gap-1 ${containerClassName}`.trim()
+      : `ommm-input flex min-w-0 ${segmentAlign} justify-between gap-2 ${containerClassName}`.trim();
 
     return (
       <div className={isOpen ? "relative z-[140] min-w-0" : "relative min-w-0"} ref={wrapperRef}>
@@ -343,6 +347,7 @@ export const DatePickerInput = forwardRef<DatePickerInputHandle, DatePickerInput
             placeholder={placeholder}
             inputClassName={inputClassName}
             minDate={resolvedMinDate}
+            showSegmentLabels={showSegmentLabels}
           />
           <span className="inline-flex shrink-0 items-center gap-1">
             {clearDateControl}

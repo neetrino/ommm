@@ -30,6 +30,7 @@ import {
   type AdminSessionRow,
   type ClassSessionWithRecurrence,
 } from './classes-session.helpers';
+import { loadAdminSessionsForExport } from './classes-sessions-export-query';
 import {
   buildSessionsListWhere,
   filterSessionRows,
@@ -112,6 +113,14 @@ export class ClassesSessionsAdminService {
       offset,
       dateStripStartsAt: dateStripRows.map((row) => row.startsAt.toISOString()),
     };
+  }
+
+  /** All sessions matching the schedule filters, for the Excel workbook. */
+  async listSessionsForExport(
+    query: AdminListSessionsQueryDto,
+  ): Promise<AdminSessionRow[]> {
+    await this.statusTransition.finishPastClassSessions();
+    return loadAdminSessionsForExport(this.prisma, query);
   }
 
   async createSession(dto: CreateSessionDto): Promise<AdminSessionRow> {

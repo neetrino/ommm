@@ -1,4 +1,5 @@
 import {
+  comparePublicPackagePlansByTotalSessions,
   listConfiguredPublicPackagePlans,
   type PublicPackageCategoryGroup,
 } from "@/lib/public-package-categories";
@@ -27,22 +28,5 @@ export function listPublicPackageCategorySubscribablePlans(
   return listConfiguredPublicPackagePlans(category.plans)
     .filter((plan) => plan.isActive)
     .filter((plan) => !isMarketingPackageFallbackPlan(plan))
-    .sort((left, right) => {
-      if (left.displayOrder !== right.displayOrder) {
-        return left.displayOrder - right.displayOrder;
-      }
-      const leftPrice =
-        typeof left.discountedPriceCents === "number" &&
-        left.discountedPriceCents > 0 &&
-        left.discountedPriceCents < left.priceCents
-          ? left.discountedPriceCents
-          : left.priceCents;
-      const rightPrice =
-        typeof right.discountedPriceCents === "number" &&
-        right.discountedPriceCents > 0 &&
-        right.discountedPriceCents < right.priceCents
-          ? right.discountedPriceCents
-          : right.priceCents;
-      return leftPrice - rightPrice;
-    });
+    .sort(comparePublicPackagePlansByTotalSessions);
 }

@@ -42,7 +42,10 @@ import {
   resolveScheduleView,
   type ScheduleView,
 } from "@/components/admin/admin-schedule-view";
-import { resolveScheduleListDateRange, SCHEDULE_STRIP_ALL_VALUE } from "@/components/admin/admin-schedule-url";
+import {
+  resolveScheduleListDateRange,
+  SCHEDULE_STRIP_ALL_VALUE,
+} from "@/components/admin/admin-schedule-url";
 import {
   addCalendarMonths,
   monthBoundsIso,

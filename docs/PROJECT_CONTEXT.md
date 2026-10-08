@@ -208,6 +208,7 @@ Notes:
 | `/v1/classes/sessions` | GET | List public sessions | `from,to,coachId,typeId` | sessions list | none |
 | `/v1/classes/sessions/:id` | GET | Get public session | id | session | none |
 | `/v1/classes/admin/sessions` | GET | Admin session list | `AdminListSessionsQueryDto` | paged list | none |
+| `/v1/classes/admin/sessions/export` | GET | Admin schedule Excel export | same filters + `locale` | `.xlsx` workbook | none |
 | `/v1/classes/sessions` | POST | Create session | `CreateSessionDto` | created session | DB create |
 | `/v1/classes/sessions/:id` | PATCH | Update session | `UpdateSessionDto` | updated session | DB update |
 | `/v1/classes/sessions/:id/cancel` | POST | Cancel session | id | status/object | Updates session status |

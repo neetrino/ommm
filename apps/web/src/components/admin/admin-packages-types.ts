@@ -1,3 +1,5 @@
+import { compareAdminPackagesByTotalSessions } from "@/components/admin/admin-package-type-sessions.util";
+
 /** Ensures guestCount is present when the API omits it (pre-migration rows). */
 export function normalizeAdminPackageRow(row: AdminPackageRow): AdminPackageRow {
   const categorySlug =
@@ -89,7 +91,7 @@ export type PackageFilterValues = {
 export function sortAdminPackageRows(
   rows: readonly AdminPackageRow[],
 ): AdminPackageRow[] {
-  return [...rows].sort((left, right) => left.displayOrder - right.displayOrder);
+  return [...rows].sort(compareAdminPackagesByTotalSessions);
 }
 
 export function upsertAdminPackageRow(

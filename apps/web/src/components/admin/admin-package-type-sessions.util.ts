@@ -116,6 +116,38 @@ export function resolvePackageTotalSessions(pkg: AdminPackageRow): number | null
   return allocations.reduce((total, allocation) => total + allocation.sessionCount, 0);
 }
 
+/** Ascending total sessions. Packages without a session total sort last. */
+export function compareAdminPackagesByTotalSessions(
+  left: AdminPackageRow,
+  right: AdminPackageRow,
+): number {
+  const bySessions = compareOptionalSessionCount(
+    resolvePackageTotalSessions(left),
+    resolvePackageTotalSessions(right),
+  );
+  if (bySessions !== 0) {
+    return bySessions;
+  }
+  const byName = left.name.localeCompare(right.name);
+  if (byName !== 0) {
+    return byName;
+  }
+  return left.id.localeCompare(right.id);
+}
+
+function compareOptionalSessionCount(left: number | null, right: number | null): number {
+  if (left === null && right === null) {
+    return 0;
+  }
+  if (left === null) {
+    return 1;
+  }
+  if (right === null) {
+    return -1;
+  }
+  return left - right;
+}
+
 export function buildTypeSessionAllocationsPayload(
   entries: readonly PackageTypeSessionFormEntry[],
 ): PackageTypeSessionAllocation[] | null {
