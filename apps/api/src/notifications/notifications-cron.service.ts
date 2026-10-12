@@ -16,17 +16,19 @@ import { formatPaymentDateTime } from '../payments/payment-email-format.util';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   ACTION_BROADCAST_SCHEDULED,
-  ACTION_BROADCAST_SCHEDULED_FAILED,
-  ACTION_BROADCAST_SCHEDULED_SENT,
   CLASS_REMINDER_BATCH_TAKE,
   CLASS_REMINDER_HOURS_WINDOWS,
-  CLASS_REMINDER_WINDOW_MINUTES,
   ENABLE_BACKGROUND_REMINDERS_ENV,
   SCHEDULED_TIMELINE_ACTIONS,
 } from './notifications-audit.constants';
+import {
+  classReminderSessionWindow,
+  notificationDueUntil,
+} from './notification-send-window';
 import { WhatsappNotifyService } from '../whatsapp/whatsapp-notify.service';
 import { formatWhatsappDateTime } from '../whatsapp/whatsapp-locale';
 import { renderClassReminderWhatsapp } from '../whatsapp/whatsapp-schedule-templates';
+import { deliverDueScheduledBroadcast } from './notifications-scheduled-dispatch';
 import { NotificationsBroadcastService } from './notifications-broadcast.service';
 import {
   groupTimelineByEntityId,
@@ -34,24 +36,6 @@ import {
   isEnabledEnv,
   resolveEffectiveScheduledPayload,
 } from './notifications-payload.helpers';
-
-const HOUR_MS = 60 * 60 * 1000;
-const MINUTE_MS = 60 * 1000;
-
-/**
- * Sessions already due for this reminder, plus a short lookback for missed ticks.
- * Ending at `now + hoursBefore` keeps the previous cron tick from sending early.
- */
-export function classReminderSessionWindow(
-  nowMs: number,
-  hoursBefore: number,
-): { start: Date; end: Date } {
-  const endMs = nowMs + hoursBefore * HOUR_MS;
-  return {
-    start: new Date(endMs - CLASS_REMINDER_WINDOW_MINUTES * MINUTE_MS),
-    end: new Date(endMs),
-  };
-}
 
 type ClassReminderBooking = {
   id: string;
@@ -90,29 +74,34 @@ export class NotificationsCronService {
     }
   }
 
-  /** Invoked by CronBatchService (every 30 min). */
+  /** Invoked by CronBatchService (every 30 min), only during 13:00–21:00 Yerevan. */
   async sendClassReminders(): Promise<void> {
     if (!this.remindersCronEnabled) {
       return;
     }
-    const nowMs = Date.now();
+    const now = new Date(Date.now());
+    if (notificationDueUntil(now) === null) {
+      return;
+    }
     for (const hoursBefore of CLASS_REMINDER_HOURS_WINDOWS) {
-      await this.sendClassRemindersForWindow(nowMs, hoursBefore);
+      await this.sendClassRemindersForWindow(now, hoursBefore);
     }
   }
 
   private async sendClassRemindersForWindow(
-    nowMs: number,
+    now: Date,
     hoursBefore: number,
   ): Promise<void> {
-    const { start: windowStart, end: windowEnd } = classReminderSessionWindow(
-      nowMs,
-      hoursBefore,
-    );
+    const window = classReminderSessionWindow(now, hoursBefore);
+    if (window === null) {
+      return;
+    }
     const bookings = await this.prisma.booking.findMany({
       where: {
         status: BookingStatus.BOOKED,
-        session: { startsAt: { gte: windowStart, lte: windowEnd } },
+        session: {
+          startsAt: { gt: now, gte: window.start, lte: window.end },
+        },
       },
       include: {
         user: { include: { notificationPrefs: true } },
@@ -210,8 +199,12 @@ export class NotificationsCronService {
     });
   }
 
-  /** Invoked by CronBatchService (every 30 min). */
+  /** Invoked by CronBatchService (every 30 min), only during 13:00–21:00 Yerevan. */
   async dispatchScheduledBroadcasts(): Promise<void> {
+    const dueUntil = notificationDueUntil(new Date(Date.now()));
+    if (dueUntil === null) {
+      return;
+    }
     const scheduled = await this.prisma.auditLog.findMany({
       where: { action: ACTION_BROADCAST_SCHEDULED, entityType: 'Notification' },
       orderBy: { createdAt: 'asc' },
@@ -229,7 +222,11 @@ export class NotificationsCronService {
     });
     const timelineByEntityId = groupTimelineByEntityId(timeline);
     for (const item of scheduled) {
-      await this.dispatchOneScheduledBroadcast(item, timelineByEntityId);
+      await this.dispatchOneScheduledBroadcast(
+        item,
+        timelineByEntityId,
+        dueUntil,
+      );
     }
   }
 
@@ -239,53 +236,23 @@ export class NotificationsCronService {
       string,
       { action: string; payload: string | null; createdAt: Date }[]
     >,
+    dueUntil: Date,
   ): Promise<void> {
     const payload = resolveEffectiveScheduledPayload(
       item.payload,
       timelineByEntityId.get(item.entityId) ?? [],
     );
-    if (!payload || new Date(payload.scheduleAt) > new Date()) {
+    if (!payload || new Date(payload.scheduleAt) > dueUntil) {
       return;
     }
     const timelineForItem = timelineByEntityId.get(item.entityId) ?? [];
     if (hasScheduledTerminalStatus(timelineForItem)) {
       return;
     }
-    try {
-      const sent = await this.broadcast.broadcastToAll(
-        payload.subject,
-        payload.html,
-        {
-          audience: payload.audience,
-          onlyPromotionsOptIn: payload.onlyPromotionsOptIn,
-          scheduleEntityId: item.entityId,
-        },
-      );
-      await this.audit.log({
-        actorRole: 'ADMIN',
-        action: ACTION_BROADCAST_SCHEDULED_SENT,
-        entityType: 'Notification',
-        entityId: item.entityId,
-        payload: {
-          scheduledFor: payload.scheduleAt,
-          sentCount: sent.count ?? 0,
-        },
-      });
-    } catch (error) {
-      this.logger.error(
-        `Scheduled broadcast dispatch failed for ${item.id}`,
-        error instanceof Error ? error.stack : undefined,
-      );
-      await this.audit.log({
-        actorRole: 'ADMIN',
-        action: ACTION_BROADCAST_SCHEDULED_FAILED,
-        entityType: 'Notification',
-        entityId: item.entityId,
-        payload: {
-          scheduledFor: payload.scheduleAt,
-          error: error instanceof Error ? error.message : 'unknown',
-        },
-      });
-    }
+    await deliverDueScheduledBroadcast(
+      { broadcast: this.broadcast, audit: this.audit, logger: this.logger },
+      item,
+      payload,
+    );
   }
 }

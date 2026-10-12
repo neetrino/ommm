@@ -5,6 +5,8 @@ import { STAFF_CANCEL_PACKAGE_EXPIRED_MESSAGE } from './bookings-staff-cancel.he
 
 const ACTOR = { id: 'manager-1' };
 const BOOKING_ID = 'booking-1';
+/** Far enough ahead that the completed-visit case stays an open package. */
+const OPEN_PACKAGE_PERIOD_END = new Date('2099-01-01T00:00:00.000Z');
 
 function sessionShape(endsAt = new Date('2026-08-20T19:00:00.000Z')) {
   return {
@@ -45,7 +47,7 @@ describe('BookingsStaffCancelService', () => {
       consumptions: [
         {
           userPackage: {
-            currentPeriodEnd: new Date('2026-09-20T00:00:00.000Z'),
+            currentPeriodEnd: OPEN_PACKAGE_PERIOD_END,
             status: UserPackageStatus.ACTIVE,
           },
         },

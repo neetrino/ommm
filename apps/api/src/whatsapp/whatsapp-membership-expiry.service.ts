@@ -1,11 +1,14 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Prisma, UserPackageStatus } from '@prisma/client';
+import {
+  notificationDueSince,
+  notificationDueUntil,
+} from '../notifications/notification-send-window';
 import { ENABLE_BACKGROUND_REMINDERS_ENV } from '../notifications/notifications-audit.constants';
 import { isEnabledEnv } from '../notifications/notifications-payload.helpers';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   MEMBERSHIP_EXPIRY_REMINDER_DAY_WINDOWS,
-  MEMBERSHIP_EXPIRY_REMINDER_WINDOW_MINUTES,
   WHATSAPP_CRON_BATCH_TAKE,
 } from './whatsapp.constants';
 import { formatWhatsappDate } from './whatsapp-locale';
@@ -13,7 +16,6 @@ import { WhatsappNotifyService } from './whatsapp-notify.service';
 import { renderMembershipExpiryWhatsapp } from './whatsapp-schedule-templates';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
-const MINUTE_MS = 60 * 1000;
 
 type ExpiryReminderPackage = {
   id: string;
@@ -40,20 +42,24 @@ export class WhatsappMembershipExpiryService {
   /**
    * Invoked by CronBatchService (every 30 min).
    * One WhatsApp at 7 days and one at 1 day, only when no session is still held.
+   * Sends only during 13:00–21:00 Asia/Yerevan; night dues wait for 13:00.
    */
   async sendDueReminders(): Promise<void> {
     if (!this.cronEnabled || !(await this.notify.isConfigured())) {
       return;
     }
-    const nowMs = Date.now();
+    const now = new Date(Date.now());
+    if (notificationDueUntil(now) === null) {
+      return;
+    }
     for (const daysBefore of MEMBERSHIP_EXPIRY_REMINDER_DAY_WINDOWS) {
-      await this.sendWindow(nowMs, daysBefore);
+      await this.sendWindow(now, daysBefore);
     }
   }
 
-  private async sendWindow(nowMs: number, daysBefore: number): Promise<void> {
+  private async sendWindow(now: Date, daysBefore: number): Promise<void> {
     const packages = await this.prisma.userPackage.findMany({
-      where: unusedPackageExpiryWhere(nowMs, daysBefore),
+      where: unusedPackageExpiryWhere(now, daysBefore),
       select: {
         id: true,
         userId: true,
@@ -105,20 +111,19 @@ export class WhatsappMembershipExpiryService {
   }
 }
 
-/** Active package in one reminder window, with no open session consumption. */
+/** Active unused package whose reminder fell due since yesterday 21:00 Yerevan. */
 export function unusedPackageExpiryWhere(
-  nowMs: number,
+  now: Date,
   daysBefore: number,
 ): Prisma.UserPackageWhereInput {
-  const windowStart = nowMs + daysBefore * DAY_MS;
+  const dueUntil = notificationDueUntil(now) ?? now;
+  const offsetMs = daysBefore * DAY_MS;
   return {
     status: UserPackageStatus.ACTIVE,
     removedAt: null,
     currentPeriodEnd: {
-      gte: new Date(windowStart),
-      lte: new Date(
-        windowStart + MEMBERSHIP_EXPIRY_REMINDER_WINDOW_MINUTES * MINUTE_MS,
-      ),
+      gte: new Date(notificationDueSince(now).getTime() + offsetMs),
+      lte: new Date(dueUntil.getTime() + offsetMs),
     },
     consumptions: { none: { restoredAt: null } },
     expiryReminderLogs: { none: { daysBefore } },

@@ -19,6 +19,10 @@ function createSlotServiceAndDeps() {
     payment: {
       findFirst: jest.fn(),
     },
+    giftCardTransaction: {
+      findMany: jest.fn().mockResolvedValue([]),
+      findFirst: jest.fn().mockResolvedValue(null),
+    },
   };
 
   const prisma = {
@@ -213,7 +217,7 @@ describe('BookingsSlotService package credit release', () => {
       session: {
         ...booking.session,
         status: ClassSessionStatus.FULL,
-        endsAt: new Date('2026-09-10T10:00:00.000Z'),
+        endsAt: new Date('2099-09-10T10:00:00.000Z'),
       },
     });
 

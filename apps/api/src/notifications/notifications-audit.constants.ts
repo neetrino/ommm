@@ -20,12 +20,6 @@ export const SCHEDULED_TIMELINE_ACTIONS = [
 /** Class reminders fire at these offsets before `session.startsAt`. */
 export const CLASS_REMINDER_HOURS_WINDOWS = [24, 2] as const;
 
-/**
- * Lookback past the 30 min cron cadence so a start time cannot fall between ticks.
- * The window ends at the due instant, so a 10:00 class is sent on the 10:00 tick.
- */
-export const CLASS_REMINDER_WINDOW_MINUTES = 35;
-
 export const CLASS_REMINDER_BATCH_TAKE = 200;
 
 export const ENABLE_BACKGROUND_REMINDERS_ENV = 'ENABLE_BACKGROUND_REMINDERS';

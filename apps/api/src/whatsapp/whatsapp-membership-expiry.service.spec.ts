@@ -40,7 +40,7 @@ describe('WhatsappMembershipExpiryService', () => {
       id: 'pkg-1',
       userId: 'user-1',
       planNameSnapshot: '8 sessions',
-      currentPeriodEnd: new Date('2026-09-28T15:10:00.000Z'),
+      currentPeriodEnd: new Date('2026-09-28T10:00:00.000Z'),
       user: { locale: 'en' },
     };
   }
@@ -50,6 +50,16 @@ describe('WhatsappMembershipExpiryService', () => {
     await service.sendDueReminders();
     expect(prisma.userPackage.findMany).not.toHaveBeenCalled();
     expect(notify.isConfigured).not.toHaveBeenCalled();
+  });
+
+  it('does not query packages at night in Yerevan', async () => {
+    jest
+      .spyOn(Date, 'now')
+      .mockReturnValue(Date.parse('2026-10-11T23:30:00.000Z'));
+    const { service, prisma, notify } = createService(true);
+    await service.sendDueReminders();
+    expect(prisma.userPackage.findMany).not.toHaveBeenCalled();
+    expect(notify.trySendToUser).not.toHaveBeenCalled();
   });
 
   it('queries the week and day windows for unused active packages only', async () => {
@@ -79,16 +89,16 @@ describe('WhatsappMembershipExpiryService', () => {
     );
     expect(windows).toEqual([
       {
-        from: '2026-09-28T15:00:00.000Z',
-        to: '2026-09-28T15:35:00.000Z',
+        from: '2026-09-27T17:00:00.000Z',
+        to: '2026-09-28T15:00:00.000Z',
         status: UserPackageStatus.ACTIVE,
         removedAt: null,
         consumptions: { none: { restoredAt: null } },
         daysBefore: 7,
       },
       {
-        from: '2026-09-22T15:00:00.000Z',
-        to: '2026-09-22T15:35:00.000Z',
+        from: '2026-09-21T17:00:00.000Z',
+        to: '2026-09-22T15:00:00.000Z',
         status: UserPackageStatus.ACTIVE,
         removedAt: null,
         consumptions: { none: { restoredAt: null } },
