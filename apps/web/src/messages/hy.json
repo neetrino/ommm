@@ -2714,7 +2714,14 @@
         "cancelConfirmKeep": "Պահել ամրագրումը",
         "cancelConfirmDescriptionNamed": "Չեղարկե՞լ {className}-ը ({when})։ Տեղը կրկին հասանելի կդառնա։",
         "cancelSuccess": "Ամրագրումը չեղարկվեց։",
-        "cancelError": "Չհաջողվեց չեղարկել ամրագրումը։"
+        "cancelError": "Չհաջողվեց չեղարկել ամրագրումը։",
+        "returnSessionButton": "Վերադարձնել պարապմունքը",
+        "returnSessionConfirmTitle": "Վերադարձնե՞լ պարապմունքը փաթեթ",
+        "returnSessionConfirmDescription": "Գրառումը կմնա պատմության մեջ։ Պարապմունքը կվերադառնա փաթեթ, և հաճախորդը կկարողանա կրկին ամրագրել։",
+        "returnSessionConfirmLabel": "Վերադարձնել պարապմունքը",
+        "returnSessionConfirmKeep": "Չվերադարձնել",
+        "returnSessionSuccess": "Պարապմունքը վերադարձվեց փաթեթ։",
+        "returnSessionError": "Չհաջողվեց վերադարձնել պարապմունքը։"
       },
       "drawer": {
         "loading": "Բեռնվում են հաճախորդի տվյալները…",

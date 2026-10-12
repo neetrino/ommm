@@ -504,6 +504,12 @@ function AdminClientDrawerInner({
               onChanged();
               void refreshDetail();
             }}
+            onBookingReturnSuccess={() => {
+              setActionTone("ok");
+              setActionMessage(t("bookings.returnSessionSuccess"));
+              onChanged();
+              void refreshDetail();
+            }}
             onBookingCancelError={(message) => {
               setActionTone("err");
               setActionMessage(message);

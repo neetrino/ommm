@@ -2,34 +2,18 @@
 
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { resolveSessionCoachName } from "@/components/account/session-coach-line";
-import { GUEST_PASSES_ENABLED } from "@/lib/guest-passes";
 import { isPastAdminCancelBookingStatus } from "@/components/admin/admin-booking-cancel.helpers";
-import { BookingBookedByBadge } from "@/components/admin/admin-booking-booked-by-badge";
-import {
-  bookingHistoryBookedByMark,
-  bookingHistoryCancelledByText,
-  canCancelHistoryBooking,
-} from "@/components/admin/admin-client-bookings-history.helpers";
+import { AdminClientBookingHistoryRow } from "@/components/admin/admin-client-booking-history-row";
 import type {
   ClientSheetBookingItem,
   ClientSheetPaginatedResponse,
 } from "@/components/admin/admin-clients-types";
-import { BanGlyph } from "@/components/ui/admin-action-glyphs";
 import { OmmConfirmDialog } from "@/components/ui/omm-confirm-dialog";
 import { OmmListPagination } from "@/components/ui/omm-list-pagination";
 import { ApiError, apiFetch } from "@/lib/api";
-import { formatDateForUi, formatDateTimeForUi } from "@/lib/date-display";
+import { formatDateTimeForUi } from "@/lib/date-display";
 
 const CLIENT_BOOKINGS_HISTORY_PAGE_SIZE = 5;
-const CANCEL_BUTTON_CLASS = [
-  "inline-flex shrink-0 items-center gap-1.5 rounded-full",
-  "border border-rose-200/80 bg-rose-50/80 px-2.5 py-1",
-  "text-xs font-medium text-rose-700",
-  "transition hover:bg-rose-100/90",
-  "disabled:cursor-not-allowed disabled:opacity-50",
-].join(" ");
-const CANCEL_ICON_CLASS = "h-3.5 w-3.5 shrink-0";
 
 type FetchResult = {
   key: string;
@@ -44,27 +28,9 @@ type AdminClientBookingsHistoryProps = {
   refreshKey: number;
   allowCancel: boolean;
   onCancelSuccess: () => void;
+  onReturnSuccess: () => void;
   onCancelError: (message: string) => void;
 };
-
-function bookingHistoryStatusLabel(booking: ClientSheetBookingItem): string {
-  return booking.cancelledAt != null ? "CANCELLED" : booking.status;
-}
-
-function bookingHistoryMetaLine(
-  booking: ClientSheetBookingItem,
-  locale: string,
-): string {
-  const parts = [
-    formatDateTimeForUi(booking.session.startsAt, locale),
-    bookingHistoryStatusLabel(booking),
-  ];
-  const level = booking.session.level?.trim();
-  if (level) {
-    parts.push(level);
-  }
-  return parts.join(" · ");
-}
 
 export function AdminClientBookingsHistory({
   clientId,
@@ -73,10 +39,10 @@ export function AdminClientBookingsHistory({
   refreshKey,
   allowCancel,
   onCancelSuccess,
+  onReturnSuccess,
   onCancelError,
 }: AdminClientBookingsHistoryProps) {
   const t = useTranslations("adminPages.clients");
-  const tRoles = useTranslations("dashboard.shell.roles");
   const [page, setPage] = useState(1);
   const [prevClientId, setPrevClientId] = useState(clientId);
   const [result, setResult] = useState<FetchResult | null>(null);
@@ -158,82 +124,18 @@ export function AdminClientBookingsHistory({
             <p className="text-sm text-sage-500">{t("drawer.noBookings")}</p>
           ) : null}
           {!loading
-            ? items.map((booking) => {
-                const showCancel = allowCancel && canCancelHistoryBooking(booking);
-                const extra = booking.cancelledAt
-                  ? `${t("drawer.cancelled")} ${formatDateForUi(booking.cancelledAt)}`
-                  : booking.attendedAt
-                    ? `${t("drawer.attended")} ${formatDateForUi(booking.attendedAt)}`
-                    : null;
-                const roleLabel = (role: Parameters<typeof tRoles>[0]) => tRoles(role);
-                const cancelledByLabel = bookingHistoryCancelledByText(
-                  booking.cancelledAt,
-                  booking.cancelledBy,
-                  {
-                    client: t("drawer.cancelledByClient"),
-                    staff: (input) => t("drawer.cancelledByStaff", input),
-                    roleLabel,
-                  },
-                );
-                const bookedBy = bookingHistoryBookedByMark(booking.createdBy, {
-                  client: t("drawer.bookedByClient"),
-                  staff: (input) => t("drawer.bookedByStaff", input),
-                  roleOnly: (input) => t("drawer.bookedByRole", input),
-                  roleLabel,
-                });
-                const signedUp = `${t("drawer.signedUp")} ${formatDateTimeForUi(booking.createdAt, locale)}`;
-                const coachName = resolveSessionCoachName(booking.session.coach);
-
-                return (
-                  <div
-                    key={booking.id}
-                    className="flex items-start gap-2 rounded-xl border border-white/70 bg-white/65 px-3 py-2 text-sm"
-                  >
-                    <div className="min-w-0 flex-1">
-                      <p className="font-medium text-sage-900">
-                        {booking.session.classType.name}
-                      </p>
-                      <p className="text-xs text-sage-700">
-                        {coachName
-                          ? t("drawer.withCoach", { name: coachName })
-                          : t("drawer.coachUnknown")}
-                      </p>
-                      {GUEST_PASSES_ENABLED && booking.guestName ? (
-                        <p className="text-xs text-sand-800">
-                          {t("drawer.guestPass")}: {booking.guestName}
-                        </p>
-                      ) : null}
-                      <p className="text-xs text-sage-600">
-                        {bookingHistoryMetaLine(booking, locale)}
-                      </p>
-                      <p className="mt-1 text-xs text-sage-500">{signedUp}</p>
-                      {bookedBy !== null ? (
-                        <BookingBookedByBadge kind={bookedBy.kind} label={bookedBy.label} />
-                      ) : null}
-                      {extra !== null ? (
-                        <p className="text-xs text-sage-500">{extra}</p>
-                      ) : null}
-                      {cancelledByLabel !== null ? (
-                        <p className="text-xs font-medium text-rose-700">{cancelledByLabel}</p>
-                      ) : null}
-                    </div>
-                    {showCancel ? (
-                      <button
-                        type="button"
-                        className={CANCEL_BUTTON_CLASS}
-                        disabled={busyId !== null}
-                        onClick={(event) => {
-                          event.stopPropagation();
-                          setPendingCancel(booking);
-                        }}
-                      >
-                        <span>{t("bookings.cancelButton")}</span>
-                        <BanGlyph className={CANCEL_ICON_CLASS} />
-                      </button>
-                    ) : null}
-                  </div>
-                );
-              })
+            ? items.map((booking) => (
+                <AdminClientBookingHistoryRow
+                  key={booking.id}
+                  booking={booking}
+                  locale={locale}
+                  allowCancel={allowCancel}
+                  busy={busyId !== null}
+                  onCancel={setPendingCancel}
+                  onReturnSuccess={onReturnSuccess}
+                  onReturnError={onCancelError}
+                />
+              ))
             : null}
         </div>
       </section>
