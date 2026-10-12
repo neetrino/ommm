@@ -1,6 +1,5 @@
 "use client";
 
-import type { useTranslations } from "next-intl";
 import { useTranslations } from "next-intl";
 import { resolveSessionCoachName } from "@/components/account/session-coach-line";
 import { AdminClientBookingReturnSessionButton } from "@/components/admin/admin-client-booking-return-session-button";
