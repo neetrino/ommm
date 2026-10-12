@@ -389,9 +389,10 @@
       "footerTerms": "Terms and Conditions",
       "footerRefund": "Cancellation & Refund Policy",
       "footerCopyrightPrefix": "COPYRIGHT ©2026",
-      "footerCopyrightSuffix": ". ALL RIGHTS RESERVED.",
-      "footerCreatedByLead": "create by ",
-      "footerCreatedByName": "Neetrino",
+      "footerCopyrightSuffix": ". ALL RIGHTS RESERVED",
+      "footerCopyrightSeparator": " | ",
+      "footerCreatedByLead": "CREATE BY ",
+      "footerCreatedByName": "NEETRINO",
       "footerIllustrationAlt": "Decorative Om symbol illustration"
     }
   },

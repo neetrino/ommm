@@ -389,9 +389,10 @@
       "footerTerms": "Условия использования",
       "footerRefund": "Политика отмены и возврата средств",
       "footerCopyrightPrefix": "COPYRIGHT ©2026",
-      "footerCopyrightSuffix": ". ALL RIGHTS RESERVED.",
-      "footerCreatedByLead": "create by ",
-      "footerCreatedByName": "Neetrino",
+      "footerCopyrightSuffix": ". ALL RIGHTS RESERVED",
+      "footerCopyrightSeparator": " | ",
+      "footerCreatedByLead": "CREATE BY ",
+      "footerCreatedByName": "NEETRINO",
       "footerIllustrationAlt": "Декоративная иллюстрация Om"
     }
   },

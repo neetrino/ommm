@@ -172,9 +172,10 @@ export async function MarketingPublicHomeFooter({
     <MarketingPublicHomeFooterCopyright
       className={styles.copyright}
       prefix={t("footerCopyrightPrefix")}
-      companyPart1={t("footerCopyrightCompanyPart1")}
-      companyPart2={t("footerCopyrightCompanyPart2")}
       suffix={t("footerCopyrightSuffix")}
+      separator={t("footerCopyrightSeparator")}
+      createdByLead={t("footerCreatedByLead")}
+      createdByName={t("footerCreatedByName")}
     />
   );
 
@@ -214,9 +215,10 @@ export async function MarketingPublicHomeFooter({
               footerRefund: t("footerRefund"),
             }}
             copyrightPrefix={t("footerCopyrightPrefix")}
-            copyrightCompanyPart1={t("footerCopyrightCompanyPart1")}
-            copyrightCompanyPart2={t("footerCopyrightCompanyPart2")}
             copyrightSuffix={t("footerCopyrightSuffix")}
+            copyrightSeparator={t("footerCopyrightSeparator")}
+            createdByLead={t("footerCreatedByLead")}
+            createdByName={t("footerCreatedByName")}
           />
         </div>
       </footer>

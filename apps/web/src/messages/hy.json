@@ -389,10 +389,11 @@
       "footerPrivacy": "Գաղտնիության քաղաքականություն",
       "footerTerms": "Օգտագործման պայմաններ",
       "footerRefund": "Չեղարկման և գումարի վերադարձի քաղաքականություն",
-      "footerCopyrightPrefix": "COPYRIGHT ©2026 ",
-      "footerCopyrightCompanyPart1": "NEETRINO IT",
-      "footerCopyrightCompanyPart2": "COMPANY",
-      "footerCopyrightSuffix": ". ALL RIGHTS RESERVED.",
+      "footerCopyrightPrefix": "COPYRIGHT ©2026",
+      "footerCopyrightSuffix": ". ALL RIGHTS RESERVED",
+      "footerCopyrightSeparator": " | ",
+      "footerCreatedByLead": "CREATE BY ",
+      "footerCreatedByName": "NEETRINO",
       "footerIllustrationAlt": "Օմ նշանի դեկորատիվ նկար"
     }
   },

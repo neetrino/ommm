@@ -341,7 +341,12 @@
   border-radius: 2px;
 }
 
-.copyrightLine {
+.copyrightNotice {
+  display: block;
+  white-space: nowrap;
+}
+
+.copyrightCredit {
   display: block;
   white-space: nowrap;
 }
@@ -355,6 +360,11 @@
   text-align: right;
   text-transform: uppercase;
   white-space: nowrap;
+}
+
+.copyright .copyrightNotice,
+.copyright .copyrightCredit {
+  display: inline;
 }
 
 .copyrightCompany {
