@@ -4,47 +4,46 @@ import styles from "@/components/marketing/home/marketing-public-home-footer.mod
 export type MarketingPublicHomeFooterCopyrightProps = {
   className: string;
   prefix: string;
-  companyPart1: string;
-  companyPart2: string;
   suffix: string;
-  /** Mobile — two lines after “NEETRINO IT”; desktop — single line. */
+  separator: string;
+  createdByLead: string;
+  createdByName: string;
+  /** Desktop — one line. Mobile — notice, then the credit underneath. */
   layout?: "single-line" | "two-line";
 };
 
-/** Figma footer — copyright with linked company name. */
+/** Footer copyright notice with a bold studio credit. */
 export function MarketingPublicHomeFooterCopyright({
   className,
   prefix,
-  companyPart1,
-  companyPart2,
   suffix,
+  separator,
+  createdByLead,
+  createdByName,
   layout = "single-line",
 }: MarketingPublicHomeFooterCopyrightProps) {
+  const credit = (
+    <span className={styles.copyrightCredit}>
+      {createdByLead}
+      <a
+        href={HOME_FOOTER_COPYRIGHT_COMPANY_HREF}
+        className={styles.copyrightCompany}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        {createdByName}
+      </a>
+    </span>
+  );
+
   if (layout === "two-line") {
     return (
       <p className={className}>
-        <span className={styles.copyrightLine}>
+        <span className={styles.copyrightNotice}>
           {prefix}
-          <a
-            href={HOME_FOOTER_COPYRIGHT_COMPANY_HREF}
-            className={styles.copyrightCompany}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            {companyPart1}
-          </a>
-        </span>
-        <span className={styles.copyrightLine}>
-          <a
-            href={HOME_FOOTER_COPYRIGHT_COMPANY_HREF}
-            className={styles.copyrightCompany}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            {companyPart2}
-          </a>
           {suffix}
         </span>
+        {credit}
       </p>
     );
   }
@@ -52,15 +51,9 @@ export function MarketingPublicHomeFooterCopyright({
   return (
     <p className={className}>
       {prefix}
-      <a
-        href={HOME_FOOTER_COPYRIGHT_COMPANY_HREF}
-        className={styles.copyrightCompany}
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        {companyPart1} {companyPart2}
-      </a>
       {suffix}
+      {separator}
+      {credit}
     </p>
   );
 }

@@ -33,9 +33,10 @@ export type MarketingPublicHomeFooterMobileProps = {
   legalNavAria: string;
   legalLabels: Record<FooterLegalKey, string>;
   copyrightPrefix: string;
-  copyrightCompanyPart1: string;
-  copyrightCompanyPart2: string;
   copyrightSuffix: string;
+  copyrightSeparator: string;
+  createdByLead: string;
+  createdByName: string;
 };
 
 /** Figma mobile footer `632:1081`. */
@@ -55,9 +56,10 @@ export function MarketingPublicHomeFooterMobile({
   legalNavAria,
   legalLabels,
   copyrightPrefix,
-  copyrightCompanyPart1,
-  copyrightCompanyPart2,
   copyrightSuffix,
+  copyrightSeparator,
+  createdByLead,
+  createdByName,
 }: MarketingPublicHomeFooterMobileProps) {
   const legalLinks = resolveHomeFooterLegalLinks(locale);
 
@@ -166,9 +168,10 @@ export function MarketingPublicHomeFooterMobile({
         className={styles.mobileCopyright}
         layout="two-line"
         prefix={copyrightPrefix}
-        companyPart1={copyrightCompanyPart1}
-        companyPart2={copyrightCompanyPart2}
         suffix={copyrightSuffix}
+        separator={copyrightSeparator}
+        createdByLead={createdByLead}
+        createdByName={createdByName}
       />
 
       <div className={styles.mobileIllustration} aria-hidden>

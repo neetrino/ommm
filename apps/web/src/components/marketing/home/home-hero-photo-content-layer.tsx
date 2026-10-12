@@ -8,13 +8,9 @@ type HomeHeroPhotoContentLayerProps = {
   children: ReactNode;
 };
 
-/** Fades hero copy/CTAs in on the legacy photo slide; hidden during video and promo banners. */
+/** Fades hero copy/CTAs in on the legacy photo slide; hidden during the intro video. */
 export function HomeHeroPhotoContentLayer({ children }: HomeHeroPhotoContentLayerProps) {
-  const { isPhotoActive, isPromoBannerActive } = useHomeHeroSlide();
-
-  if (isPromoBannerActive) {
-    return null;
-  }
+  const { isPhotoActive } = useHomeHeroSlide();
 
   return (
     <div
