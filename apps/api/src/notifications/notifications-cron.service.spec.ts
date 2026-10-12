@@ -7,7 +7,7 @@ import { ENABLE_BACKGROUND_REMINDERS_ENV } from './notifications-audit.constants
 const YEREVAN_UTC_OFFSET_MS = 4 * 60 * 60 * 1000;
 
 type ReminderQuery = {
-  where: { session: { startsAt: { gte: Date; lte: Date } } };
+  where: { session: { startsAt: { gt: Date; gte: Date; lte: Date } } };
 };
 
 function yerevanWallTimeMs(wallTime: string): number {
@@ -15,9 +15,9 @@ function yerevanWallTimeMs(wallTime: string): number {
 }
 
 function queryIncludesStart(startsAt: Date, args: ReminderQuery): boolean {
-  const { gte, lte } = args.where.session.startsAt;
+  const { gt, gte, lte } = args.where.session.startsAt;
   const at = startsAt.getTime();
-  return at >= gte.getTime() && at <= lte.getTime();
+  return at > gt.getTime() && at >= gte.getTime() && at <= lte.getTime();
 }
 
 describe('NotificationsCronService', () => {
@@ -104,7 +104,7 @@ describe('NotificationsCronService', () => {
     expect(prisma.booking.findMany).not.toHaveBeenCalled();
   });
 
-  it('queries a trailing 24h and 2h window that ends at the due instant', async () => {
+  it('queries 24h and 2h windows caught up since yesterday 21:00 Yerevan', async () => {
     jest
       .spyOn(Date, 'now')
       .mockReturnValue(Date.parse('2026-09-21T15:00:00.000Z'));
@@ -112,9 +112,8 @@ describe('NotificationsCronService', () => {
     await cron.sendClassReminders();
     expect(prisma.booking.findMany).toHaveBeenCalledTimes(2);
     const windows = prisma.booking.findMany.mock.calls.map(
-      ([args]: [
-        { where: { session: { startsAt: { gte: Date; lte: Date } } } },
-      ]) => ({
+      ([args]: [ReminderQuery]) => ({
+        after: args.where.session.startsAt.gt.toISOString(),
         from: args.where.session.startsAt.gte.toISOString(),
         to: args.where.session.startsAt.lte.toISOString(),
         status: BookingStatus.BOOKED,
@@ -122,12 +121,14 @@ describe('NotificationsCronService', () => {
     );
     expect(windows).toEqual([
       {
-        from: '2026-09-22T14:25:00.000Z',
+        after: '2026-09-21T15:00:00.000Z',
+        from: '2026-09-21T17:00:00.000Z',
         to: '2026-09-22T15:00:00.000Z',
         status: BookingStatus.BOOKED,
       },
       {
-        from: '2026-09-21T16:25:00.000Z',
+        after: '2026-09-21T15:00:00.000Z',
+        from: '2026-09-20T19:00:00.000Z',
         to: '2026-09-21T17:00:00.000Z',
         status: BookingStatus.BOOKED,
       },
@@ -171,34 +172,56 @@ describe('NotificationsCronService', () => {
     expect(prisma.classReminderSendLog.create).not.toHaveBeenCalled();
   });
 
-  it('sends a 10:00 Yerevan class at 10:00 and 08:00, not 30 minutes early', async () => {
+  it('holds a morning class until 13:00 Yerevan and skips the 2h ping after it started', async () => {
     const startsAt = new Date(yerevanWallTimeMs('2026-10-06T10:00'));
-    const earlyDayBefore = await sendForClassAt(startsAt, '2026-10-05T09:30');
-    expect(earlyDayBefore.mail.sendEmail).not.toHaveBeenCalled();
-    expect(earlyDayBefore.whatsapp.trySendToUser).not.toHaveBeenCalled();
+    const atNight = await sendForClassAt(startsAt, '2026-10-05T03:30');
+    expect(atNight.mail.sendEmail).not.toHaveBeenCalled();
+    expect(atNight.whatsapp.trySendToUser).not.toHaveBeenCalled();
 
-    const dayBefore = await sendForClassAt(startsAt, '2026-10-05T10:00');
+    const beforeWindow = await sendForClassAt(startsAt, '2026-10-05T12:30');
+    expect(beforeWindow.mail.sendEmail).not.toHaveBeenCalled();
+
+    const dayBefore = await sendForClassAt(startsAt, '2026-10-05T13:00');
     expect(dayBefore.mail.sendEmail).toHaveBeenCalledTimes(1);
     expect(dayBefore.whatsapp.trySendToUser).toHaveBeenCalledTimes(1);
     expect(dayBefore.loggedHours).toEqual([24]);
 
-    const earlySameDay = await sendForClassAt(startsAt, '2026-10-06T07:30');
-    expect(earlySameDay.mail.sendEmail).not.toHaveBeenCalled();
-    expect(earlySameDay.whatsapp.trySendToUser).not.toHaveBeenCalled();
+    const afterClass = await sendForClassAt(startsAt, '2026-10-06T13:00');
+    expect(afterClass.mail.sendEmail).not.toHaveBeenCalled();
+    expect(afterClass.loggedHours).toEqual([]);
+  });
 
-    const twoHoursBefore = await sendForClassAt(startsAt, '2026-10-06T08:00');
-    expect(twoHoursBefore.mail.sendEmail).toHaveBeenCalledTimes(1);
-    expect(twoHoursBefore.whatsapp.trySendToUser).toHaveBeenCalledTimes(1);
+  it('sends an 18:00 Yerevan class at 18:00 the day before and at 16:00 the same day', async () => {
+    const startsAt = new Date(yerevanWallTimeMs('2026-10-06T18:00'));
+    const earlyDayBefore = await sendForClassAt(startsAt, '2026-10-05T17:30');
+    expect(earlyDayBefore.mail.sendEmail).not.toHaveBeenCalled();
+
+    const dayBefore = await sendForClassAt(startsAt, '2026-10-05T18:00');
+    expect(dayBefore.loggedHours).toEqual([24]);
+
+    const earlySameDay = await sendForClassAt(startsAt, '2026-10-06T15:30');
+    expect(earlySameDay.mail.sendEmail).not.toHaveBeenCalled();
+
+    const twoHoursBefore = await sendForClassAt(startsAt, '2026-10-06T16:00');
     expect(twoHoursBefore.loggedHours).toEqual([2]);
   });
 
-  it('still catches a 10:15 class on the next cron tick', async () => {
-    const startsAt = new Date(yerevanWallTimeMs('2026-10-06T10:15'));
-    const onTheHour = await sendForClassAt(startsAt, '2026-10-05T10:00');
+  it('still catches a 16:15 class on the next cron tick', async () => {
+    const startsAt = new Date(yerevanWallTimeMs('2026-10-06T16:15'));
+    const onTheHour = await sendForClassAt(startsAt, '2026-10-05T16:00');
     expect(onTheHour.mail.sendEmail).not.toHaveBeenCalled();
 
-    const halfHour = await sendForClassAt(startsAt, '2026-10-05T10:30');
+    const halfHour = await sendForClassAt(startsAt, '2026-10-05T16:30');
     expect(halfHour.mail.sendEmail).toHaveBeenCalledTimes(1);
     expect(halfHour.loggedHours).toEqual([24]);
+  });
+
+  it('does not dispatch scheduled broadcasts at night in Yerevan', async () => {
+    jest
+      .spyOn(Date, 'now')
+      .mockReturnValue(yerevanWallTimeMs('2026-10-12T03:30'));
+    const { cron, prisma } = createCron(true);
+    await cron.dispatchScheduledBroadcasts();
+    expect(prisma.auditLog.findMany).not.toHaveBeenCalled();
   });
 });
