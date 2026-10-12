@@ -45,6 +45,7 @@ function createPackagesService() {
 
   const cache = {
     invalidate: jest.fn(),
+    invalidateByPrefix: jest.fn(),
     getOrSet: jest.fn(),
   };
 

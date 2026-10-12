@@ -17,6 +17,10 @@ type MockTx = {
     findMany: jest.Mock;
     update: jest.Mock;
   };
+  giftCardTransaction?: {
+    findMany: jest.Mock;
+    findFirst: jest.Mock;
+  };
 };
 
 function createMembership(remaining = 5) {
@@ -81,6 +85,10 @@ function createSlotHarness() {
       create: jest.fn(),
       findMany: jest.fn(),
       update: jest.fn(),
+    },
+    giftCardTransaction: {
+      findMany: jest.fn().mockResolvedValue([]),
+      findFirst: jest.fn().mockResolvedValue(null),
     },
   };
   const prisma = {
