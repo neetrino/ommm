@@ -136,6 +136,13 @@ export class BookingsController {
     return this.bookings.adminCancel(user, id);
   }
 
+  @Post('admin/:id/return-package-session')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN, Role.MANAGER)
+  returnPackageSession(@Param('id') id: string) {
+    return this.bookings.returnPackageSessionToClient(id);
+  }
+
   @Patch('admin/:id/move')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN, Role.MANAGER)

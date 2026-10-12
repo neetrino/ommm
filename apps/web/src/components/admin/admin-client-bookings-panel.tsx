@@ -14,6 +14,7 @@ type ClientBookingsPanelProps = {
   allowCancelBooking: boolean;
   onCreateSuccess: () => void;
   onCancelSuccess: () => void;
+  onReturnSuccess: () => void;
   onCancelError: (message: string) => void;
 };
 
@@ -26,6 +27,7 @@ export function ClientBookingsPanel({
   allowCancelBooking,
   onCreateSuccess,
   onCancelSuccess,
+  onReturnSuccess,
   onCancelError,
 }: ClientBookingsPanelProps) {
   const t = useTranslations("adminPages.clients");
@@ -51,6 +53,7 @@ export function ClientBookingsPanel({
         refreshKey={refreshKey}
         allowCancel={allowCancelBooking}
         onCancelSuccess={onCancelSuccess}
+        onReturnSuccess={onReturnSuccess}
         onCancelError={onCancelError}
       />
     </div>

@@ -10,6 +10,7 @@ import {
   sortRowsBySessionStartsAt,
 } from '../common/list-order.helpers';
 import { PrismaService } from '../prisma/prisma.service';
+import { withReturnPackageSessionFlag } from '../bookings/bookings-return-package-session.helpers';
 import { BOOKING_CANCELLED_BY_SELECT } from '../bookings/bookings-staff-cancel.helpers';
 import {
   isGiftCreditSpendDescription,
@@ -55,6 +56,13 @@ const bookingInclude = Prisma.validator<Prisma.BookingInclude>()({
   createdBy: {
     select: BOOKING_CANCELLED_BY_SELECT,
   },
+  consumptions: {
+    select: {
+      restoredAt: true,
+      consumedSessions: true,
+      consumedGuestSlots: true,
+    },
+  },
 });
 
 type BookingRecord = Prisma.BookingGetPayload<{
@@ -74,6 +82,7 @@ type ClientBookingsPage = {
     guestName: string | null;
     guestPassSlot: number;
     session: BookingRecord['session'];
+    canReturnPackageCredit: boolean;
   }>;
   total: number;
   take: number;
@@ -181,9 +190,12 @@ export class ClientsTabListsService {
       where: { userId },
       include: bookingInclude,
     });
+    const now = new Date();
     const sorted = sortRowsBySessionStartsAt(rows, SessionListOrder.UPCOMING);
     return {
-      items: sorted.slice(offset, offset + take),
+      items: sorted
+        .slice(offset, offset + take)
+        .map((row) => withReturnPackageSessionFlag(row, now)),
       total: sorted.length,
       take,
       offset,

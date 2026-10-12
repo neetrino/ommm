@@ -4,6 +4,7 @@ import { BookingsAdminManagementService } from './bookings-admin-management.serv
 import { BookingsAdminService } from './bookings-admin.service';
 import { BookingsClientService } from './bookings-client.service';
 import { BookingsGuestPassService } from './bookings-guest-pass.service';
+import { BookingsReturnPackageSessionService } from './bookings-return-package-session.service';
 import { BookingsSessionEligibilityService } from './bookings-session-eligibility.service';
 import { readGuestPassName } from './bookings-guest-pass.constants';
 import type { AdminBookingsManagementQueryDto } from './dto/admin-bookings-management-query.dto';
@@ -20,6 +21,7 @@ export class BookingsService {
     private readonly adminManagement: BookingsAdminManagementService,
     private readonly guestPass: BookingsGuestPassService,
     private readonly sessionEligibility: BookingsSessionEligibilityService,
+    private readonly returnPackageSession: BookingsReturnPackageSessionService,
   ) {}
 
   listSessionEligibility(userId: string, sessionIds: readonly string[]) {
@@ -69,6 +71,10 @@ export class BookingsService {
 
   adminCancel(actor: User, bookingId: string) {
     return this.admin.adminCancel(actor, bookingId);
+  }
+
+  returnPackageSessionToClient(bookingId: string) {
+    return this.returnPackageSession.returnToPackage(bookingId);
   }
 
   moveBooking(bookingId: string, targetSessionId: string) {

@@ -121,6 +121,7 @@ export type ClientSheetBookingItem = {
   createdAt: string;
   guestName?: string | null;
   guestPassSlot?: number;
+  canReturnPackageCredit?: boolean;
   session: {
     startsAt: string;
     level: string | null;

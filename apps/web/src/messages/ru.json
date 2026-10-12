@@ -2711,7 +2711,14 @@
         "cancelConfirmKeep": "Оставить бронирование",
         "cancelConfirmDescriptionNamed": "Отменить {className} на {when}? Место снова станет доступным.",
         "cancelSuccess": "Бронирование отменено.",
-        "cancelError": "Не удалось отменить бронирование."
+        "cancelError": "Не удалось отменить бронирование.",
+        "returnSessionButton": "Вернуть занятие",
+        "returnSessionConfirmTitle": "Вернуть занятие в пакет?",
+        "returnSessionConfirmDescription": "Запись в истории останется. Занятие вернётся в пакет, и клиент сможет записаться снова.",
+        "returnSessionConfirmLabel": "Вернуть занятие",
+        "returnSessionConfirmKeep": "Не возвращать",
+        "returnSessionSuccess": "Занятие возвращено в пакет.",
+        "returnSessionError": "Не удалось вернуть занятие."
       },
       "drawer": {
         "loading": "Загрузка данных клиента…",

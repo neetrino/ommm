@@ -2713,7 +2713,14 @@
         "cancelConfirmKeep": "Keep booking",
         "cancelConfirmDescriptionNamed": "Cancel {className} on {when}? The spot will become available again.",
         "cancelSuccess": "Booking cancelled.",
-        "cancelError": "Could not cancel the booking."
+        "cancelError": "Could not cancel the booking.",
+        "returnSessionButton": "Return session",
+        "returnSessionConfirmTitle": "Return this session to the package?",
+        "returnSessionConfirmDescription": "The visit stays in the history. The session goes back to the package so the client can book again.",
+        "returnSessionConfirmLabel": "Return session",
+        "returnSessionConfirmKeep": "Keep it charged",
+        "returnSessionSuccess": "Session returned to the package.",
+        "returnSessionError": "Could not return the session."
       },
       "drawer": {
         "loading": "Loading client data…",

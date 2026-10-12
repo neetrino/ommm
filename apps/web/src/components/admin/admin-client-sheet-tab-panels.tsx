@@ -91,6 +91,7 @@ type ClientSheetTabPanelsProps = {
   allowCancelBooking?: boolean;
   onBookingCreateSuccess?: () => void;
   onBookingCancelSuccess?: () => void;
+  onBookingReturnSuccess?: () => void;
   onBookingCancelError?: (message: string) => void;
   canAddNotes?: boolean;
 };
@@ -121,6 +122,7 @@ export function ClientSheetTabPanels({
   allowCancelBooking = false,
   onBookingCreateSuccess,
   onBookingCancelSuccess,
+  onBookingReturnSuccess,
   onBookingCancelError,
   canAddNotes = true,
 }: ClientSheetTabPanelsProps) {
@@ -389,6 +391,7 @@ export function ClientSheetTabPanels({
         allowCancelBooking={allowCancelBooking}
         onCreateSuccess={() => onBookingCreateSuccess?.()}
         onCancelSuccess={() => onBookingCancelSuccess?.()}
+        onReturnSuccess={() => onBookingReturnSuccess?.()}
         onCancelError={(message) => onBookingCancelError?.(message)}
       />
     );
