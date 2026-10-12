@@ -48,6 +48,10 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      # API imports PrismaClient from @ommm/database, which resolves to dist/.
+      - name: Build database package
+        run: pnpm build:database
+
       - name: Lint API
         run: pnpm --filter api exec eslint "src/**/*.ts" "test/**/*.ts"
 
