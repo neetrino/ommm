@@ -1,18 +1,11 @@
 "use client";
 
-import type { ReactNode } from "react";
 import Image from "next/image";
 import { useEffect } from "react";
-import {
-  HOME_HERO_ASSETS,
-  HOME_HERO_PROMO_BANNER_LAYOUT,
-  HOME_HERO_PROMO_BANNER_MOBILE_LAYOUT,
-} from "@/components/marketing/home/home-hero-banner-tokens";
-import { HomeHeroPromoBannerImage } from "@/components/marketing/home/home-hero-promo-banner-image";
+import { HOME_HERO_ASSETS } from "@/components/marketing/home/home-hero-banner-tokens";
 import {
   HOME_HERO_CAROUSEL_SLIDES,
   resolveActiveHomeHeroVideoElement,
-  type HomeHeroPromoBannerKey,
   useHomeHeroSlide,
 } from "@/components/marketing/home/home-hero-slide-context";
 import { HomeHeroVideoSlot } from "@/components/marketing/home/home-hero-video-slot";
@@ -21,8 +14,6 @@ import { lcpImageProps } from "@/lib/image-loading-props";
 
 type HomeHeroMediaBackgroundProps = {
   heroImageAlt: string;
-  promoBannerAlt: string;
-  promoOverlay?: ReactNode;
 };
 
 type HomeHeroLegacyPhotoSlideProps = {
@@ -46,62 +37,8 @@ function HomeHeroLegacyPhotoSlide({ imageAlt }: HomeHeroLegacyPhotoSlideProps) {
   );
 }
 
-type HomeHeroPromoBannerSlideProps = {
-  assetKey: HomeHeroPromoBannerKey;
-  imageAlt: string;
-  overlay?: ReactNode;
-};
-
-function resolvePromoBannerSources(assetKey: HomeHeroPromoBannerKey): {
-  desktop: string;
-  mobile: string;
-} {
-  if (assetKey === "promoBanner3") {
-    return {
-      desktop: HOME_HERO_ASSETS.promoBanner3,
-      mobile: HOME_HERO_ASSETS.promoBanner3Mobile,
-    };
-  }
-  return {
-    desktop: HOME_HERO_ASSETS.promoBanner3,
-    mobile: HOME_HERO_ASSETS.promoBanner3Mobile,
-  };
-}
-
-function HomeHeroPromoBannerSlide({ assetKey, imageAlt, overlay }: HomeHeroPromoBannerSlideProps) {
-  const sources = resolvePromoBannerSources(assetKey);
-
-  return (
-    <div className={styles.homeHeroMediaSlide}>
-      <div className={styles.homeHeroPromoBackgroundCrop}>
-        <HomeHeroPromoBannerImage
-          src={sources.mobile}
-          alt={imageAlt}
-          width={HOME_HERO_PROMO_BANNER_MOBILE_LAYOUT.artboardWidthPx}
-          height={HOME_HERO_PROMO_BANNER_MOBILE_LAYOUT.artboardHeightPx}
-          pictureClassName={`${styles.homeHeroPromoPicture} ${styles.homeHeroPromoPictureMobile}`}
-          imageClassName={styles.homeHeroPromoBackgroundMobile}
-        />
-        <HomeHeroPromoBannerImage
-          src={sources.desktop}
-          alt=""
-          width={HOME_HERO_PROMO_BANNER_LAYOUT.artboardWidthPx}
-          height={HOME_HERO_PROMO_BANNER_LAYOUT.artboardHeightPx}
-          pictureClassName={`${styles.homeHeroPromoPicture} ${styles.homeHeroPromoPictureDesktop}`}
-          imageClassName={styles.homeHeroPromoBackgroundDesktop}
-        />
-      </div>
-      {overlay}
-    </div>
-  );
-}
-
-/** Hero carousel — intro video, promo banner, then legacy meditation hero. */
-export function HomeHeroMediaBackground({
-  heroImageAlt,
-  promoBannerAlt,
-  promoOverlay,
-}: HomeHeroMediaBackgroundProps) {
+/** Hero carousel — intro video, then the legacy meditation hero. */
+export function HomeHeroMediaBackground({ heroImageAlt }: HomeHeroMediaBackgroundProps) {
   const slide = useHomeHeroSlide();
   const {
     activeSlide,
@@ -169,18 +106,8 @@ export function HomeHeroMediaBackground({
               </div>
             );
           }
-          if (carouselSlide.kind === "legacy-photo") {
-            return (
-              <HomeHeroLegacyPhotoSlide key={`hero-slide-${index}`} imageAlt={heroImageAlt} />
-            );
-          }
           return (
-            <HomeHeroPromoBannerSlide
-              key={`hero-slide-${index}`}
-              assetKey={carouselSlide.assetKey}
-              imageAlt={promoBannerAlt}
-              overlay={promoOverlay}
-            />
+            <HomeHeroLegacyPhotoSlide key={`hero-slide-${index}`} imageAlt={heroImageAlt} />
           );
         })}
       </div>
