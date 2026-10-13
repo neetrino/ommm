@@ -8,6 +8,8 @@ type BookingPackagePurchaseModalProps = {
   locale: string;
   plans: readonly PackageSubscribePlanOption[];
   initialPlanId?: string;
+  /** Class the member is booking; stored on the package payment. */
+  sessionId?: string;
   onClose: () => void;
 };
 
@@ -17,6 +19,7 @@ export function BookingPackagePurchaseModal({
   locale,
   plans,
   initialPlanId,
+  sessionId,
   onClose,
 }: BookingPackagePurchaseModalProps) {
   return (
@@ -25,6 +28,7 @@ export function BookingPackagePurchaseModal({
       locale={locale}
       plans={plans}
       initialPlanId={initialPlanId}
+      sessionId={sessionId}
       onClose={onClose}
     />
   );

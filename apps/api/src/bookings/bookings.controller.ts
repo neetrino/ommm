@@ -62,6 +62,15 @@ export class BookingsController {
     return this.bookings.book(user.id, sessionId, dto, user.id);
   }
 
+  @Get('package-book-intent')
+  @UseGuards(JwtAuthGuard)
+  packageBookIntent(
+    @CurrentUser() user: { id: string },
+    @Query('reference') reference: string | undefined,
+  ) {
+    return this.bookings.readPackageBookIntent(user.id, reference?.trim() ?? '');
+  }
+
   @Get('me')
   @UseGuards(JwtAuthGuard)
   mine(

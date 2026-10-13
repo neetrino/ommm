@@ -49,4 +49,11 @@ export class SubscribePackageDto {
   @IsString({ each: true })
   @MaxLength(64, { each: true })
   giftCardIds?: string[];
+
+  /** Set when checkout started from booking a class that had no package. */
+  @IsOptional()
+  @IsString()
+  @MinLength(1)
+  @MaxLength(64)
+  sessionId?: string;
 }

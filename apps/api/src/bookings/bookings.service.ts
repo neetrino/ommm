@@ -6,6 +6,7 @@ import { BookingsClientService } from './bookings-client.service';
 import { BookingsGuestPassService } from './bookings-guest-pass.service';
 import { BookingsReturnPackageSessionService } from './bookings-return-package-session.service';
 import { BookingsSessionEligibilityService } from './bookings-session-eligibility.service';
+import { PackageBookIntentService } from './package-book-intent.service';
 import { readGuestPassName } from './bookings-guest-pass.constants';
 import type { AdminBookingsManagementQueryDto } from './dto/admin-bookings-management-query.dto';
 import type { CreateBookingDto } from './dto/create-booking.dto';
@@ -22,7 +23,12 @@ export class BookingsService {
     private readonly guestPass: BookingsGuestPassService,
     private readonly sessionEligibility: BookingsSessionEligibilityService,
     private readonly returnPackageSession: BookingsReturnPackageSessionService,
+    private readonly packageBookIntent: PackageBookIntentService,
   ) {}
+
+  readPackageBookIntent(userId: string, reference: string) {
+    return this.packageBookIntent.read(userId, reference);
+  }
 
   listSessionEligibility(userId: string, sessionIds: readonly string[]) {
     return this.sessionEligibility.listForSessions(userId, sessionIds);

@@ -75,6 +75,7 @@ export function SessionBookingModals({
         locale={locale}
         plans={purchasePlans}
         initialPlanId={suggestedPlanId}
+        sessionId={sessionId}
         onClose={onClosePurchaseModal}
       />
     ) : null;
