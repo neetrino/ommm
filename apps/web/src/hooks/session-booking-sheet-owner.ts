@@ -26,7 +26,16 @@ export function useSessionBookingSheetClaim(sessionId: string): {
 } {
   const ownsRef = useRef(false);
   const sessionIdRef = useRef(sessionId);
-  sessionIdRef.current = sessionId;
+
+  useEffect(() => {
+    const previousId = sessionIdRef.current;
+    sessionIdRef.current = sessionId;
+    if (!ownsRef.current || previousId === sessionId) {
+      return;
+    }
+    ownsRef.current = false;
+    releaseSessionBookingSheet(previousId);
+  }, [sessionId]);
 
   const release = useCallback((): void => {
     if (!ownsRef.current) {
