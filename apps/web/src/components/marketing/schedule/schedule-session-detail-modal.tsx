@@ -1,10 +1,10 @@
 "use client";
 
 import Image from "next/image";
-import { useId } from "react";
+import { useCallback, useId, useState } from "react";
 import { useTranslations } from "next-intl";
-import { AuthAwareScheduleBookingAction } from "@/components/marketing/auth-aware/auth-aware-schedule-booking-action";
 import type { PublicPackageCategoryCardsAudience } from "@/components/marketing/packages/public-package-category-cards";
+import { ScheduleSessionDetailBookControl } from "@/components/marketing/schedule/schedule-session-detail-book-control";
 import type { MarketingScheduleItem } from "@/components/marketing/schedule/marketing-schedule-types";
 import {
   SCHEDULE_BOOKED_BTN_COMPACT,
@@ -177,8 +177,13 @@ export function ScheduleSessionDetailModal({
     styles.panel,
     motionOpen ? styles.panelOpen : styles.panelClosing,
   ].join(" ");
+  const [bookSlot, setBookSlot] = useState<HTMLDivElement | null>(null);
+  const assignBookSlot = useCallback((node: HTMLDivElement | null): void => {
+    setBookSlot(node);
+  }, []);
 
   return (
+    <>
     <OmmModalPortal
       isOpen={presented}
       onClose={requestClose}
@@ -258,30 +263,30 @@ export function ScheduleSessionDetailModal({
             >
               {t("close")}
             </button>
-            <AuthAwareScheduleBookingAction
-              sessionId={session.id}
-              sessionDate={session.sessionDate}
-              sessionStartTime={session.startTime}
-              availableSpots={session.availableSpots}
-              sessionStatus={session.status}
-              bookLabel={bookLabel}
-              audience={audience}
-              className={styles.footerBookBtn}
-              bookedClassName={SCHEDULE_BOOKED_BTN_COMPACT}
-              cancelClassName={styles.footerCancelBtn}
-              userBookingId={userBookingId}
-              userBookingCreatedAt={userBookingCreatedAt}
-              bookingStateReady={bookingStateReady}
-              initialOnWaitlist={isOnWaitlist}
-              loginReturnPath={loginReturnPath}
-              onBooked={(bookingId) => onBooked?.(session.id, bookingId)}
-              onCancelled={() => onCancelled?.(session.id)}
-              onWaitlisted={() => onWaitlisted?.(session.id)}
-              onWaitlistLeft={() => onWaitlistLeft?.(session.id)}
-            />
+            <div ref={assignBookSlot} className={styles.footerBookSlot} />
           </footer>
         </div>
       ) : null}
     </OmmModalPortal>
+    <ScheduleSessionDetailBookControl
+      session={session}
+      actionSlot={bookSlot}
+      onCloseDetail={requestClose}
+      audience={audience}
+      bookLabel={bookLabel}
+      bookedClassName={SCHEDULE_BOOKED_BTN_COMPACT}
+      bookClassName={styles.footerBookBtn}
+      cancelClassName={styles.footerCancelBtn}
+      userBookingId={userBookingId}
+      userBookingCreatedAt={userBookingCreatedAt}
+      bookingStateReady={bookingStateReady}
+      isOnWaitlist={isOnWaitlist}
+      loginReturnPath={loginReturnPath}
+      onBooked={onBooked}
+      onCancelled={onCancelled}
+      onWaitlisted={onWaitlisted}
+      onWaitlistLeft={onWaitlistLeft}
+    />
+    </>
   );
 }

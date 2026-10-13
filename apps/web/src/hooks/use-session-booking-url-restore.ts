@@ -35,6 +35,8 @@ type UseSessionBookingUrlRestoreParams = {
   fetchEligiblePackages: () => Promise<EligibleBookingPackage[]>;
   fetchPurchasePlans: () => Promise<PackageSubscribePlanOption[]>;
   openPurchaseModal: (packages: readonly EligibleBookingPackage[]) => Promise<void>;
+  claimBookingSheet: () => boolean;
+  releaseBookingSheet: () => void;
   applyPurchaseData: (
     packages: readonly EligibleBookingPackage[],
     plans: readonly PackageSubscribePlanOption[],
@@ -60,12 +62,17 @@ export function useSessionBookingUrlRestore({
   openPurchaseModal,
   applyPurchaseData,
   replaceSearchParams,
+  claimBookingSheet,
+  releaseBookingSheet,
 }: UseSessionBookingUrlRestoreParams) {
   const restorePackageModal = useCallback(async (): Promise<void> => {
     setBusy(true);
     try {
       const packages = await fetchEligiblePackages();
       if (shouldPromptBookingPackageSelection(packages)) {
+        if (!claimBookingSheet()) {
+          return;
+        }
         setEligiblePackages(packages);
         setPackageModalOpen(true);
         return;
@@ -84,6 +91,7 @@ export function useSessionBookingUrlRestore({
     }
   }, [
     callbacksRef,
+    claimBookingSheet,
     fetchEligiblePackages,
     openPurchaseModal,
     replaceSearchParams,
@@ -126,6 +134,9 @@ export function useSessionBookingUrlRestore({
     }
 
     let cancelled = false;
+    if (!claimBookingSheet()) {
+      return;
+    }
     const hasCachedData = initialCachedPurchaseRef.current !== null;
     setPurchaseModalOpen(true);
 
@@ -140,6 +151,7 @@ export function useSessionBookingUrlRestore({
         }
         if (plans.length === 0) {
           callbacksRef.current.onError?.(t("packageNoPurchasePlans"));
+          releaseBookingSheet();
           setPurchaseModalOpen(false);
           clearSessionBookingCachedPurchase(sessionId);
           replaceSearchParams(clearBuyPackageSessionQuery);
@@ -150,6 +162,7 @@ export function useSessionBookingUrlRestore({
         if (cancelled || hasCachedData) {
           return;
         }
+        releaseBookingSheet();
         setPurchaseModalOpen(false);
         clearSessionBookingCachedPurchase(sessionId);
         replaceSearchParams(clearBuyPackageSessionQuery);
@@ -167,6 +180,8 @@ export function useSessionBookingUrlRestore({
     applyPurchaseData,
     callbacksRef,
     fetchEligiblePackages,
+    claimBookingSheet,
+    releaseBookingSheet,
     fetchPurchasePlans,
     initialCachedPurchaseRef,
     replaceSearchParams,

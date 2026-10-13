@@ -1,7 +1,8 @@
 "use client";
 
 import { useTranslations, useLocale } from "next-intl";
-import { useState, type ReactNode } from "react";
+import { createPortal } from "react-dom";
+import { useEffect, useState, type ReactNode } from "react";
 import {
   CancelBookingButton,
   CANCEL_BOOKING_ERROR_MESSAGE_CLASS,
@@ -52,6 +53,13 @@ type AuthAwareScheduleBookingActionProps = {
   onCancelled?: () => void;
   /** Hides the Booked pill in the action area (e.g. mobile header slot). */
   hideInlineBookedBadge?: boolean;
+  /** Fires when the package-select or purchase sheet opens or closes. */
+  onBookingSheetOpenChange?: (open: boolean) => void;
+  /**
+   * Where to render the book control.
+   * Omit to render inline. `null` hides the control and keeps sheets mounted.
+   */
+  actionSlot?: HTMLElement | null;
 };
 
 export function AuthAwareScheduleBookingAction({
@@ -75,6 +83,8 @@ export function AuthAwareScheduleBookingAction({
   onBooked,
   onCancelled,
   hideInlineBookedBadge = false,
+  onBookingSheetOpenChange,
+  actionSlot,
 }: AuthAwareScheduleBookingActionProps) {
   const router = useRouter();
   const locale = useLocale();
@@ -87,7 +97,13 @@ export function AuthAwareScheduleBookingAction({
   const [successToast, setSuccessToast] = useState<string | null>(null);
   const [busyWaitlist, setBusyWaitlist] = useState(false);
   const [pendingLeaveWaitlist, setPendingLeaveWaitlist] = useState(false);
-  const { busy: busyBooking, initiateBooking, packageModal } = useSessionBooking({
+  const {
+    busy: busyBooking,
+    initiateBooking,
+    packageModal,
+    packageModalOpen,
+    purchaseModalOpen,
+  } = useSessionBooking({
     sessionId,
     locale,
     onBooked: (bookingId) => {
@@ -320,6 +336,10 @@ export function AuthAwareScheduleBookingAction({
     }
   }
 
+  useEffect(() => {
+    onBookingSheetOpenChange?.(packageModalOpen || purchaseModalOpen);
+  }, [onBookingSheetOpenChange, packageModalOpen, purchaseModalOpen]);
+
   const showErrorBelowAction = audience !== "guest" && !isBooked && bookingStateReady;
   const actionShellClass = isBooked
     ? hideInlineBookedBadge
@@ -327,12 +347,22 @@ export function AuthAwareScheduleBookingAction({
       : "flex w-full flex-col items-center gap-1"
     : "flex flex-col items-end gap-1 self-end";
 
+  const actionNode = (
+    <div className={actionShellClass}>
+      {renderAction()}
+      {showErrorBelowAction ? renderErrorHint() : null}
+    </div>
+  );
+  const placedAction =
+    actionSlot === undefined
+      ? actionNode
+      : actionSlot !== null
+        ? createPortal(actionNode, actionSlot)
+        : null;
+
   return (
     <>
-      <div className={actionShellClass}>
-        {renderAction()}
-        {showErrorBelowAction ? renderErrorHint() : null}
-      </div>
+      {placedAction}
       <OmmmCenterToast
         message={successToast}
         tone="success"

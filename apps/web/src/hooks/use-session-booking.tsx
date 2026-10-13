@@ -37,6 +37,7 @@ import type {
   UseSessionBookingOptions,
 } from "@/hooks/use-session-booking.types";
 import { pickSuggestedPurchasePlanId } from "@/lib/pick-suggested-purchase-plan-id";
+import { useSessionBookingSheetClaim } from "@/hooks/session-booking-sheet-owner";
 
 export type { UseSessionBookingOptions } from "@/hooks/use-session-booking.types";
 
@@ -79,6 +80,7 @@ export function useSessionBooking({
   const pendingPolicyResolveRef = useRef<((accepted: boolean) => void) | null>(
     null,
   );
+  const { claim: claimBookingSheet, release: releaseBookingSheet } = useSessionBookingSheetClaim(sessionId);
 
   const callbacksRef = useRef({ onBooked, onError });
   useEffect(() => {
@@ -104,6 +106,7 @@ export function useSessionBooking({
 
   const openPackageModal = useCallback(
     (eligible: readonly EligibleBookingPackage[]): void => {
+      if (!claimBookingSheet()) return;
       skipNextUrlRestoreRef.current = true;
       setEligiblePackages(eligible);
       setPackageModalOpen(true);
@@ -111,26 +114,28 @@ export function useSessionBooking({
         setBookPackageSessionQuery(params, sessionId);
       });
     },
-    [replaceSearchParams, sessionId],
+    [claimBookingSheet, replaceSearchParams, sessionId],
   );
 
   const closePackageModal = useCallback((): void => {
     if (busy) {
       return;
     }
+    releaseBookingSheet();
     setPackageModalOpen(false);
     if (urlPickSessionId === sessionId) {
       replaceSearchParams(clearBookPackageSessionQuery);
     }
-  }, [busy, replaceSearchParams, sessionId, urlPickSessionId]);
+  }, [busy, releaseBookingSheet, replaceSearchParams, sessionId, urlPickSessionId]);
 
   const closePurchaseModal = useCallback((): void => {
+    releaseBookingSheet();
     setPurchaseModalOpen(false);
     clearSessionBookingCachedPurchase(sessionId);
     if (urlBuySessionId === sessionId) {
       replaceSearchParams(clearBuyPackageSessionQuery);
     }
-  }, [replaceSearchParams, sessionId, urlBuySessionId]);
+  }, [releaseBookingSheet, replaceSearchParams, sessionId, urlBuySessionId]);
 
   const closePolicyModal = useCallback((): void => {
     const resolve = pendingPolicyResolveRef.current;
@@ -195,6 +200,7 @@ export function useSessionBooking({
       callbacksRef.current.onError?.(t("packageNoPurchasePlans"));
       return false;
     }
+    if (!claimBookingSheet()) return false;
     applyPurchaseData(packages, plans);
     setPurchaseModalOpen(true);
     skipNextBuyUrlRestoreRef.current = true;
@@ -203,7 +209,7 @@ export function useSessionBooking({
       setBuyPackageSessionQuery(params, sessionId);
     });
     return true;
-  }, [applyPurchaseData, replaceSearchParams, sessionId, t]);
+  }, [applyPurchaseData, claimBookingSheet, replaceSearchParams, sessionId, t]);
 
   const openPurchaseModal = useCallback(async (
     packages: readonly EligibleBookingPackage[],
@@ -214,9 +220,10 @@ export function useSessionBooking({
       replaceSearchParams(clearBuyPackageSessionQuery);
       return;
     }
+    if (!claimBookingSheet()) return;
     applyPurchaseData(packages, plans);
     setPurchaseModalOpen(true);
-  }, [applyPurchaseData, fetchPurchasePlans, replaceSearchParams, t]);
+  }, [applyPurchaseData, claimBookingSheet, fetchPurchasePlans, replaceSearchParams, t]);
 
   const bookWithOptionalPackage = useCallback(async (userPackageId?: string): Promise<void> => {
     const booking = await postSessionBooking(sessionId, userPackageId);
@@ -254,6 +261,8 @@ export function useSessionBooking({
     openPurchaseModal,
     applyPurchaseData,
     replaceSearchParams,
+    claimBookingSheet,
+    releaseBookingSheet,
   });
 
   const bookingModals = (
@@ -271,10 +280,7 @@ export function useSessionBooking({
       onClosePolicyModal={closePolicyModal}
       onConfirmPolicyModal={confirmPolicyModal}
       ensurePolicyAcknowledged={ensurePolicyAcknowledged}
-      onBooked={(bookingId) => {
-        setPackageModalOpen(false);
-        callbacksRef.current.onBooked?.(bookingId);
-      }}
+      onBooked={(bookingId) => { releaseBookingSheet(); setPackageModalOpen(false); callbacksRef.current.onBooked?.(bookingId); }}
       onError={(message) => callbacksRef.current.onError?.(message)}
       replaceSearchParams={replaceSearchParams}
     />
