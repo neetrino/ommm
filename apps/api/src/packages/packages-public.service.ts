@@ -202,7 +202,9 @@ export class PackagesPublicService {
     }
     await this.prisma.payment.update({
       where: { id: payment.id },
-      data: { metadata: withBookSessionIdMetadata(payment.metadata, sessionId) },
+      data: {
+        metadata: withBookSessionIdMetadata(payment.metadata, sessionId),
+      },
     });
   }
 

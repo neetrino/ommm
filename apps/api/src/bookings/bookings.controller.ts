@@ -68,7 +68,10 @@ export class BookingsController {
     @CurrentUser() user: { id: string },
     @Query('reference') reference: string | undefined,
   ) {
-    return this.bookings.readPackageBookIntent(user.id, reference?.trim() ?? '');
+    return this.bookings.readPackageBookIntent(
+      user.id,
+      reference?.trim() ?? '',
+    );
   }
 
   @Get('me')
