@@ -12,6 +12,7 @@ import {
 import { PAYMENT_FAIL_PATH, buildPaymentReceiptPath } from "@/lib/payment-result-paths";
 import { PaymentOutcomeSphereLogo } from "@/components/payment/payment-outcome-sphere-logo";
 import { usePaymentEhdmOutcome } from "@/hooks/use-payment-ehdm-outcome";
+import { PackageBookConfirmPanel } from "@/components/payment/package-book-confirm-panel";
 import styles from "./payment-outcome-screen.module.css";
 
 type PaymentOutcomeScreenProps = {
@@ -78,6 +79,10 @@ export function PaymentOutcomeScreen({
 
       {isSuccess && reference !== null ? (
         <PaymentOutcomeReceiptLink reference={reference} source={source} />
+      ) : null}
+
+      {source === "package" && reference !== null && outcome !== "failed" ? (
+        <PackageBookConfirmPanel reference={reference} />
       ) : null}
 
       <div className={styles.actions}>

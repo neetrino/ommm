@@ -278,6 +278,10 @@
   white-space: pre-wrap;
 }
 
+.footerBookSlot {
+  display: contents;
+}
+
 .footer {
   flex-shrink: 0;
   display: flex;

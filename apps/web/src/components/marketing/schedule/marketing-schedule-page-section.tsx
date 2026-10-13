@@ -8,6 +8,7 @@ import alignStyles from "@/components/marketing/marketing-inner-page-align.modul
 import { MARKETING_PRACTICES_INNER_PAGE_SECTION_STYLE } from "@/components/marketing/marketing-public-page-section";
 import styles from "@/components/marketing/schedule/marketing-schedule-page-section.module.css";
 import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
+import { PackageBookConfirmHost } from "@/components/payment/package-book-confirm-host";
 
 type MarketingSchedulePageSectionProps = {
   children: ReactNode;
@@ -30,6 +31,7 @@ export function MarketingSchedulePageSection({
         <div
           className={`${styles.content} ${styles.contentFlush} ${alignStyles.innerPageContent}`}
         >
+          <PackageBookConfirmHost />
           {children}
         </div>
       </div>

@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Inject,
   Injectable,
   Logger,
@@ -18,6 +19,7 @@ import { readArcaMetadata } from '../payments/arca/arca-metadata.util';
 import { isArcaCheckoutEnabled } from '../payments/payment-arca.util';
 import { PaymentCashPendingEmailService } from '../payments/payment-cash-pending-email.service';
 import { SubscribePackageDto } from './dto/subscribe-package.dto';
+import { withBookSessionIdMetadata } from './package-payment-metadata.util';
 import { planCoversClassType } from './plan-covers-class-type';
 import {
   resolveClassTypeNameMapForAllocations,
@@ -145,6 +147,7 @@ export class PackagesPublicService {
 
     const useGiftCredits = dto.useGiftCredits === true;
     const giftCardIds = selectedGiftCardIds(dto.giftCardIds);
+    const bookSessionId = await this.resolveBookSessionId(dto.sessionId);
     const isCardPayment = dto.paymentMethod === ManualPaymentMethod.CARD;
     if (isCardPayment && isArcaCheckoutEnabled(this.config)) {
       return this.subscribeCardWithArca(
@@ -153,6 +156,7 @@ export class PackagesPublicService {
         dto.locale,
         useGiftCredits,
         giftCardIds,
+        bookSessionId,
       );
     }
     return this.subscribeWithoutArcaRedirect(
@@ -161,7 +165,47 @@ export class PackagesPublicService {
       isCardPayment,
       useGiftCredits,
       giftCardIds,
+      bookSessionId,
     );
+  }
+
+  private async resolveBookSessionId(
+    sessionId: string | undefined,
+  ): Promise<string | null> {
+    const trimmed = sessionId?.trim() ?? '';
+    if (trimmed.length === 0) {
+      return null;
+    }
+    const session = await this.prisma.classSession.findUnique({
+      where: { id: trimmed },
+      select: { id: true },
+    });
+    if (session === null) {
+      throw new BadRequestException('Session not found');
+    }
+    return session.id;
+  }
+
+  private async rememberBookSession(
+    paymentReference: string | null | undefined,
+    sessionId: string | null,
+  ): Promise<void> {
+    if (sessionId === null || !paymentReference) {
+      return;
+    }
+    const payment = await this.prisma.payment.findFirst({
+      where: { paymentReference },
+      select: { id: true, metadata: true },
+    });
+    if (payment === null) {
+      return;
+    }
+    await this.prisma.payment.update({
+      where: { id: payment.id },
+      data: {
+        metadata: withBookSessionIdMetadata(payment.metadata, sessionId),
+      },
+    });
   }
 
   private async subscribeCardWithArca(
@@ -169,7 +213,8 @@ export class PackagesPublicService {
     plan: PackagePlan,
     locale: string | undefined,
     useGiftCredits: boolean,
-    giftCardIds?: readonly string[],
+    giftCardIds: readonly string[] | undefined,
+    bookSessionId: string | null,
   ) {
     const pricing = await this.resolveSubscribePricing(
       userId,
@@ -183,6 +228,7 @@ export class PackagesPublicService {
         plan,
         pricing.appliedCents,
         giftCardIds,
+        bookSessionId,
       );
     }
 
@@ -199,6 +245,10 @@ export class PackagesPublicService {
         paymentReference: resolved.purchase.paymentReference,
         locale,
       });
+      await this.rememberBookSession(
+        resolved.purchase.paymentReference,
+        bookSessionId,
+      );
       return {
         id: resolved.purchase.paymentId,
         paymentReference: resolved.purchase.paymentReference,
@@ -272,7 +322,8 @@ export class PackagesPublicService {
     plan: PackagePlan,
     isCardPayment: boolean,
     useGiftCredits: boolean,
-    giftCardIds?: readonly string[],
+    giftCardIds: readonly string[] | undefined,
+    bookSessionId: string | null,
   ) {
     const pricing = await this.resolveSubscribePricing(
       userId,
@@ -286,6 +337,7 @@ export class PackagesPublicService {
         plan,
         pricing.appliedCents,
         giftCardIds,
+        bookSessionId,
       );
     }
     if (isCardPayment) {
@@ -298,6 +350,7 @@ export class PackagesPublicService {
           giftCardIds,
         }),
       );
+      await this.rememberBookSession(purchase.paymentReference, bookSessionId);
       return {
         id: purchase.paymentId,
         paymentReference: purchase.paymentReference,
@@ -318,6 +371,7 @@ export class PackagesPublicService {
     await this.paymentCashPendingEmail.trySendCashPendingEmail(
       created.paymentId,
     );
+    await this.rememberBookSession(created.paymentReference, bookSessionId);
     return {
       id: created.userPackageId,
       paymentReference: created.paymentReference,
@@ -331,7 +385,8 @@ export class PackagesPublicService {
     userId: string,
     plan: PackagePlan,
     appliedCents: number,
-    giftCardIds?: readonly string[],
+    giftCardIds: readonly string[] | undefined,
+    bookSessionId: string | null,
   ) {
     const created = await this.prisma.$transaction((tx) =>
       createFullyGiftCoveredPackageSubscription(tx, {
@@ -345,6 +400,7 @@ export class PackagesPublicService {
       await this.invalidatePublicPlansCache();
     }
     await this.packagePurchased.tryNotify(created.userPackageId);
+    await this.rememberBookSession(created.paymentReference, bookSessionId);
     return {
       id: created.userPackageId,
       paymentReference: created.paymentReference,

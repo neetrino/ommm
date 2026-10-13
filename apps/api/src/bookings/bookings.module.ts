@@ -17,6 +17,7 @@ import { BookingsStatusTransitionService } from './bookings-status-transition.se
 import { BookingsStaffCancelService } from './bookings-staff-cancel.service';
 import { BookingsReturnPackageSessionService } from './bookings-return-package-session.service';
 import { BookingsSessionEligibilityService } from './bookings-session-eligibility.service';
+import { PackageBookIntentService } from './package-book-intent.service';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { BookingsSessionEligibilityService } from './bookings-session-eligibilit
     BookingsStaffCancelService,
     BookingsReturnPackageSessionService,
     BookingsSessionEligibilityService,
+    PackageBookIntentService,
   ],
   exports: [
     BookingsService,

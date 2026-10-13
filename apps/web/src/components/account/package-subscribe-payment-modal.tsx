@@ -36,6 +36,8 @@ import { useMemberHubSheetPhone } from "@/hooks/use-member-hub-sheet-phone";
 import { useDesktopSheetEnterMotion } from "@/hooks/use-desktop-sheet-enter-motion";
 import { isApiError, isArcaCheckoutEnabled } from "@/lib/arca-checkout";
 import { apiFetch } from "@/lib/api";
+import { writePackageBookReference } from "@/lib/package-book-reference";
+import { PAYMENT_PENDING_PATH, PAYMENT_SUCCESS_PATH } from "@/lib/payment-result-paths";
 import { dismissMobileKeyboard } from "@/lib/dismiss-mobile-keyboard";
 import {
   PACKAGE_SUBSCRIBE_PAYMENT_METHODS,
@@ -55,6 +57,8 @@ type PackageSubscribePaymentModalProps = {
   locale: string;
   plans: readonly PackageSubscribePlanOption[];
   initialPlanId?: string;
+  /** Present only when the member is buying a package in order to book a class. */
+  sessionId?: string;
   onClose: () => void;
 };
 
@@ -103,6 +107,7 @@ export function PackageSubscribePaymentModal({
   locale,
   plans,
   initialPlanId,
+  sessionId,
   onClose,
 }: PackageSubscribePaymentModalProps) {
   if (!isOpen || plans.length === 0) {
@@ -118,6 +123,7 @@ export function PackageSubscribePaymentModal({
       locale={locale}
       plans={plans}
       initialPlanId={initialPlanId}
+      sessionId={sessionId}
       onClose={onClose}
     />
   );
@@ -128,6 +134,7 @@ function PackageSubscribePaymentModalSession({
   locale,
   plans,
   initialPlanId,
+  sessionId,
   onClose,
 }: PackageSubscribePaymentModalProps) {
   const t = useTranslations("forms.manualPackagePayment");
@@ -239,8 +246,12 @@ function PackageSubscribePaymentModalSession({
           ...(choosingCards && selectedGiftCardIds.length > 0
             ? { giftCardIds: selectedGiftCardIds }
             : {}),
+          ...(sessionId ? { sessionId } : {}),
         }),
       });
+      if (sessionId && result.paymentReference) {
+        writePackageBookReference(result.paymentReference);
+      }
       const dueCents =
         typeof result.amountDueCents === "number"
           ? result.amountDueCents
@@ -254,6 +265,18 @@ function PackageSubscribePaymentModalSession({
           return;
         }
         setError(t("submitFailed"));
+        return;
+      }
+      if (sessionId && result.paymentReference) {
+        const outcomePath =
+          paymentMethod === "CASH" && dueCents > 0
+            ? PAYMENT_PENDING_PATH
+            : PAYMENT_SUCCESS_PATH;
+        const params = new URLSearchParams({
+          reference: result.paymentReference,
+          source: "package",
+        });
+        window.location.assign(`/${locale}${outcomePath}?${params.toString()}`);
         return;
       }
       setStep("success");
