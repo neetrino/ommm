@@ -9,6 +9,7 @@
   padding: 0.875rem 1rem;
   text-align: left;
   cursor: pointer;
+  box-shadow: 0 8px 18px -14px rgba(45, 40, 35, 0.45);
   transition:
     border-color 0.2s ease,
     background-color 0.2s ease,
