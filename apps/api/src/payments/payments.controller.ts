@@ -28,10 +28,8 @@ import { CreateCartCheckoutDto } from './dto/create-cart-checkout.dto';
 import { CreateGiftCheckoutDto } from './dto/create-gift-checkout.dto';
 import { ListMyPaymentsQueryDto } from './dto/list-my-payments-query.dto';
 import { PaymentOutcomeQueryDto } from './dto/payment-outcome-query.dto';
-import {
-  buildPaymentsXlsx,
-  paymentsExportFilename,
-} from './payments-export-xlsx';
+import { paymentsExportFilename } from './payments-export-filename';
+import { buildPaymentsXlsx } from './payments-export-xlsx';
 import { clampPaymentsQueryToToday } from './payments-today-query.util';
 import { PaymentsService } from './payments.service';
 
@@ -154,7 +152,7 @@ export class PaymentsController {
     @Query() query: AdminExportPaymentsQueryDto,
     @Res() res: Response,
   ): Promise<void> {
-    const items = await this.payments.adminExportPayments(query);
+    const { items, planNames } = await this.payments.adminExportPayments(query);
     const buffer = await buildPaymentsXlsx({
       locale: query.locale,
       from: query.from,
@@ -163,7 +161,7 @@ export class PaymentsController {
     });
     sendXlsxAttachment(
       res,
-      paymentsExportFilename(query.from, query.to),
+      paymentsExportFilename({ locale: query.locale, query, planNames }),
       buffer,
     );
   }

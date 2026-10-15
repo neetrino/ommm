@@ -19,6 +19,8 @@ export type PaymentsExportCopy = {
   item: string;
   description: string;
   reference: string;
+  sessionsCount: (count: string) => string;
+  sessionsUnlimited: string;
   statuses: Record<PaymentStatus, string>;
   methods: Record<ManualPaymentMethod, string>;
   sources: Record<PaymentListSource, string>;
@@ -42,6 +44,8 @@ export const PAYMENTS_EXPORT_COPY: Record<ExportLocale, PaymentsExportCopy> = {
     item: 'Item',
     description: 'Description',
     reference: 'Reference',
+    sessionsCount: (count) => `${count} sessions`,
+    sessionsUnlimited: 'Unlimited',
     statuses: {
       PENDING: 'Pending',
       SUCCEEDED: 'Succeeded',
@@ -80,6 +84,8 @@ export const PAYMENTS_EXPORT_COPY: Record<ExportLocale, PaymentsExportCopy> = {
     item: 'Ապրանք',
     description: 'Նկարագրություն',
     reference: 'Հղում',
+    sessionsCount: (count) => `${count} նիստ`,
+    sessionsUnlimited: 'Անսահմանափակ',
     statuses: {
       PENDING: 'Սպասման մեջ',
       SUCCEEDED: 'Հաջողված',
@@ -118,6 +124,8 @@ export const PAYMENTS_EXPORT_COPY: Record<ExportLocale, PaymentsExportCopy> = {
     item: 'Позиция',
     description: 'Описание',
     reference: 'Референс',
+    sessionsCount: (count) => `${count} сеансов`,
+    sessionsUnlimited: 'Безлимит',
     statuses: {
       PENDING: 'В ожидании',
       SUCCEEDED: 'Успешно',

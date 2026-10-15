@@ -148,10 +148,19 @@ export class PaymentsAdminService {
     if (total > PAYMENTS_EXPORT_MAX_ROWS) {
       throw new BadRequestException(PAYMENTS_EXPORT_TOO_MANY);
     }
-    return this.findAdminPayments(where, query, {
-      take: PAYMENTS_EXPORT_MAX_ROWS,
-      skip: 0,
-    });
+    const [items, plans] = await Promise.all([
+      this.findAdminPayments(where, query, {
+        take: PAYMENTS_EXPORT_MAX_ROWS,
+        skip: 0,
+      }),
+      query.planId?.length
+        ? this.prisma.packagePlan.findMany({
+            where: { id: { in: query.planId } },
+            select: { name: true },
+          })
+        : Promise.resolve([]),
+    ]);
+    return { items, planNames: plans.map((plan) => plan.name) };
   }
 
   private async resolveAdminPaymentsWhere(

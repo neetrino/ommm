@@ -1,8 +1,10 @@
+import 'reflect-metadata';
 import { ManualPaymentMethod, PaymentStatus } from '@prisma/client';
 import ExcelJS from 'exceljs';
+import { PaymentSourceFilter } from './dto/admin-list-payments-query.dto';
+import { paymentsExportFilename } from './payments-export-filename';
 import {
   buildPaymentsXlsx,
-  paymentsExportFilename,
   type PaymentsExportRow,
 } from './payments-export-xlsx';
 
@@ -59,10 +61,26 @@ describe('payments workbook', () => {
     expect(sheet?.getCell(`L${first}`).value).toBe('PKG-ABC123');
   });
 
-  it('names the file after the filtered period', () => {
-    expect(paymentsExportFilename('2026-10-01', '2026-10-31')).toBe(
-      'payments-2026-10-01_2026-10-31.xlsx',
+  it('names the file after the period and every active filter', () => {
+    expect(
+      paymentsExportFilename({
+        locale: 'hy',
+        query: {
+          from: '2026-10-01',
+          to: '2026-10-31',
+          status: [PaymentStatus.SUCCEEDED],
+          paymentMethod: [ManualPaymentMethod.CASH],
+          source: [PaymentSourceFilter.PACKAGE],
+          sessions: ['8'],
+          q: 'Anna P/',
+        },
+        planNames: ['Reformer 8'],
+      }),
+    ).toBe(
+      'Վճարումներ_2026-10-01_2026-10-31_Հաջողված_Փաթեթ_Կանխիկ_Reformer-8_8-նիստ_Anna-P.xlsx',
     );
-    expect(paymentsExportFilename()).toBe('payments-all.xlsx');
+    expect(
+      paymentsExportFilename({ locale: 'en', query: {}, planNames: [] }),
+    ).toBe('Payments.xlsx');
   });
 });

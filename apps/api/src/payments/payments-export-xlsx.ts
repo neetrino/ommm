@@ -1,6 +1,5 @@
 import type { ManualPaymentMethod, PaymentStatus } from '@prisma/client';
 import {
-  exportRangeFileSuffix,
   formatExportDay,
   formatExportDayRange,
   resolveExportLocale,
@@ -60,10 +59,6 @@ export function buildPaymentsXlsx(input: PaymentsXlsxInput): Promise<Buffer> {
     columns: paymentsColumns(copy),
     rows: input.items.map((item) => paymentCells(copy, item)),
   });
-}
-
-export function paymentsExportFilename(from?: string, to?: string): string {
-  return `payments-${exportRangeFileSuffix(from, to)}.xlsx`;
 }
 
 function paymentsSubtitle(
