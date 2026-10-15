@@ -50,7 +50,6 @@ describe('NotificationsService', () => {
     const analytics = new NotificationsAnalyticsService(prisma as never);
     const cron = new NotificationsCronService(
       prisma as never,
-      mail as never,
       expoPush as never,
       audit as never,
       broadcast,
