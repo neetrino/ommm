@@ -7,6 +7,7 @@ import {
   MANAGER_FINANCE_SECTION_IDS,
   resolveManagerFinanceSection,
 } from "@/components/admin/manager-finance-module";
+import { ManagerFinancePaymentsFilters } from "@/components/admin/manager-finance-payments-filters";
 import {
   useAdminPageHeaderSticky,
   useAdminStickyHeaderOffset,
@@ -41,7 +42,7 @@ export function ManagerFinanceHeader({ dateLabel }: ManagerFinanceHeaderProps) {
 
   return (
     <WorkspaceStickyPageHeader headerRef={headerRef} spacing="module" sticky={stickyEnabled}>
-      <div className="ommm-admin-header-bar flex-col items-stretch gap-3 max-sm:justify-center sm:flex-row sm:items-center sm:justify-start">
+      <div className="ommm-admin-header-bar overflow-visible flex-col items-stretch gap-3 max-sm:justify-center sm:flex-row sm:items-center sm:justify-start">
         <div className="flex min-w-0 w-full shrink-0 flex-wrap items-center justify-center gap-3 sm:w-auto sm:justify-start">
           <h1 className="ommm-admin-header-title">{tFinance("title")}</h1>
           <nav
@@ -71,6 +72,11 @@ export function ManagerFinanceHeader({ dateLabel }: ManagerFinanceHeaderProps) {
             })}
           </nav>
         </div>
+        {activeSection === "payments" ? (
+          <div className="flex min-w-0 flex-1 items-center gap-2 sm:flex-nowrap">
+            <ManagerFinancePaymentsFilters />
+          </div>
+        ) : null}
         <div className={oliveSegmentedHugTrackClass("max-sm:self-center sm:ml-auto")}>
           <span className={oliveSegmentedHugSegmentClassName(true)}>
             <OliveSegmentedActiveThumb layoutId={TODAY_PILL_LAYOUT_ID} />

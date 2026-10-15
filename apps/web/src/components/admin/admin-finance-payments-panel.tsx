@@ -15,11 +15,7 @@ import {
   ADMIN_FINANCE_PAYMENTS_LIST_SCROLL_CLASS,
   ADMIN_FINANCE_PAYMENTS_LIST_TABLE_CLASS,
 } from "@/components/admin/admin-finance-payments-list-layout";
-import { AdminFinancePaymentsTotal } from "@/components/admin/admin-finance-payments-total";
-import {
-  hasFinancePaymentsPeriodSum,
-  type FinanceStudioDateRange,
-} from "@/components/admin/admin-finance-dates";
+import type { FinanceStudioDateRange } from "@/components/admin/admin-finance-dates";
 import type {
   FinanceFilterValues,
   FinancePaymentItem,
@@ -244,14 +240,6 @@ export function AdminFinancePaymentsPanel({
           )}
         </div>
       </div>
-
-      {hasFinancePaymentsPeriodSum(paymentsRange) ? (
-        <AdminFinancePaymentsTotal
-          locale={locale}
-          totalAmountCents={paymentsPayload.totalAmountCents ?? 0}
-          totalCount={paymentsPayload.total}
-        />
-      ) : null}
 
       <AdminFinancePaymentDetailsSheet
         payment={selectedPayment}

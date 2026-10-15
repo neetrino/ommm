@@ -1,7 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
-  hasFinancePaymentsPeriodSum,
   resolveFinanceCoachPayoutMonth,
   resolveFinancePaymentsDateRange,
 } from "./admin-finance-dates";
@@ -23,14 +22,6 @@ describe("resolveFinancePaymentsDateRange", () => {
       from: "2026-08-01",
       to: "2026-09-04",
     });
-  });
-});
-
-describe("hasFinancePaymentsPeriodSum", () => {
-  it("hides the sum without dates and shows it for a custom period", () => {
-    assert.equal(hasFinancePaymentsPeriodSum({}), false);
-    assert.equal(hasFinancePaymentsPeriodSum({ from: "2026-09-01" }), true);
-    assert.equal(hasFinancePaymentsPeriodSum({ from: "2026-09-01", to: "2026-09-04" }), true);
   });
 });
 

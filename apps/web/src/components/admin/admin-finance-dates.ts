@@ -44,11 +44,6 @@ export function resolveFinancePaymentsDateRange(
   };
 }
 
-/** Period total is shown when a custom from/to date is set. */
-export function hasFinancePaymentsPeriodSum(range: FinanceStudioDateRange): boolean {
-  return Boolean(range.from || range.to);
-}
-
 export function resolveFinanceCurrentMonthRange(
   now: Date = new Date(),
 ): FinanceClosedStudioDateRange {
