@@ -2,17 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { BookingStatus } from '@prisma/client';
 import { AuditService } from '../audit/audit.service';
 import { ExpoPushService, loadPushTokensForUser } from './expo-push.service';
-import {
-  buildMemberBookingsUrl,
-  resolveEmailLocale,
-  resolveWebAppUrl,
-} from '../mail/email-app-urls';
-import { MailService } from '../mail/mail.service';
-import {
-  buildClassReminderSubject,
-  renderClassReminderEmail,
-} from '../mail/templates/class-reminder.template';
-import { formatPaymentDateTime } from '../payments/payment-email-format.util';
+import { buildClassReminderSubject } from '../mail/templates/class-reminder.template';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   ACTION_BROADCAST_SCHEDULED,
@@ -39,8 +29,6 @@ type ClassReminderBooking = {
   id: string;
   user: {
     id: string;
-    email: string;
-    locale: string;
     notificationPrefs: { bookingReminders: boolean } | null;
   };
   session: { startsAt: Date; classType: { name: string } };
@@ -53,7 +41,6 @@ export class NotificationsCronService {
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly mail: MailService,
     private readonly expoPush: ExpoPushService,
     private readonly audit: AuditService,
     private readonly broadcast: NotificationsBroadcastService,
@@ -151,24 +138,12 @@ export class NotificationsCronService {
     });
   }
 
+  /** Class reminders go to WhatsApp and app push only — never email. */
   private async sendClassReminderChannels(
     booking: ClassReminderBooking,
     className: string,
     hoursBefore: number,
   ): Promise<void> {
-    await this.mail.sendEmail({
-      to: booking.user.email,
-      subject: buildClassReminderSubject(className),
-      html: renderClassReminderEmail({
-        className,
-        hoursBefore,
-        startsAtLabel: formatPaymentDateTime(booking.session.startsAt),
-        bookingsUrl: buildMemberBookingsUrl(
-          resolveWebAppUrl(process.env.WEB_APP_URL),
-          resolveEmailLocale(booking.user.locale ?? undefined),
-        ),
-      }),
-    });
     const tokens = await loadPushTokensForUser(this.prisma, booking.user.id);
     if (tokens.length > 0) {
       await this.expoPush.send(

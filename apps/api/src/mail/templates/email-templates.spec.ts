@@ -1,7 +1,6 @@
 import { renderVerifyEmail } from './auth-emails.template';
 import { renderBroadcastEmail } from './broadcast.template';
 import { renderClassCancelledEmail } from './class-cancelled.template';
-import { renderClassReminderEmail } from './class-reminder.template';
 import { renderClientInviteEmail } from './client-invite.template';
 import {
   OMMM_PICKUP_ADDRESS,
@@ -71,12 +70,6 @@ describe('branded email templates', () => {
       message: 'We held your place a little longer.',
       waitlistsUrl: SAMPLE_URL,
     }),
-    renderClassReminderEmail({
-      className: 'Yoga Flow',
-      hoursBefore: 2,
-      startsAtLabel: 'Thursday, 20 August 2026 at 10:00',
-      bookingsUrl: SAMPLE_URL,
-    }),
     renderClassCancelledEmail({
       className: 'Yoga Flow',
       startsAtLabel: 'Thursday, 20 August 2026 at 10:00',
@@ -107,7 +100,7 @@ describe('branded email templates', () => {
     expect(samples[5]).toContain('Create your account');
     expect(samples[6]).toContain('Book this class');
     expect(samples[7]).toContain('Open my waitlist');
-    expect(samples[9]).toContain('Open schedule');
+    expect(samples[8]).toContain('Open schedule');
     expect(samples[0]).not.toContain('copy and paste this link');
   });
 
