@@ -60,6 +60,7 @@ const HREF_TO_SUBTITLE_PATH: Record<string, string> = {
   "/manager/calls": "manager.calls",
   "/manager/packages": "manager.packages",
   "/manager/gift-cards": "manager.giftCards",
+  "/manager/finance": "manager.finance",
   "/manager/content": "manager.content",
   "/manager/settings": "manager.settings",
   "/manager/profile": "manager.profile",

@@ -587,7 +587,8 @@ Member shell-ում `@sheet` parallel route-ներ intercept են անում nav
 | Method | Path | Roles |
 |--------|------|-------|
 | GET | `/dashboard` | ADMIN, MANAGER |
-| GET | `/finance/summary` | ADMIN, MANAGER |
+| GET | `/finance/summary` | ADMIN |
+| GET | `/finance/today` (today-only aggregates, studio timezone) | ADMIN, MANAGER |
 | GET | `/bookings.csv`, `/payments.csv`, `/gift-credits.csv` | ADMIN |
 | GET | `/coach/analytics` | COACH |
 | GET | `/user/analytics` | USER |

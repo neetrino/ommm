@@ -4,6 +4,7 @@ import {
   PaymentStatus,
   Role,
 } from '@prisma/client';
+import { ManagerDailyFinanceService } from './manager-daily-finance.service';
 import { ManagerInvitesAnalyticsService } from './manager-invites-analytics.service';
 import { ReportsAnalyticsService } from './reports-analytics.service';
 import { ReportsDashboardService } from './reports-dashboard.service';
@@ -23,6 +24,7 @@ function createServiceWithPrisma(
     new ReportsAnalyticsService(prisma),
     new StudioAnalyticsService(new StudioAnalyticsQueriesService(prisma)),
     new ManagerInvitesAnalyticsService(prisma),
+    new ManagerDailyFinanceService(prisma),
   );
 }
 

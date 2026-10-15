@@ -14,6 +14,7 @@ import {
   BACKOFFICE_READ_ROLES,
 } from '../common/backoffice-roles';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { MANAGER_PERMISSION_MATRIX } from '../common/manager-permission.matrix';
 import { Roles } from '../common/decorators/roles.decorator';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
@@ -78,6 +79,13 @@ export class ReportsController {
   @Roles(...BACKOFFICE_DELETE_ROLES)
   financeSummary(@Query() query: DateRangeQueryDto) {
     return this.reports.financeSummary(query);
+  }
+
+  @Get('finance/today')
+  @SkipThrottle()
+  @Roles(...MANAGER_PERMISSION_MATRIX.reports.financeToday)
+  financeToday() {
+    return this.reports.financeToday();
   }
 
   @Get('analytics')

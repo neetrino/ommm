@@ -83,6 +83,18 @@ describe('manager-permission.matrix', () => {
     ).toBe(false);
   });
 
+  it('allows Manager the today-only finance report', () => {
+    expect(
+      roleAllows(MANAGER_PERMISSION_MATRIX.reports.financeToday, Role.MANAGER),
+    ).toBe(true);
+    expect(
+      roleAllows(MANAGER_PERMISSION_MATRIX.reports.financeToday, Role.ADMIN),
+    ).toBe(true);
+    expect(
+      roleAllows(MANAGER_PERMISSION_MATRIX.reports.financeToday, Role.COACH),
+    ).toBe(false);
+  });
+
   it('preserves CONTENT_ADMIN on content write and delete', () => {
     expect(
       roleAllows(MANAGER_PERMISSION_MATRIX.content.write, Role.CONTENT_ADMIN),

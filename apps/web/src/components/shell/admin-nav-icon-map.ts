@@ -52,6 +52,7 @@ export const MANAGER_NAV_ICON_BY_HREF: Readonly<Record<string, AdminNavIconSlug>
   "/manager/schedule": "schedule",
   "/manager/packages": "packages",
   "/manager/gift-cards": "giftCards",
+  "/manager/finance": "finance",
   "/manager/content": "feedback",
   "/manager/settings": "settings",
   "/manager/profile": "clients",

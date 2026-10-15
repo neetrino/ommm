@@ -676,6 +676,7 @@
         "classes": "Classes",
         "packages": "Packages",
         "giftCards": "Gift Cards",
+        "finance": "Daily report",
         "analytics": "Analytics",
         "notifications": "Notifications",
         "content": "Content",
@@ -768,6 +769,7 @@
         "calls": "Follow-up calls to make today and upcoming reminders.",
         "packages": "Membership plans, pricing, and packages.",
         "giftCards": "Issued cards and balances (view and resend where allowed).",
+        "finance": "Today's totals by payment status and method.",
         "content": "Posts, publishing status, and slugs.",
         "settings": "Studio policy, contacts, and operational defaults.",
         "profile": "Your account and personal client invite link."
@@ -4596,6 +4598,14 @@
         "units": "Units sold",
         "bookings": "Bookings"
       }
+    },
+    "dailyFinance": {
+      "errorAuth": "Sign-in required.",
+      "errorLoad": "Could not load today's report ({status}).",
+      "dateCaption": "Today, {date}",
+      "kpiRevenue": "Revenue",
+      "byMethodHeading": "Revenue by payment method",
+      "scopeNote": "Only today's totals are shown. Payment history and other periods are available to administrators."
     },
     "finance": {
       "title": "Finance",
