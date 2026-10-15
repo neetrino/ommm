@@ -4789,8 +4789,7 @@
       "paymentsTab": {
         "loading": "Loading…",
         "loadFailed": "Could not load payments.",
-        "rowCount": "{count} payments",
-        "periodTotal": "Total for period"
+        "rowCount": "{count} payments"
       },
       "coachTab": {
         "searchPlaceholder": "Search coach name or phone",

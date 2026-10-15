@@ -4420,8 +4420,7 @@
       "paymentsTab": {
         "loading": "Բեռնում…",
         "loadFailed": "Չհաջողվեց բեռնել վճարումները։",
-        "rowCount": "{count} վճարում",
-        "periodTotal": "Ժամանակահատվածի գումար"
+        "rowCount": "{count} վճարում"
       },
       "actions": {
         "openMenu": "Բացել գործողությունների մենյուն",

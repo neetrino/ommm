@@ -4417,8 +4417,7 @@
       "paymentsTab": {
         "loading": "Загрузка…",
         "loadFailed": "Не удалось загрузить платежи.",
-        "rowCount": "{count} платежей",
-        "periodTotal": "Итого за период"
+        "rowCount": "{count} платежей"
       },
       "actions": {
         "openMenu": "Открыть меню действий",
