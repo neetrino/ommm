@@ -5,6 +5,8 @@ import {
 } from './manager-daily-finance.aggregate';
 import { ManagerDailyFinanceService } from './manager-daily-finance.service';
 
+type GroupByArgs = { where: { createdAt: { gte: Date; lte: Date } } };
+
 function row(
   status: PaymentStatus,
   paymentMethod: ManualPaymentMethod | null,
@@ -53,7 +55,9 @@ describe('buildDailyFinanceReport', () => {
 
 describe('ManagerDailyFinanceService', () => {
   it('queries only the current studio day (Asia/Yerevan)', async () => {
-    const groupBy = jest.fn().mockResolvedValue([]);
+    const groupBy = jest
+      .fn<Promise<DailyFinanceGroupRow[]>, [GroupByArgs]>()
+      .mockResolvedValue([]);
     const service = new ManagerDailyFinanceService({
       payment: { groupBy },
     } as never);
@@ -61,8 +65,12 @@ describe('ManagerDailyFinanceService', () => {
     const report = await service.today(new Date('2026-10-14T21:30:00.000Z'));
 
     expect(report.date).toBe('2026-10-15');
-    const where = groupBy.mock.calls[0][0].where;
-    expect(where.createdAt.gte.toISOString()).toBe('2026-10-14T20:00:00.000Z');
-    expect(where.createdAt.lte.toISOString()).toBe('2026-10-15T19:59:59.999Z');
+    const [args] = groupBy.mock.calls[0] ?? [];
+    expect(args?.where.createdAt.gte.toISOString()).toBe(
+      '2026-10-14T20:00:00.000Z',
+    );
+    expect(args?.where.createdAt.lte.toISOString()).toBe(
+      '2026-10-15T19:59:59.999Z',
+    );
   });
 });

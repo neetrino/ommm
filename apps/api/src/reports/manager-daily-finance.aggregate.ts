@@ -42,7 +42,10 @@ function emptyBucket(): DailyFinanceBucket {
   return { count: 0, amountCents: 0 };
 }
 
-function addToBucket(bucket: DailyFinanceBucket, row: DailyFinanceGroupRow): void {
+function addToBucket(
+  bucket: DailyFinanceBucket,
+  row: DailyFinanceGroupRow,
+): void {
   bucket.count += row._count.id;
   bucket.amountCents += row._sum.amountCents ?? 0;
 }
