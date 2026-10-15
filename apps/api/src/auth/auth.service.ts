@@ -32,6 +32,7 @@ import {
 import type { LoginDto } from './dto/login.dto';
 import type { RegisterDto } from './dto/register.dto';
 import { buildCreatePasswordUrl } from './build-create-password-url';
+import { buildResetPasswordUrl } from './build-reset-password-url';
 
 /** Invite / first-time password token (added in migration `20260728140000`). */
 const AUTH_TOKEN_PASSWORD_SETUP = 'PASSWORD_SETUP' as AuthTokenType;
@@ -188,9 +189,10 @@ export class AuthService {
     const webUrl = resolveWebAppUrl(this.config.get<string>('WEB_APP_URL'));
     const locale = resolveEmailLocale(user.locale);
     const needsCreate = user.passwordHash === null;
+    const urlParams = { webAppUrl: webUrl, locale, token: raw };
     const resetUrl = needsCreate
-      ? buildCreatePasswordUrl({ webAppUrl: webUrl, locale, token: raw })
-      : `${webUrl}/${locale}/reset-password?token=${encodeURIComponent(raw)}`;
+      ? buildCreatePasswordUrl(urlParams)
+      : buildResetPasswordUrl(urlParams);
     const recipientName = [user.name, user.lastName].filter(Boolean).join(' ');
     const authParams = { recipientName, actionUrl: resetUrl };
     const message = needsCreate

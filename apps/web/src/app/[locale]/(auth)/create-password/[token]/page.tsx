@@ -1,3 +1,4 @@
+import { decodeTokenSegment } from "@/lib/auth-token-param";
 import { CreatePasswordPage } from "../create-password-page";
 
 type CreatePasswordTokenRouteProps = {
@@ -8,12 +9,6 @@ type CreatePasswordTokenRouteProps = {
 export default async function CreatePasswordTokenRoutePage({
   params,
 }: CreatePasswordTokenRouteProps) {
-  const { token: rawToken } = await params;
-  let token = "";
-  try {
-    token = decodeURIComponent(rawToken).trim();
-  } catch {
-    token = rawToken.trim();
-  }
-  return <CreatePasswordPage initialToken={token} />;
+  const { token } = await params;
+  return <CreatePasswordPage initialToken={decodeTokenSegment(token)} />;
 }

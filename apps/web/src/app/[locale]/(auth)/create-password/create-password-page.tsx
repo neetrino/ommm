@@ -5,6 +5,7 @@ import { useParams, useSearchParams } from "next/navigation";
 import { Suspense, useMemo, useState } from "react";
 import { Link } from "@/i18n/navigation";
 import { ApiError, apiFetch } from "@/lib/api";
+import { decodeTokenSegment } from "@/lib/auth-token-param";
 import { postAuthPathForRole } from "@/lib/role-home";
 import { markClientSessionHint } from "@/lib/client-session-hint";
 import { hardNavigateAfterAuth } from "@/lib/post-auth-hard-navigate";
@@ -14,18 +15,6 @@ import { OmmButton } from "@/components/ui/omm-button";
 import { PasswordInput } from "@/components/ui/password-input";
 
 const PASSWORD_MIN_LENGTH = 8;
-
-function readTokenFromPathParam(raw: string | string[] | undefined): string {
-  const value = Array.isArray(raw) ? raw[0] : raw;
-  if (typeof value !== "string" || value.trim().length === 0) {
-    return "";
-  }
-  try {
-    return decodeURIComponent(value).trim();
-  } catch {
-    return value.trim();
-  }
-}
 
 function resolveInviteToken(params: {
   initialToken: string;
@@ -51,7 +40,7 @@ function resolveInviteToken(params: {
   const segments = window.location.pathname.split("/").filter(Boolean);
   const createIdx = segments.indexOf("create-password");
   if (createIdx >= 0 && typeof segments[createIdx + 1] === "string") {
-    return readTokenFromPathParam(segments[createIdx + 1]);
+    return decodeTokenSegment(segments[createIdx + 1]);
   }
   return "";
 }
@@ -65,7 +54,7 @@ function CreatePasswordForm({ initialToken }: { initialToken: string }) {
     () =>
       resolveInviteToken({
         initialToken: initialToken.trim(),
-        pathToken: readTokenFromPathParam(
+        pathToken: decodeTokenSegment(
           routeParams.token as string | string[] | undefined,
         ),
         queryToken: search.get("token")?.trim() ?? "",

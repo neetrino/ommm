@@ -21,7 +21,6 @@ const SEND_WINDOW_END_MINUTES = 21 * 60;
 const NOTIFICATION_CRON_STEP_MINUTES = 30;
 
 const MINUTE_MS = 60 * 1000;
-const HOUR_MS = 60 * MINUTE_MS;
 
 /** True from 13:00 inclusive through 21:00 exclusive in Asia/Yerevan. */
 export function isWithinNotificationSendWindow(now: Date): boolean {
@@ -54,26 +53,6 @@ export function notificationDueSince(now: Date): Date {
   const yesterday = addStudioCalendarDays(utcToStudioCalendarDate(now), -1);
   return studioWallClockToUtc(yesterday, NOTIFICATION_SEND_WINDOW_END);
 }
-
-/**
- * Sessions whose reminder fell due since yesterday 21:00, up to this tick.
- * Null outside 13:00–21:00 Yerevan.
- */
-export function classReminderSessionWindow(
-  now: Date,
-  hoursBefore: number,
-): { start: Date; end: Date } | null {
-  const dueUntil = notificationDueUntil(now);
-  if (dueUntil === null) {
-    return null;
-  }
-  const offsetMs = hoursBefore * HOUR_MS;
-  return {
-    start: new Date(notificationDueSince(now).getTime() + offsetMs),
-    end: new Date(dueUntil.getTime() + offsetMs),
-  };
-}
-
 function studioMinutesOfDay(now: Date): number {
   const [hourText, minuteText] = utcToStudioWallClockTime(now).split(':');
   const hour = Number(hourText);
