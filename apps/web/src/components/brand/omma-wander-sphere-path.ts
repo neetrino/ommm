@@ -4,11 +4,10 @@ const EXCLUDED_EXACT_PATHS = new Set([
   "/login",
   "/register",
   "/forgot-password",
-  "/reset-password",
   "/verify-email",
 ]);
 
-const EXCLUDED_PREFIXES = ["/payment"] as const;
+const EXCLUDED_PREFIXES = ["/payment", "/reset-password"] as const;
 
 /**
  * Auth and payment already run their own sphere scenes — skip the wander overlay.
