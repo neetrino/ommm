@@ -93,6 +93,12 @@ describe('manager-permission.matrix', () => {
     expect(
       roleAllows(MANAGER_PERMISSION_MATRIX.reports.financeToday, Role.COACH),
     ).toBe(false);
+    expect(
+      roleAllows(MANAGER_PERMISSION_MATRIX.payments.listToday, Role.MANAGER),
+    ).toBe(true);
+    expect(
+      roleAllows(MANAGER_PERMISSION_MATRIX.payments.listToday, Role.COACH),
+    ).toBe(false);
   });
 
   it('preserves CONTENT_ADMIN on content write and delete', () => {

@@ -46,6 +46,8 @@ type AdminFinancePaymentDetailsSheetProps = {
   locale: string;
   onClose: () => void;
   onPaymentUpdated: (payment: FinancePaymentItem) => void;
+  /** Arca bank sync is Admin-only. */
+  canSyncArca?: boolean;
 };
 
 type ToastState = { message: string; tone: AdminCenterToastTone } | null;
@@ -80,6 +82,7 @@ export function AdminFinancePaymentDetailsSheet({
   locale,
   onClose,
   onPaymentUpdated,
+  canSyncArca = true,
 }: AdminFinancePaymentDetailsSheetProps) {
   const t = useTranslations("adminPages.finance");
   const titleId = useId();
@@ -96,7 +99,9 @@ export function AdminFinancePaymentDetailsSheet({
   const paymentDateTimeIso = toPaymentIso(paymentDateTime);
   const userLabel = displayName(payment);
   const showArcaSync =
-    isCardPaymentMethod(payment.paymentMethod) && payment.status === "PENDING";
+    canSyncArca &&
+    isCardPaymentMethod(payment.paymentMethod) &&
+    payment.status === "PENDING";
 
   return (
     <>

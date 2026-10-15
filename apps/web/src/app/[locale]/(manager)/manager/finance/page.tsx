@@ -1,45 +1,11 @@
-import { headers } from "next/headers";
-import { getTranslations } from "next-intl/server";
-import { AdminContentFrame } from "@/components/admin/admin-content-frame";
-import { DailyFinanceHeader } from "@/components/admin/daily-finance-header";
-import { DailyFinanceReport } from "@/components/admin/daily-finance-report";
-import {
-  DAILY_FINANCE_ENDPOINT,
-  type DailyFinanceReportPayload,
-} from "@/components/admin/daily-finance-types";
-import { formatDateForUi } from "@/lib/date-display";
-import { serverApiJson } from "@/lib/server-api";
+import { redirect } from "next/navigation";
+import { MANAGER_FINANCE_SECTION_HREF } from "@/components/admin/manager-finance-module";
 
-export default async function ManagerFinancePage({
+export default async function ManagerFinanceIndexPage({
   params,
 }: {
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: "adminPages.dailyFinance" });
-  const cookie = (await headers()).get("cookie") ?? "";
-  const response = await serverApiJson<DailyFinanceReportPayload>(
-    DAILY_FINANCE_ENDPOINT,
-    cookie,
-  );
-
-  if (!response.ok) {
-    const isAuthError = response.status === 401 || response.status === 403;
-    return (
-      <div className="app-alert-warn max-w-xl">
-        {isAuthError ? t("errorAuth") : t("errorLoad", { status: response.status })}
-      </div>
-    );
-  }
-
-  const dateLabel = formatDateForUi(response.data.date);
-
-  return (
-    <AdminContentFrame>
-      <div className="flex flex-col gap-6">
-        <DailyFinanceHeader dateLabel={dateLabel} />
-        <DailyFinanceReport locale={locale} dateLabel={dateLabel} report={response.data} />
-      </div>
-    </AdminContentFrame>
-  );
+  redirect(`/${locale}${MANAGER_FINANCE_SECTION_HREF.overview}`);
 }

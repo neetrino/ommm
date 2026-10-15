@@ -10,6 +10,7 @@ import {
   type FinanceFilterValues,
 } from "@/components/admin/admin-finance-types";
 import {
+  FINANCE_PAYMENTS_ADMIN_ENDPOINT,
   FINANCE_COACHES_QUERY_KEYS,
   FINANCE_OVERVIEW_QUERY_KEYS,
   FINANCE_PAYMENTS_QUERY_KEYS,
@@ -62,6 +63,7 @@ export function buildFinancePaymentsAdminApiQuery(
   filters: FinanceFilterValues,
   range: FinanceStudioDateRange,
   listPage: { take: number; offset: number },
+  endpoint: string = FINANCE_PAYMENTS_ADMIN_ENDPOINT,
 ): string {
   const params = new URLSearchParams({
     take: String(listPage.take),
@@ -98,7 +100,7 @@ export function buildFinancePaymentsAdminApiQuery(
   if (filters.order !== "newest") {
     params.set("order", filters.order);
   }
-  return `/payments/admin?${params.toString()}`;
+  return `${endpoint}?${params.toString()}`;
 }
 
 export function buildFinanceCoachesFiltersQuery(

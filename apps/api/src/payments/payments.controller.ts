@@ -24,6 +24,7 @@ import { CreateCartCheckoutDto } from './dto/create-cart-checkout.dto';
 import { CreateGiftCheckoutDto } from './dto/create-gift-checkout.dto';
 import { ListMyPaymentsQueryDto } from './dto/list-my-payments-query.dto';
 import { PaymentOutcomeQueryDto } from './dto/payment-outcome-query.dto';
+import { clampPaymentsQueryToToday } from './payments-today-query.util';
 import { PaymentsService } from './payments.service';
 
 @Controller('payments')
@@ -135,6 +136,15 @@ export class PaymentsController {
   @Roles(...MANAGER_PERMISSION_MATRIX.payments.adminFinance)
   adminList(@Query() query: AdminListPaymentsQueryDto) {
     return this.payments.adminListPayments(query);
+  }
+
+  /** Same table as `admin`, but any `from`/`to` is replaced with today (studio timezone). */
+  @Get('admin/today')
+  @SkipThrottle()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(...MANAGER_PERMISSION_MATRIX.payments.listToday)
+  adminListToday(@Query() query: AdminListPaymentsQueryDto) {
+    return this.payments.adminListPayments(clampPaymentsQueryToToday(query));
   }
 
   @Patch('admin/:paymentId/status')

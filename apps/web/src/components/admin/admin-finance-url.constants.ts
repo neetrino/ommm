@@ -1,5 +1,10 @@
 import type { FinanceSectionId } from "@/components/admin/admin-finance-module";
 
+export const FINANCE_PAYMENTS_ADMIN_ENDPOINT = "/payments/admin";
+
+/** Manager list — the API clamps any date range to the current studio day. */
+export const FINANCE_PAYMENTS_TODAY_ENDPOINT = "/payments/admin/today";
+
 export const FINANCE_OVERVIEW_QUERY_KEYS = ["from", "to"] as const;
 
 export const FINANCE_PAYMENTS_QUERY_KEYS = [
