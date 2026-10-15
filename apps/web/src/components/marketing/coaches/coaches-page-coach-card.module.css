@@ -121,8 +121,6 @@
   position: relative;
   height: 100%;
   width: 100%;
-  transform: scaleY(-1) rotate(180deg);
-  transform-origin: center center;
 }
 
 .photoFrame {

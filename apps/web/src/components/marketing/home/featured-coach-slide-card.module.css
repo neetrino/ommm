@@ -27,18 +27,16 @@
   pointer-events: none;
 }
 
-.imageFlip {
+.imageLayer {
   position: relative;
   height: 100%;
   width: 100%;
-  transform: rotate(180deg) scaleY(-1);
-  transform-origin: center center;
 }
 
 .imageCrop {
   pointer-events: none;
   position: absolute;
-  left: var(--ommm-coach-portrait-crop-left, calc(-4% + 6px));
+  left: var(--ommm-coach-portrait-crop-left, calc(-10% - 6px));
   top: var(--ommm-coach-portrait-crop-top, 0);
   width: var(--ommm-coach-portrait-crop-width, 114%);
   height: var(--ommm-coach-portrait-crop-height, 100%);
@@ -53,5 +51,5 @@
 
 .image {
   object-fit: cover;
-  object-position: var(--ommm-coach-portrait-object-position, 45% 18%);
+  object-position: var(--ommm-coach-portrait-object-position, 55% 18%);
 }

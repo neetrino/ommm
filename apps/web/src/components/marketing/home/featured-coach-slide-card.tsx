@@ -172,7 +172,7 @@ export function FeaturedCoachSlideCard({
           className={`${styles.imageColumn} relative order-1 aspect-[342/597] w-full max-md:max-h-[min(28rem,78vh)] md:order-2 md:aspect-auto md:max-h-none md:self-stretch`}
         >
           <div className={styles.imageViewport} aria-hidden>
-            <div className={styles.imageFlip}>
+            <div className={styles.imageLayer}>
               <div className={styles.imageCrop}>
                 <div className={styles.imageFrame}>
                   <Image
