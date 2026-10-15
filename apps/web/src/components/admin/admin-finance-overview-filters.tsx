@@ -9,6 +9,7 @@ import { AdminFinanceExportLinks } from "@/components/admin/admin-finance-export
 import { AdminFinanceFiltersBar } from "@/components/admin/admin-finance-filters-bar";
 import { ListPageSearchFilters } from "@/components/shared/search/list-page-search-filters";
 import {
+  buildFinanceDateRangeQuery,
   resolveFinancePaymentsDateRange,
   resolveFinanceStudioDateRange,
 } from "@/components/admin/admin-finance-dates";
@@ -64,15 +65,13 @@ export function AdminFinanceOverviewFilters({
     [from, to],
   );
 
-  const exportRange = useMemo(() => {
+  const exportParams = useMemo(() => {
     const custom = resolveFinancePaymentsDateRange(from, to);
-    if (custom.from || custom.to) {
-      return {
-        from: custom.from ?? custom.to ?? "",
-        to: custom.to ?? custom.from ?? "",
-      };
-    }
-    return resolveFinanceStudioDateRange(DEFAULT_FINANCE_OVERVIEW_RANGE);
+    const range =
+      custom.from || custom.to
+        ? { from: custom.from ?? custom.to, to: custom.to ?? custom.from }
+        : resolveFinanceStudioDateRange(DEFAULT_FINANCE_OVERVIEW_RANGE);
+    return new URLSearchParams(buildFinanceDateRangeQuery(range));
   }, [from, to]);
 
   useEffect(() => {
@@ -129,11 +128,11 @@ export function AdminFinanceOverviewFilters({
       }
       trailing={
         <AdminFinanceExportLinks
-          from={exportRange.from}
-          to={exportRange.to}
+          paymentsParams={exportParams}
+          giftCreditsParams={exportParams}
           menuAriaLabel={t("exportMenuAria")}
-          paymentsLabel={t("exportPaymentsCsv")}
-          giftCreditsLabel={t("exportGiftCreditsCsv")}
+          paymentsLabel={t("exportPaymentsExcel")}
+          giftCreditsLabel={t("exportGiftCreditsExcel")}
         />
       }
     />

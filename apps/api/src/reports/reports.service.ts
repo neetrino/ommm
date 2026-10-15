@@ -52,6 +52,10 @@ export class ReportsService {
     return this.exportService.giftCreditsCsv(range);
   }
 
+  giftCreditEvents(range: DateRangeQueryDto) {
+    return this.exportService.giftCreditEvents(range);
+  }
+
   coachAnalytics(userId: string, days: number) {
     return this.analyticsService.coachAnalytics(userId, days);
   }

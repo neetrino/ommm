@@ -65,10 +65,18 @@ export function buildFinancePaymentsAdminApiQuery(
   listPage: { take: number; offset: number },
   endpoint: string = FINANCE_PAYMENTS_ADMIN_ENDPOINT,
 ): string {
-  const params = new URLSearchParams({
-    take: String(listPage.take),
-    offset: String(listPage.offset),
-  });
+  const params = buildFinancePaymentsFilterParams(filters, range);
+  params.set("take", String(listPage.take));
+  params.set("offset", String(listPage.offset));
+  return `${endpoint}?${params.toString()}`;
+}
+
+/** Finance payments filters as admin API params (no paging) — shared by the list and Excel export. */
+export function buildFinancePaymentsFilterParams(
+  filters: FinanceFilterValues,
+  range: FinanceStudioDateRange,
+): URLSearchParams {
+  const params = new URLSearchParams();
   applyFinanceStudioDateRangeParams(params, range);
   const status = financeMultiOrUndefined(filters.status);
   if (status) {
@@ -100,7 +108,7 @@ export function buildFinancePaymentsAdminApiQuery(
   if (filters.order !== "newest") {
     params.set("order", filters.order);
   }
-  return `${endpoint}?${params.toString()}`;
+  return params;
 }
 
 export function buildFinanceCoachesFiltersQuery(

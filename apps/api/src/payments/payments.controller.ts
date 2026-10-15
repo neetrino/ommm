@@ -7,14 +7,18 @@ import {
   Patch,
   Post,
   Query,
+  Res,
   UseGuards,
 } from '@nestjs/common';
 import { SkipThrottle } from '@nestjs/throttler';
+import type { Response } from 'express';
+import { sendXlsxAttachment } from '../common/xlsx/xlsx-response';
 import { MANAGER_PERMISSION_MATRIX } from '../common/manager-permission.matrix';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
+import { AdminExportPaymentsQueryDto } from './dto/admin-export-payments-query.dto';
 import { AdminListPaymentsQueryDto } from './dto/admin-list-payments-query.dto';
 import { AdminUpdatePaymentMethodDto } from './dto/admin-update-payment-method.dto';
 import { AdminUpdatePaymentStatusDto } from './dto/admin-update-payment-status.dto';
@@ -24,6 +28,10 @@ import { CreateCartCheckoutDto } from './dto/create-cart-checkout.dto';
 import { CreateGiftCheckoutDto } from './dto/create-gift-checkout.dto';
 import { ListMyPaymentsQueryDto } from './dto/list-my-payments-query.dto';
 import { PaymentOutcomeQueryDto } from './dto/payment-outcome-query.dto';
+import {
+  buildPaymentsXlsx,
+  paymentsExportFilename,
+} from './payments-export-xlsx';
 import { clampPaymentsQueryToToday } from './payments-today-query.util';
 import { PaymentsService } from './payments.service';
 
@@ -136,6 +144,28 @@ export class PaymentsController {
   @Roles(...MANAGER_PERMISSION_MATRIX.payments.adminFinance)
   adminList(@Query() query: AdminListPaymentsQueryDto) {
     return this.payments.adminListPayments(query);
+  }
+
+  /** Excel workbook of every payment matching the admin finance filters. */
+  @Get('admin/export')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(...MANAGER_PERMISSION_MATRIX.payments.adminFinance)
+  async adminExport(
+    @Query() query: AdminExportPaymentsQueryDto,
+    @Res() res: Response,
+  ): Promise<void> {
+    const items = await this.payments.adminExportPayments(query);
+    const buffer = await buildPaymentsXlsx({
+      locale: query.locale,
+      from: query.from,
+      to: query.to,
+      items,
+    });
+    sendXlsxAttachment(
+      res,
+      paymentsExportFilename(query.from, query.to),
+      buffer,
+    );
   }
 
   /** Same table as `admin`, but any `from`/`to` is replaced with today (studio timezone). */

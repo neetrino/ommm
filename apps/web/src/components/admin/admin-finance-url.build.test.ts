@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
   buildFinancePaymentsAdminApiQuery,
+  buildFinancePaymentsFilterParams,
   buildFinancePaymentsFiltersQuery,
 } from "./admin-finance-url.build";
 
@@ -54,5 +55,21 @@ describe("buildFinancePaymentsAdminApiQuery", () => {
     const params = new URLSearchParams(path.split("?")[1]);
     assert.equal(params.get("paymentMethod"), "CASH");
     assert.equal(params.get("from"), "2026-09-01");
+  });
+});
+
+describe("buildFinancePaymentsFilterParams", () => {
+  it("carries every active filter for the export without paging", () => {
+    const params = buildFinancePaymentsFilterParams(
+      { ...BASE_FILTERS, q: " anna ", status: "SUCCEEDED", source: "package", order: "oldest" },
+      { from: "2026-09-01", to: "2026-09-30" },
+    );
+    assert.equal(params.get("q"), "anna");
+    assert.equal(params.get("status"), "SUCCEEDED");
+    assert.equal(params.get("source"), "package");
+    assert.equal(params.get("order"), "oldest");
+    assert.equal(params.get("to"), "2026-09-30");
+    assert.equal(params.get("take"), null);
+    assert.equal(params.get("offset"), null);
   });
 });

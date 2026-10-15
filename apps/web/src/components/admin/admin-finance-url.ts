@@ -41,5 +41,6 @@ export {
   buildFinanceFiltersQuery,
   buildFinanceOverviewFiltersQuery,
   buildFinancePaymentsAdminApiQuery,
+  buildFinancePaymentsFilterParams,
   buildFinancePaymentsFiltersQuery,
 } from "@/components/admin/admin-finance-url.build";

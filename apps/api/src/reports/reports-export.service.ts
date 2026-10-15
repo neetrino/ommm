@@ -9,9 +9,13 @@ import { DateRangeQueryDto } from './dto/date-range-query.dto';
 import {
   aggregatePaymentsBySource,
   buildDailyRevenueFromPayments,
-  buildGiftCreditCsvRows,
   formatPersonName,
 } from './reports-export.helpers';
+import {
+  buildGiftCreditEvents,
+  giftCreditEventCsvRow,
+  type GiftCreditEvent,
+} from './reports-gift-credit-events';
 import {
   buildPaymentDateFilter,
   detectPaymentSource,
@@ -245,6 +249,13 @@ export class ReportsExportService {
   }
 
   async giftCreditsCsv(range: DateRangeQueryDto): Promise<string> {
+    const events = await this.giftCreditEvents(range);
+    const header =
+      'eventType,eventAt,userId,userEmail,userName,amountCents,currency,reference,notes\n';
+    return header + events.map(giftCreditEventCsvRow).join('\n');
+  }
+
+  async giftCreditEvents(range: DateRangeQueryDto): Promise<GiftCreditEvent[]> {
     const dateFilter = buildPaymentDateFilter(range);
     const [issuedCards, redeemedCards, spendPayments] = await Promise.all([
       this.prisma.giftCard.findMany({
@@ -291,15 +302,11 @@ export class ReportsExportService {
       }),
     ]);
 
-    const rows = buildGiftCreditCsvRows({
+    return buildGiftCreditEvents({
       issuedCards,
       redeemedCards,
       spendPayments,
       currency: GIFT_CREDIT_CURRENCY,
     });
-
-    const header =
-      'eventType,eventAt,userId,userEmail,userName,amountCents,currency,reference,notes\n';
-    return header + rows.join('\n');
   }
 }

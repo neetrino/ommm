@@ -26,6 +26,10 @@ import {
   type AdminPaymentPackageLabels,
 } from './payments-related-item.util';
 import { readPaymentStatusReason } from './payment-status-reason';
+import {
+  PAYMENTS_EXPORT_MAX_ROWS,
+  PAYMENTS_EXPORT_TOO_MANY,
+} from './payments-export.constants';
 
 @Injectable()
 export class PaymentsAdminService {
@@ -117,38 +121,10 @@ export class PaymentsAdminService {
   async adminListPayments(query: AdminListPaymentsQueryDto) {
     const take = query.take ?? 25;
     const offset = query.offset ?? 0;
-    if (query.from && query.to && new Date(query.to) < new Date(query.from)) {
-      throw new BadRequestException('Invalid date range');
-    }
-    const order = resolveDateListPrismaOrder(query.order);
-    const packageSourceIds = await resolveAdminPaymentPackageSourceIds(
-      this.prisma,
-      query,
-    );
-    const where = buildAdminListPaymentsWhere(query, {
-      packageSourceWhere: packageSourceIdsToPaymentWhere(packageSourceIds),
-    });
+    const where = await this.resolveAdminPaymentsWhere(query);
 
     const [items, total, amountAgg] = await Promise.all([
-      this.prisma.payment.findMany({
-        where,
-        include: {
-          user: {
-            select: {
-              id: true,
-              email: true,
-              name: true,
-              lastName: true,
-              phone: true,
-              role: true,
-            },
-          },
-          ehdmReceipt: true,
-        },
-        orderBy: [{ createdAt: order }, { id: order }],
-        take,
-        skip: offset,
-      }),
+      this.findAdminPayments(where, query, { take, skip: offset }),
       this.prisma.payment.count({ where }),
       this.prisma.payment.aggregate({
         where,
@@ -156,42 +132,97 @@ export class PaymentsAdminService {
       }),
     ]);
 
-    const packageLabelsByUserPackageId =
-      await this.loadPackageLabelsForPayments(items);
-
     return {
-      items: items.map((payment) => {
-        const source = detectPaymentSource(
-          payment.description,
-          readPaymentSource(payment),
-        );
-        const relatedArgs = {
-          source,
-          description: payment.description,
-          sourceId: payment.sourceId,
-          packageLabelsByUserPackageId,
-        };
-        return {
-          ...payment,
-          source,
-          relatedItemName: resolveAdminPaymentRelatedItemName(relatedArgs),
-          relatedItemGroupName:
-            resolveAdminPaymentRelatedItemGroupName(relatedArgs),
-          statusReason: readPaymentStatusReason(payment.metadata),
-          giftCreditsAppliedCents: readGiftCreditsAppliedCents(
-            payment.metadata,
-          ),
-          isGiftCreditSpend: isGiftCreditSpendDescription(payment.description),
-          ehdmReceipt: payment.ehdmReceipt
-            ? this.ehdmReceipt.toReceiptSummary(payment.ehdmReceipt)
-            : null,
-        };
-      }),
+      items,
       total,
       totalAmountCents: amountAgg._sum.amountCents ?? 0,
       take,
       offset,
     };
+  }
+
+  /** Every ledger row matching the admin filters, for the Excel export. */
+  async adminExportPayments(query: AdminListPaymentsQueryDto) {
+    const where = await this.resolveAdminPaymentsWhere(query);
+    const total = await this.prisma.payment.count({ where });
+    if (total > PAYMENTS_EXPORT_MAX_ROWS) {
+      throw new BadRequestException(PAYMENTS_EXPORT_TOO_MANY);
+    }
+    return this.findAdminPayments(where, query, {
+      take: PAYMENTS_EXPORT_MAX_ROWS,
+      skip: 0,
+    });
+  }
+
+  private async resolveAdminPaymentsWhere(
+    query: AdminListPaymentsQueryDto,
+  ): Promise<Prisma.PaymentWhereInput> {
+    if (query.from && query.to && new Date(query.to) < new Date(query.from)) {
+      throw new BadRequestException('Invalid date range');
+    }
+    const packageSourceIds = await resolveAdminPaymentPackageSourceIds(
+      this.prisma,
+      query,
+    );
+    return buildAdminListPaymentsWhere(query, {
+      packageSourceWhere: packageSourceIdsToPaymentWhere(packageSourceIds),
+    });
+  }
+
+  private async findAdminPayments(
+    where: Prisma.PaymentWhereInput,
+    query: AdminListPaymentsQueryDto,
+    page: { take: number; skip: number },
+  ) {
+    const order = resolveDateListPrismaOrder(query.order);
+    const items = await this.prisma.payment.findMany({
+      where,
+      include: {
+        user: {
+          select: {
+            id: true,
+            email: true,
+            name: true,
+            lastName: true,
+            phone: true,
+            role: true,
+          },
+        },
+        ehdmReceipt: true,
+      },
+      orderBy: [{ createdAt: order }, { id: order }],
+      take: page.take,
+      skip: page.skip,
+    });
+
+    const packageLabelsByUserPackageId =
+      await this.loadPackageLabelsForPayments(items);
+
+    return items.map((payment) => {
+      const source = detectPaymentSource(
+        payment.description,
+        readPaymentSource(payment),
+      );
+      const relatedArgs = {
+        source,
+        description: payment.description,
+        sourceId: payment.sourceId,
+        packageLabelsByUserPackageId,
+      };
+      return {
+        ...payment,
+        source,
+        relatedItemName: resolveAdminPaymentRelatedItemName(relatedArgs),
+        relatedItemGroupName:
+          resolveAdminPaymentRelatedItemGroupName(relatedArgs),
+        statusReason: readPaymentStatusReason(payment.metadata),
+        giftCreditsAppliedCents: readGiftCreditsAppliedCents(payment.metadata),
+        isGiftCreditSpend: isGiftCreditSpendDescription(payment.description),
+        ehdmReceipt: payment.ehdmReceipt
+          ? this.ehdmReceipt.toReceiptSummary(payment.ehdmReceipt)
+          : null,
+      };
+    });
   }
 
   private async loadPackageLabelsForPayments(
