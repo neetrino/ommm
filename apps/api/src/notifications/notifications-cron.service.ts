@@ -21,10 +21,8 @@ import {
   ENABLE_BACKGROUND_REMINDERS_ENV,
   SCHEDULED_TIMELINE_ACTIONS,
 } from './notifications-audit.constants';
-import {
-  classReminderSessionWindow,
-  notificationDueUntil,
-} from './notification-send-window';
+import { classReminderSessionWindow } from './class-reminder-window';
+import { notificationDueUntil } from './notification-send-window';
 import { WhatsappNotifyService } from '../whatsapp/whatsapp-notify.service';
 import { formatWhatsappDateTime } from '../whatsapp/whatsapp-locale';
 import { renderClassReminderWhatsapp } from '../whatsapp/whatsapp-schedule-templates';
@@ -74,15 +72,15 @@ export class NotificationsCronService {
     }
   }
 
-  /** Invoked by CronBatchService (every 30 min), only during 13:00–21:00 Yerevan. */
+  /**
+   * Invoked by CronBatchService (every 30 min), around the clock: reminders follow
+   * the class time (24h and 2h before), not the 13:00–21:00 broadcast window.
+   */
   async sendClassReminders(): Promise<void> {
     if (!this.remindersCronEnabled) {
       return;
     }
     const now = new Date(Date.now());
-    if (notificationDueUntil(now) === null) {
-      return;
-    }
     for (const hoursBefore of CLASS_REMINDER_HOURS_WINDOWS) {
       await this.sendClassRemindersForWindow(now, hoursBefore);
     }
@@ -93,14 +91,11 @@ export class NotificationsCronService {
     hoursBefore: number,
   ): Promise<void> {
     const window = classReminderSessionWindow(now, hoursBefore);
-    if (window === null) {
-      return;
-    }
     const bookings = await this.prisma.booking.findMany({
       where: {
         status: BookingStatus.BOOKED,
         session: {
-          startsAt: { gt: now, gte: window.start, lte: window.end },
+          startsAt: { gte: window.start, lt: window.endExclusive },
         },
       },
       include: {
