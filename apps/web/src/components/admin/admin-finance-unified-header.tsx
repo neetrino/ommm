@@ -8,7 +8,10 @@ import { useAdminPageHeaderSticky, useAdminStickyHeaderOffset } from "@/componen
 import { WorkspaceStickyPageHeader } from "@/components/shell/workspace-sticky-page-header";
 import { AdminFinanceCoachesFilters } from "@/components/admin/admin-finance-coaches-filters";
 import { AdminFinanceOverviewFilters } from "@/components/admin/admin-finance-overview-filters";
-import { AdminFinancePaymentsFilters } from "@/components/admin/admin-finance-payments-filters";
+import {
+  AdminFinancePaymentsFilters,
+  financePaymentsFiltersKey,
+} from "@/components/admin/admin-finance-payments-filters";
 import { AdminFinanceTabNav } from "@/components/admin/admin-finance-tab-nav";
 import {
   isFinanceCoachPayoutHistoryPath,
@@ -48,7 +51,7 @@ function AdminFinanceTabFilters({ section, search }: AdminFinanceTabFiltersProps
       const initialValues = parseFinancePaymentsFiltersFromSearch(search);
       return (
         <AdminFinancePaymentsFilters
-          key={`${initialValues.q}|${initialValues.from}|${initialValues.to}|${initialValues.source}|${initialValues.status}|${initialValues.paymentMethod}|${initialValues.planId}|${initialValues.packageClass}|${initialValues.sessions}`}
+          key={financePaymentsFiltersKey(initialValues)}
           initialValues={initialValues}
         />
       );

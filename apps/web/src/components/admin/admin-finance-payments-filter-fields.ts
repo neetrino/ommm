@@ -45,6 +45,8 @@ type BuildAdminFinancePaymentsFilterFieldsArgs = {
     sortOldest: string;
   };
   packageOptions: FinancePaymentPackageFilterOptions;
+  /** Off for the Manager "today" ledger, where the period is fixed server-side. */
+  includeDates?: boolean;
 };
 
 export function adminFinancePaymentsIntegratedFilterValues(
@@ -153,6 +155,7 @@ function buildPackageFilterField(
 export function buildAdminFinancePaymentsFilterFields({
   labels,
   packageOptions,
+  includeDates = true,
 }: BuildAdminFinancePaymentsFilterFieldsArgs): AdminIntegratedFilterField[] {
   const baseFields = buildAdminFinanceFilterFields({
     includeRange: false,
@@ -172,9 +175,15 @@ export function buildAdminFinancePaymentsFilterFields({
     },
   });
 
+  const dateFields = includeDates
+    ? [
+        buildPaymentsDateFilterField("from", labels.dateFrom),
+        buildPaymentsDateFilterField("to", labels.dateTo),
+      ]
+    : [];
+
   return [
-    buildPaymentsDateFilterField("from", labels.dateFrom),
-    buildPaymentsDateFilterField("to", labels.dateTo),
+    ...dateFields,
     ...baseFields,
     buildPaymentMethodFilterField(labels),
     buildPackageFilterField(

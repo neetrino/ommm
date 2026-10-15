@@ -51,9 +51,29 @@ const DEFAULT_FINANCE_PAYMENTS_FILTERS: FinanceFilterValues = {
 
 type AdminFinancePaymentsFiltersProps = {
   initialValues: FinanceFilterValues;
+  /** Manager ledger: the API pins the period to today, so date filters and export are hidden. */
+  todayOnly?: boolean;
 };
 
-export function AdminFinancePaymentsFilters({ initialValues }: AdminFinancePaymentsFiltersProps) {
+/** Remount key so external URL changes reset the local filter draft. */
+export function financePaymentsFiltersKey(values: FinanceFilterValues): string {
+  return [
+    values.q,
+    values.from,
+    values.to,
+    values.source,
+    values.status,
+    values.paymentMethod,
+    values.planId,
+    values.packageClass,
+    values.sessions,
+  ].join("|");
+}
+
+export function AdminFinancePaymentsFilters({
+  initialValues,
+  todayOnly = false,
+}: AdminFinancePaymentsFiltersProps) {
   const t = useTranslations("adminPages.finance");
   const tFilters = useTranslations("adminPages.finance.filters");
   const tSort = useTranslations("listSort");
@@ -138,8 +158,9 @@ export function AdminFinancePaymentsFilters({ initialValues }: AdminFinancePayme
           sortOldest: tSort("oldest"),
         },
         packageOptions: packageFilterOptions,
+        includeDates: !todayOnly,
       }),
-    [packageFilterOptions, t, tFilters, tSort],
+    [packageFilterOptions, t, tFilters, todayOnly, tSort],
   );
 
   const integratedFilterValues = useMemo(
@@ -253,11 +274,13 @@ export function AdminFinancePaymentsFilters({ initialValues }: AdminFinancePayme
         />
       }
       trailing={
-        <AdminFinanceExportLinks
-          paymentsParams={exportParams}
-          menuAriaLabel={t("exportMenuAria")}
-          paymentsLabel={t("exportPaymentsExcel")}
-        />
+        todayOnly ? undefined : (
+          <AdminFinanceExportLinks
+            paymentsParams={exportParams}
+            menuAriaLabel={t("exportMenuAria")}
+            paymentsLabel={t("exportPaymentsExcel")}
+          />
+        )
       }
     />
   );
