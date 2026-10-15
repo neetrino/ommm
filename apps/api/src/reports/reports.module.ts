@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ManagerDailyFinanceService } from './manager-daily-finance.service';
 import { ManagerInvitesAnalyticsService } from './manager-invites-analytics.service';
 import { ReportsAnalyticsService } from './reports-analytics.service';
 import { ReportsDashboardService } from './reports-dashboard.service';
@@ -16,6 +17,7 @@ import { StudioAnalyticsService } from './studio-analytics.service';
     ReportsExportService,
     ReportsAnalyticsService,
     ManagerInvitesAnalyticsService,
+    ManagerDailyFinanceService,
     StudioAnalyticsQueriesService,
     StudioAnalyticsService,
   ],

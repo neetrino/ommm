@@ -14,13 +14,20 @@ import {
   BACKOFFICE_READ_ROLES,
 } from '../common/backoffice-roles';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { MANAGER_PERMISSION_MATRIX } from '../common/manager-permission.matrix';
 import { Roles } from '../common/decorators/roles.decorator';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
+import { sendXlsxAttachment } from '../common/xlsx/xlsx-response';
 import { CoachAnalyticsQueryDto } from './dto/coach-analytics-query.dto';
 import { DateRangeQueryDto } from './dto/date-range-query.dto';
+import { ExportDateRangeQueryDto } from './dto/export-date-range-query.dto';
 import { StudioAnalyticsQueryDto } from './dto/studio-analytics-query.dto';
 import { UserAnalyticsQueryDto } from './dto/user-analytics-query.dto';
+import {
+  buildGiftCreditsXlsx,
+  giftCreditsExportFilename,
+} from './reports-gift-credits-xlsx';
 import { ReportsService } from './reports.service';
 
 @Controller('reports')
@@ -80,6 +87,13 @@ export class ReportsController {
     return this.reports.financeSummary(query);
   }
 
+  @Get('finance/today')
+  @SkipThrottle()
+  @Roles(...MANAGER_PERMISSION_MATRIX.reports.financeToday)
+  financeToday() {
+    return this.reports.financeToday();
+  }
+
   @Get('analytics')
   @SkipThrottle()
   @Roles(...BACKOFFICE_READ_ROLES)
@@ -136,6 +150,27 @@ export class ReportsController {
     const csv = await this.reports.giftCreditsCsv(query);
     res.setHeader('Content-Type', 'text/csv');
     res.send(csv);
+  }
+
+  @Get('gift-credits.xlsx')
+  @Roles(...BACKOFFICE_DELETE_ROLES)
+  async giftCreditsXlsx(
+    @Query() query: ExportDateRangeQueryDto,
+    @Res() res: Response,
+  ): Promise<void> {
+    assertValidReportRange(query.from, query.to);
+    const events = await this.reports.giftCreditEvents(query);
+    const buffer = await buildGiftCreditsXlsx({
+      locale: query.locale,
+      from: query.from,
+      to: query.to,
+      events,
+    });
+    sendXlsxAttachment(
+      res,
+      giftCreditsExportFilename(query.from, query.to),
+      buffer,
+    );
   }
 
   @Get('coach/analytics')

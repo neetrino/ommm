@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { DateRangeQueryDto } from './dto/date-range-query.dto';
 import { StudioAnalyticsQueryDto } from './dto/studio-analytics-query.dto';
+import { ManagerDailyFinanceService } from './manager-daily-finance.service';
 import { ManagerInvitesAnalyticsService } from './manager-invites-analytics.service';
 import { ReportsAnalyticsService } from './reports-analytics.service';
 import {
@@ -20,6 +21,7 @@ export class ReportsService {
     private readonly analyticsService: ReportsAnalyticsService,
     private readonly studioAnalyticsService: StudioAnalyticsService,
     private readonly managerInvitesAnalyticsService: ManagerInvitesAnalyticsService,
+    private readonly dailyFinanceService: ManagerDailyFinanceService,
   ) {}
 
   dashboard(options?: DashboardOptions) {
@@ -38,12 +40,20 @@ export class ReportsService {
     return this.exportService.financeSummary(range);
   }
 
+  financeToday() {
+    return this.dailyFinanceService.today();
+  }
+
   paymentsCsv(range: DateRangeQueryDto) {
     return this.exportService.paymentsCsv(range);
   }
 
   giftCreditsCsv(range: DateRangeQueryDto) {
     return this.exportService.giftCreditsCsv(range);
+  }
+
+  giftCreditEvents(range: DateRangeQueryDto) {
+    return this.exportService.giftCreditEvents(range);
   }
 
   coachAnalytics(userId: string, days: number) {

@@ -533,7 +533,8 @@ Member shell-ում `@sheet` parallel route-ներ intercept են անում nav
 | POST | `/checkout/gift/:reference/confirm` | Authenticated |
 | POST | `/checkout/dropin/:sessionId` | Authenticated |
 | GET | `/me` | Authenticated |
-| GET | `/admin` | ADMIN, MANAGER |
+| GET | `/admin` | ADMIN |
+| GET | `/admin/today` (date range forced to today, studio timezone) | ADMIN, MANAGER |
 | PATCH | `/admin/:paymentId/status` | ADMIN, MANAGER |
 
 ### 8.15. Arca payments (`/payments/arca`)
@@ -587,7 +588,8 @@ Member shell-ում `@sheet` parallel route-ներ intercept են անում nav
 | Method | Path | Roles |
 |--------|------|-------|
 | GET | `/dashboard` | ADMIN, MANAGER |
-| GET | `/finance/summary` | ADMIN, MANAGER |
+| GET | `/finance/summary` | ADMIN |
+| GET | `/finance/today` (today-only aggregates, studio timezone) | ADMIN, MANAGER |
 | GET | `/bookings.csv`, `/payments.csv`, `/gift-credits.csv` | ADMIN |
 | GET | `/coach/analytics` | COACH |
 | GET | `/user/analytics` | USER |

@@ -40,6 +40,10 @@ type Props = {
   initialPayments: FinancePaymentsPayload;
   paymentsRange: FinanceStudioDateRange;
   financeFilters: FinanceFilterValues;
+  /** List API path; defaults to the Admin endpoint. */
+  listEndpoint?: string;
+  /** Arca bank sync is Admin-only. */
+  canSyncArca?: boolean;
 };
 
 type ToastState = { message: string; tone: AdminCenterToastTone } | null;
@@ -49,6 +53,8 @@ export function AdminFinancePaymentsPanel({
   initialPayments,
   paymentsRange,
   financeFilters,
+  listEndpoint,
+  canSyncArca = true,
 }: Props) {
   const t = useTranslations("adminPages.finance.paymentsTab");
   const tFinance = useTranslations("adminPages.finance");
@@ -100,7 +106,7 @@ export function AdminFinancePaymentsPanel({
     requestId.current = nextRequestId;
     startTransition(() => {
       void apiFetch<FinancePaymentsPayload>(
-        buildFinancePaymentsAdminApiQuery(financeFilters, paymentsRange, payListPage),
+        buildFinancePaymentsAdminApiQuery(financeFilters, paymentsRange, payListPage, listEndpoint),
       )
         .then((payload) => {
           if (requestId.current !== nextRequestId) return;
@@ -113,7 +119,7 @@ export function AdminFinancePaymentsPanel({
           }
         });
     });
-  }, [financeFilters, payListPage, paymentsRange, setPaymentsPayload, t]);
+  }, [financeFilters, listEndpoint, payListPage, paymentsRange, setPaymentsPayload, t]);
 
   function handlePaymentUpdated(updated: FinancePaymentItem): void {
     setPaymentsPayload((prev) => ({
@@ -252,6 +258,7 @@ export function AdminFinancePaymentsPanel({
         locale={locale}
         onClose={() => setSelectedPayment(null)}
         onPaymentUpdated={handlePaymentUpdated}
+        canSyncArca={canSyncArca}
       />
 
       <OmmListPagination

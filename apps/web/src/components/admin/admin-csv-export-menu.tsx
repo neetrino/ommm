@@ -19,20 +19,21 @@ const SELECT_CLASS =
 
 const TRIGGER_ICON_CLASS = "h-3.5 w-3.5 shrink-0";
 
-export type AdminCsvExportMenuItem = {
-  href: string;
-  label: string;
-};
+/** Plain link download, or a click handler for authenticated blob downloads. */
+export type AdminCsvExportMenuItem =
+  | { label: string; href: string }
+  | { label: string; onDownload: () => void };
 
 type AdminCsvExportMenuProps = {
   triggerAriaLabel: string;
   items: readonly AdminCsvExportMenuItem[];
+  busy?: boolean;
 };
 
 /**
- * Split export control: pick a CSV from the chevron select, then download via the button.
+ * Split export control: pick a report from the chevron select, then download via the button.
  */
-export function AdminCsvExportMenu({ triggerAriaLabel, items }: AdminCsvExportMenuProps) {
+export function AdminCsvExportMenu({ triggerAriaLabel, items, busy = false }: AdminCsvExportMenuProps) {
   const menuId = useId();
   const rootRef = useRef<HTMLDivElement>(null);
   const selectRef = useRef<HTMLButtonElement>(null);
@@ -106,7 +107,7 @@ export function AdminCsvExportMenu({ triggerAriaLabel, items }: AdminCsvExportMe
               const isSelected = index === safeSelectedIndex;
               return (
                 <button
-                  key={item.href}
+                  key={item.label}
                   type="button"
                   role="option"
                   aria-selected={isSelected}
@@ -138,14 +139,28 @@ export function AdminCsvExportMenu({ triggerAriaLabel, items }: AdminCsvExportMe
 
   return (
     <div ref={rootRef} className={PILL_GROUP_CLASS}>
-      <a
-        className={ACTION_CLASS}
-        href={selected.href}
-        aria-label={selected.label}
-        title={selected.label}
-      >
-        <DownloadGlyph className={TRIGGER_ICON_CLASS} />
-      </a>
+      {"href" in selected ? (
+        <a
+          className={ACTION_CLASS}
+          href={selected.href}
+          aria-label={selected.label}
+          title={selected.label}
+        >
+          <DownloadGlyph className={TRIGGER_ICON_CLASS} />
+        </a>
+      ) : (
+        <button
+          type="button"
+          className={`${ACTION_CLASS} disabled:cursor-wait disabled:opacity-60`}
+          aria-label={selected.label}
+          title={selected.label}
+          disabled={busy}
+          aria-busy={busy}
+          onClick={selected.onDownload}
+        >
+          <DownloadGlyph className={TRIGGER_ICON_CLASS} />
+        </button>
+      )}
       {showSelect ? (
         <button
           ref={selectRef}

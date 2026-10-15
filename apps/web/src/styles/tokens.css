@@ -33,8 +33,8 @@
   --ommm-coach-image-max-width: var(--ommm-coach-image-column-width);
   --ommm-coach-card-min-height: clamp(20rem, 52vw, 26.125rem);
   /** Portrait fills the image column to the card’s top and bottom edges. */
-  --ommm-coach-portrait-object-position: 45% 18%;
-  --ommm-coach-portrait-crop-left: calc(-4% + 6px);
+  --ommm-coach-portrait-object-position: 55% 18%;
+  --ommm-coach-portrait-crop-left: calc(-10% - 6px);
   --ommm-coach-portrait-crop-width: 114%;
   --ommm-coach-portrait-crop-height: 100%;
   --ommm-coach-portrait-crop-top: 0;

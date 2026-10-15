@@ -54,10 +54,14 @@ export const MANAGER_PERMISSION_MATRIX = {
   reports: {
     dashboard: BACKOFFICE_READ_ROLES,
     financeSummary: BACKOFFICE_DELETE_ROLES,
+    /** Today-only aggregates; no payment rows, history, or arbitrary ranges. */
+    financeToday: BACKOFFICE_READ_ROLES,
     studioAnalytics: BACKOFFICE_READ_ROLES,
   },
   payments: {
     adminFinance: BACKOFFICE_DELETE_ROLES,
+    /** Payments list clamped server-side to the current studio day. */
+    listToday: BACKOFFICE_READ_ROLES,
     updateStatus: BACKOFFICE_WRITE_ROLES,
     updateMethod: BACKOFFICE_WRITE_ROLES,
     adminArcaSync: BACKOFFICE_DELETE_ROLES,

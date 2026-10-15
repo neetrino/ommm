@@ -94,7 +94,10 @@ const COACH_NAV: readonly DashboardNavDefinition[] = [
   { href: "/coach/profile", icon: "user", labelKey: "profile" },
 ];
 
-/** Manager: same olive icons/order as Admin ops sections; no Finance or Guest users. */
+/**
+ * Manager: same olive icons/order as Admin ops sections; no Guest users.
+ * Finance is the today-only report, not the Admin finance workspace.
+ */
 const MANAGER_NAV: readonly DashboardNavDefinition[] = [
   { href: "/manager/dashboard", icon: "layoutDashboard", labelKey: "dashboard", oliveIconSlug: "dashboard" },
   { href: "/manager/bookings", icon: "calendar", labelKey: "bookings", oliveIconSlug: "bookings" },
@@ -105,6 +108,7 @@ const MANAGER_NAV: readonly DashboardNavDefinition[] = [
   { href: "/manager/schedule", icon: "calendar", labelKey: "schedule", oliveIconSlug: "schedule" },
   { href: "/manager/packages", icon: "tag", labelKey: "packages", oliveIconSlug: "packages" },
   { href: "/manager/gift-cards", icon: "gift", labelKey: "giftCards", oliveIconSlug: "giftCards" },
+  { href: "/manager/finance", icon: "wallet", labelKey: "finance", oliveIconSlug: "finance" },
   { href: "/manager/analytics", icon: "pieChart", labelKey: "analytics", oliveIconSlug: "analytics" },
   { href: "/manager/content", icon: "fileText", labelKey: "content", oliveIconSlug: "feedback" },
   { href: "/manager/settings", icon: "settings", labelKey: "settings", oliveIconSlug: "settings" },

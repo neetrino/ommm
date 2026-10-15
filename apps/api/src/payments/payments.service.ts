@@ -134,4 +134,8 @@ export class PaymentsService {
   adminListPayments(query: AdminListPaymentsQueryDto) {
     return this.admin.adminListPayments(query);
   }
+
+  adminExportPayments(query: AdminListPaymentsQueryDto) {
+    return this.admin.adminExportPayments(query);
+  }
 }

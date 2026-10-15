@@ -1,11 +1,6 @@
 import { ManualPaymentMethod, PaymentStatus } from '@prisma/client';
 import { isInfluencerPaymentMethod } from '../payments/payment-revenue.util';
-import {
-  detectPaymentSource,
-  localDateKey,
-  readGiftAmount,
-  toCsvRow,
-} from './reports.helpers';
+import { detectPaymentSource, localDateKey } from './reports.helpers';
 
 export function formatPersonName(
   name: string | null | undefined,
@@ -73,99 +68,4 @@ export function buildDailyRevenueFromPayments(
   return [...dailyRevenueMap.entries()]
     .sort(([left], [right]) => left.localeCompare(right))
     .map(([date, amountCents]) => ({ date, amountCents }));
-}
-
-export function buildGiftCreditCsvRows(input: {
-  issuedCards: Array<{
-    code: string;
-    createdAt: Date;
-    amountCents?: number;
-    amountAmd?: number;
-    recipientEmail: string | null;
-    recipientName: string | null;
-    recipient: { email: string | null } | null;
-    purchaser: {
-      id: string;
-      email: string;
-      name: string | null;
-      lastName: string | null;
-    } | null;
-  }>;
-  redeemedCards: Array<{
-    code: string;
-    updatedAt: Date;
-    amountCents?: number;
-    amountAmd?: number;
-    recipient: {
-      id: string;
-      email: string;
-      name: string | null;
-      lastName: string | null;
-    } | null;
-  }>;
-  spendPayments: Array<{
-    id: string;
-    userId: string;
-    amountCents: number;
-    currency: string;
-    createdAt: Date;
-    description: string | null;
-    user: {
-      email: string;
-      name: string | null;
-      lastName: string | null;
-    };
-  }>;
-  currency: string;
-}): string[] {
-  const rows: string[] = [];
-  for (const card of input.issuedCards) {
-    rows.push(
-      toCsvRow([
-        'ISSUED',
-        card.createdAt.toISOString(),
-        card.purchaser?.id ?? '',
-        card.purchaser?.email ?? '',
-        formatPersonName(card.purchaser?.name, card.purchaser?.lastName),
-        readGiftAmount(card),
-        input.currency,
-        card.code,
-        card.recipientEmail ??
-          card.recipient?.email ??
-          card.recipientName ??
-          '',
-      ]),
-    );
-  }
-  for (const card of input.redeemedCards) {
-    rows.push(
-      toCsvRow([
-        'REDEEMED',
-        card.updatedAt.toISOString(),
-        card.recipient?.id ?? '',
-        card.recipient?.email ?? '',
-        formatPersonName(card.recipient?.name, card.recipient?.lastName),
-        readGiftAmount(card),
-        input.currency,
-        card.code,
-        '',
-      ]),
-    );
-  }
-  for (const payment of input.spendPayments) {
-    rows.push(
-      toCsvRow([
-        'SPENT',
-        payment.createdAt.toISOString(),
-        payment.userId,
-        payment.user.email,
-        formatPersonName(payment.user.name, payment.user.lastName),
-        payment.amountCents,
-        payment.currency,
-        payment.id,
-        payment.description ?? '',
-      ]),
-    );
-  }
-  return rows;
 }

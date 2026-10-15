@@ -17,6 +17,7 @@ import {
 } from "@/components/admin/admin-finance-dates";
 import type { AdminPackageRow } from "@/components/admin/admin-packages-types";
 import {
+  buildFinancePaymentsFilterParams,
   buildFinancePaymentsFiltersQuery,
   FINANCE_PAYMENTS_PAGE_KEYS,
   parseFinancePaymentsDateFilter,
@@ -146,9 +147,13 @@ export function AdminFinancePaymentsFilters({ initialValues }: AdminFinancePayme
     [values],
   );
 
-  const paymentsRange = useMemo(
-    () => resolveFinancePaymentsDateRange(values.from, values.to),
-    [values.from, values.to],
+  const exportParams = useMemo(
+    () =>
+      buildFinancePaymentsFilterParams(
+        values,
+        resolveFinancePaymentsDateRange(values.from, values.to),
+      ),
+    [values],
   );
 
   const filterQuerySignature = useMemo(
@@ -249,10 +254,9 @@ export function AdminFinancePaymentsFilters({ initialValues }: AdminFinancePayme
       }
       trailing={
         <AdminFinanceExportLinks
-          from={paymentsRange.from}
-          to={paymentsRange.to}
+          paymentsParams={exportParams}
           menuAriaLabel={t("exportMenuAria")}
-          paymentsLabel={t("exportPaymentsCsv")}
+          paymentsLabel={t("exportPaymentsExcel")}
         />
       }
     />
