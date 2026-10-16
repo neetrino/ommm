@@ -21,4 +21,5 @@ export const COUPON_ELIGIBLE_USER_MAX = 100;
 export const COUPON_ELIGIBLE_PRODUCT_MAX = 50;
 export const COUPON_METADATA_KEY = 'coupon';
 
-export const COUPON_CODE_PATTERN = /^[A-Z0-9]+$/;
+/** Letters, digits, and single hyphens between segments. Example: NEETRINO-500. */
+export const COUPON_CODE_PATTERN = /^[A-Z0-9]+(?:-[A-Z0-9]+)*$/;
