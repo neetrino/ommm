@@ -15,8 +15,8 @@ import {
   AudienceSection,
   CodeSection,
   DiscountSection,
+  DatesSection,
   LimitsSection,
-  ScheduleSection,
 } from "@/components/admin/admin-coupon-form-sections";
 import {
   couponDraftFromRow,
@@ -99,7 +99,9 @@ export function AdminCouponsForm({ editing, onSaved, onCancel }: AdminCouponsFor
               <DiscountSection draft={draft} t={t} onPatch={patch} />
             </FormGroup>
             <FormGroup>
-              <ScheduleSection draft={draft} t={t} onPatch={patch} />
+              <DatesSection draft={draft} t={t} onPatch={patch} />
+            </FormGroup>
+            <FormGroup>
               <LimitsSection draft={draft} t={t} onPatch={patch} />
             </FormGroup>
             <FormGroup>

@@ -8,13 +8,11 @@ const KINDS: CouponProductKind[] = ["PACKAGE", "DROPIN", "GIFT", "BAR", "OTHER"]
 export function FormSection({
   icon,
   title,
-  mark,
   required = false,
   children,
 }: {
   icon: ReactNode;
   title: string;
-  mark: string;
   required?: boolean;
   children: ReactNode;
 }) {
@@ -23,9 +21,7 @@ export function FormSection({
       <div className="flex items-center gap-2">
         <span className="text-sage-700">{icon}</span>
         <h3 className="text-sm font-semibold text-sage-900">{title}</h3>
-        <span className={required ? "text-base leading-none text-sand-800" : "text-[11px] font-semibold uppercase tracking-wide text-sage-400"}>
-          {required ? "*" : mark}
-        </span>
+        {required ? <span className="text-base leading-none text-sand-800">*</span> : null}
       </div>
       {children}
     </section>

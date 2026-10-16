@@ -61,8 +61,8 @@ export function couponPayloadFromDraft(draft: CouponDraft) {
     code: draft.code,
     discountType: draft.discountType,
     discountValue: Number(draft.discountValue),
-    ...(draft.validFrom ? { validFrom: new Date(draft.validFrom).toISOString() } : {}),
-    ...(draft.validUntil ? { validUntil: new Date(draft.validUntil).toISOString() } : {}),
+    ...(draft.validFrom ? { validFrom: localDayIso(draft.validFrom, false) } : {}),
+    ...(draft.validUntil ? { validUntil: localDayIso(draft.validUntil, true) } : {}),
     ...(draft.totalUsageLimit ? { totalUsageLimit: Number(draft.totalUsageLimit) } : {}),
     ...(draft.usageLimitPerUser ? { usageLimitPerUser: Number(draft.usageLimitPerUser) } : {}),
     eligibleAllUsers: draft.eligibleAllUsers,
@@ -81,5 +81,13 @@ function toLocalInput(value: string | null | undefined): string {
     return "";
   }
   const pad = (part: number) => String(part).padStart(2, "0");
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+}
+
+function localDayIso(value: string, endOfDay: boolean): string {
+  const [year, month, day] = value.slice(0, 10).split("-").map(Number);
+  const date = endOfDay
+    ? new Date(year, month - 1, day, 23, 59, 59, 999)
+    : new Date(year, month - 1, day, 0, 0, 0, 0);
+  return date.toISOString();
 }
