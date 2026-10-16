@@ -5,11 +5,12 @@ import {
   customGiftFieldIssues,
   startCustomGiftCheckout,
   type CustomGiftInputError,
+  type StartedGiftCheckout,
 } from "@/lib/custom-gift-checkout";
 import type { CustomGiftDelivery, CustomGiftKind } from "@/components/account/custom-gift-options";
 import type { GiftCardMedium } from "@/lib/gift-card-medium";
 import { focusFormField } from "@/components/ui/form-validation";
-import { openGiftCardPaymentPage } from "@/lib/arca-checkout";
+import { checkoutAlreadySettled, openGiftCardPaymentPage } from "@/lib/arca-checkout";
 import { giftDestinationIssue, giftDestinationPayload } from "@/lib/gift-recipient-email";
 import { buildPaymentSuccessPath } from "@/lib/payment-result-paths";
 import { parseAmdMoneyInput } from "@/lib/price-amd";
@@ -54,6 +55,7 @@ export async function submitCustomGift(
     classPackageId: string;
     delivery: CustomGiftDelivery;
     format: GiftCardMedium;
+    couponCode?: string;
     classRequired: string;
     checkoutFailed: string;
     copy: ComposerCopy;
@@ -61,7 +63,7 @@ export async function submitCustomGift(
     setAmountError: (value: string | null) => void;
     setRecipientError: (value: string | null) => void;
     setBusy: (value: boolean) => void;
-    goToCheckout: (reference: string | null) => Promise<void>;
+    goToCheckout: (payment: StartedGiftCheckout) => Promise<void>;
   },
 ): Promise<void> {
   event.preventDefault();
@@ -124,10 +126,11 @@ async function startGiftPayment(
     classPackageId: string;
     delivery: CustomGiftDelivery;
     format: GiftCardMedium;
+    couponCode?: string;
     checkoutFailed: string;
     setError: (value: string | null) => void;
     setBusy: (value: boolean) => void;
-    goToCheckout: (reference: string | null) => Promise<void>;
+    goToCheckout: (payment: StartedGiftCheckout) => Promise<void>;
   },
   draft: {
     isClassGift: boolean;
@@ -145,6 +148,7 @@ async function startGiftPayment(
         type: input.kind,
         delivery: input.delivery,
         format: input.format,
+        ...(input.couponCode ? { couponCode: input.couponCode } : {}),
         ...(draft.isClassGift
           ? {
               classTypeId: input.classTypeId,
@@ -154,7 +158,7 @@ async function startGiftPayment(
           : {}),
       },
     });
-    await input.goToCheckout(started.reference);
+    await input.goToCheckout(started);
   } catch (err) {
     input.setError(err instanceof ApiError ? err.message : input.checkoutFailed);
     input.setBusy(false);
@@ -212,15 +216,19 @@ function customGiftErrorText(reason: CustomGiftInputError, copy: ComposerCopy): 
 }
 
 export async function continueGiftToPayment(
-  reference: string | null,
+  payment: StartedGiftCheckout,
   locale: string,
   goToSuccess: (href: string) => void,
 ): Promise<void> {
-  if (reference === null) {
+  if (payment.reference === null) {
     throw new Error("Gift checkout is missing a payment reference");
   }
-  const mode = await openGiftCardPaymentPage(reference, locale);
+  if (checkoutAlreadySettled(payment)) {
+    goToSuccess(buildPaymentSuccessPath(payment.reference, "gift"));
+    return;
+  }
+  const mode = await openGiftCardPaymentPage(payment.reference, locale);
   if (mode === "simulated") {
-    goToSuccess(buildPaymentSuccessPath(reference, "gift"));
+    goToSuccess(buildPaymentSuccessPath(payment.reference, "gift"));
   }
 }

@@ -1,0 +1,97 @@
+enum CouponDiscountType {
+  PERCENTAGE
+  FIXED_AMOUNT
+}
+
+enum CouponStatus {
+  DRAFT
+  ACTIVE
+  DISABLED
+}
+
+enum CouponProductKind {
+  PACKAGE
+  DROPIN
+  GIFT
+  BAR
+  OTHER
+}
+
+enum CouponRedemptionStatus {
+  RESERVED
+  APPLIED
+  RELEASED
+}
+
+model Coupon {
+  id                  String             @id @default(cuid())
+  code                String             @unique
+  discountType        CouponDiscountType
+  discountValue       Int
+  validFrom           DateTime?
+  validUntil          DateTime?
+  totalUsageLimit     Int?
+  usageLimitPerUser   Int?
+  eligibleAllUsers    Boolean            @default(true)
+  eligibleAllProducts Boolean            @default(true)
+  status              CouponStatus       @default(DRAFT)
+  createdById         String
+  createdBy           User               @relation("CouponCreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+  eligibleUsers       CouponEligibleUser[]
+  eligibleProducts    CouponEligibleProduct[]
+  redemptions         CouponRedemption[]
+
+  @@index([status, validUntil])
+  @@index([createdById])
+}
+
+model CouponEligibleUser {
+  couponId String
+  userId   String
+  coupon   Coupon @relation(fields: [couponId], references: [id], onDelete: Cascade)
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([couponId, userId])
+  @@index([userId])
+}
+
+model CouponEligibleProduct {
+  id            String            @id @default(cuid())
+  couponId      String
+  productKind   CouponProductKind
+  packagePlanId String?
+  coupon        Coupon            @relation(fields: [couponId], references: [id], onDelete: Cascade)
+  packagePlan   PackagePlan?      @relation(fields: [packagePlanId], references: [id], onDelete: Cascade)
+
+  @@index([couponId])
+  @@index([packagePlanId])
+}
+
+/// Snapshot of one checkout reservation. Historical rows stay after the coupon is edited.
+model CouponRedemption {
+  id                  String                  @id @default(cuid())
+  couponId            String
+  coupon              Coupon                  @relation(fields: [couponId], references: [id], onDelete: Restrict)
+  userId              String
+  user                User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  paymentId           String                  @unique
+  payment             Payment                 @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+  status              CouponRedemptionStatus  @default(RESERVED)
+  code                String
+  discountType        CouponDiscountType
+  discountValue       Int
+  originalAmountCents Int
+  discountAmountCents Int
+  remainderGiftCents  Int                     @default(0)
+  finalAmountCents    Int
+  createdById         String
+  createdAt           DateTime                @default(now())
+  appliedAt           DateTime?
+
+  @@index([couponId, status])
+  @@index([userId, couponId, status])
+  @@index([createdById, appliedAt])
+  @@index([appliedAt])
+}

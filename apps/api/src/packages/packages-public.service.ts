@@ -7,7 +7,9 @@ import {
   forwardRef,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { ManualPaymentMethod, type PackagePlan } from '@prisma/client';
+import { CouponProductKind, ManualPaymentMethod, type PackagePlan } from '@prisma/client';
+import { quoteCoupon } from '../coupons/coupon-quote.util';
+import type { CouponSnapshot } from '../coupons/coupon.types';
 import {
   PUBLIC_CACHE_KEYS,
   PUBLIC_CACHE_TTL_SEC,
@@ -43,6 +45,7 @@ import {
 } from './packages-subscribe-gift.util';
 import {
   failPendingCardPackagePurchase,
+  findPendingCardPackagePurchase,
   type PendingCardPackagePurchase,
 } from './packages-subscribe-card.util';
 import { toUserPackageActivationApi } from './packages-activation.helpers';
@@ -157,6 +160,7 @@ export class PackagesPublicService {
         useGiftCredits,
         giftCardIds,
         bookSessionId,
+        dto.couponCode,
       );
     }
     return this.subscribeWithoutArcaRedirect(
@@ -166,6 +170,7 @@ export class PackagesPublicService {
       useGiftCredits,
       giftCardIds,
       bookSessionId,
+      dto.couponCode,
     );
   }
 
@@ -215,12 +220,14 @@ export class PackagesPublicService {
     useGiftCredits: boolean,
     giftCardIds: readonly string[] | undefined,
     bookSessionId: string | null,
+    couponCode?: string,
   ) {
     const pricing = await this.resolveSubscribePricing(
       userId,
       plan,
       useGiftCredits,
       giftCardIds,
+      couponCode,
     );
     if (pricing.chargeCents === 0) {
       return this.subscribeFullyCoveredByGiftCredits(
@@ -229,6 +236,7 @@ export class PackagesPublicService {
         pricing.appliedCents,
         giftCardIds,
         bookSessionId,
+        pricing.coupon,
       );
     }
 
@@ -238,6 +246,7 @@ export class PackagesPublicService {
       chargeCents: pricing.chargeCents,
       giftCreditsAppliedCents: pricing.appliedCents,
       giftCardIds,
+      coupon: pricing.coupon,
     });
     try {
       const { redirectUrl } = await this.arca.initPayment({
@@ -268,14 +277,30 @@ export class PackagesPublicService {
     plan: PackagePlan,
     useGiftCredits: boolean,
     giftCardIds?: readonly string[],
+    couponCode?: string,
   ): Promise<{
     appliedCents: number;
     chargeCents: number;
     finalPriceCents: number;
+    coupon: CouponSnapshot | null;
   }> {
     const finalPriceCents = resolveFinalPriceCents(plan);
+    const pending = await findPendingCardPackagePurchase(this.prisma, userId, plan.id);
+    const coupon = await quoteCoupon(this.prisma, {
+      userId,
+      code: couponCode,
+      subtotalCents: finalPriceCents,
+      lines: [{ kind: CouponProductKind.PACKAGE, packagePlanId: plan.id }],
+      excludePaymentIds: pending === null ? undefined : [pending.paymentId],
+    });
+    const priceAfterCoupon = coupon?.amountAfterCouponCents ?? finalPriceCents;
     if (!useGiftCredits) {
-      return { appliedCents: 0, chargeCents: finalPriceCents, finalPriceCents };
+      return {
+        appliedCents: 0,
+        chargeCents: priceAfterCoupon,
+        finalPriceCents,
+        coupon,
+      };
     }
     const spendableCents = await peekSpendableGiftCreditsCents(
       this.prisma,
@@ -286,9 +311,10 @@ export class PackagesPublicService {
       ...resolveGiftCreditsApplication({
         useGiftCredits: true,
         spendableCents,
-        finalPriceCents,
+        finalPriceCents: priceAfterCoupon,
       }),
       finalPriceCents,
+      coupon,
     };
   }
 
@@ -324,12 +350,14 @@ export class PackagesPublicService {
     useGiftCredits: boolean,
     giftCardIds: readonly string[] | undefined,
     bookSessionId: string | null,
+    couponCode?: string,
   ) {
     const pricing = await this.resolveSubscribePricing(
       userId,
       plan,
       useGiftCredits,
       giftCardIds,
+      couponCode,
     );
     if (pricing.chargeCents === 0) {
       return this.subscribeFullyCoveredByGiftCredits(
@@ -338,6 +366,7 @@ export class PackagesPublicService {
         pricing.appliedCents,
         giftCardIds,
         bookSessionId,
+        pricing.coupon,
       );
     }
     if (isCardPayment) {
@@ -348,6 +377,7 @@ export class PackagesPublicService {
           chargeCents: pricing.chargeCents,
           giftCreditsAppliedCents: pricing.appliedCents,
           giftCardIds,
+          coupon: pricing.coupon,
         }),
       );
       await this.rememberBookSession(purchase.paymentReference, bookSessionId);
@@ -366,6 +396,8 @@ export class PackagesPublicService {
         plan,
         giftCreditsAppliedCents: pricing.appliedCents,
         giftCardIds,
+        chargeCents: pricing.chargeCents,
+        coupon: pricing.coupon,
       }),
     );
     await this.paymentCashPendingEmail.trySendCashPendingEmail(
@@ -387,6 +419,7 @@ export class PackagesPublicService {
     appliedCents: number,
     giftCardIds: readonly string[] | undefined,
     bookSessionId: string | null,
+    coupon: CouponSnapshot | null = null,
   ) {
     const created = await this.prisma.$transaction((tx) =>
       createFullyGiftCoveredPackageSubscription(tx, {
@@ -394,6 +427,7 @@ export class PackagesPublicService {
         plan,
         appliedCents,
         giftCardIds,
+        coupon,
       }),
     );
     if (created.stockTracked) {

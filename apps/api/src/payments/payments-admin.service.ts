@@ -6,6 +6,7 @@ import {
 import { Prisma } from '@prisma/client';
 import { DEFAULT_LIST_PAGE_SIZE } from '../common/dto/list-pagination-query.dto';
 import { resolveDateListPrismaOrder } from '../common/list-order.helpers';
+import { readCouponSnapshot } from '../coupons/coupon-metadata.util';
 import {
   isGiftCreditSpendDescription,
   readGiftCreditsAppliedCents,
@@ -226,6 +227,7 @@ export class PaymentsAdminService {
           resolveAdminPaymentRelatedItemGroupName(relatedArgs),
         statusReason: readPaymentStatusReason(payment.metadata),
         giftCreditsAppliedCents: readGiftCreditsAppliedCents(payment.metadata),
+        coupon: readCouponSnapshot(payment.metadata),
         isGiftCreditSpend: isGiftCreditSpendDescription(payment.description),
         ehdmReceipt: payment.ehdmReceipt
           ? this.ehdmReceipt.toReceiptSummary(payment.ehdmReceipt)

@@ -20,6 +20,7 @@ describe("dashboard-nav manager parity", () => {
         "/manager/schedule",
         "/manager/packages",
         "/manager/gift-cards",
+        "/manager/coupons",
         "/manager/finance",
         "/manager/analytics",
         "/manager/content",

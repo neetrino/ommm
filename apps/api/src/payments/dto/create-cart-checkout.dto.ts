@@ -1,4 +1,5 @@
-import { IsBoolean, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsOptional, IsString, MaxLength } from 'class-validator';
+import { COUPON_CODE_MAX_LENGTH } from '../../coupons/coupon.constants';
 
 export class CreateCartCheckoutDto {
   @IsOptional()
@@ -16,4 +17,9 @@ export class CreateCartCheckoutDto {
   @IsOptional()
   @IsBoolean()
   useGiftCredits?: boolean;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(COUPON_CODE_MAX_LENGTH)
+  couponCode?: string;
 }

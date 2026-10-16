@@ -9,6 +9,13 @@ import { parseAmdMoneyInput } from "@/lib/price-amd";
 type PendingPaymentResponse = {
   paymentReference: string | null;
   amountCents?: number;
+  status?: string;
+};
+
+export type StartedGiftCheckout = {
+  reference: string | null;
+  amountCents: number;
+  status: string | null;
 };
 
 export type GiftCheckoutOptions = {
@@ -23,6 +30,7 @@ export type GiftCheckoutOptions = {
   delivery?: "EMAIL" | "WHATSAPP" | "PRINT";
   format?: GiftCardMedium;
   deliverAt?: string;
+  couponCode?: string;
 };
 
 export type CustomGiftInputError =
@@ -81,7 +89,7 @@ export async function startCustomGiftCheckout(input: {
   amountAmd: number;
   message?: string;
   options: GiftCheckoutOptions;
-}): Promise<{ reference: string | null; amountCents: number }> {
+}): Promise<StartedGiftCheckout> {
   const note = input.message?.trim() ?? "";
   const payment = await apiFetch<PendingPaymentResponse>("/payments/checkout/gift", {
     method: "POST",
@@ -89,10 +97,12 @@ export async function startCustomGiftCheckout(input: {
       ...(input.options.type === "FIXED_CLASS" ? {} : { amountAmd: input.amountAmd }),
       ...(note.length > 0 ? { message: note } : {}),
       ...input.options,
+      ...(input.options.couponCode ? { couponCode: input.options.couponCode } : {}),
     }),
   });
   return {
     reference: payment.paymentReference,
     amountCents: payment.amountCents ?? input.amountAmd,
+    status: payment.status ?? null,
   };
 }

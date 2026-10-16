@@ -17,6 +17,7 @@ import { ClassesModule } from './classes/classes.module';
 import { ClientsModule } from './clients/clients.module';
 import { CoachesModule } from './coaches/coaches.module';
 import { ContentModule } from './content/content.module';
+import { CouponsModule } from './coupons/coupons.module';
 import { GiftCardsModule } from './gift-cards/gift-cards.module';
 import { JobsModule } from './jobs/jobs.module';
 import { MailModule } from './mail/mail.module';
@@ -105,6 +106,7 @@ function createPinoHttpConfig(): Record<string, unknown> {
     GiftCardsModule,
     PackagesModule,
     ContentModule,
+    CouponsModule,
     ReportsModule,
     NotificationsModule,
     ClientsModule,

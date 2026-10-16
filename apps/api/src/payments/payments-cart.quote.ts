@@ -10,6 +10,7 @@ export type StudioCartQuoteInput = {
   spendableGiftCents: number;
   useGiftCredits: boolean;
   hasSession: boolean;
+  couponDiscountCents?: number;
 };
 
 export type StudioCartQuote = {
@@ -29,8 +30,12 @@ export function quoteStudioCart(input: StudioCartQuoteInput): StudioCartQuote {
   const sessionChargeCents = covered ? 0 : input.sessionCents;
   const moneyTotalCents =
     input.packageCents + sessionChargeCents + input.barCents;
+  const couponDiscountCents = Math.min(
+    moneyTotalCents,
+    Math.max(0, input.couponDiscountCents ?? 0),
+  );
   const gift = planDropInGiftCharge({
-    priceCents: moneyTotalCents,
+    priceCents: moneyTotalCents - couponDiscountCents,
     spendableCents: input.spendableGiftCents,
     useGiftCredits: input.useGiftCredits,
   });

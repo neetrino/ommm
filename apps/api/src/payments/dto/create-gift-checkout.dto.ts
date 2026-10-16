@@ -93,6 +93,11 @@ export class CreateGiftCheckoutDto {
   @IsISO8601()
   deliverAt?: string;
 
+  @IsOptional()
+  @IsString()
+  @MaxLength(32)
+  couponCode?: string;
+
   get resolvedAmountAmd(): number | undefined {
     return this.amountAmd ?? this.amountCents;
   }

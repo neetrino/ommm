@@ -39,6 +39,11 @@ export const MANAGER_PERMISSION_MATRIX = {
     write: BACKOFFICE_WRITE_ROLES,
     hardDelete: BACKOFFICE_DELETE_ROLES,
   },
+  coupons: {
+    write: BACKOFFICE_WRITE_ROLES,
+    hardDelete: BACKOFFICE_DELETE_ROLES,
+    analytics: BACKOFFICE_READ_ROLES,
+  },
   notifications: {
     broadcastAndOps: BACKOFFICE_WRITE_ROLES,
     softCancelScheduled: BACKOFFICE_WRITE_ROLES,

@@ -39,6 +39,7 @@ export function getAnalyticsSectionQueryKeys(
     case "revenue":
     case "members":
     case "managers":
+    case "coupons":
       return ANALYTICS_GLOBAL_QUERY_KEYS;
   }
 }

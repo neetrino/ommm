@@ -63,6 +63,7 @@ export class PaymentsController {
       delivery: body.delivery,
       format: body.format,
       deliverAt: body.deliverAt,
+      couponCode: body.couponCode,
     });
   }
 
@@ -95,11 +96,13 @@ export class PaymentsController {
     @CurrentUser() user: { id: string },
     @Param('sessionId') sessionId: string,
     @Query('useGiftCredits') useGiftCredits?: string,
+    @Query('couponCode') couponCode?: string,
   ) {
     return this.payments.createDropInCheckout(
       user.id,
       sessionId,
       useGiftCredits === 'true',
+      couponCode,
     );
   }
 

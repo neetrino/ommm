@@ -4,7 +4,8 @@ export type AnalyticsSectionId =
   | "bookings"
   | "members"
   | "coaches"
-  | "managers";
+  | "managers"
+  | "coupons";
 
 export type AnalyticsWorkspace = "admin" | "manager";
 
@@ -15,6 +16,7 @@ export const ANALYTICS_SECTION_IDS: readonly AnalyticsSectionId[] = [
   "members",
   "coaches",
   "managers",
+  "coupons",
 ] as const;
 
 export const MANAGER_ANALYTICS_SECTION_IDS = [
@@ -23,6 +25,7 @@ export const MANAGER_ANALYTICS_SECTION_IDS = [
   "members",
   "coaches",
   "managers",
+  "coupons",
 ] as const satisfies readonly AnalyticsSectionId[];
 
 export const ANALYTICS_SECTION_HREF: Record<AnalyticsSectionId, string> = {
@@ -32,6 +35,7 @@ export const ANALYTICS_SECTION_HREF: Record<AnalyticsSectionId, string> = {
   members: "/admin/analytics/members",
   coaches: "/admin/analytics/coaches",
   managers: "/admin/analytics/managers",
+  coupons: "/admin/analytics/coupons",
 };
 
 export const MANAGER_ANALYTICS_SECTION_HREF: Record<
@@ -43,6 +47,7 @@ export const MANAGER_ANALYTICS_SECTION_HREF: Record<
   members: "/manager/analytics/members",
   coaches: "/manager/analytics/coaches",
   managers: "/manager/analytics/managers",
+  coupons: "/manager/analytics/coupons",
 };
 
 export function analyticsSectionIdsFor(

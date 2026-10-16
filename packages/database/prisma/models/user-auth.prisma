@@ -39,6 +39,9 @@ model User {
   packageFreezesInitiated UserPackageFreeze[] @relation("UserPackageFreezeInitiator")
   waitlistEntries   WaitlistEntry[]
   payments          Payment[]
+  couponsCreated    Coupon[]              @relation("CouponCreatedBy")
+  couponEligibility CouponEligibleUser[]
+  couponRedemptions CouponRedemption[]
   giftCardsPurchased GiftCard[] @relation("GiftCardPurchaser")
   giftCardsReceived  GiftCard[] @relation("GiftCardRecipient")
   giftCardBatchesCreated GiftCardBatch[] @relation("GiftCardBatchPurchaser")

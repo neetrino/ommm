@@ -4,8 +4,12 @@ import { useTranslations, useLocale } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { useState } from "react";
 import { useSessionBooking } from "@/hooks/use-session-booking";
+import { PromoCodeField } from "@/components/account/promo-code-field";
 import { OmmButton } from "@/components/ui/omm-button";
+import type { PromoPreview } from "@/lib/preview-promo-code";
 import { ApiError, apiFetch } from "@/lib/api";
+import { checkoutAlreadySettled } from "@/lib/arca-checkout";
+import { buildPaymentSuccessPath } from "@/lib/payment-result-paths";
 import { dispatchNotificationsRefresh } from "@/lib/notifications-refresh-event";
 
 type Props = {
@@ -21,6 +25,7 @@ type Props = {
 type PendingPaymentResponse = {
   paymentReference: string | null;
   amountCents?: number;
+  status?: string;
 };
 
 export function BookSessionButton({
@@ -40,6 +45,7 @@ export function BookSessionButton({
   const [msg, setMsg] = useState<string | null>(null);
   const [dropInBusy, setDropInBusy] = useState(false);
   const [useGiftCredits, setUseGiftCredits] = useState(false);
+  const [promo, setPromo] = useState<PromoPreview | null>(null);
   const { busy: bookingBusy, initiateBooking, packageModal } = useSessionBooking({
     sessionId,
     locale,
@@ -58,9 +64,14 @@ export function BookSessionButton({
     setMsg(null);
     try {
       const payment = await apiFetch<PendingPaymentResponse & { amountCents: number }>(
-        `/payments/checkout/dropin/${sessionId}${useGiftCredits ? "?useGiftCredits=true" : ""}`,
+        `/payments/checkout/dropin/${sessionId}?${dropInQuery(useGiftCredits, promo?.code)}`,
         { method: "POST" },
       );
+      if (payment.paymentReference !== null && checkoutAlreadySettled(payment)) {
+        router.push(buildPaymentSuccessPath(payment.paymentReference, "dropin"));
+        router.refresh();
+        return;
+      }
       const params = new URLSearchParams({
         source: "dropin",
         amountCents: String(payment.amountCents ?? priceCents),
@@ -107,6 +118,16 @@ export function BookSessionButton({
   return (
       <div className="flex flex-col gap-1">
         {priceCents > 0 ? (
+          <PromoCodeField
+            locale={locale}
+            subtotalCents={priceCents}
+            lines={[{ kind: "DROPIN" }]}
+            useGiftCredits={useGiftCredits}
+            disabled={busy}
+            onChange={setPromo}
+          />
+        ) : null}
+        {priceCents > 0 ? (
           <label className="flex items-center gap-2 text-xs text-sage-700">
             <input
               type="checkbox"
@@ -133,4 +154,15 @@ export function BookSessionButton({
       {packageModal}
     </div>
   );
+}
+
+function dropInQuery(useGiftCredits: boolean, couponCode: string | undefined): string {
+  const params = new URLSearchParams();
+  if (useGiftCredits) {
+    params.set("useGiftCredits", "true");
+  }
+  if (couponCode) {
+    params.set("couponCode", couponCode);
+  }
+  return params.toString();
 }

@@ -6,6 +6,9 @@ import {
   type PackagePlan,
   type Prisma,
 } from '@prisma/client';
+import { readCouponSnapshot } from '../coupons/coupon-metadata.util';
+import { bindCouponRedemption, releaseReservedCoupon } from '../coupons/coupon-redemption.util';
+import type { CouponSnapshot } from '../coupons/coupon.types';
 import { mergeArcaMetadata } from '../payments/arca/arca-metadata.util';
 import { PAYMENT_STATUS_REASON } from '../payments/payment-status-reason';
 import { buildPackagePaymentDescription } from '../payments/payments-related-item.util';
@@ -48,11 +51,17 @@ export type PendingCardPackagePurchase = {
   amountCents: number;
   giftCreditsAppliedCents: number;
   giftCardIds: string[];
+  couponId: string | null;
 };
 
 type PaymentPackageDb = Pick<
   Prisma.TransactionClient,
-  'userPackage' | 'payment' | 'user' | 'giftCard' | 'giftCardTransaction'
+  | 'userPackage'
+  | 'payment'
+  | 'user'
+  | 'giftCard'
+  | 'giftCardTransaction'
+  | 'couponRedemption'
 >;
 
 function paymentMatchesPlan(
@@ -114,6 +123,7 @@ export async function findPendingCardPackagePurchase(
       amountCents: payment.amountCents,
       giftCreditsAppliedCents: readGiftCreditsAppliedCents(payment.metadata),
       giftCardIds: reservedGiftCardIds(payment.metadata),
+      couponId: readCouponSnapshot(payment.metadata)?.couponId ?? null,
     };
   }
   return null;
@@ -179,6 +189,7 @@ export async function createPendingCardPackagePurchase(
     chargeCents?: number;
     giftCreditsAppliedCents?: number;
     giftCreditsAllocations?: GiftCreditAllocation[];
+    coupon?: CouponSnapshot | null;
   },
 ): Promise<PendingCardPackagePurchase> {
   const paymentReference = createPaymentReference('PACKAGE');
@@ -213,6 +224,12 @@ export async function createPendingCardPackagePurchase(
     orderId: payment.id,
     cardIds: cardIdsFromAllocations(params.giftCreditsAllocations),
   });
+  await bindCouponRedemption(tx, {
+    userId: params.userId,
+    paymentId: payment.id,
+    snapshot: params.coupon ?? null,
+    applyNow: false,
+  });
   return {
     userPackageId: null,
     paymentReference: payment.paymentReference ?? paymentReference,
@@ -221,6 +238,7 @@ export async function createPendingCardPackagePurchase(
     amountCents,
     giftCreditsAppliedCents,
     giftCardIds: reservedGiftCardIds(payment.metadata),
+    couponId: params.coupon?.couponId ?? null,
   };
 }
 
@@ -269,6 +287,7 @@ export async function failPendingCardPackagePurchase(
       orderId: params.paymentId,
     });
   }
+  await releaseReservedCoupon(db, params.paymentId);
   if (params.userPackageId === null) {
     return;
   }

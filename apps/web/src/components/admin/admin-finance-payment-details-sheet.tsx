@@ -141,11 +141,14 @@ export function AdminFinancePaymentDetailsSheet({
             <AdminFinanceSheetAmountRows
               amountCents={payment.amountCents}
               giftCreditsAppliedCents={payment.giftCreditsAppliedCents}
+              couponCode={payment.coupon?.code}
+              couponDiscountCents={payment.coupon?.discountAmountCents}
               locale={locale}
               labels={{
                 amount: t("table.colAmount"),
                 listPrice: t("paymentDetails.listPrice"),
                 gift: t("paymentDetails.giftDiscount"),
+                coupon: t("paymentDetails.couponDiscount"),
                 paid: t("paymentDetails.amountPaid"),
               }}
             />

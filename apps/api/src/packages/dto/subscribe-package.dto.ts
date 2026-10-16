@@ -56,4 +56,9 @@ export class SubscribePackageDto {
   @MinLength(1)
   @MaxLength(64)
   sessionId?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(32)
+  couponCode?: string;
 }
