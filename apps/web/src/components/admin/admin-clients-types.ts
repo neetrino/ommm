@@ -42,6 +42,8 @@ export type ClientRow = {
   lastVisitDate: string | null;
   birthdayMonth: number | null;
   hasGiftCardActivity: boolean;
+  /** True when the client has any package row, including expired and cancelled. */
+  hasPackageHistory: boolean;
   activePlanName: string | null;
   activePlanCostCents: number | null;
   activePlanExpiresAt: string | null;

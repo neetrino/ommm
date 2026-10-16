@@ -36,7 +36,7 @@ function record(payments: ReturnType<typeof payment>[]): ClientRecord {
     giftCardsReceived: [],
     userPackages: [],
     clientNotesReceived: [],
-    _count: { clientNotesReceived: 0 },
+    _count: { clientNotesReceived: 0, userPackages: 0 },
   } as unknown as ClientRecord;
 }
 
@@ -76,5 +76,13 @@ describe('toClientRow influencer comps', () => {
     expect(row.tags).toContain('Influencer');
     expect(row.lifetimeValueCents).toBe(40_000);
     expect(row.paymentBehavior).toBe('paid');
+  });
+
+  it('reads package history from the full package count, including rows hidden on the list', () => {
+    const buyer = record([]);
+    buyer._count.userPackages = 1;
+
+    expect(toClientRow(buyer).hasPackageHistory).toBe(true);
+    expect(toClientRow(record([])).hasPackageHistory).toBe(false);
   });
 });

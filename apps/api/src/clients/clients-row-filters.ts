@@ -35,6 +35,19 @@ function matchesStatus(status: ClientStatus, filter: AdminClientStatusFilter) {
   return status === 'Inactive';
 }
 
+function matchesPackageFilter(
+  row: Pick<ClientRow, 'activePackageStatus' | 'hasPackageHistory'>,
+  packageFilter: AdminClientPackageFilter,
+): boolean {
+  if (packageFilter === AdminClientPackageFilter.ACTIVE) {
+    return row.activePackageStatus === UserPackageStatus.ACTIVE;
+  }
+  if (packageFilter === AdminClientPackageFilter.NEVER) {
+    return !row.hasPackageHistory;
+  }
+  return row.activePackageStatus !== UserPackageStatus.ACTIVE;
+}
+
 function matchesClassLevel(levels: string[], filter: string) {
   return levels.some((level) =>
     level.toLowerCase().includes(filter.toLowerCase()),
@@ -77,14 +90,11 @@ export function matchesClientFilters(
   const packages = (query.package ?? []).filter(
     (value) => value !== AdminClientPackageFilter.ALL,
   );
-  if (packages.length > 0) {
-    const isActive = row.activePackageStatus === UserPackageStatus.ACTIVE;
-    const matchesPackage = packages.some((packageFilter) =>
-      packageFilter === AdminClientPackageFilter.ACTIVE ? isActive : !isActive,
-    );
-    if (!matchesPackage) {
-      return false;
-    }
+  if (
+    packages.length > 0 &&
+    !packages.some((packageFilter) => matchesPackageFilter(row, packageFilter))
+  ) {
+    return false;
   }
   if (
     query.classLevel?.length &&

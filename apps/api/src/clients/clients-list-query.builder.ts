@@ -138,19 +138,23 @@ function appendPackageFilter(
   if (selected.length === 0) {
     return;
   }
-  const clauses: Prisma.UserWhereInput[] = [];
-  for (const packageFilter of selected) {
-    if (packageFilter === AdminClientPackageFilter.ACTIVE) {
-      clauses.push({
-        userPackages: { some: { status: UserPackageStatus.ACTIVE } },
-      });
-      continue;
-    }
-    clauses.push({
-      userPackages: { none: { status: UserPackageStatus.ACTIVE } },
-    });
+  pushOr(and, selected.map(packageMembershipWhere));
+}
+
+function packageMembershipWhere(
+  packageFilter: AdminClientPackageFilter,
+): Prisma.UserWhereInput {
+  if (packageFilter === AdminClientPackageFilter.ACTIVE) {
+    return {
+      userPackages: { some: { status: UserPackageStatus.ACTIVE } },
+    };
   }
-  pushOr(and, clauses);
+  if (packageFilter === AdminClientPackageFilter.NEVER) {
+    return { userPackages: { none: {} } };
+  }
+  return {
+    userPackages: { none: { status: UserPackageStatus.ACTIVE } },
+  };
 }
 
 function statusClause(status: AdminClientStatusFilter): Prisma.UserWhereInput {

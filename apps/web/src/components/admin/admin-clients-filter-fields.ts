@@ -37,6 +37,7 @@ type BuildAdminClientsFilterFieldsArgs = {
     allLabel: string;
     activeLabel: string;
     inactiveLabel: string;
+    neverLabel: string;
   };
 };
 
@@ -76,6 +77,7 @@ export function buildAdminClientsFilterFields({
       options: [
         { value: "active", label: packageLabels.activeLabel },
         { value: "inactive", label: packageLabels.inactiveLabel },
+        { value: "never", label: packageLabels.neverLabel },
       ],
     },
     {

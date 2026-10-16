@@ -2906,6 +2906,7 @@
         "packageAll": "Все клиенты",
         "packageActive": "С активным абонементом",
         "packageInactive": "Без активного абонемента",
+        "packageNever": "Ни разу не покупали",
         "orderLabel": "Сортировка",
         "orderNewest": "Сначала новые",
         "orderOldest": "Сначала старые",

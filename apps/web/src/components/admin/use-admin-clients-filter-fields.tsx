@@ -79,6 +79,7 @@ export function useAdminClientsFilterFields(payload: AdminClientsPayload) {
           allLabel: tFilters("packageAll"),
           activeLabel: tFilters("packageActive"),
           inactiveLabel: tFilters("packageInactive"),
+          neverLabel: tFilters("packageNever"),
         },
       }),
     [payload, segmentOptions, tFilters],
