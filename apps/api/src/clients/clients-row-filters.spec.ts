@@ -33,10 +33,7 @@ describe('matchesClientFilters package history', () => {
       matchesClientFilters(signUpOnly, query(AdminClientPackageFilter.NEVER)),
     ).toBe(true);
     expect(
-      matchesClientFilters(
-        expiredBuyer,
-        query(AdminClientPackageFilter.NEVER),
-      ),
+      matchesClientFilters(expiredBuyer, query(AdminClientPackageFilter.NEVER)),
     ).toBe(false);
   });
 
@@ -48,7 +45,10 @@ describe('matchesClientFilters package history', () => {
       ),
     ).toBe(true);
     expect(
-      matchesClientFilters(expiredBuyer, query(AdminClientPackageFilter.ACTIVE)),
+      matchesClientFilters(
+        expiredBuyer,
+        query(AdminClientPackageFilter.ACTIVE),
+      ),
     ).toBe(false);
   });
 });
