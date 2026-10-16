@@ -31,6 +31,9 @@ describe('PaymentsAdminMutationService refund cancels package', () => {
       user: {
         update: jest.fn(),
       },
+      couponRedemption: {
+        updateMany: jest.fn().mockResolvedValue({ count: 0 }),
+      },
     };
     const ehdmReceipt = {
       tryPrintReturnReceipt: jest.fn(),
@@ -83,6 +86,9 @@ describe('PaymentsAdminMutationService refund cancels package', () => {
         }),
       },
       userPackage: {
+        updateMany: jest.fn().mockResolvedValue({ count: 0 }),
+      },
+      couponRedemption: {
         updateMany: jest.fn().mockResolvedValue({ count: 0 }),
       },
     };
@@ -172,6 +178,9 @@ describe('PaymentsAdminMutationService refund cancels package', () => {
       },
       userPackage: {
         updateMany: jest.fn().mockResolvedValue({ count: 1 }),
+      },
+      couponRedemption: {
+        updateMany: jest.fn().mockResolvedValue({ count: 0 }),
       },
     };
     const service = new PaymentsAdminMutationService(
@@ -280,6 +289,9 @@ describe('PaymentsAdminMutationService refund cancels package', () => {
       },
       user: {
         update: jest.fn().mockResolvedValue({}),
+      },
+      couponRedemption: {
+        updateMany: jest.fn().mockResolvedValue({ count: 0 }),
       },
     };
     const service = new PaymentsAdminMutationService(

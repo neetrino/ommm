@@ -26,6 +26,7 @@ const TAB_LABEL_KEY: Record<AnalyticsSectionId, string> = {
   members: "members",
   coaches: "coaches",
   managers: "managers",
+  coupons: "coupons",
 };
 
 export function AdminAnalyticsTabNav({

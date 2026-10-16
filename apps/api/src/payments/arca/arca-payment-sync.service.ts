@@ -7,6 +7,7 @@ import {
   UserPackageStatus,
 } from '@prisma/client';
 
+import { releaseReservedCoupon } from '../../coupons/coupon-redemption.util';
 import { PrismaService } from '../../prisma/prisma.service';
 
 import { PaymentsCheckoutService } from '../payments-checkout.service';
@@ -141,6 +142,7 @@ export class ArcaPaymentSyncService {
         }),
       },
     });
+    await releaseReservedCoupon(this.prisma, paymentId);
 
     if (
       existing.source === PaymentSource.PACKAGE &&

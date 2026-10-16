@@ -28,6 +28,9 @@ import {
   assertAdminPaymentMethodChange,
   assertAdminPaymentStatusChange,
 } from './payments-admin-mutation.util';
+import { COUPON_ERROR } from '../coupons/coupon.constants';
+import { couponBlocksSucceededPackageUndo } from '../coupons/coupon-metadata.util';
+import { releaseReservedCoupon } from '../coupons/coupon-redemption.util';
 import { undoStudioCartGift } from './payments-cart.refund';
 import { readCartCheckout } from './payments-cart.fulfill';
 import { withInternalPaymentUpdateFields } from './payments.helpers';
@@ -119,6 +122,16 @@ export class PaymentsAdminMutationService {
     if (status === PaymentStatus.SUCCEEDED) {
       throw new BadRequestException('Succeeded status must go through confirm');
     }
+    if (
+      couponBlocksSucceededPackageUndo(
+        payment.source,
+        payment.metadata,
+        payment.status,
+        status,
+      )
+    ) {
+      throw new BadRequestException(COUPON_ERROR.REFUND_BLOCKED);
+    }
     const shouldRefundGifts = shouldRefundReservedGiftCredits(
       payment.metadata,
       status,
@@ -148,6 +161,9 @@ export class PaymentsAdminMutationService {
       nextStatus: status,
       refundGiftCredits: shouldRefundGifts,
     });
+    if (status === PaymentStatus.FAILED || status === PaymentStatus.REFUNDED) {
+      await releaseReservedCoupon(this.prisma, payment.id);
+    }
     if (status === PaymentStatus.REFUNDED) {
       this.ehdmReceipt.tryPrintReturnReceipt(updated.id);
     }

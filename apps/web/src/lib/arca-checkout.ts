@@ -5,6 +5,14 @@ type ArcaInitResponse = {
   redirectUrl: string;
 };
 
+/** A zero charge is already confirmed on the server. Opening the bank page would fail. */
+export function checkoutAlreadySettled(payment: {
+  status?: string | null;
+  amountCents?: number | null;
+}): boolean {
+  return payment.status === "SUCCEEDED" || payment.amountCents === 0;
+}
+
 /** True when the browser should redirect to the Arca bank payment page. */
 export function isArcaCheckoutEnabled(): boolean {
   return process.env.NEXT_PUBLIC_ARCA_CHECKOUT_ENABLED === "true";

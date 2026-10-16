@@ -32,4 +32,20 @@ describe('quoteStudioCart', () => {
     expect(quote.chargeCents).toBe(0);
     expect(quote.appliedGiftCents).toBe(17000);
   });
+
+  it('applies the coupon before gift credit', () => {
+    const quote = quoteStudioCart({
+      packageCents: 30_000,
+      sessionCents: 0,
+      barCents: 0,
+      classSessionsAvailable: 0,
+      spendableGiftCents: 5_000,
+      useGiftCredits: true,
+      hasSession: false,
+      couponDiscountCents: 20_000,
+    });
+    expect(quote.moneyTotalCents).toBe(30_000);
+    expect(quote.appliedGiftCents).toBe(5_000);
+    expect(quote.chargeCents).toBe(5_000);
+  });
 });

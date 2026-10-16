@@ -21,6 +21,7 @@ import {
 } from "@/components/account/user-payments-list-layout";
 import { USER_LIST_TITLE_SERIF_CLASS } from "@/components/account/user-list-table-layout";
 import { AmdMoneyText } from "@/components/ui/amd-money-text";
+import { readPaymentCoupon } from "@/lib/preview-promo-code";
 import type { UserPaymentRow } from "@/lib/user-package-types";
 import { PaymentStatusReasonText } from "@/components/shared/payment-status-reason-text";
 
@@ -52,6 +53,7 @@ export function UserPaymentCompactRow({ locale, payment }: UserPaymentCompactRow
   const timeLabel = formatPaymentTime(payment.createdAt, locale);
   const itemLabel = relatedItem ?? t(`source.${source}`);
   const methodLabel = resolvePaymentMethodLabel(payment.paymentMethod, t);
+  const coupon = readPaymentCoupon(payment.metadata);
 
   return (
     <article className={USER_PAYMENTS_LIST_ROW_CLASS}>
@@ -70,6 +72,7 @@ export function UserPaymentCompactRow({ locale, payment }: UserPaymentCompactRow
           locale={locale}
           className="font-serif text-xl leading-none text-sage-950"
         />
+        {coupon ? <p className="mt-1 text-xs text-sage-700">{coupon.code}</p> : null}
       </div>
 
       <div className={USER_PAYMENTS_LIST_DATE_CELL}>

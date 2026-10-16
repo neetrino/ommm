@@ -27,6 +27,15 @@ export const ANALYTICS_COACHES_QUERY_KEYS = [
   "coachId",
 ] as const;
 
+export const ANALYTICS_COUPONS_QUERY_KEYS = [
+  ...ANALYTICS_GLOBAL_QUERY_KEYS,
+  "couponId",
+  "discountType",
+  "status",
+  "creatorId",
+  "userEmail",
+] as const;
+
 export function getAnalyticsSectionQueryKeys(
   section: AnalyticsSectionId,
 ): readonly string[] {
@@ -40,6 +49,8 @@ export function getAnalyticsSectionQueryKeys(
     case "members":
     case "managers":
       return ANALYTICS_GLOBAL_QUERY_KEYS;
+    case "coupons":
+      return ANALYTICS_COUPONS_QUERY_KEYS;
   }
 }
 
@@ -122,6 +133,11 @@ export function parseAnalyticsFiltersFromSearch(
     bookingStatus: parseAnalyticsBookingStatus(normalized.bookingStatus),
     sort: parseAnalyticsSortKey(normalized.sort),
     quick: normalized.quick ?? "",
+    couponId: normalized.couponId ?? "",
+    discountType: normalized.discountType ?? "",
+    couponStatus: normalized.status ?? "",
+    creatorId: normalized.creatorId ?? "",
+    userEmail: normalized.userEmail ?? "",
   };
 }
 
@@ -163,7 +179,30 @@ export function buildAnalyticsFiltersQuery(
     }
   }
 
+  if (section === "coupons") {
+    appendCouponAnalyticsQuery(params, values);
+  }
+
   return params.toString();
+}
+
+function appendCouponAnalyticsQuery(params: URLSearchParams, values: AnalyticsFilterValues): void {
+  if (values.couponId) {
+    params.set("couponId", values.couponId);
+  }
+  if (values.discountType) {
+    params.set("discountType", values.discountType);
+  }
+  if (values.couponStatus) {
+    params.set("status", values.couponStatus);
+  }
+  if (values.creatorId) {
+    params.set("creatorId", values.creatorId);
+  }
+  const email = values.userEmail.trim();
+  if (email) {
+    params.set("userEmail", email);
+  }
 }
 
 export function applyAnalyticsIntegratedFilterChange(
@@ -207,6 +246,27 @@ export function applyAnalyticsIntegratedFilterChange(
       };
     }
     default:
+      return assignCouponAnalyticsFilter(key, value, current);
+  }
+}
+
+function assignCouponAnalyticsFilter(
+  key: string,
+  value: string,
+  current: AnalyticsFilterValues,
+): AnalyticsFilterValues {
+  switch (key) {
+    case "couponId":
+      return { ...current, couponId: value };
+    case "discountType":
+      return { ...current, discountType: value };
+    case "couponStatus":
+      return { ...current, couponStatus: value };
+    case "creatorId":
+      return { ...current, creatorId: value };
+    case "userEmail":
+      return { ...current, userEmail: value };
+    default:
       return current;
   }
 }
@@ -221,5 +281,10 @@ export function defaultAnalyticsFilterValues(): AnalyticsFilterValues {
     bookingStatus: "",
     sort: "revenue-desc",
     quick: "",
+    couponId: "",
+    discountType: "",
+    couponStatus: "",
+    creatorId: "",
+    userEmail: "",
   };
 }

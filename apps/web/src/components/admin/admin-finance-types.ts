@@ -74,6 +74,15 @@ export type FinancePaymentItem = {
   statusReason?: string | null;
   /** Gift-card credit subtracted from the package list price. */
   giftCreditsAppliedCents?: number;
+  coupon?: {
+    code: string;
+    discountType: "PERCENTAGE" | "FIXED_AMOUNT";
+    discountValue: number;
+    discountAmountCents: number;
+    originalAmountCents: number;
+    remainderGiftCents: number;
+    createdById: string;
+  } | null;
   /** Internal ledger row for gift-card balance used on a package. */
   isGiftCreditSpend?: boolean;
   ehdmReceipt?: {

@@ -44,6 +44,12 @@ export type AnalyticsFilterValues = {
   sort: AnalyticsSortKey;
   /** Comma-separated quick filter keys; empty means all selected. */
   quick: string;
+  couponId: string;
+  discountType: string;
+  /** Display status. Stored in the query as `status`. */
+  couponStatus: string;
+  creatorId: string;
+  userEmail: string;
 };
 
 export type AnalyticsBarItem = {

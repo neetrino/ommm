@@ -6,6 +6,7 @@ import {
   UserPackageStatus,
 } from '@prisma/client';
 
+import { releaseReservedCoupon } from '../../coupons/coupon-redemption.util';
 import { PrismaService } from '../../prisma/prisma.service';
 
 import {
@@ -22,9 +23,9 @@ export type ArcaOrphanCleanupSummary = {
 };
 
 /**
- * Fails abandoned PENDING CARD payments that never registered an Arca bank order
- * (metadata.provider !== 'arca'). Does not touch payments already tracked by Arca
- * reconciliation.
+ * Fails abandoned PENDING card checkouts that never registered an Arca bank order
+ * (metadata.provider !== 'arca'), including ones that never chose a payment method.
+ * Does not touch payments already tracked by Arca reconciliation.
  */
 export async function cleanupBanklessOrphanPendingPayments(
   prisma: PrismaService,
@@ -35,7 +36,10 @@ export async function cleanupBanklessOrphanPendingPayments(
   const orphans = await prisma.payment.findMany({
     where: {
       status: PaymentStatus.PENDING,
-      paymentMethod: ManualPaymentMethod.CARD,
+      OR: [
+        { paymentMethod: ManualPaymentMethod.CARD },
+        { paymentMethod: null },
+      ],
       createdAt: { lte: cutoff },
       NOT: { metadata: { path: ['provider'], equals: 'arca' } },
     },
@@ -94,6 +98,7 @@ async function failBanklessOrphanPayment(
       }),
     },
   });
+  await releaseReservedCoupon(prisma, payment.id);
 
   if (payment.source !== PaymentSource.PACKAGE || payment.sourceId === null) {
     return { failedPayment: true, cancelledPackage: false };

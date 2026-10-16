@@ -15,6 +15,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { WhatsappPackagePurchasedService } from '../whatsapp/whatsapp-package-purchased.service';
 import { PaymentSuccessEmailService } from './payment-success-email.service';
 import { EhdmReceiptService } from './ehdm/ehdm-receipt.service';
+import { applyReservedCoupon } from '../coupons/coupon-redemption.util';
 import { withInternalPaymentUpdateFields } from './payments.helpers';
 import { PaymentsFulfillmentService } from './payments-fulfillment.service';
 import type { GiftEmailPayload, InternalPaymentRecord } from './payments.types';
@@ -58,7 +59,7 @@ export class PaymentsConfirmService {
       }
       packageStockTracked = fulfillment.packageStockTracked;
 
-      return tx.payment.update({
+      const confirmed = await tx.payment.update({
         where: { id: paymentId },
         data: withInternalPaymentUpdateFields({
           status: PaymentStatus.SUCCEEDED,
@@ -69,6 +70,8 @@ export class PaymentsConfirmService {
             : {}),
         }),
       });
+      await applyReservedCoupon(tx, paymentId);
+      return confirmed;
     });
 
     await this.dispatchGiftEmails(giftEmails);

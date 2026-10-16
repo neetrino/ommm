@@ -14,8 +14,10 @@ type GiftDiscountLabels = {
 type GiftDiscountAmountProps = {
   amountCents: number;
   giftCreditsAppliedCents?: number;
+  couponCode?: string;
+  couponDiscountCents?: number;
   locale: string;
-  labels: GiftDiscountLabels;
+  labels: GiftDiscountLabels & { coupon?: string };
 };
 
 /** Positive whole-AMD gift-card credit applied to this payment. */
@@ -29,11 +31,14 @@ export function readGiftDiscountCents(value: number | undefined): number {
 export function AdminFinanceSheetAmountRows({
   amountCents,
   giftCreditsAppliedCents,
+  couponCode,
+  couponDiscountCents,
   locale,
   labels,
 }: GiftDiscountAmountProps) {
   const discount = readGiftDiscountCents(giftCreditsAppliedCents);
-  if (discount <= 0) {
+  const coupon = readGiftDiscountCents(couponDiscountCents);
+  if (discount <= 0 && coupon <= 0) {
     return (
       <AdminFinancePaymentDetailRow
         label={labels.amount}
@@ -50,20 +55,32 @@ export function AdminFinanceSheetAmountRows({
         label={labels.listPrice}
         value={
           <AmdMoneyText
-            cents={amountCents + discount}
+            cents={amountCents + discount + coupon}
             locale={locale}
             className="text-sage-500 line-through"
           />
         }
       />
-      <AdminFinancePaymentDetailRow
-        label={labels.gift}
-        value={
-          <span className="font-medium text-sage-800">
-            −<AmdMoneyText cents={discount} locale={locale} />
-          </span>
-        }
-      />
+      {coupon > 0 ? (
+        <AdminFinancePaymentDetailRow
+          label={couponCode ? `${labels.coupon ?? "Promo"} ${couponCode}` : (labels.coupon ?? "Promo")}
+          value={
+            <span className="font-medium text-sage-800">
+              −<AmdMoneyText cents={coupon} locale={locale} />
+            </span>
+          }
+        />
+      ) : null}
+      {discount > 0 ? (
+        <AdminFinancePaymentDetailRow
+          label={labels.gift}
+          value={
+            <span className="font-medium text-sage-800">
+              −<AmdMoneyText cents={discount} locale={locale} />
+            </span>
+          }
+        />
+      ) : null}
       <AdminFinancePaymentDetailRow
         label={labels.paid}
         value={

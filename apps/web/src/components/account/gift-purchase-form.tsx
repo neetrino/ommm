@@ -14,12 +14,13 @@ import { GiftCardBoardTile } from "@/components/gift-cards/gift-card-board-tile"
 import { displayGiftCardDate } from "@/components/gift-cards/gift-card-display-helpers";
 import { OmmButton } from "@/components/ui/omm-button";
 import { ApiError, apiFetch } from "@/lib/api";
-import { openGiftCardPaymentPage } from "@/lib/arca-checkout";
+import { checkoutAlreadySettled, openGiftCardPaymentPage } from "@/lib/arca-checkout";
 import { buildPaymentSuccessPath } from "@/lib/payment-result-paths";
 
 type PendingPaymentResponse = {
   paymentReference: string | null;
   amountCents: number;
+  status?: string;
 };
 
 type GiftPurchaseFormProps = {
@@ -79,6 +80,7 @@ export function GiftPurchaseForm({ locale }: GiftPurchaseFormProps) {
           amountCents: card.amountCents,
           recipientEmail,
           delivery: "EMAIL",
+          ...(intent.couponCode ? { couponCode: intent.couponCode } : {}),
         }),
       });
       if (payment.paymentReference === null) {
@@ -87,6 +89,12 @@ export function GiftPurchaseForm({ locale }: GiftPurchaseFormProps) {
         return;
       }
       setSelectedId(null);
+      if (checkoutAlreadySettled(payment)) {
+        setBusyBatchId(null);
+        router.push(buildPaymentSuccessPath(payment.paymentReference, "gift"));
+        router.refresh();
+        return;
+      }
       const mode = await openGiftCardPaymentPage(payment.paymentReference, locale);
       if (mode === "simulated") {
         router.push(buildPaymentSuccessPath(payment.paymentReference, "gift"));

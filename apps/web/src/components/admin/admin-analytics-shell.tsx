@@ -31,6 +31,7 @@ export function AdminAnalyticsShell({
     case "coaches":
       return <AdminAnalyticsCoachesPanel data={data} />;
     case "managers":
+    case "coupons":
       return null;
   }
 }

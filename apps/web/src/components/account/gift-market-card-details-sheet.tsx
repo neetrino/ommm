@@ -3,6 +3,8 @@
 import { useCallback, useId, useState } from "react";
 import { useTranslations } from "next-intl";
 import { GiftRecipientEmailField } from "@/components/account/gift-recipient-picker";
+import { PromoCodeField } from "@/components/account/promo-code-field";
+import type { PromoPreview } from "@/lib/preview-promo-code";
 import {
   ADMIN_DETAILS_SHEET_BODY_CLASS,
   ADMIN_DETAILS_SHEET_DETAIL_LABEL_CLASS,
@@ -58,6 +60,7 @@ export function marketGiftValueLabel(
 export type GiftPurchaseIntent = {
   card: GiftMarketCardPreview;
   recipientEmail: string;
+  couponCode?: string;
 };
 
 type GiftMarketCardDetailsSheetProps = {
@@ -111,6 +114,7 @@ function GiftMarketCardDetailsSheetInner({
   const amountLabel = marketGiftValueLabel(card, locale, t);
   const amountFieldLabel = card.type === "FIXED_CLASS" ? t("cartClassType") : t("cardAmount");
   const [recipientEmail, setRecipientEmail] = useState("");
+  const [promo, setPromo] = useState<PromoPreview | null>(null);
   const [recipientError, setRecipientError] = useState<string | null>(null);
 
   const canBuy = !busy && card.availableQuantity > 0 && isGiftRecipientEmail(recipientEmail);
@@ -126,7 +130,7 @@ function GiftMarketCardDetailsSheetInner({
       return;
     }
     setRecipientError(null);
-    onBuy({ card, recipientEmail: email });
+    onBuy({ card, recipientEmail: email, couponCode: promo?.code });
   }
 
   return (
@@ -175,6 +179,15 @@ function GiftMarketCardDetailsSheetInner({
           </dl>
         </section>
 
+        {card.amountCents > 0 ? (
+          <PromoCodeField
+            locale={locale}
+            subtotalCents={card.amountCents}
+            lines={[{ kind: "GIFT" }]}
+            disabled={busy}
+            onChange={setPromo}
+          />
+        ) : null}
         <GiftRecipientEmailField
           value={recipientEmail}
           disabled={busy}

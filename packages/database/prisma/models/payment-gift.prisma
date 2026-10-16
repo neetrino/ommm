@@ -18,6 +18,7 @@ model Payment {
   createdAt       DateTime             @default(now())
   updatedAt       DateTime             @updatedAt
   ehdmReceipt     EhdmReceipt?
+  couponRedemption CouponRedemption?
 
   @@index([userId])
   @@index([status, createdAt])

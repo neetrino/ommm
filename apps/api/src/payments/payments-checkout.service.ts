@@ -1,6 +1,10 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { ManualPaymentMethod, PaymentStatus } from '@prisma/client';
+import {
+  CouponProductKind,
+  ManualPaymentMethod,
+  PaymentStatus,
+} from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import type { GiftPaymentMethod } from './dto/confirm-gift-payment.dto';
 import { mergeArcaMetadata } from './arca/arca-metadata.util';
@@ -17,18 +21,26 @@ import {
   assertGiftBatchForCheckout,
   findOwnedPendingPaymentByReference,
 } from './payments-checkout.helpers';
+import { reservePendingDropInGift } from './payments-dropin-gift';
 import {
-  planDropInGiftCharge,
-  reservePendingDropInGift,
-} from './payments-dropin-gift';
+  applyReservedCoupon,
+  bindCouponRedemption,
+} from '../coupons/coupon-redemption.util';
+import type { CouponSnapshot } from '../coupons/coupon.types';
 import { prepareGiftCheckout } from './payments-gift-checkout.prepare';
+import { quoteCouponThenGift } from './payments-coupon-charge.util';
+import {
+  checkoutAttemptMatches,
+  failUnsentPendingPayments,
+  listPendingCheckoutPayments,
+  unsentPaymentIds,
+} from './payments-pending-reuse.util';
 import { dispatchDueGiftEmails } from './payments-gift-delivery';
 import { PaymentsConfirmService } from './payments-confirm.service';
 import {
   createPaymentReference,
   withInternalPaymentCreateFields,
   withInternalPaymentUpdateFields,
-  withInternalPaymentWhereFields,
 } from './payments.helpers';
 import { ownerBookingUniqueWhere } from '../bookings/bookings-guest-pass.constants';
 import { PaymentsFulfillmentService } from './payments-fulfillment.service';
@@ -53,7 +65,9 @@ export class PaymentsCheckoutService {
     return isArcaCheckoutEnabled(this.config);
   }
 
-  async createGiftCheckout(params: Parameters<typeof prepareGiftCheckout>[1]) {
+  async createGiftCheckout(
+    params: Parameters<typeof prepareGiftCheckout>[1] & { couponCode?: string },
+  ) {
     const prepared = await prepareGiftCheckout(this.prisma, params);
     if (prepared.metadata.giftType !== 'FIXED_CLASS') {
       await this.assertGiftCheckoutAmount(
@@ -61,18 +75,54 @@ export class PaymentsCheckoutService {
         prepared.metadata.giftFaceAmd ?? prepared.amountCents,
       );
     }
-    return this.prisma.payment.create({
-      data: withInternalPaymentCreateFields({
+    const pending = await listPendingCheckoutPayments(this.prisma, {
+      userId: params.purchaserId,
+      source: INTERNAL_PAYMENT_SOURCE.GIFT,
+      sourceId: params.batchId ?? null,
+    });
+    const replaceIds = unsentPaymentIds(pending);
+    const priced = await quoteCouponThenGift(this.prisma, {
+      userId: params.purchaserId,
+      code: params.couponCode,
+      subtotalCents: prepared.amountCents,
+      lines: [
+        {
+          kind: CouponProductKind.GIFT,
+          packagePlanId: params.packagePlanId,
+        },
+      ],
+      spendableCents: 0,
+      useGiftCredits: false,
+      excludePaymentIds: replaceIds,
+    });
+    const payment = await this.prisma.$transaction(async (tx) => {
+      await failUnsentPendingPayments(tx, replaceIds);
+      const created = await tx.payment.create({
+        data: withInternalPaymentCreateFields({
+          userId: params.purchaserId,
+          amountCents: priced.chargeCents,
+          currency: 'amd',
+          status: PaymentStatus.PENDING,
+          paymentReference: createPaymentReference('GIFT'),
+          source: INTERNAL_PAYMENT_SOURCE.GIFT,
+          sourceId: params.batchId,
+          description: prepared.description,
+          metadata: prepared.metadata,
+        }),
+      });
+      await bindCouponRedemption(tx, {
         userId: params.purchaserId,
-        amountCents: prepared.amountCents,
-        currency: 'amd',
-        status: PaymentStatus.PENDING,
-        paymentReference: createPaymentReference('GIFT'),
-        source: INTERNAL_PAYMENT_SOURCE.GIFT,
-        sourceId: params.batchId,
-        description: prepared.description,
-        metadata: prepared.metadata,
-      }),
+        paymentId: created.id,
+        snapshot: priced.coupon,
+        applyNow: false,
+      });
+      return created;
+    });
+    if (priced.chargeCents > 0) {
+      return payment;
+    }
+    return this.confirm.confirmPayment(payment.id, null, {
+      paymentMethod: ManualPaymentMethod.CARD,
     });
   }
 
@@ -112,6 +162,7 @@ export class PaymentsCheckoutService {
     userId: string,
     sessionId: string,
     useGiftCredits = false,
+    couponCode?: string,
   ) {
     const classSession = await this.prisma.classSession.findUnique({
       where: { id: sessionId },
@@ -124,46 +175,70 @@ export class PaymentsCheckoutService {
     });
     assertDropInSessionForCheckout(classSession, existingBooking, booked);
 
-    const existingPending = await this.prisma.payment.findFirst({
-      where: {
-        userId,
-        ...withInternalPaymentWhereFields({
-          source: INTERNAL_PAYMENT_SOURCE.DROPIN,
-          sourceId: sessionId,
-        }),
-        status: PaymentStatus.PENDING,
-      },
+    const pending = await listPendingCheckoutPayments(this.prisma, {
+      userId,
+      source: INTERNAL_PAYMENT_SOURCE.DROPIN,
+      sourceId: sessionId,
     });
     const spendableCents = useGiftCredits
       ? await peekSpendableGiftCreditsCents(this.prisma, userId)
       : 0;
-    const gift = planDropInGiftCharge({
-      priceCents: classSession!.priceCents,
+    const priced = await quoteCouponThenGift(this.prisma, {
+      userId,
+      code: couponCode,
+      subtotalCents: classSession!.priceCents,
+      lines: [{ kind: CouponProductKind.DROPIN }],
       spendableCents,
       useGiftCredits,
+      excludePaymentIds: pending.map((row) => row.payment.id),
     });
-    if (existingPending) {
-      return existingPending;
+    const match = pending.find((row) =>
+      checkoutAttemptMatches(row.payment, {
+        chargeCents: priced.chargeCents,
+        appliedGiftCents: priced.appliedGiftCents,
+        couponId: priced.coupon?.couponId ?? null,
+      }),
+    );
+    const replaceIds = unsentPaymentIds(pending, match?.payment.id);
+    if (match) {
+      await failUnsentPendingPayments(this.prisma, replaceIds);
+      return match.payment;
     }
-    if (gift.chargeCents === 0) {
-      return this.settleGiftCoveredDropIn(userId, sessionId, gift.appliedCents);
+    if (priced.chargeCents === 0) {
+      await failUnsentPendingPayments(this.prisma, replaceIds);
+      return this.settleGiftCoveredDropIn(
+        userId,
+        sessionId,
+        priced.appliedGiftCents,
+        priced.coupon,
+      );
     }
 
-    return this.prisma.payment.create({
-      data: withInternalPaymentCreateFields({
+    return this.prisma.$transaction(async (tx) => {
+      await failUnsentPendingPayments(tx, replaceIds);
+      const payment = await tx.payment.create({
+        data: withInternalPaymentCreateFields({
+          userId,
+          amountCents: priced.chargeCents,
+          currency: 'amd',
+          status: PaymentStatus.PENDING,
+          paymentReference: createPaymentReference('DROPIN'),
+          source: INTERNAL_PAYMENT_SOURCE.DROPIN,
+          sourceId: sessionId,
+          description: `Drop-in session ${sessionId}`,
+          metadata:
+            priced.appliedGiftCents > 0
+              ? { giftCreditsAppliedCents: priced.appliedGiftCents }
+              : undefined,
+        }),
+      });
+      await bindCouponRedemption(tx, {
         userId,
-        amountCents: gift.chargeCents,
-        currency: 'amd',
-        status: PaymentStatus.PENDING,
-        paymentReference: createPaymentReference('DROPIN'),
-        source: INTERNAL_PAYMENT_SOURCE.DROPIN,
-        sourceId: sessionId,
-        description: `Drop-in session ${sessionId}`,
-        metadata:
-          gift.appliedCents > 0
-            ? { giftCreditsAppliedCents: gift.appliedCents }
-            : undefined,
-      }),
+        paymentId: payment.id,
+        snapshot: priced.coupon,
+        applyNow: false,
+      });
+      return payment;
     });
   }
 
@@ -171,6 +246,7 @@ export class PaymentsCheckoutService {
     userId: string,
     sessionId: string,
     appliedCents: number,
+    coupon: CouponSnapshot | null = null,
   ) {
     const payment = await this.prisma.$transaction(async (tx) => {
       const created = await tx.payment.create({
@@ -188,6 +264,12 @@ export class PaymentsCheckoutService {
       });
       await reservePendingDropInGift(tx, created);
       await this.fulfillment.fulfillDropInPayment(tx, userId, sessionId);
+      await bindCouponRedemption(tx, {
+        userId,
+        paymentId: created.id,
+        snapshot: coupon,
+        applyNow: true,
+      });
       return tx.payment.update({
         where: { id: created.id },
         data: withInternalPaymentUpdateFields({
@@ -318,6 +400,7 @@ export class PaymentsCheckoutService {
       if (email) {
         giftEmails.push(email);
       }
+      await applyReservedCoupon(tx, existing.id);
       return tx.payment.update({
         where: { id: existing.id },
         data: withInternalPaymentUpdateFields({

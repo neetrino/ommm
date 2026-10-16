@@ -47,11 +47,13 @@ export class PaymentsService {
     userId: string,
     sessionId: string,
     useGiftCredits = false,
+    couponCode?: string,
   ) {
     return this.checkout.createDropInCheckout(
       userId,
       sessionId,
       useGiftCredits,
+      couponCode,
     );
   }
 

@@ -30,7 +30,9 @@ import {
 import sheetStyles from "@/components/account/package-subscribe-payment-sheet.module.css";
 import formStyles from "@/components/account/package-subscribe-payment-form.module.css";
 import { ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS } from "@/components/admin/admin-details-sheet-layout";
+import { PromoCodeField } from "@/components/account/promo-code-field";
 import { OmmButton } from "@/components/ui/omm-button";
+import type { PromoPreview } from "@/lib/preview-promo-code";
 import { OmmDrawerPortal } from "@/components/ui/omm-modal";
 import { useMemberHubSheetPhone } from "@/hooks/use-member-hub-sheet-phone";
 import { useDesktopSheetEnterMotion } from "@/hooks/use-desktop-sheet-enter-motion";
@@ -160,6 +162,7 @@ function PackageSubscribePaymentModalSession({
   const [giftCards, setGiftCards] = useState<SpendableGiftCardChoice[]>([]);
   const [selectedGiftCardIds, setSelectedGiftCardIds] = useState<string[]>([]);
   const [giftHintNonce, setGiftHintNonce] = useState(0);
+  const [promo, setPromo] = useState<PromoPreview | null>(null);
 
   const selectedPlan = plans.find((plan) => plan.id === selectedPlanId) ?? plans[0];
   const sheetTitle = step === "success" ? t("successTitle") : t("title");
@@ -172,9 +175,11 @@ function PackageSubscribePaymentModalSession({
     spendableGiftCents,
     priceCents: selectedPlan?.finalPriceCents ?? 0,
   });
-  const amountDueCents = selectedPlan
+  const localDueCents = selectedPlan
     ? selectedPlan.finalPriceCents - appliedGiftCents
     : 0;
+  const amountDueCents = promo?.chargeCents ?? localDueCents;
+  const shownGiftCents = promo?.giftCreditsAppliedCents ?? appliedGiftCents;
 
   useEffect(() => {
     let cancelled = false;
@@ -247,6 +252,7 @@ function PackageSubscribePaymentModalSession({
             ? { giftCardIds: selectedGiftCardIds }
             : {}),
           ...(sessionId ? { sessionId } : {}),
+          ...(promo ? { couponCode: promo.code } : {}),
         }),
       });
       if (sessionId && result.paymentReference) {
@@ -321,12 +327,25 @@ function PackageSubscribePaymentModalSession({
             locale={locale}
             onSelect={handlePlanSelect}
           />
+          {selectedPlan ? (
+            <PromoCodeField
+              locale={locale}
+              subtotalCents={selectedPlan.finalPriceCents}
+              lines={[{ kind: "PACKAGE", packagePlanId: selectedPlan.id }]}
+              useGiftCredits={
+                choosingCards ? selectedGiftCardIds.length > 0 : useGiftCredits
+              }
+              giftCardIds={choosingCards ? selectedGiftCardIds : undefined}
+              disabled={busy}
+              onChange={setPromo}
+            />
+          ) : null}
           <PackageSubscribeGiftCreditsToggle
             fieldId={giftCreditsFieldId}
             checked={useGiftCredits}
             disabled={busy || (!choosingCards && spendableGiftCents <= 0)}
             spendableCents={spendableGiftCents}
-            appliedCents={appliedGiftCents}
+            appliedCents={shownGiftCents}
             amountDueCents={amountDueCents}
             locale={locale}
             cards={giftCards}

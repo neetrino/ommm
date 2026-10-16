@@ -34,6 +34,7 @@ model PackagePlan {
 
   userPackages         UserPackage[]
   sourceBalances       UserPackageBalance[]    @relation("BalanceSourcePlan")
+  couponProducts       CouponEligibleProduct[]
 
   @@index([categoryName, displayOrder])
   @@index([categorySlug, displayOrder])

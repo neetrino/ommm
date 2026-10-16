@@ -178,6 +178,9 @@ describe('staff-assigned unpaid studio package', () => {
                 findUnique: jest.fn().mockResolvedValue(existing),
                 update: paymentUpdate,
               },
+              couponRedemption: {
+                updateMany: jest.fn().mockResolvedValue({ count: 0 }),
+              },
             }),
         ),
       } as never,

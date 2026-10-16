@@ -18,6 +18,8 @@ import {
 import { useGiftAmountPolicy } from "@/components/account/use-gift-amount-policy";
 import { useRouter } from "@/i18n/navigation";
 import { CUSTOM_GIFT_CARD_MAX_AMD, CUSTOM_GIFT_CARD_MIN_AMD } from "@/lib/custom-gift-card.constants";
+import { PromoCodeField } from "@/components/account/promo-code-field";
+import type { PromoPreview } from "@/lib/preview-promo-code";
 import { customGiftAmountBelowMin } from "@/lib/custom-gift-checkout";
 import { giftPayableAmd, PHYSICAL_GIFT_CARD_FEE_AMD, type GiftCardMedium } from "@/lib/gift-card-medium";
 import { formatAmdFromCents, parseAmdMoneyInput } from "@/lib/price-amd";
@@ -44,6 +46,7 @@ export function CustomGiftComposer({ locale }: CustomGiftComposerProps) {
   const [amountError, setAmountError] = useState<string | null>(null);
   const [recipientError, setRecipientError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [promo, setPromo] = useState<PromoPreview | null>(null);
   const policy = useGiftAmountPolicy(locale);
   const minLabel = formatAmdFromCents(policy.minAmd, locale);
   const maxLabel = formatAmdFromCents(CUSTOM_GIFT_CARD_MAX_AMD, locale);
@@ -104,6 +107,16 @@ export function CustomGiftComposer({ locale }: CustomGiftComposerProps) {
         setRecipientError(null);
       }}
       extras={
+        <>
+        {payableAmd !== null && payableAmd > 0 ? (
+          <PromoCodeField
+            locale={locale}
+            subtotalCents={payableAmd}
+            lines={[{ kind: "GIFT", packagePlanId: classPackageId || undefined }]}
+            disabled={busy}
+            onChange={setPromo}
+          />
+        ) : null}
         <CustomGiftDeliverySection
           kind={kind}
           classTypeId={classTypeId}
@@ -121,6 +134,7 @@ export function CustomGiftComposer({ locale }: CustomGiftComposerProps) {
           }}
           t={t}
         />
+        </>
       }
       onSubmit={(event) => {
         void submitCustomGift(event, {
@@ -133,6 +147,7 @@ export function CustomGiftComposer({ locale }: CustomGiftComposerProps) {
           classPackageId,
           delivery,
           format,
+          couponCode: promo?.code,
           classRequired: t("classRequired"),
           checkoutFailed: t("checkoutFailed"),
           copy: composerCopy(t, minLabel, maxLabel),
@@ -140,8 +155,8 @@ export function CustomGiftComposer({ locale }: CustomGiftComposerProps) {
           setAmountError,
           setRecipientError,
           setBusy,
-          goToCheckout: (reference) =>
-            continueGiftToPayment(reference, locale, (href) => {
+          goToCheckout: (payment) =>
+            continueGiftToPayment(payment, locale, (href) => {
               router.push(href);
               router.refresh();
             }),
