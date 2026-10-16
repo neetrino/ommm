@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
+import { OmmButton } from "@/components/ui/omm-button";
 import { ApiError } from "@/lib/api";
 import { formatAmdFromCents } from "@/lib/price-amd";
 import {
@@ -69,7 +70,7 @@ export function PromoCodeField({
 
   return (
     <div className="flex flex-col gap-2">
-      <label className="text-xs font-medium text-sage-700" htmlFor="promo-code">
+      <label className="ommm-label text-xs uppercase tracking-wide" htmlFor="promo-code">
         {t("label")}
       </label>
       <div className="flex gap-2">
@@ -79,7 +80,7 @@ export function PromoCodeField({
           disabled={disabled || busy}
           placeholder={t("placeholder")}
           autoCapitalize="characters"
-          className="min-w-0 flex-1 rounded-xl border border-black/10 px-3 py-2 text-sm uppercase"
+          className="ommm-input min-w-0 flex-1 uppercase tracking-wide"
           onChange={(event) => {
             setCode(event.target.value);
             setApplied(null);
@@ -87,17 +88,16 @@ export function PromoCodeField({
             onChangeRef.current(null);
           }}
         />
-        <button
-          type="button"
+        <OmmButton
+          size="sm"
           disabled={disabled || busy || subtotalCents <= 0 || code.trim().length === 0}
-          className="rounded-xl bg-sage-900 px-3 py-2 text-sm font-medium text-white disabled:opacity-50"
           onClick={() => void apply()}
         >
           {t("apply")}
-        </button>
+        </OmmButton>
       </div>
       {applied ? (
-        <p className="text-xs text-sage-800">
+        <p className="rounded-2xl bg-mint-50 px-3 py-2 text-xs text-sage-800">
           {t("applied", { amount: formatAmdFromCents(applied.discountAmountCents, locale) })}
           {applied.remainderGiftCents > 0
             ? ` ${t("remainder", { amount: formatAmdFromCents(applied.remainderGiftCents, locale) })}`

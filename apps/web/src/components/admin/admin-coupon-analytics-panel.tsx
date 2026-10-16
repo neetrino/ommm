@@ -3,7 +3,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import type { AdminCouponRow, CouponAnalyticsRow } from "@/components/admin/admin-coupons-types";
+import { couponPersonLabel } from "@/components/admin/admin-coupon-display";
+import type { AdminCouponRow, CouponAnalyticsRow, CouponDisplayStatus } from "@/components/admin/admin-coupons-types";
 import { parseAnalyticsFiltersFromSearch } from "@/components/admin/admin-analytics-url";
 import {
   parseAnalyticsQuickFilters,
@@ -11,6 +12,14 @@ import {
 } from "@/components/admin/admin-analytics-helpers";
 import { AmdMoneyText } from "@/components/ui/amd-money-text";
 import { ApiError, apiFetch } from "@/lib/api";
+
+const STATUSES: CouponDisplayStatus[] = [
+  "DRAFT",
+  "ACTIVE",
+  "EXPIRED",
+  "DISABLED",
+  "USAGE_LIMIT_REACHED",
+];
 
 export function AdminCouponAnalyticsPanel({ locale }: { locale: string }) {
   const t = useTranslations("adminPages.coupons");
@@ -52,63 +61,85 @@ export function AdminCouponAnalyticsPanel({ locale }: { locale: string }) {
       });
   }, [range.fromIso, range.toIso, couponId, discountType, status, creatorId, userEmail, t]);
 
-  const creators = uniqueCreators(coupons);
-
   return (
     <div className="flex flex-col gap-4">
-      <div className="grid gap-3 md:grid-cols-3">
-        <Select label={t("filterCoupon")} value={couponId} onChange={setCouponId} options={coupons.map((row) => ({ id: row.id, label: row.code }))} />
-        <Select label={t("type")} value={discountType} onChange={setDiscountType} options={[{ id: "PERCENTAGE", label: t("percentage") }, { id: "FIXED_AMOUNT", label: t("fixed") }]} />
-        <Select label={t("filterStatus")} value={status} onChange={setStatus} options={["DRAFT", "ACTIVE", "EXPIRED", "DISABLED", "USAGE_LIMIT_REACHED"].map((id) => ({ id, label: t(`status.${id}`) }))} />
-        <Select label={t("filterCreator")} value={creatorId} onChange={setCreatorId} options={creators} />
-        <label className="flex flex-col gap-1 text-sm">
-          {t("filterUser")}
-          <input value={userEmail} onChange={(event) => setUserEmail(event.target.value)} className="rounded-xl border border-black/10 px-3 py-2" />
+      <div className="grid gap-3 rounded-3xl border border-sand-200/80 bg-white/80 p-4 sm:grid-cols-2 xl:grid-cols-3">
+        <FilterSelect label={t("filterCoupon")} value={couponId} onChange={setCouponId} options={coupons.map((row) => ({ id: row.id, label: row.code }))} />
+        <FilterSelect label={t("type")} value={discountType} onChange={setDiscountType} options={[{ id: "PERCENTAGE", label: t("percentage") }, { id: "FIXED_AMOUNT", label: t("fixed") }]} />
+        <FilterSelect label={t("filterStatus")} value={status} onChange={setStatus} options={STATUSES.map((id) => ({ id, label: t(`status.${id}`) }))} />
+        <FilterSelect label={t("filterCreator")} value={creatorId} onChange={setCreatorId} options={uniqueCreators(coupons)} />
+        <label className="flex flex-col gap-1.5 sm:col-span-2 xl:col-span-1">
+          <span className="ommm-label text-xs uppercase tracking-wide">{t("filterUser")}</span>
+          <input value={userEmail} onChange={(event) => setUserEmail(event.target.value)} className="ommm-input" />
         </label>
       </div>
-      {error ? <p className="text-sm text-red-800">{error}</p> : null}
-      {rows.length === 0 ? <p className="text-sm text-sage-600">{t("analyticsEmpty")}</p> : null}
-      <div className="overflow-x-auto">
-        <table className="w-full min-w-[720px] text-left text-sm">
-          <thead>
-            <tr className="text-sage-500">
-              <th className="py-2 pr-3">{t("code")}</th>
-              <th className="py-2 pr-3">{t("createdBy")}</th>
-              <th className="py-2 pr-3">{t("filterUser")}</th>
-              <th className="py-2 pr-3">{t("usedAt")}</th>
-              <th className="py-2 pr-3">{t("purchase")}</th>
-              <th className="py-2 pr-3">{t("original")}</th>
-              <th className="py-2 pr-3">{t("discount")}</th>
-              <th className="py-2">{t("final")}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((row) => (
-              <tr key={row.id} className="border-t border-black/5">
-                <td className="py-2 pr-3">{row.code}</td>
-                <td className="py-2 pr-3">{personLabel(row.createdBy)}</td>
-                <td className="py-2 pr-3">{personLabel(row.user)}</td>
-                <td className="py-2 pr-3">{new Date(row.usedAt).toLocaleString(locale)}</td>
-                <td className="py-2 pr-3">{row.purchase ?? row.source}</td>
-                <td className="py-2 pr-3"><AmdMoneyText cents={row.originalAmountCents} locale={locale} /></td>
-                <td className="py-2 pr-3"><AmdMoneyText cents={row.discountAmountCents} locale={locale} /></td>
-                <td className="py-2"><AmdMoneyText cents={row.finalAmountCents} locale={locale} /></td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      {error ? <p className="text-sm text-red-800" role="alert">{error}</p> : null}
+      {rows.length === 0 ? (
+        <p className="rounded-2xl border border-dashed border-sand-300 bg-white/70 px-6 py-10 text-center text-sm text-sage-600">
+          {t("analyticsEmpty")}
+        </p>
+      ) : (
+        <CouponUseTable rows={rows} locale={locale} />
+      )}
     </div>
   );
 }
 
-function Select({ label, value, onChange, options }: { label: string; value: string; onChange: (value: string) => void; options: { id: string; label: string }[] }) {
+function CouponUseTable({ rows, locale }: { rows: CouponAnalyticsRow[]; locale: string }) {
+  const t = useTranslations("adminPages.coupons");
   return (
-    <label className="flex flex-col gap-1 text-sm">
-      {label}
-      <select value={value} onChange={(event) => onChange(event.target.value)} className="rounded-xl border border-black/10 px-3 py-2">
+    <div className="overflow-x-auto rounded-2xl border border-sand-200/80 bg-white/90">
+      <table className="w-full min-w-[760px] text-left text-sm">
+        <thead className="bg-sand-50/80 text-[11px] uppercase tracking-wide text-sage-500">
+          <tr>
+            <th className="px-4 py-3">{t("code")}</th>
+            <th className="px-4 py-3">{t("createdBy")}</th>
+            <th className="px-4 py-3">{t("filterUser")}</th>
+            <th className="px-4 py-3">{t("usedAt")}</th>
+            <th className="px-4 py-3">{t("purchase")}</th>
+            <th className="px-4 py-3">{t("original")}</th>
+            <th className="px-4 py-3">{t("discount")}</th>
+            <th className="px-4 py-3">{t("final")}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row) => (
+            <tr key={row.id} className="border-t border-sand-100 text-sage-800">
+              <td className="px-4 py-3 font-serif tracking-wide">{row.code}</td>
+              <td className="px-4 py-3">{couponPersonLabel(row.createdBy)}</td>
+              <td className="px-4 py-3">{couponPersonLabel(row.user)}</td>
+              <td className="px-4 py-3">{new Date(row.usedAt).toLocaleString(locale)}</td>
+              <td className="px-4 py-3">{row.purchase ?? row.source}</td>
+              <td className="px-4 py-3"><AmdMoneyText cents={row.originalAmountCents} locale={locale} /></td>
+              <td className="px-4 py-3"><AmdMoneyText cents={row.discountAmountCents} locale={locale} /></td>
+              <td className="px-4 py-3"><AmdMoneyText cents={row.finalAmountCents} locale={locale} /></td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function FilterSelect({
+  label,
+  value,
+  onChange,
+  options,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  options: { id: string; label: string }[];
+}) {
+  return (
+    <label className="flex flex-col gap-1.5">
+      <span className="ommm-label text-xs uppercase tracking-wide">{label}</span>
+      <select value={value} onChange={(event) => onChange(event.target.value)} className="ommm-input">
         <option value="">{label}</option>
-        {options.map((option) => <option key={option.id} value={option.id}>{option.label}</option>)}
+        {options.map((option) => (
+          <option key={option.id} value={option.id}>{option.label}</option>
+        ))}
       </select>
     </label>
   );
@@ -117,12 +148,7 @@ function Select({ label, value, onChange, options }: { label: string; value: str
 function uniqueCreators(rows: AdminCouponRow[]): { id: string; label: string }[] {
   const seen = new Map<string, string>();
   for (const row of rows) {
-    seen.set(row.createdBy.id, personLabel(row.createdBy));
+    seen.set(row.createdBy.id, couponPersonLabel(row.createdBy));
   }
   return [...seen.entries()].map(([id, label]) => ({ id, label }));
-}
-
-function personLabel(person: { name: string | null; lastName: string | null; email: string }): string {
-  const name = [person.name, person.lastName].filter(Boolean).join(" ");
-  return name.length > 0 ? name : person.email;
 }

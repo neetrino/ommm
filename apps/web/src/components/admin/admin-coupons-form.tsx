@@ -2,7 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
+import {
+  couponDraftFromRow,
+  couponPayloadFromDraft,
+  emptyCouponDraft,
+  type CouponDraft,
+} from "@/components/admin/admin-coupon-form.util";
 import type { AdminCouponRow, CouponProductKind } from "@/components/admin/admin-coupons-types";
+import { OmmButton } from "@/components/ui/omm-button";
 import { ApiError, apiFetch } from "@/lib/api";
 
 const KINDS: CouponProductKind[] = ["PACKAGE", "DROPIN", "GIFT", "BAR", "OTHER"];
@@ -15,35 +22,14 @@ type AdminCouponsFormProps = {
 
 export function AdminCouponsForm({ editing, onSaved, onCancel }: AdminCouponsFormProps) {
   const t = useTranslations("adminPages.coupons");
-  const [code, setCode] = useState("");
-  const [discountType, setDiscountType] = useState<"PERCENTAGE" | "FIXED_AMOUNT">("PERCENTAGE");
-  const [discountValue, setDiscountValue] = useState("10");
-  const [validFrom, setValidFrom] = useState("");
-  const [validUntil, setValidUntil] = useState("");
-  const [totalUsageLimit, setTotalUsageLimit] = useState("");
-  const [usageLimitPerUser, setUsageLimitPerUser] = useState("");
-  const [eligibleAllUsers, setEligibleAllUsers] = useState(true);
-  const [emails, setEmails] = useState("");
-  const [eligibleAllProducts, setEligibleAllProducts] = useState(true);
-  const [kinds, setKinds] = useState<CouponProductKind[]>([]);
-  const [packagePlanId, setPackagePlanId] = useState("");
+  const [draft, setDraft] = useState<CouponDraft>(emptyCouponDraft());
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    setCode(editing?.code ?? "");
-    setDiscountType(editing?.discountType ?? "PERCENTAGE");
-    setDiscountValue(String(editing?.discountValue ?? 10));
-    setValidFrom(toLocalInput(editing?.validFrom));
-    setValidUntil(toLocalInput(editing?.validUntil));
-    setTotalUsageLimit(editing?.totalUsageLimit?.toString() ?? "");
-    setUsageLimitPerUser(editing?.usageLimitPerUser?.toString() ?? "");
-    setEligibleAllUsers(editing?.eligibleAllUsers ?? true);
-    setEmails(editing?.eligibleUsers.map((user) => user.email).join(", ") ?? "");
-    setEligibleAllProducts(editing?.eligibleAllProducts ?? true);
-    setKinds(editing?.eligibleProducts.map((row) => row.kind) ?? []);
-    setPackagePlanId(editing?.eligibleProducts.find((row) => row.packagePlanId)?.packagePlanId ?? "");
+    setDraft(couponDraftFromRow(editing));
     setError(null);
+    document.getElementById("coupon-editor")?.scrollIntoView({ block: "start" });
   }, [editing]);
 
   async function save(event: React.FormEvent) {
@@ -53,7 +39,7 @@ export function AdminCouponsForm({ editing, onSaved, onCancel }: AdminCouponsFor
     try {
       await apiFetch(editing ? `/coupons/${editing.id}` : "/coupons", {
         method: editing ? "PATCH" : "POST",
-        body: JSON.stringify(payload()),
+        body: JSON.stringify(couponPayloadFromDraft(draft)),
       });
       onSaved();
     } catch (err) {
@@ -63,94 +49,182 @@ export function AdminCouponsForm({ editing, onSaved, onCancel }: AdminCouponsFor
     }
   }
 
-  function payload() {
-    const products = kinds.map((kind) => ({
-      kind,
-      ...(kind === "PACKAGE" && packagePlanId.trim() ? { packagePlanId: packagePlanId.trim() } : {}),
-    }));
-    return {
-      code,
-      discountType,
-      discountValue: Number(discountValue),
-      ...(validFrom ? { validFrom: new Date(validFrom).toISOString() } : {}),
-      ...(validUntil ? { validUntil: new Date(validUntil).toISOString() } : {}),
-      ...(totalUsageLimit ? { totalUsageLimit: Number(totalUsageLimit) } : {}),
-      ...(usageLimitPerUser ? { usageLimitPerUser: Number(usageLimitPerUser) } : {}),
-      eligibleAllUsers,
-      eligibleEmails: emails.split(/[,\s]+/).filter(Boolean),
-      eligibleAllProducts,
-      eligibleProducts: products,
-    };
-  }
-
   return (
-    <form onSubmit={(event) => void save(event)} className="grid gap-3 rounded-2xl border border-black/10 bg-white p-4 md:grid-cols-2">
-      <Field label={t("code")} value={code} onChange={setCode} />
-      <label className="flex flex-col gap-1 text-sm">
-        {t("type")}
-        <select className="rounded-xl border border-black/10 px-3 py-2" value={discountType} onChange={(event) => setDiscountType(event.target.value as "PERCENTAGE" | "FIXED_AMOUNT")}>
-          <option value="PERCENTAGE">{t("percentage")}</option>
-          <option value="FIXED_AMOUNT">{t("fixed")}</option>
-        </select>
-      </label>
-      <Field label={t("value")} value={discountValue} onChange={setDiscountValue} />
-      <Field label={t("validFrom")} value={validFrom} onChange={setValidFrom} type="datetime-local" />
-      <Field label={t("validUntil")} value={validUntil} onChange={setValidUntil} type="datetime-local" />
-      <Field label={t("totalLimit")} value={totalUsageLimit} onChange={setTotalUsageLimit} />
-      <Field label={t("perUserLimit")} value={usageLimitPerUser} onChange={setUsageLimitPerUser} />
-      <label className="flex items-center gap-2 text-sm">
-        <input type="checkbox" checked={eligibleAllUsers} onChange={(event) => setEligibleAllUsers(event.target.checked)} />
-        {t("allUsers")}
-      </label>
-      <label className="flex items-center gap-2 text-sm">
-        <input type="checkbox" checked={eligibleAllProducts} onChange={(event) => setEligibleAllProducts(event.target.checked)} />
-        {t("allProducts")}
-      </label>
-      {!eligibleAllUsers ? <Field label={t("emails")} value={emails} onChange={setEmails} /> : null}
-      {!eligibleAllProducts ? (
-        <div className="flex flex-col gap-2 text-sm md:col-span-2">
-          <span>{t("products")}</span>
-          <div className="flex flex-wrap gap-3">
-            {KINDS.map((kind) => (
-              <label key={kind} className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={kinds.includes(kind)}
-                  onChange={(event) => setKinds((current) => event.target.checked ? [...current, kind] : current.filter((item) => item !== kind))}
-                />
-                {t(`kind.${kind}`)}
-              </label>
-            ))}
-          </div>
-          <Field label={t("packagePlan")} value={packagePlanId} onChange={setPackagePlanId} />
+    <form
+      id="coupon-editor"
+      onSubmit={(event) => void save(event)}
+      className="rounded-3xl border border-sand-200/80 bg-white/90 p-5 shadow-[0_16px_36px_-24px_rgba(45,40,35,0.28)] sm:p-6"
+    >
+      <div className="mb-5">
+        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-sage-500">
+          {editing ? t("edit") : t("newCoupon")}
+        </p>
+        <h2 className="mt-1 font-serif text-3xl text-sage-900">{editing?.code || t("code")}</h2>
+      </div>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Field label={t("code")} value={draft.code} uppercase onChange={(code) => setDraft({ ...draft, code })} />
+        <SelectField
+          label={t("type")}
+          value={draft.discountType}
+          onChange={(discountType) => setDraft({ ...draft, discountType })}
+          options={[
+            { id: "PERCENTAGE", label: t("percentage") },
+            { id: "FIXED_AMOUNT", label: t("fixed") },
+          ]}
+        />
+        <Field label={t("value")} value={draft.discountValue} onChange={(discountValue) => setDraft({ ...draft, discountValue })} />
+        <Field label={t("validFrom")} value={draft.validFrom} type="datetime-local" onChange={(validFrom) => setDraft({ ...draft, validFrom })} />
+        <Field label={t("validUntil")} value={draft.validUntil} type="datetime-local" onChange={(validUntil) => setDraft({ ...draft, validUntil })} />
+        <Field label={t("totalLimit")} value={draft.totalUsageLimit} onChange={(totalUsageLimit) => setDraft({ ...draft, totalUsageLimit })} />
+        <Field label={t("perUserLimit")} value={draft.usageLimitPerUser} onChange={(usageLimitPerUser) => setDraft({ ...draft, usageLimitPerUser })} />
+      </div>
+      <div className="mt-4 grid gap-3 sm:grid-cols-2">
+        <CheckRow checked={draft.eligibleAllUsers} label={t("allUsers")} onChange={(eligibleAllUsers) => setDraft({ ...draft, eligibleAllUsers })} />
+        <CheckRow checked={draft.eligibleAllProducts} label={t("allProducts")} onChange={(eligibleAllProducts) => setDraft({ ...draft, eligibleAllProducts })} />
+      </div>
+      {draft.eligibleAllUsers ? null : (
+        <div className="mt-4">
+          <Field label={t("emails")} value={draft.emails} onChange={(emails) => setDraft({ ...draft, emails })} />
         </div>
-      ) : null}
-      {error ? <p className="text-sm text-red-800 md:col-span-2" role="alert">{error}</p> : null}
-      <div className="flex gap-2 md:col-span-2">
-        <button type="submit" disabled={busy} className="rounded-xl bg-sage-900 px-4 py-2 text-sm text-white disabled:opacity-50">{editing ? t("save") : t("createDraft")}</button>
-        {editing ? <button type="button" className="text-sm underline" onClick={onCancel}>{t("cancel")}</button> : null}
+      )}
+      {draft.eligibleAllProducts ? null : (
+        <ProductPicker
+          kinds={draft.kinds}
+          packagePlanId={draft.packagePlanId}
+          productsLabel={t("products")}
+          planLabel={t("packagePlan")}
+          kindLabel={(kind) => t(`kind.${kind}`)}
+          onKinds={(kinds) => setDraft({ ...draft, kinds })}
+          onPlan={(packagePlanId) => setDraft({ ...draft, packagePlanId })}
+        />
+      )}
+      {error ? <p className="mt-4 text-sm text-red-800" role="alert">{error}</p> : null}
+      <div className="mt-5 flex flex-wrap gap-2">
+        <OmmButton type="submit" disabled={busy}>
+          {editing ? t("save") : t("createDraft")}
+        </OmmButton>
+        <OmmButton type="button" variant="secondary" onClick={onCancel}>
+          {t("cancel")}
+        </OmmButton>
       </div>
     </form>
   );
 }
 
-function Field({ label, value, onChange, type = "text" }: { label: string; value: string; onChange: (value: string) => void; type?: string }) {
+function Field({
+  label,
+  value,
+  onChange,
+  type = "text",
+  uppercase = false,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  type?: string;
+  uppercase?: boolean;
+}) {
   return (
-    <label className="flex flex-col gap-1 text-sm">
-      {label}
-      <input type={type} value={value} onChange={(event) => onChange(event.target.value)} className="rounded-xl border border-black/10 px-3 py-2" />
+    <label className="flex flex-col gap-1.5">
+      <span className="ommm-label text-xs uppercase tracking-wide">{label}</span>
+      <input
+        type={type}
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        className={`ommm-input ${uppercase ? "uppercase" : ""}`}
+      />
     </label>
   );
 }
 
-function toLocalInput(value: string | null | undefined): string {
-  if (!value) {
-    return "";
-  }
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) {
-    return "";
-  }
-  const pad = (part: number) => String(part).padStart(2, "0");
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+function SelectField({
+  label,
+  value,
+  onChange,
+  options,
+}: {
+  label: string;
+  value: "PERCENTAGE" | "FIXED_AMOUNT";
+  onChange: (value: "PERCENTAGE" | "FIXED_AMOUNT") => void;
+  options: { id: "PERCENTAGE" | "FIXED_AMOUNT"; label: string }[];
+}) {
+  return (
+    <label className="flex flex-col gap-1.5">
+      <span className="ommm-label text-xs uppercase tracking-wide">{label}</span>
+      <select
+        value={value}
+        onChange={(event) => onChange(event.target.value as "PERCENTAGE" | "FIXED_AMOUNT")}
+        className="ommm-input"
+      >
+        {options.map((option) => (
+          <option key={option.id} value={option.id}>{option.label}</option>
+        ))}
+      </select>
+    </label>
+  );
 }
+
+function CheckRow({
+  checked,
+  label,
+  onChange,
+}: {
+  checked: boolean;
+  label: string;
+  onChange: (value: boolean) => void;
+}) {
+  return (
+    <label className="flex items-center gap-3 rounded-2xl border border-sand-200/80 bg-sand-50/70 px-4 py-3 text-sm text-sage-800">
+      <input
+        type="checkbox"
+        checked={checked}
+        className="size-4 accent-sage-800"
+        onChange={(event) => onChange(event.target.checked)}
+      />
+      {label}
+    </label>
+  );
+}
+
+function ProductPicker({
+  kinds,
+  packagePlanId,
+  productsLabel,
+  planLabel,
+  kindLabel,
+  onKinds,
+  onPlan,
+}: {
+  kinds: CouponProductKind[];
+  packagePlanId: string;
+  productsLabel: string;
+  planLabel: string;
+  kindLabel: (kind: CouponProductKind) => string;
+  onKinds: (kinds: CouponProductKind[]) => void;
+  onPlan: (value: string) => void;
+}) {
+  return (
+    <div className="mt-4 flex flex-col gap-3">
+      <span className="ommm-label text-xs uppercase tracking-wide">{productsLabel}</span>
+      <div className="flex flex-wrap gap-2">
+        {KINDS.map((kind) => {
+          const selected = kinds.includes(kind);
+          return (
+            <button
+              key={kind}
+              type="button"
+              className={`rounded-full px-3 py-1.5 text-xs font-semibold uppercase tracking-wide ${
+                selected ? "bg-sage-900 text-white" : "border border-sand-200 bg-white text-sage-700"
+              }`}
+              onClick={() => onKinds(selected ? kinds.filter((item) => item !== kind) : [...kinds, kind])}
+            >
+              {kindLabel(kind)}
+            </button>
+          );
+        })}
+      </div>
+      <Field label={planLabel} value={packagePlanId} onChange={onPlan} />
+    </div>
+  );
+}
+
