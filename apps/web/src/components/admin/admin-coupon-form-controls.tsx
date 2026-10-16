@@ -10,14 +10,12 @@ export function FormSection({
   title,
   mark,
   required = false,
-  hint,
   children,
 }: {
   icon: ReactNode;
   title: string;
   mark: string;
   required?: boolean;
-  hint?: string;
   children: ReactNode;
 }) {
   return (
@@ -30,7 +28,6 @@ export function FormSection({
         </span>
       </div>
       {children}
-      {hint ? <p className="text-xs leading-snug text-sage-500">{hint}</p> : null}
     </section>
   );
 }
@@ -161,7 +158,6 @@ export function ProductPicker({
   kinds,
   packagePlanId,
   planLabel,
-  planHint,
   kindLabel,
   onKinds,
   onPlan,
@@ -169,7 +165,6 @@ export function ProductPicker({
   kinds: CouponProductKind[];
   packagePlanId: string;
   planLabel: string;
-  planHint: string;
   kindLabel: (kind: CouponProductKind) => string;
   onKinds: (kinds: CouponProductKind[]) => void;
   onPlan: (value: string) => void;
@@ -196,12 +191,7 @@ export function ProductPicker({
           );
         })}
       </div>
-      {showPlan ? (
-        <div className="flex flex-col gap-1">
-          <TextField label={planLabel} value={packagePlanId} onChange={onPlan} />
-          <p className="text-xs text-sage-600">{planHint}</p>
-        </div>
-      ) : null}
+      {showPlan ? <TextField label={planLabel} value={packagePlanId} onChange={onPlan} /> : null}
     </div>
   );
 }

@@ -81,7 +81,6 @@ export function AdminCouponsForm({ editing, onSaved, onCancel }: AdminCouponsFor
           <h2 id={titleId} className="font-serif text-2xl font-normal leading-none text-sage-900">
             {editing ? t("edit") : t("newCoupon")}
           </h2>
-          <p className="mt-1.5 text-sm text-sage-600">{t("formLead")}</p>
         </div>
         <button
           type="button"

@@ -24,7 +24,7 @@ type CouponCopy = ReturnType<typeof useTranslations<"adminPages.coupons">>;
 
 export function CodeSection({ draft, t, onChange }: { draft: CouponDraft; t: CouponCopy; onChange: (code: string) => void }) {
   return (
-    <FormSection icon={<CouponTicketIcon />} title={t("sectionCode")} mark={t("requiredMark")} required hint={t("codeHint")}>
+    <FormSection icon={<CouponTicketIcon />} title={t("sectionCode")} mark={t("requiredMark")} required>
       <TextField label={t("code")} value={draft.code} required uppercase placeholder={t("codePlaceholder")} onChange={onChange} />
     </FormSection>
   );
@@ -46,7 +46,6 @@ export function DiscountSection({
       title={t("sectionDiscount")}
       mark={t("requiredMark")}
       required
-      hint={fixed ? t("fixedHint") : t("percentHint")}
     >
       <div className="grid gap-2 sm:grid-cols-2">
         <TypeChoice
@@ -82,7 +81,7 @@ export function ScheduleSection({
   onPatch: (next: Partial<CouponDraft>) => void;
 }) {
   return (
-    <FormSection icon={<CouponCalendarIcon />} title={t("sectionSchedule")} mark={t("optionalMark")} hint={t("scheduleHint")}>
+    <FormSection icon={<CouponCalendarIcon />} title={t("sectionSchedule")} mark={t("optionalMark")}>
       <div className="grid gap-3 sm:grid-cols-2">
         <TextField label={t("validFrom")} type="datetime-local" value={draft.validFrom} onChange={(validFrom) => onPatch({ validFrom })} />
         <TextField label={t("validUntil")} type="datetime-local" value={draft.validUntil} onChange={(validUntil) => onPatch({ validUntil })} />
@@ -101,7 +100,7 @@ export function LimitsSection({
   onPatch: (next: Partial<CouponDraft>) => void;
 }) {
   return (
-    <FormSection icon={<CouponLimitIcon />} title={t("sectionLimits")} mark={t("optionalMark")} hint={t("limitsHint")}>
+    <FormSection icon={<CouponLimitIcon />} title={t("sectionLimits")} mark={t("optionalMark")}>
       <div className="grid gap-3 sm:grid-cols-2">
         <TextField label={t("totalLimit")} value={draft.totalUsageLimit} placeholder={t("limitPlaceholder")} onChange={(totalUsageLimit) => onPatch({ totalUsageLimit })} />
         <TextField label={t("perUserLimit")} value={draft.usageLimitPerUser} placeholder={t("limitPlaceholder")} onChange={(usageLimitPerUser) => onPatch({ usageLimitPerUser })} />
@@ -121,20 +120,19 @@ export function AudienceSection({
 }) {
   return (
     <div className="flex flex-col gap-4">
-      <FormSection icon={<CouponPeopleIcon />} title={t("sectionPeople")} mark={t("optionalMark")} hint={draft.eligibleAllUsers ? undefined : t("emailsHint")}>
+      <FormSection icon={<CouponPeopleIcon />} title={t("sectionPeople")} mark={t("optionalMark")}>
         <CheckRow checked={draft.eligibleAllUsers} label={t("allUsers")} offLabel={t("selectedUsers")} onChange={(eligibleAllUsers) => onPatch({ eligibleAllUsers })} />
         {draft.eligibleAllUsers ? null : (
           <TextField label={t("emails")} value={draft.emails} placeholder="helen@studio.com, satenik@studio.com" onChange={(emails) => onPatch({ emails })} />
         )}
       </FormSection>
-      <FormSection icon={<CouponBagIcon />} title={t("sectionProducts")} mark={t("optionalMark")} hint={draft.eligibleAllProducts ? undefined : t("productsHint")}>
+      <FormSection icon={<CouponBagIcon />} title={t("sectionProducts")} mark={t("optionalMark")}>
         <CheckRow checked={draft.eligibleAllProducts} label={t("allProducts")} offLabel={t("products")} onChange={(eligibleAllProducts) => onPatch({ eligibleAllProducts })} />
         {draft.eligibleAllProducts ? null : (
           <ProductPicker
             kinds={draft.kinds}
             packagePlanId={draft.packagePlanId}
             planLabel={t("packagePlan")}
-            planHint={t("planHint")}
             kindLabel={(kind) => t(`kind.${kind}`)}
             onKinds={(kinds) => onPatch({ kinds })}
             onPlan={(packagePlanId) => onPatch({ packagePlanId })}
