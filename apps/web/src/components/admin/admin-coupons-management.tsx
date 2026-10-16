@@ -30,7 +30,9 @@ export function AdminCouponsManagement({ canDelete }: { canDelete: boolean }) {
   }, [t]);
 
   useEffect(() => {
-    void load();
+    queueMicrotask(() => {
+      void load();
+    });
   }, [load]);
 
   async function act(path: string, method: "POST" | "DELETE") {
@@ -61,6 +63,7 @@ export function AdminCouponsManagement({ canDelete }: { canDelete: boolean }) {
       </div>
       {showForm ? (
         <AdminCouponsForm
+          key={editing?.id ?? "create"}
           editing={editing}
           onCancel={() => {
             setEditing(null);

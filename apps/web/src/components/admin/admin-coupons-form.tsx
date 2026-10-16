@@ -5,7 +5,6 @@ import { useTranslations } from "next-intl";
 import {
   couponDraftFromRow,
   couponPayloadFromDraft,
-  emptyCouponDraft,
   type CouponDraft,
 } from "@/components/admin/admin-coupon-form.util";
 import type { AdminCouponRow, CouponProductKind } from "@/components/admin/admin-coupons-types";
@@ -22,15 +21,13 @@ type AdminCouponsFormProps = {
 
 export function AdminCouponsForm({ editing, onSaved, onCancel }: AdminCouponsFormProps) {
   const t = useTranslations("adminPages.coupons");
-  const [draft, setDraft] = useState<CouponDraft>(emptyCouponDraft());
+  const [draft, setDraft] = useState<CouponDraft>(() => couponDraftFromRow(editing));
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    setDraft(couponDraftFromRow(editing));
-    setError(null);
     document.getElementById("coupon-editor")?.scrollIntoView({ block: "start" });
-  }, [editing]);
+  }, []);
 
   async function save(event: React.FormEvent) {
     event.preventDefault();

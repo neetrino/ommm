@@ -37,14 +37,23 @@ export function PromoCodeField({
   const [busy, setBusy] = useState(false);
   const lineKey = lines.map((line) => `${line.kind}:${line.packagePlanId ?? ""}`).join("|");
   const cardKey = (giftCardIds ?? []).join(",");
+  const quoteKey = `${subtotalCents}|${lineKey}|${String(useGiftCredits)}|${cardKey}`;
   const onChangeRef = useRef(onChange);
-  onChangeRef.current = onChange;
+  const [trackedQuoteKey, setTrackedQuoteKey] = useState(quoteKey);
 
-  useEffect(() => {
+  if (trackedQuoteKey !== quoteKey) {
+    setTrackedQuoteKey(quoteKey);
     setApplied(null);
     setError(null);
+  }
+
+  useEffect(() => {
+    onChangeRef.current = onChange;
+  }, [onChange]);
+
+  useEffect(() => {
     onChangeRef.current(null);
-  }, [subtotalCents, lineKey, useGiftCredits, cardKey]);
+  }, [quoteKey]);
 
   async function apply() {
     setBusy(true);
