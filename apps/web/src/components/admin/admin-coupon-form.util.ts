@@ -23,7 +23,7 @@ export function emptyCouponDraft(): CouponDraft {
     validFrom: "",
     validUntil: "",
     totalUsageLimit: "",
-    usageLimitPerUser: "",
+    usageLimitPerUser: "1",
     eligibleAllUsers: true,
     emails: "",
     eligibleAllProducts: true,
