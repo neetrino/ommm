@@ -15,9 +15,8 @@ import {
   CheckRow,
   FormSection,
   ProductPicker,
+  DiscountAmountField,
   TextField,
-  TypeChoice,
-  UnitField,
 } from "@/components/admin/admin-coupon-form-controls";
 
 type CouponCopy = ReturnType<typeof useTranslations<"adminPages.coupons">>;
@@ -47,25 +46,15 @@ export function DiscountSection({
       mark={t("requiredMark")}
       required
     >
-      <div className="grid gap-2 sm:grid-cols-2">
-        <TypeChoice
-          selected={!fixed}
-          sign="%"
-          label={t("percentage")}
-          onClick={() => onPatch({ discountType: "PERCENTAGE" })}
-        />
-        <TypeChoice
-          selected={fixed}
-          sign={AMD_SYMBOL}
-          label={t("fixed")}
-          onClick={() => onPatch({ discountType: "FIXED_AMOUNT" })}
-        />
-      </div>
-      <UnitField
+      <DiscountAmountField
         ariaLabel={t("value")}
         value={draft.discountValue}
-        unit={fixed ? AMD_SYMBOL : "%"}
-        onChange={(discountValue) => onPatch({ discountValue })}
+        fixed={fixed}
+        percentLabel={t("percentage")}
+        amountLabel={t("fixed")}
+        amountSign={AMD_SYMBOL}
+        onValue={(discountValue) => onPatch({ discountValue })}
+        onFixed={(next) => onPatch({ discountType: next ? "FIXED_AMOUNT" : "PERCENTAGE" })}
       />
     </FormSection>
   );

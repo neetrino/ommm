@@ -23,8 +23,8 @@ export function FormSection({
       <div className="flex items-center gap-2">
         <span className="text-sage-700">{icon}</span>
         <h3 className="text-sm font-semibold text-sage-900">{title}</h3>
-        <span className={`text-[11px] font-semibold uppercase tracking-wide ${required ? "text-sand-800" : "text-sage-400"}`}>
-          {mark}
+        <span className={required ? "text-base leading-none text-sand-800" : "text-[11px] font-semibold uppercase tracking-wide text-sage-400"}>
+          {required ? "*" : mark}
         </span>
       </div>
       {children}
@@ -110,34 +110,76 @@ export function TextField({
   );
 }
 
-export function UnitField({
-  label,
+export function DiscountAmountField({
   ariaLabel,
   value,
-  unit,
-  onChange,
+  fixed,
+  percentLabel,
+  amountLabel,
+  amountSign,
+  onValue,
+  onFixed,
 }: {
-  label?: string;
-  ariaLabel?: string;
+  ariaLabel: string;
   value: string;
-  unit: string;
-  onChange: (value: string) => void;
+  fixed: boolean;
+  percentLabel: string;
+  amountLabel: string;
+  amountSign: string;
+  onValue: (value: string) => void;
+  onFixed: (fixed: boolean) => void;
 }) {
   return (
-    <label className="flex flex-col gap-1.5">
-      {label ? <span className="ommm-label text-xs uppercase tracking-wide">{label}</span> : null}
-      <span className="relative">
-        <input
-          inputMode="numeric"
-          required
-          aria-label={label ?? ariaLabel}
-          value={value}
-          onChange={(event) => onChange(event.target.value)}
-          className="ommm-input pr-14"
+    <div className="flex items-center gap-1 rounded-xl border border-white/70 bg-white/90 py-1 pl-3 pr-1 shadow-sm">
+      <input
+        inputMode="numeric"
+        required
+        aria-label={ariaLabel}
+        value={value}
+        onChange={(event) => onValue(event.target.value)}
+        className="min-w-0 flex-1 bg-transparent py-1.5 text-sm text-sage-900 outline-none"
+      />
+      <div className="flex shrink-0 rounded-full bg-sand-100 p-0.5" role="group">
+        <AmountSwitch
+          selected={!fixed}
+          label={percentLabel}
+          sign="%"
+          onClick={() => onFixed(false)}
         />
-        <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center font-serif text-sage-700">{unit}</span>
-      </span>
-    </label>
+        <AmountSwitch
+          selected={fixed}
+          label={amountLabel}
+          sign={amountSign}
+          onClick={() => onFixed(true)}
+        />
+      </div>
+    </div>
+  );
+}
+
+function AmountSwitch({
+  selected,
+  label,
+  sign,
+  onClick,
+}: {
+  selected: boolean;
+  label: string;
+  sign: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      aria-pressed={selected}
+      aria-label={label}
+      onClick={onClick}
+      className={`rounded-full px-3 py-1.5 font-serif text-sm leading-none ${
+        selected ? "bg-sage-900 text-white" : "text-sage-600"
+      }`}
+    >
+      {sign}
+    </button>
   );
 }
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState, type FormEvent } from "react";
+import { useId, useState, type FormEvent, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import {
   ADMIN_BOOKINGS_DETAILS_SHEET_PANEL_CLASS,
@@ -93,12 +93,18 @@ export function AdminCouponsForm({ editing, onSaved, onCancel }: AdminCouponsFor
       </div>
       <div className={ADMIN_CREATE_SHEET_BODY_SHELL_CLASS}>
         <form className={ADMIN_CREATE_FORM_CLASS} onSubmit={(event) => void save(event)}>
-          <div className="flex flex-col gap-4 px-5 py-4 sm:px-6">
-            <CodeSection draft={draft} t={t} onChange={(code) => patch({ code })} />
-            <DiscountSection draft={draft} t={t} onPatch={patch} />
-            <ScheduleSection draft={draft} t={t} onPatch={patch} />
-            <LimitsSection draft={draft} t={t} onPatch={patch} />
-            <AudienceSection draft={draft} t={t} onPatch={patch} />
+          <div className="flex flex-col gap-3 px-5 py-4 sm:px-6">
+            <FormGroup>
+              <CodeSection draft={draft} t={t} onChange={(code) => patch({ code })} />
+              <DiscountSection draft={draft} t={t} onPatch={patch} />
+            </FormGroup>
+            <FormGroup>
+              <ScheduleSection draft={draft} t={t} onPatch={patch} />
+              <LimitsSection draft={draft} t={t} onPatch={patch} />
+            </FormGroup>
+            <FormGroup>
+              <AudienceSection draft={draft} t={t} onPatch={patch} />
+            </FormGroup>
             {error ? <p className="text-sm text-red-800" role="alert">{error}</p> : null}
             <div className={ADMIN_CREATE_FORM_ACTIONS_CLASS}>
               <OmmButton type="button" variant="secondary" onClick={requestClose}>{t("cancel")}</OmmButton>
@@ -108,6 +114,14 @@ export function AdminCouponsForm({ editing, onSaved, onCancel }: AdminCouponsFor
         </form>
       </div>
     </AdminSheetPortal>
+  );
+}
+
+function FormGroup({ children }: { children: ReactNode }) {
+  return (
+    <div className="flex flex-col gap-3 rounded-2xl border border-sand-200/80 bg-white p-3">
+      {children}
+    </div>
   );
 }
 
