@@ -31,11 +31,13 @@ import { ApiError, apiFetch } from "@/lib/api";
 
 type AdminCouponsFormProps = {
   editing: AdminCouponRow | null;
+  canDelete: boolean;
   onSaved: () => void;
   onCancel: () => void;
+  onDelete: () => void;
 };
 
-export function AdminCouponsForm({ editing, onSaved, onCancel }: AdminCouponsFormProps) {
+export function AdminCouponsForm({ editing, canDelete, onSaved, onCancel, onDelete }: AdminCouponsFormProps) {
   const t = useTranslations("adminPages.coupons");
   const titleId = useId();
   const [draft, setDraft] = useState<CouponDraft>(() => couponDraftFromRow(editing));
@@ -108,9 +110,16 @@ export function AdminCouponsForm({ editing, onSaved, onCancel }: AdminCouponsFor
               <AudienceSection draft={draft} t={t} onPatch={patch} />
             </FormGroup>
             {error ? <p className="text-sm text-red-800" role="alert">{error}</p> : null}
-            <div className={ADMIN_CREATE_FORM_ACTIONS_CLASS}>
-              <OmmButton type="button" variant="secondary" onClick={requestClose}>{t("cancel")}</OmmButton>
-              <OmmButton type="submit" disabled={busy}>{editing ? t("save") : t("createDraft")}</OmmButton>
+            <div className={`${ADMIN_CREATE_FORM_ACTIONS_CLASS} justify-between`}>
+              {canDelete && editing?.status === "DRAFT" && editing.usedCount === 0 ? (
+                <OmmButton type="button" variant="danger" disabled={busy} onClick={onDelete}>
+                  {t("delete")}
+                </OmmButton>
+              ) : <span />}
+              <div className="flex flex-wrap gap-2">
+                <OmmButton type="button" variant="secondary" onClick={requestClose}>{t("cancel")}</OmmButton>
+                <OmmButton type="submit" disabled={busy}>{editing ? t("save") : t("createDraft")}</OmmButton>
+              </div>
             </div>
           </div>
         </form>

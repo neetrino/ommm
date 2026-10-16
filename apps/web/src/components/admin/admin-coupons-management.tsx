@@ -63,6 +63,7 @@ export function AdminCouponsManagement({ canDelete }: { canDelete: boolean }) {
         <AdminCouponsForm
           key={editing?.id ?? "create"}
           editing={editing}
+          canDelete={canDelete}
           onCancel={() => {
             setEditing(null);
             setCreating(false);
@@ -71,6 +72,12 @@ export function AdminCouponsManagement({ canDelete }: { canDelete: boolean }) {
             setEditing(null);
             setCreating(false);
             void load();
+          }}
+          onDelete={() => {
+            if (editing === null) {
+              return;
+            }
+            void act(`/coupons/${editing.id}`, "DELETE");
           }}
         />
       ) : null}
@@ -87,14 +94,12 @@ export function AdminCouponsManagement({ canDelete }: { canDelete: boolean }) {
             <AdminCouponCard
               row={row}
               selected={editing?.id === row.id}
-              canDelete={canDelete}
               onEdit={() => {
                 setCreating(false);
                 setEditing(row);
               }}
               onActivate={() => void act(`/coupons/${row.id}/activate`, "POST")}
               onDisable={() => void act(`/coupons/${row.id}/disable`, "POST")}
-              onDelete={() => void act(`/coupons/${row.id}`, "DELETE")}
             />
           </li>
         ))}

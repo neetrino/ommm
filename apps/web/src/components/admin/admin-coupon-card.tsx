@@ -13,21 +13,17 @@ import { OmmButton } from "@/components/ui/omm-button";
 type AdminCouponCardProps = {
   row: AdminCouponRow;
   selected: boolean;
-  canDelete: boolean;
   onEdit: () => void;
   onActivate: () => void;
   onDisable: () => void;
-  onDelete: () => void;
 };
 
 export function AdminCouponCard({
   row,
   selected,
-  canDelete,
   onEdit,
   onActivate,
   onDisable,
-  onDelete,
 }: AdminCouponCardProps) {
   const locale = useLocale();
   const t = useTranslations("adminPages.coupons");
@@ -35,7 +31,17 @@ export function AdminCouponCard({
 
   return (
     <article
-      className={`flex h-full flex-col rounded-2xl border bg-white/90 p-5 shadow-[0_12px_28px_-22px_rgba(45,40,35,0.2)] ${
+      role="button"
+      tabIndex={0}
+      aria-label={row.code}
+      onClick={onEdit}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          onEdit();
+        }
+      }}
+      className={`flex h-full cursor-pointer flex-col rounded-2xl border bg-white/90 p-5 text-left shadow-[0_12px_28px_-22px_rgba(45,40,35,0.2)] transition-[border-color,box-shadow] hover:border-sand-300 hover:shadow-[0_16px_32px_-20px_rgba(45,40,35,0.28)] ${
         selected ? "border-sage-700/40 ring-2 ring-sage-700/20" : "border-sand-200/80"
       }`}
     >
@@ -56,10 +62,11 @@ export function AdminCouponCard({
         <Meta label={t("createdBy")} value={couponPersonLabel(row.createdBy)} />
         {windowLabel ? <Meta label={t("validFrom")} value={windowLabel} /> : null}
       </dl>
-      <div className="mt-5 flex flex-wrap gap-2">
-        <OmmButton size="sm" variant="secondary" onClick={onEdit}>
-          {t("edit")}
-        </OmmButton>
+      <div
+        className="mt-5 flex flex-wrap gap-2"
+        onClick={(event) => event.stopPropagation()}
+        onKeyDown={(event) => event.stopPropagation()}
+      >
         {row.status === "ACTIVE" ? (
           <OmmButton size="sm" variant="ghost" onClick={onDisable}>
             {t("disable")}
@@ -69,11 +76,6 @@ export function AdminCouponCard({
             {t("activate")}
           </OmmButton>
         )}
-        {canDelete && row.status === "DRAFT" && row.usedCount === 0 ? (
-          <OmmButton size="sm" variant="danger" onClick={onDelete}>
-            {t("delete")}
-          </OmmButton>
-        ) : null}
       </div>
     </article>
   );
