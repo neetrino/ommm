@@ -8,6 +8,7 @@ import {
   couponValueLabel,
 } from "@/components/admin/admin-coupon-display";
 import type { AdminCouponRow } from "@/components/admin/admin-coupons-types";
+import { CouponCopyButton } from "@/components/admin/admin-coupon-card-actions";
 import { OmmButton } from "@/components/ui/omm-button";
 
 type AdminCouponCardProps = {
@@ -46,7 +47,10 @@ export function AdminCouponCard({
       }`}
     >
       <div className="flex items-start justify-between gap-3">
-        <p className="font-serif text-2xl tracking-wide text-sage-900">{row.code}</p>
+        <div className="flex min-w-0 items-center gap-1">
+          <p className="truncate font-serif text-2xl tracking-wide text-sage-900">{row.code}</p>
+          <CouponCopyButton code={row.code} />
+        </div>
         <span className={`${COUPON_STATUS_BADGE_CLASS} ${couponStatusTone(row.displayStatus)}`}>
           {t(`status.${row.displayStatus}`)}
         </span>

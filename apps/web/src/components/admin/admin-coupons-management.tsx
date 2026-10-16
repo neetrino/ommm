@@ -3,7 +3,12 @@
 import { useCallback, useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { AdminCouponCard } from "@/components/admin/admin-coupon-card";
+import { AdminCouponListRow } from "@/components/admin/admin-coupon-list-row";
 import { AdminCouponsForm } from "@/components/admin/admin-coupons-form";
+import {
+  AdminCouponsViewSwitcher,
+  type CouponViewMode,
+} from "@/components/admin/admin-coupons-view-switcher";
 import type { AdminCouponRow } from "@/components/admin/admin-coupons-types";
 import { OmmButton } from "@/components/ui/omm-button";
 import { ApiError, apiFetch } from "@/lib/api";
@@ -15,6 +20,7 @@ export function AdminCouponsManagement({ canDelete }: { canDelete: boolean }) {
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [view, setView] = useState<CouponViewMode>("board");
   const showForm = creating || editing !== null;
 
   const load = useCallback(async () => {
@@ -35,6 +41,11 @@ export function AdminCouponsManagement({ canDelete }: { canDelete: boolean }) {
     });
   }, [load]);
 
+  function openCoupon(row: AdminCouponRow) {
+    setCreating(false);
+    setEditing(row);
+  }
+
   async function act(path: string, method: "POST" | "DELETE") {
     setError(null);
     try {
@@ -49,7 +60,8 @@ export function AdminCouponsManagement({ canDelete }: { canDelete: boolean }) {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex justify-end">
+      <div className="flex items-center justify-between gap-3">
+        <AdminCouponsViewSwitcher value={view} onChange={setView} />
         <OmmButton
           onClick={() => {
             setEditing(null);
@@ -88,22 +100,35 @@ export function AdminCouponsManagement({ canDelete }: { canDelete: boolean }) {
           {t("empty")}
         </p>
       ) : null}
-      <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-        {rows.map((row) => (
-          <li key={row.id}>
-            <AdminCouponCard
-              row={row}
-              selected={editing?.id === row.id}
-              onEdit={() => {
-                setCreating(false);
-                setEditing(row);
-              }}
-              onActivate={() => void act(`/coupons/${row.id}/activate`, "POST")}
-              onDisable={() => void act(`/coupons/${row.id}/disable`, "POST")}
-            />
-          </li>
-        ))}
-      </ul>
+      {view === "board" ? (
+        <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          {rows.map((row) => (
+            <li key={row.id}>
+              <AdminCouponCard
+                row={row}
+                selected={editing?.id === row.id}
+                onEdit={() => openCoupon(row)}
+                onActivate={() => void act(`/coupons/${row.id}/activate`, "POST")}
+                onDisable={() => void act(`/coupons/${row.id}/disable`, "POST")}
+              />
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <ul className="flex flex-col gap-2">
+          {rows.map((row) => (
+            <li key={row.id}>
+              <AdminCouponListRow
+                row={row}
+                selected={editing?.id === row.id}
+                onEdit={() => openCoupon(row)}
+                onActivate={() => void act(`/coupons/${row.id}/activate`, "POST")}
+                onDisable={() => void act(`/coupons/${row.id}/disable`, "POST")}
+              />
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }
