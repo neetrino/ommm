@@ -39,6 +39,26 @@ export function emptyCouponAnalyticsFilterChoices(): CouponAnalyticsFilterChoice
   return EMPTY_CHOICES;
 }
 
+export function couponFilterLabels(t: (key: string) => string): CouponAnalyticsFilterLabels {
+  return {
+    all: t("filterAll"),
+    coupon: t("filterCoupon"),
+    type: t("type"),
+    percentage: t("percentage"),
+    fixed: t("fixed"),
+    status: t("filterStatus"),
+    statusLabels: {
+      DRAFT: t("status.DRAFT"),
+      ACTIVE: t("status.ACTIVE"),
+      EXPIRED: t("status.EXPIRED"),
+      DISABLED: t("status.DISABLED"),
+      USAGE_LIMIT_REACHED: t("status.USAGE_LIMIT_REACHED"),
+    },
+    creator: t("filterCreator"),
+    user: t("filterUser"),
+  };
+}
+
 export function couponAnalyticsFilterChoices(rows: AdminCouponRow[]): CouponAnalyticsFilterChoices {
   const creators = new Map<string, string>();
   for (const row of rows) {
