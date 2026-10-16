@@ -7,6 +7,7 @@ export type AdminNavIconSlug =
   | "coaches"
   | "schedule"
   | "packages"
+  | "coupons"
   | "giftCards"
   | "finance"
   | "analytics"
@@ -29,7 +30,7 @@ export const ADMIN_NAV_ICON_BY_HREF: Readonly<Record<string, AdminNavIconSlug>> 
   "/admin/schedule": "schedule",
   "/admin/packages": "packages",
   "/admin/gift-cards": "giftCards",
-  "/admin/coupons": "packages",
+  "/admin/coupons": "coupons",
   "/admin/finance": "finance",
   "/admin/analytics": "analytics",
   "/admin/content": "feedback",
@@ -53,7 +54,7 @@ export const MANAGER_NAV_ICON_BY_HREF: Readonly<Record<string, AdminNavIconSlug>
   "/manager/schedule": "schedule",
   "/manager/packages": "packages",
   "/manager/gift-cards": "giftCards",
-  "/manager/coupons": "packages",
+  "/manager/coupons": "coupons",
   "/manager/finance": "finance",
   "/manager/content": "feedback",
   "/manager/settings": "settings",

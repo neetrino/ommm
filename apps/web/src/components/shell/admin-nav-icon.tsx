@@ -11,6 +11,7 @@ const SLUG_SIZE_CLASS: Partial<Record<AdminNavIconSlug, string>> = {
   managers: "h-[18px] w-[20px]",
   clients: "h-[15px] w-5",
   giftCards: "h-5 w-5",
+  coupons: "h-4 w-5",
   schedule: "h-[19px] w-[17px]",
   bookings: "h-[19px] w-[17px]",
   waitlists: "h-[19px] w-[17px]",
