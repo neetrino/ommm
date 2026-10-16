@@ -1,9 +1,17 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useTransition, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, useTransition, type ReactNode } from "react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
+import {
+  couponAnalyticsFilterChoices,
+  couponFilterLabels,
+  emptyCouponAnalyticsFilterChoices,
+  type CouponAnalyticsFilterChoices,
+} from "@/components/admin/admin-analytics-coupon-filters";
+import type { AdminCouponRow } from "@/components/admin/admin-coupons-types";
 import { usePathname, useRouter } from "@/i18n/navigation";
+import { apiFetch } from "@/lib/api";
 import {
   adminAnalyticsIntegratedFilterValues,
   buildAdminAnalyticsFilterFields,
@@ -36,12 +44,42 @@ export function AdminAnalyticsHeroFilters({
   trailing,
 }: AdminAnalyticsHeroFiltersProps) {
   const tFilters = useTranslations("adminPages.analytics.filters");
+  const tCoupons = useTranslations("adminPages.coupons");
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const hasMounted = useRef(false);
   const [, startTransition] = useTransition();
   const [values, setValues] = usePropSyncedState(initialValues);
+  const [couponChoices, setCouponChoices] = useState<CouponAnalyticsFilterChoices>(
+    emptyCouponAnalyticsFilterChoices,
+  );
+
+  useEffect(() => {
+    if (section !== "coupons") {
+      return undefined;
+    }
+    let cancelled = false;
+    void apiFetch<AdminCouponRow[]>("/coupons")
+      .then((rows) => {
+        if (!cancelled) {
+          setCouponChoices(couponAnalyticsFilterChoices(rows));
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setCouponChoices(emptyCouponAnalyticsFilterChoices());
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [section]);
+
+  const couponFilters = useMemo(
+    () => (section === "coupons" ? { choices: couponChoices, labels: couponFilterLabels(tCoupons) } : undefined),
+    [couponChoices, section, tCoupons],
+  );
 
   const filterFields = useMemo(
     () =>
@@ -50,6 +88,7 @@ export function AdminAnalyticsHeroFilters({
         filterOptions,
         customFrom: values.from,
         customTo: values.to,
+        couponFilters,
         labels: {
           rangeLabel: tFilters("rangeLabel"),
           range7: tFilters("range7"),
@@ -86,7 +125,7 @@ export function AdminAnalyticsHeroFilters({
           quickPopularClasses: tFilters("quickPopularClasses"),
         },
       }),
-    [filterOptions, section, tFilters, values.from, values.to],
+    [couponFilters, filterOptions, section, tFilters, values.from, values.to],
   );
 
   const integratedFilterValues = useMemo(
