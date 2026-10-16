@@ -1,9 +1,10 @@
-import { Role } from '@prisma/client';
+import { Role, UserPackageStatus } from '@prisma/client';
 import {
   influencerSucceededWhere,
   revenueSucceededWhere,
 } from '../payments/payment-revenue.util';
 import {
+  AdminClientPackageFilter,
   AdminClientPaymentStatusFilter,
   AdminClientTagFilter,
   type AdminListClientsQueryDto,
@@ -53,6 +54,30 @@ describe('buildClientsListWhere', () => {
           payments: {
             some: revenueSucceededWhere,
           },
+        },
+      ]),
+    );
+  });
+
+  it('selects sign-ups with no package rows when package is never', () => {
+    const where = buildClientsListWhere(
+      query({ package: [AdminClientPackageFilter.NEVER] }),
+    );
+
+    expect(andClauses(where)).toEqual(
+      expect.arrayContaining([{ userPackages: { none: {} } }]),
+    );
+  });
+
+  it('keeps past buyers in the inactive package filter', () => {
+    const where = buildClientsListWhere(
+      query({ package: [AdminClientPackageFilter.INACTIVE] }),
+    );
+
+    expect(andClauses(where)).toEqual(
+      expect.arrayContaining([
+        {
+          userPackages: { none: { status: UserPackageStatus.ACTIVE } },
         },
       ]),
     );

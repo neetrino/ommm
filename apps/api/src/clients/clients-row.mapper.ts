@@ -58,7 +58,7 @@ export const clientInclude = Prisma.validator<Prisma.UserInclude>()({
     take: 1,
     include: { author: { select: { id: true, name: true, email: true } } },
   },
-  _count: { select: { clientNotesReceived: true } },
+  _count: { select: { clientNotesReceived: true, userPackages: true } },
 });
 
 export type ClientRecord = Prisma.UserGetPayload<{
@@ -287,6 +287,7 @@ export function toClientRow(user: ClientRecord) {
     lastVisitDate: latestBooking?.session.startsAt ?? null,
     birthdayMonth: user.dateOfBirth ? user.dateOfBirth.getMonth() + 1 : null,
     hasGiftCardActivity: hasGiftCardActivity(user),
+    hasPackageHistory: user._count.userPackages > 0,
     isBlocked: user.isBlocked,
     doNotCall: user.doNotCall,
     nextBooking: pickNextBookingFromBookings(user.bookings),

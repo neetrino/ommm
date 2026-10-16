@@ -18,6 +18,8 @@ export enum AdminClientPackageFilter {
   ALL = 'all',
   ACTIVE = 'active',
   INACTIVE = 'inactive',
+  /** Signed up only: no user-package rows of any status. */
+  NEVER = 'never',
 }
 
 export enum AdminClientOrder {

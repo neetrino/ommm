@@ -2908,6 +2908,7 @@
         "packageAll": "All clients",
         "packageActive": "Active members",
         "packageInactive": "Without active package",
+        "packageNever": "Never purchased",
         "orderLabel": "Order",
         "orderNewest": "Newest first",
         "orderOldest": "Oldest first",

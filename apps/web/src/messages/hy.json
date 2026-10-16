@@ -2909,6 +2909,7 @@
         "packageAll": "Բոլոր հաճախորդները",
         "packageActive": "Ակտիվ անդամներ",
         "packageInactive": "Առանց ակտիվ աբոնեմենտի",
+        "packageNever": "Երբեք չեն գնել",
         "orderLabel": "Դասավորություն",
         "orderNewest": "Նորերը սկզբում",
         "orderOldest": "Հները սկզբում",
