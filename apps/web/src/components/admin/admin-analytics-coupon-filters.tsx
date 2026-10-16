@@ -87,7 +87,7 @@ export function buildCouponAnalyticsFilterFields(
     dropdownField("discountType", labels.type, labels.all, types),
     dropdownField("couponStatus", labels.status, labels.all, statuses),
     dropdownField("creatorId", labels.creator, labels.all, choices.creators),
-    userEmailField(labels.user, labels.all),
+    userEmailField(labels.user),
   ];
 }
 
@@ -102,9 +102,8 @@ function dropdownField(
     label,
     fieldType: "custom",
     emptyValue: "",
-    alwaysShowChip: true,
     options,
-    resolveChipLabel: (value) => chipLabel(label, allLabel, value, options),
+    resolveChipLabel: (value) => chipLabel(label, value, options),
     render: ({ value, onChange }) => (
       <OmmFilterDropdown
         allValue=""
@@ -118,19 +117,18 @@ function dropdownField(
   };
 }
 
-function userEmailField(label: string, allLabel: string): AdminIntegratedFilterField {
+function userEmailField(label: string): AdminIntegratedFilterField {
   return {
     key: "userEmail",
     label,
     fieldType: "custom",
     emptyValue: "",
-    alwaysShowChip: true,
-    resolveChipLabel: (value) => (value.trim() ? `${label}: ${value.trim()}` : `${label}: ${allLabel}`),
+    resolveChipLabel: (value) => (value.trim() ? `${label}: ${value.trim()}` : null),
     render: ({ value, onChange }) => (
       <input
         value={value}
         aria-label={label}
-        placeholder={allLabel}
+        placeholder={label}
         onChange={(event) => onChange(event.target.value)}
         className="ommm-input"
       />
@@ -140,12 +138,11 @@ function userEmailField(label: string, allLabel: string): AdminIntegratedFilterF
 
 function chipLabel(
   label: string,
-  allLabel: string,
   value: string,
   options: readonly CouponAnalyticsFilterChoice[],
-): string {
+): string | null {
   if (!value) {
-    return `${label}: ${allLabel}`;
+    return null;
   }
   const option = options.find((item) => item.value === value);
   return `${label}: ${option?.label ?? value}`;

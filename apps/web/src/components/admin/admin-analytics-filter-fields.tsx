@@ -83,13 +83,12 @@ const QUICK_FILTER_LABEL_KEYS: Record<
 
 function resolveQuickChipLabel(
   label: string,
-  allLabel: string,
   value: string,
   options: readonly { value: string; label: string }[],
-): string {
+): string | null {
   const selected = parseAnalyticsQuickFilters(value);
   if (selected.length === 0) {
-    return `${label}: ${allLabel}`;
+    return null;
   }
   if (selected.length === 1) {
     const option = options.find((item) => item.value === selected[0]);
@@ -102,7 +101,10 @@ function resolveSortChipLabel(
   label: string,
   value: string,
   options: readonly { value: string; label: string }[],
-): string {
+): string | null {
+  if (value === "revenue-desc") {
+    return null;
+  }
   const option = options.find((item) => item.value === value);
   return `${label}: ${option?.label ?? value}`;
 }
@@ -113,11 +115,14 @@ function resolveRangeChipLabel(
   from: string,
   to: string,
   presets: Record<string, string>,
-): string {
+): string | null {
   const fromNorm = normalizeFilterDateValue(from);
   const toNorm = normalizeFilterDateValue(to);
   if (fromNorm.length > 0 && toNorm.length > 0) {
     return `${rangeLabel}: ${formatDateForUi(fromNorm)} – ${formatDateForUi(toNorm)}`;
+  }
+  if (value === "30") {
+    return null;
   }
   return `${rangeLabel}: ${presets[value] ?? value}`;
 }
@@ -252,12 +257,7 @@ export function buildAdminAnalyticsFilterFields({
       emptyValue: "",
       alwaysShowChip: true,
       resolveChipLabel: (value) =>
-        resolveQuickChipLabel(
-          labels.quickFilterLabel,
-          labels.allQuickFilters,
-          value,
-          quickFilterOptions,
-        ),
+        resolveQuickChipLabel(labels.quickFilterLabel, value, quickFilterOptions),
       render: ({ value, onChange }) => (
         <OmmFilterMultiSelect
           variant="accent"
