@@ -27,6 +27,7 @@ import type { AdminCouponRow } from "@/components/admin/admin-coupons-types";
 import { AdminSheetPortal } from "@/components/admin/admin-sheet-portal";
 import { useAdminAnimatedSheetClose } from "@/components/admin/use-admin-animated-sheet-close";
 import { OmmButton } from "@/components/ui/omm-button";
+import { OmmConfirmDialog } from "@/components/ui/omm-confirm-dialog";
 import { ApiError, apiFetch } from "@/lib/api";
 
 type AdminCouponsFormProps = {
@@ -43,6 +44,7 @@ export function AdminCouponsForm({ editing, canDelete, onSaved, onCancel, onDele
   const [draft, setDraft] = useState<CouponDraft>(() => couponDraftFromRow(editing));
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const { isOpen, requestClose, onAfterClose } = useAdminAnimatedSheetClose(onCancel);
 
   async function save(event: FormEvent) {
@@ -66,7 +68,9 @@ export function AdminCouponsForm({ editing, canDelete, onSaved, onCancel, onDele
     setDraft({ ...draft, ...next });
   }
 
+  const code = editing?.code ?? draft.code;
   return (
+    <>
     <AdminSheetPortal
       presentation="drawer"
       isOpen={isOpen}
@@ -112,7 +116,7 @@ export function AdminCouponsForm({ editing, canDelete, onSaved, onCancel, onDele
             {error ? <p className="text-sm text-red-800" role="alert">{error}</p> : null}
             <div className={`${ADMIN_CREATE_FORM_ACTIONS_CLASS} justify-between`}>
               {canDelete && editing?.status === "DRAFT" && editing.usedCount === 0 ? (
-                <OmmButton type="button" variant="danger" disabled={busy} onClick={onDelete}>
+                <OmmButton type="button" variant="danger" disabled={busy} onClick={() => setConfirmDelete(true)}>
                   {t("delete")}
                 </OmmButton>
               ) : <span />}
@@ -125,6 +129,28 @@ export function AdminCouponsForm({ editing, canDelete, onSaved, onCancel, onDele
         </form>
       </div>
     </AdminSheetPortal>
+    <OmmConfirmDialog
+      isOpen={confirmDelete}
+      title={t("deleteTitle")}
+      description={t("deleteDescription", { code })}
+      confirmLabel={t("delete")}
+      cancelLabel={t("cancel")}
+      backdropAriaLabel={t("close")}
+      tone="danger"
+      confirmVariant="danger"
+      forceCenteredModal
+      pending={busy}
+      onConfirm={() => {
+        setConfirmDelete(false);
+        onDelete();
+      }}
+      onCancel={() => {
+        if (!busy) {
+          setConfirmDelete(false);
+        }
+      }}
+    />
+    </>
   );
 }
 

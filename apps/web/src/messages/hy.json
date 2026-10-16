@@ -2149,6 +2149,8 @@
       "activate": "Ակտիվացնել",
       "disable": "Անջատել",
       "delete": "Ջնջել",
+      "deleteTitle": "Ջնջե՞լ այս կուպոնը",
+      "deleteDescription": "{code} կջնջվի։ Վերադարձնել չի լինի։",
       "createdBy": "Ստեղծել է",
       "used": "Օգտագործված",
       "remaining": "Մնացել է",

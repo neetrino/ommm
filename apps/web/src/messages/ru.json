@@ -2146,6 +2146,8 @@
       "activate": "Активировать",
       "disable": "Отключить",
       "delete": "Удалить",
+      "deleteTitle": "Удалить этот промокод?",
+      "deleteDescription": "{code} будет удалён. Вернуть его нельзя.",
       "createdBy": "Создал",
       "used": "Использовано",
       "remaining": "Осталось",

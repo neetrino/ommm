@@ -2148,6 +2148,8 @@
       "activate": "Activate",
       "disable": "Disable",
       "delete": "Delete",
+      "deleteTitle": "Delete this coupon?",
+      "deleteDescription": "{code} will be removed. This cannot be undone.",
       "createdBy": "Created by",
       "used": "Used",
       "remaining": "Remaining",
