@@ -7,7 +7,9 @@ import {
 } from './coupon.constants';
 
 /** Uppercase coupon code, or null when the field was left empty. */
-export function normalizeCouponCode(value: string | undefined | null): string | null {
+export function normalizeCouponCode(
+  value: string | undefined | null,
+): string | null {
   const compact = (value ?? '').replace(/\s+/g, '').toUpperCase();
   if (compact.length === 0) {
     return null;

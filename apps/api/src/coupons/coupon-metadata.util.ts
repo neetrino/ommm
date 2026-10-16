@@ -62,14 +62,20 @@ export function couponBlocksPackageRefund(
   if (!isRecord(metadata)) {
     return false;
   }
-  return typeof metadata.packagePlanId === 'string' && metadata.packagePlanId.length > 0;
+  return (
+    typeof metadata.packagePlanId === 'string' &&
+    metadata.packagePlanId.length > 0
+  );
 }
 
-function parseCouponSnapshot(raw: Record<string, unknown>): CouponSnapshot | null {
+function parseCouponSnapshot(
+  raw: Record<string, unknown>,
+): CouponSnapshot | null {
   if (
     typeof raw.couponId !== 'string' ||
     typeof raw.code !== 'string' ||
-    (raw.discountType !== 'PERCENTAGE' && raw.discountType !== 'FIXED_AMOUNT') ||
+    (raw.discountType !== 'PERCENTAGE' &&
+      raw.discountType !== 'FIXED_AMOUNT') ||
     !isNonNegativeInt(raw.discountValue) ||
     typeof raw.createdById !== 'string' ||
     !isNonNegativeInt(raw.originalAmountCents) ||

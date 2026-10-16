@@ -1,7 +1,10 @@
 import type { PrismaService } from '../prisma/prisma.service';
 import { planDropInGiftCharge } from './payments-dropin-gift';
 import { quoteCoupon } from '../coupons/coupon-quote.util';
-import type { CouponPurchaseLine, CouponSnapshot } from '../coupons/coupon.types';
+import type {
+  CouponPurchaseLine,
+  CouponSnapshot,
+} from '../coupons/coupon.types';
 
 export type CouponCharge = {
   coupon: CouponSnapshot | null;

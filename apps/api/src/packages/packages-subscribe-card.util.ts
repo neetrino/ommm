@@ -7,7 +7,10 @@ import {
   type Prisma,
 } from '@prisma/client';
 import { readCouponSnapshot } from '../coupons/coupon-metadata.util';
-import { bindCouponRedemption, releaseReservedCoupon } from '../coupons/coupon-redemption.util';
+import {
+  bindCouponRedemption,
+  releaseReservedCoupon,
+} from '../coupons/coupon-redemption.util';
 import type { CouponSnapshot } from '../coupons/coupon.types';
 import { mergeArcaMetadata } from '../payments/arca/arca-metadata.util';
 import { PAYMENT_STATUS_REASON } from '../payments/payment-status-reason';

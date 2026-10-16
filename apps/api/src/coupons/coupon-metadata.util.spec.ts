@@ -21,19 +21,37 @@ describe('couponBlocksPackageRefund', () => {
   it('blocks package purchases and carts that include a package', () => {
     expect(couponBlocksPackageRefund('PACKAGE', snapshot)).toBe(true);
     expect(
-      couponBlocksPackageRefund('OTHER', { ...snapshot, packagePlanId: 'plan-1' }),
+      couponBlocksPackageRefund('OTHER', {
+        ...snapshot,
+        packagePlanId: 'plan-1',
+      }),
     ).toBe(true);
   });
 
   it('blocks failing a succeeded coupon package, and still allows a pending failure', () => {
     expect(
-      couponBlocksSucceededPackageUndo('PACKAGE', snapshot, 'SUCCEEDED', 'FAILED'),
+      couponBlocksSucceededPackageUndo(
+        'PACKAGE',
+        snapshot,
+        'SUCCEEDED',
+        'FAILED',
+      ),
     ).toBe(true);
     expect(
-      couponBlocksSucceededPackageUndo('PACKAGE', snapshot, 'SUCCEEDED', 'REFUNDED'),
+      couponBlocksSucceededPackageUndo(
+        'PACKAGE',
+        snapshot,
+        'SUCCEEDED',
+        'REFUNDED',
+      ),
     ).toBe(true);
     expect(
-      couponBlocksSucceededPackageUndo('PACKAGE', snapshot, 'PENDING', 'FAILED'),
+      couponBlocksSucceededPackageUndo(
+        'PACKAGE',
+        snapshot,
+        'PENDING',
+        'FAILED',
+      ),
     ).toBe(false);
   });
 

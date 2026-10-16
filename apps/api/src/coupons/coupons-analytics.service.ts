@@ -33,7 +33,9 @@ export class CouponsAnalyticsService {
     return { items: rows.map(toAnalyticsRow) };
   }
 
-  private async resolveUserId(email: string | undefined): Promise<string | null> {
+  private async resolveUserId(
+    email: string | undefined,
+  ): Promise<string | null> {
     const normalized = email?.trim().toLowerCase() ?? '';
     if (normalized.length === 0) {
       return null;
@@ -45,7 +47,9 @@ export class CouponsAnalyticsService {
     return user?.id ?? null;
   }
 
-  private async matchingCouponIds(query: ListCouponAnalyticsQueryDto): Promise<string[]> {
+  private async matchingCouponIds(
+    query: ListCouponAnalyticsQueryDto,
+  ): Promise<string[]> {
     const coupons = await this.prisma.coupon.findMany({
       where: {
         ...(query.couponId ? { id: query.couponId } : {}),
@@ -93,14 +97,18 @@ async function openUseCounts(
     by: ['couponId'],
     where: {
       couponId: { in: ids },
-      status: { in: [CouponRedemptionStatus.RESERVED, CouponRedemptionStatus.APPLIED] },
+      status: {
+        in: [CouponRedemptionStatus.RESERVED, CouponRedemptionStatus.APPLIED],
+      },
     },
     _count: { _all: true },
   });
   return new Map(groups.map((row) => [row.couponId, row._count._all]));
 }
 
-function appliedRange(query: ListCouponAnalyticsQueryDto): Prisma.CouponRedemptionWhereInput {
+function appliedRange(
+  query: ListCouponAnalyticsQueryDto,
+): Prisma.CouponRedemptionWhereInput {
   if (query.from === undefined && query.to === undefined) {
     return {};
   }
@@ -120,15 +128,21 @@ function redemptionInclude() {
         id: true,
         code: true,
         discountType: true,
-        createdBy: { select: { id: true, email: true, name: true, lastName: true } },
+        createdBy: {
+          select: { id: true, email: true, name: true, lastName: true },
+        },
       },
     },
-    payment: { select: { id: true, description: true, source: true, amountCents: true } },
+    payment: {
+      select: { id: true, description: true, source: true, amountCents: true },
+    },
   } satisfies Prisma.CouponRedemptionInclude;
 }
 
 function toAnalyticsRow(
-  row: Prisma.CouponRedemptionGetPayload<{ include: ReturnType<typeof redemptionInclude> }>,
+  row: Prisma.CouponRedemptionGetPayload<{
+    include: ReturnType<typeof redemptionInclude>;
+  }>,
 ) {
   return {
     id: row.id,

@@ -1,6 +1,10 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { CouponProductKind, ManualPaymentMethod, PaymentStatus } from '@prisma/client';
+import {
+  CouponProductKind,
+  ManualPaymentMethod,
+  PaymentStatus,
+} from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import type { GiftPaymentMethod } from './dto/confirm-gift-payment.dto';
 import { mergeArcaMetadata } from './arca/arca-metadata.util';
@@ -17,11 +21,11 @@ import {
   assertGiftBatchForCheckout,
   findOwnedPendingPaymentByReference,
 } from './payments-checkout.helpers';
+import { reservePendingDropInGift } from './payments-dropin-gift';
 import {
-  planDropInGiftCharge,
-  reservePendingDropInGift,
-} from './payments-dropin-gift';
-import { applyReservedCoupon, bindCouponRedemption } from '../coupons/coupon-redemption.util';
+  applyReservedCoupon,
+  bindCouponRedemption,
+} from '../coupons/coupon-redemption.util';
 import type { CouponSnapshot } from '../coupons/coupon.types';
 import { prepareGiftCheckout } from './payments-gift-checkout.prepare';
 import { quoteCouponThenGift } from './payments-coupon-charge.util';

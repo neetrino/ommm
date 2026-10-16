@@ -22,7 +22,10 @@ const OPEN_REDEMPTION = [
 
 type CouponWithRules = Coupon & {
   eligibleUsers: { userId: string }[];
-  eligibleProducts: { productKind: CouponPurchaseLine['kind']; packagePlanId: string | null }[];
+  eligibleProducts: {
+    productKind: CouponPurchaseLine['kind'];
+    packagePlanId: string | null;
+  }[];
 };
 
 type CouponQuoteDb = PrismaService | Prisma.TransactionClient;
@@ -104,7 +107,10 @@ export function assertCouponLimits(
   coupon: Pick<Coupon, 'totalUsageLimit' | 'usageLimitPerUser'>,
   counts: CouponUsageCounts,
 ): void {
-  if (coupon.totalUsageLimit !== null && counts.totalUsed >= coupon.totalUsageLimit) {
+  if (
+    coupon.totalUsageLimit !== null &&
+    counts.totalUsed >= coupon.totalUsageLimit
+  ) {
     throw new BadRequestException(COUPON_ERROR.USAGE_LIMIT);
   }
   if (
@@ -125,7 +131,10 @@ export function assertCouponWindow(
   if (coupon.validFrom !== null && coupon.validFrom.getTime() > now.getTime()) {
     throw new BadRequestException(COUPON_ERROR.NOT_ACTIVE);
   }
-  if (coupon.validUntil !== null && coupon.validUntil.getTime() < now.getTime()) {
+  if (
+    coupon.validUntil !== null &&
+    coupon.validUntil.getTime() < now.getTime()
+  ) {
     throw new BadRequestException(COUPON_ERROR.EXPIRED);
   }
 }
@@ -151,7 +160,10 @@ function assertCouponAudience(
   }
 }
 
-function snapshotFromCoupon(coupon: Coupon, subtotalCents: number): CouponSnapshot {
+function snapshotFromCoupon(
+  coupon: Coupon,
+  subtotalCents: number,
+): CouponSnapshot {
   const priced = quoteCouponDiscount({
     subtotalCents,
     discountType: coupon.discountType,

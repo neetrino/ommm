@@ -27,7 +27,11 @@ export type PendingCheckoutRow = {
 /** True when this unpaid attempt is the same charge the user is submitting again. */
 export function checkoutAttemptMatches(
   payment: { amountCents: number; metadata: Prisma.JsonValue | null },
-  next: { chargeCents: number; appliedGiftCents: number; couponId: string | null },
+  next: {
+    chargeCents: number;
+    appliedGiftCents: number;
+    couponId: string | null;
+  },
 ): boolean {
   const couponId = readCouponSnapshot(payment.metadata)?.couponId ?? null;
   return (
@@ -55,7 +59,9 @@ export async function listPendingCheckoutPayments(
       ...(filter.sourceId !== undefined ? { sourceId: filter.sourceId } : {}),
       ...(filter.checkoutKind === undefined
         ? {}
-        : { metadata: { path: ['checkoutKind'], equals: filter.checkoutKind } }),
+        : {
+            metadata: { path: ['checkoutKind'], equals: filter.checkoutKind },
+          }),
     },
     orderBy: { createdAt: 'asc' },
     take: 20,
@@ -86,7 +92,10 @@ export async function failUnsentPendingPayments(
   }
 }
 
-async function failOneUnsentPending(db: PendingDb, paymentId: string): Promise<void> {
+async function failOneUnsentPending(
+  db: PendingDb,
+  paymentId: string,
+): Promise<void> {
   const existing = await db.payment.findUnique({
     where: { id: paymentId },
     select: { metadata: true, status: true },

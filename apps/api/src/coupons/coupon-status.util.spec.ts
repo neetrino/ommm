@@ -1,4 +1,7 @@
-import { deriveCouponDisplayStatus, remainingCouponUses } from './coupon-status.util';
+import {
+  deriveCouponDisplayStatus,
+  remainingCouponUses,
+} from './coupon-status.util';
 
 const now = new Date('2026-10-16T08:00:00.000Z');
 

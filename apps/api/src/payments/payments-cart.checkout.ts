@@ -11,7 +11,10 @@ import {
   reserveCouponRedemption,
 } from '../coupons/coupon-redemption.util';
 import { quoteCoupon } from '../coupons/coupon-quote.util';
-import type { CouponPurchaseLine, CouponSnapshot } from '../coupons/coupon.types';
+import type {
+  CouponPurchaseLine,
+  CouponSnapshot,
+} from '../coupons/coupon.types';
 import { PrismaService } from '../prisma/prisma.service';
 import type { CreateCartCheckoutDto } from './dto/create-cart-checkout.dto';
 import {
@@ -86,7 +89,11 @@ export class PaymentsCartCheckoutService {
     });
     return {
       coupon,
-      quote: quoteCart(lines, dto.useGiftCredits === true, coupon?.discountAmountCents ?? 0),
+      quote: quoteCart(
+        lines,
+        dto.useGiftCredits === true,
+        coupon?.discountAmountCents ?? 0,
+      ),
     };
   }
 
@@ -124,7 +131,11 @@ export class PaymentsCartCheckoutService {
   }
 }
 
-function quoteCart(lines: CartLineSnapshot, useGiftCredits: boolean, couponDiscountCents: number) {
+function quoteCart(
+  lines: CartLineSnapshot,
+  useGiftCredits: boolean,
+  couponDiscountCents: number,
+) {
   return quoteStudioCart({
     packageCents: lines.packageCents,
     sessionCents: lines.sessionCents,

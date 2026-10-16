@@ -236,8 +236,14 @@ export async function resolvePendingCardPackagePurchase(
     coupon?: CouponSnapshot | null;
   },
 ): Promise<{ purchase: PendingCardPackagePurchase; created: boolean }> {
-  const { userId, plan, chargeCents, giftCreditsAppliedCents, giftCardIds, coupon } =
-    params;
+  const {
+    userId,
+    plan,
+    chargeCents,
+    giftCreditsAppliedCents,
+    giftCardIds,
+    coupon,
+  } = params;
   const couponId = coupon?.couponId ?? null;
   const resolved = await db.$transaction(async (tx) => {
     const existing = await findPendingCardPackagePurchase(tx, userId, plan.id);

@@ -5,7 +5,10 @@ import {
 } from '@nestjs/common';
 import { CouponRedemptionStatus, Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
-import { couponScalarData, type CouponScalarData } from './coupons-admin.helpers';
+import {
+  couponScalarData,
+  type CouponScalarData,
+} from './coupons-admin.helpers';
 import {
   deriveCouponDisplayStatus,
   remainingCouponUses,
@@ -62,7 +65,9 @@ export class CouponsAdminService {
           where: { id },
           data: {
             ...scalar(data),
-            eligibleUsers: { create: data.userIds.map((userId) => ({ userId })) },
+            eligibleUsers: {
+              create: data.userIds.map((userId) => ({ userId })),
+            },
             eligibleProducts: { create: data.products },
           },
           include: couponInclude(),
@@ -120,7 +125,10 @@ export class CouponsAdminService {
     if (users.length !== emails.length) {
       throw new BadRequestException('One or more users were not found');
     }
-    const data = couponScalarData(dto, users.map((user) => user.id));
+    const data = couponScalarData(
+      dto,
+      users.map((user) => user.id),
+    );
     await this.assertPlansExist(data.products);
     return data;
   }
@@ -134,7 +142,9 @@ export class CouponsAdminService {
     if (ids.length === 0) {
       return;
     }
-    const found = await this.prisma.packagePlan.count({ where: { id: { in: ids } } });
+    const found = await this.prisma.packagePlan.count({
+      where: { id: { in: ids } },
+    });
     if (found !== new Set(ids).size) {
       throw new BadRequestException('One or more packages were not found');
     }
@@ -153,7 +163,9 @@ export class CouponsAdminService {
   }
 
   private toAdminRow(
-    coupon: Prisma.CouponGetPayload<{ include: ReturnType<typeof couponInclude> }>,
+    coupon: Prisma.CouponGetPayload<{
+      include: ReturnType<typeof couponInclude>;
+    }>,
     usedCount: number,
   ) {
     const now = new Date();
@@ -202,9 +214,13 @@ export class CouponsAdminService {
 
 function couponInclude() {
   return {
-    createdBy: { select: { id: true, email: true, name: true, lastName: true } },
+    createdBy: {
+      select: { id: true, email: true, name: true, lastName: true },
+    },
     eligibleUsers: {
-      include: { user: { select: { id: true, email: true, name: true, lastName: true } } },
+      include: {
+        user: { select: { id: true, email: true, name: true, lastName: true } },
+      },
     },
     eligibleProducts: { include: { packagePlan: { select: { name: true } } } },
   } satisfies Prisma.CouponInclude;
@@ -225,7 +241,11 @@ function scalar(data: CouponScalarData) {
 }
 
 function uniqueEmails(values: string[] | undefined): string[] {
-  return [...new Set((values ?? []).map((email) => email.trim().toLowerCase()).filter(Boolean))];
+  return [
+    ...new Set(
+      (values ?? []).map((email) => email.trim().toLowerCase()).filter(Boolean),
+    ),
+  ];
 }
 
 function uniqueCodeOrRethrow(error: unknown): Error {
@@ -235,5 +255,7 @@ function uniqueCodeOrRethrow(error: unknown): Error {
   ) {
     return new BadRequestException('Coupon code already exists');
   }
-  return error instanceof Error ? error : new BadRequestException('Could not save coupon');
+  return error instanceof Error
+    ? error
+    : new BadRequestException('Could not save coupon');
 }

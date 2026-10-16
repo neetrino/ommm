@@ -42,10 +42,7 @@ export class CouponsController {
   }
 
   @Post('preview')
-  preview(
-    @CurrentUser() user: { id: string },
-    @Body() body: PreviewCouponDto,
-  ) {
+  preview(@CurrentUser() user: { id: string }, @Body() body: PreviewCouponDto) {
     return previewCouponCheckout(this.prisma, {
       userId: user.id,
       code: body.code,

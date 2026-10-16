@@ -13,7 +13,10 @@ import {
   Min,
   ValidateNested,
 } from 'class-validator';
-import { COUPON_CODE_MAX_LENGTH, COUPON_FIXED_MAX_AMD } from '../coupon.constants';
+import {
+  COUPON_CODE_MAX_LENGTH,
+  COUPON_FIXED_MAX_AMD,
+} from '../coupon.constants';
 
 export class PreviewCouponLineDto {
   @IsEnum(CouponProductKind)

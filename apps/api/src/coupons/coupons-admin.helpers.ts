@@ -1,9 +1,6 @@
 import { BadRequestException } from '@nestjs/common';
 import { CouponDiscountType, type Prisma } from '@prisma/client';
-import {
-  COUPON_PERCENT_MAX,
-  COUPON_PERCENT_MIN,
-} from './coupon.constants';
+import { COUPON_PERCENT_MAX, COUPON_PERCENT_MIN } from './coupon.constants';
 import { normalizeCouponCode } from './coupon-code.util';
 import type { UpsertCouponDto } from './dto/upsert-coupon.dto';
 
@@ -17,7 +14,10 @@ export type CouponScalarData = ReturnType<typeof couponScalarData>;
 export function couponScalarData(
   dto: UpsertCouponDto,
   userIds: string[],
-): Omit<Prisma.CouponCreateInput, 'createdBy' | 'eligibleUsers' | 'eligibleProducts'> & {
+): Omit<
+  Prisma.CouponCreateInput,
+  'createdBy' | 'eligibleUsers' | 'eligibleProducts'
+> & {
   userIds: string[];
   products: ResolvedProduct[];
 } {
@@ -57,7 +57,10 @@ function assertDiscountValue(dto: UpsertCouponDto): void {
   if (dto.discountType !== CouponDiscountType.PERCENTAGE) {
     return;
   }
-  if (dto.discountValue < COUPON_PERCENT_MIN || dto.discountValue > COUPON_PERCENT_MAX) {
+  if (
+    dto.discountValue < COUPON_PERCENT_MIN ||
+    dto.discountValue > COUPON_PERCENT_MAX
+  ) {
     throw new BadRequestException('Percentage must be between 1 and 100');
   }
 }

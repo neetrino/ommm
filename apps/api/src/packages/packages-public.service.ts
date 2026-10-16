@@ -7,7 +7,11 @@ import {
   forwardRef,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { CouponProductKind, ManualPaymentMethod, type PackagePlan } from '@prisma/client';
+import {
+  CouponProductKind,
+  ManualPaymentMethod,
+  type PackagePlan,
+} from '@prisma/client';
 import { quoteCoupon } from '../coupons/coupon-quote.util';
 import type { CouponSnapshot } from '../coupons/coupon.types';
 import {
@@ -285,7 +289,11 @@ export class PackagesPublicService {
     coupon: CouponSnapshot | null;
   }> {
     const finalPriceCents = resolveFinalPriceCents(plan);
-    const pending = await findPendingCardPackagePurchase(this.prisma, userId, plan.id);
+    const pending = await findPendingCardPackagePurchase(
+      this.prisma,
+      userId,
+      plan.id,
+    );
     const coupon = await quoteCoupon(this.prisma, {
       userId,
       code: couponCode,

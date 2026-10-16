@@ -20,7 +20,10 @@ export function deriveCouponDisplayStatus(input: {
   if (input.status === 'DISABLED') {
     return 'DISABLED';
   }
-  if (input.validUntil !== null && input.validUntil.getTime() < input.now.getTime()) {
+  if (
+    input.validUntil !== null &&
+    input.validUntil.getTime() < input.now.getTime()
+  ) {
     return 'EXPIRED';
   }
   if (
