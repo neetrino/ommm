@@ -120,7 +120,7 @@ export function AudienceSection({
   onPatch: (next: Partial<CouponDraft>) => void;
 }) {
   return (
-    <div className="grid gap-4 lg:grid-cols-2">
+    <div className="flex flex-col gap-4">
       <FormSection icon={<CouponPeopleIcon />} title={t("sectionPeople")} mark={t("optionalMark")} hint={draft.eligibleAllUsers ? undefined : t("emailsHint")}>
         <CheckRow checked={draft.eligibleAllUsers} label={t("allUsers")} offLabel={t("selectedUsers")} onChange={(eligibleAllUsers) => onPatch({ eligibleAllUsers })} />
         {draft.eligibleAllUsers ? null : (

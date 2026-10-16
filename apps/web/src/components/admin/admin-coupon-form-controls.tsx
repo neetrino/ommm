@@ -21,16 +21,16 @@ export function FormSection({
   children: ReactNode;
 }) {
   return (
-    <section className="flex flex-col gap-3 rounded-2xl border border-sand-200/80 bg-sand-50/50 p-4">
-      <div className="flex flex-wrap items-center gap-2">
-        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-sage-800 shadow-sm">{icon}</span>
-        <h3 className="font-serif text-xl text-sage-900">{title}</h3>
-        <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide ${required ? "bg-peach-100 text-sand-900" : "bg-white text-sage-500"}`}>
+    <section className="flex flex-col gap-2">
+      <div className="flex items-center gap-2">
+        <span className="text-sage-700">{icon}</span>
+        <h3 className="text-sm font-semibold text-sage-900">{title}</h3>
+        <span className={`text-[11px] font-semibold uppercase tracking-wide ${required ? "text-sand-800" : "text-sage-400"}`}>
           {mark}
         </span>
       </div>
       {children}
-      {hint ? <p className="text-xs leading-relaxed text-sage-600">{hint}</p> : null}
+      {hint ? <p className="text-xs leading-snug text-sage-500">{hint}</p> : null}
     </section>
   );
 }
@@ -51,15 +51,30 @@ export function TypeChoice({
       type="button"
       aria-pressed={selected}
       onClick={onClick}
-      className={`flex items-center gap-3 rounded-2xl border px-4 py-3 text-left ${
-        selected ? "border-sage-800 bg-white shadow-sm" : "border-sand-200 bg-white/60 text-sage-600"
+      className={`flex items-center justify-between gap-2 rounded-xl border px-3 py-2 text-left text-sm ${
+        selected
+          ? "border-sage-900 bg-sage-900 text-white"
+          : "border-sand-200 bg-white text-sage-700"
       }`}
     >
-      <span className={`flex h-9 w-9 items-center justify-center rounded-full font-serif text-lg ${selected ? "bg-sage-900 text-white" : "bg-sand-100 text-sage-700"}`}>
-        {sign}
+      <span className="flex min-w-0 items-center gap-2">
+        <span className="font-serif text-base leading-none">{sign}</span>
+        <span className="truncate font-medium">{label}</span>
       </span>
-      <span className="text-sm font-medium text-sage-900">{label}</span>
+      <ChoiceMark selected={selected} />
     </button>
+  );
+}
+
+function ChoiceMark({ selected }: { selected: boolean }) {
+  if (!selected) {
+    return <span className="h-4 w-4 shrink-0 rounded-full border border-sand-300 bg-white" />;
+  }
+  return (
+    <svg viewBox="0 0 16 16" className="h-4 w-4 shrink-0" aria-hidden>
+      <circle cx="8" cy="8" r="8" className="fill-white" />
+      <path d="M4.5 8.2 6.7 10.4 11.5 5.6" className="fill-none stroke-sage-900" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
   );
 }
 
@@ -170,11 +185,12 @@ export function ProductPicker({
               key={kind}
               type="button"
               aria-pressed={selected}
-              className={`rounded-full px-3 py-1.5 text-xs font-semibold uppercase tracking-wide ${
-                selected ? "bg-sage-900 text-white" : "border border-sand-200 bg-white text-sage-700"
+              className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold uppercase tracking-wide ${
+                selected ? "bg-sage-900 text-white" : "border border-sand-300 bg-white text-sage-600"
               }`}
               onClick={() => onKinds(selected ? kinds.filter((item) => item !== kind) : [...kinds, kind])}
             >
+              {selected ? <ChoiceMark selected /> : null}
               {kindLabel(kind)}
             </button>
           );

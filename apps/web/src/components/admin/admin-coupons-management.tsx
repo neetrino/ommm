@@ -50,16 +50,14 @@ export function AdminCouponsManagement({ canDelete }: { canDelete: boolean }) {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex justify-end">
-        {showForm ? null : (
-          <OmmButton
-            onClick={() => {
-              setEditing(null);
-              setCreating(true);
-            }}
-          >
-            {t("newCoupon")}
-          </OmmButton>
-        )}
+        <OmmButton
+          onClick={() => {
+            setEditing(null);
+            setCreating(true);
+          }}
+        >
+          {t("newCoupon")}
+        </OmmButton>
       </div>
       {showForm ? (
         <AdminCouponsForm

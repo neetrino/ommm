@@ -2136,6 +2136,7 @@
       "planHint": "Optional. Limits the package rule to one plan.",
       "selectedUsers": "Selected users only",
       "newCoupon": "New coupon",
+      "close": "Close",
       "createDraft": "Save as draft",
       "save": "Save",
       "cancel": "Cancel",
