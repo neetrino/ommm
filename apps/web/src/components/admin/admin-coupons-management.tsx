@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { AdminCouponCard } from "@/components/admin/admin-coupon-card";
-import { AdminCouponListRow } from "@/components/admin/admin-coupon-list-row";
+import { AdminCouponsList } from "@/components/admin/admin-coupon-list-row";
 import { AdminCouponsForm } from "@/components/admin/admin-coupons-form";
 import {
   AdminCouponsViewSwitcher,
@@ -115,19 +115,13 @@ export function AdminCouponsManagement({ canDelete }: { canDelete: boolean }) {
           ))}
         </ul>
       ) : (
-        <ul className="flex flex-col gap-2">
-          {rows.map((row) => (
-            <li key={row.id}>
-              <AdminCouponListRow
-                row={row}
-                selected={editing?.id === row.id}
-                onEdit={() => openCoupon(row)}
-                onActivate={() => void act(`/coupons/${row.id}/activate`, "POST")}
-                onDisable={() => void act(`/coupons/${row.id}/disable`, "POST")}
-              />
-            </li>
-          ))}
-        </ul>
+        <AdminCouponsList
+          rows={rows}
+          selectedId={editing?.id ?? null}
+          onEdit={openCoupon}
+          onActivate={(row) => void act(`/coupons/${row.id}/activate`, "POST")}
+          onDisable={(row) => void act(`/coupons/${row.id}/disable`, "POST")}
+        />
       )}
     </div>
   );

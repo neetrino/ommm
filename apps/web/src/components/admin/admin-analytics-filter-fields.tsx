@@ -1,3 +1,8 @@
+import {
+  buildCouponAnalyticsFilterFields,
+  type CouponAnalyticsFilterChoices,
+  type CouponAnalyticsFilterLabels,
+} from "@/components/admin/admin-analytics-coupon-filters";
 import type { AnalyticsSectionId } from "@/components/admin/admin-analytics-module";
 import {
   ANALYTICS_QUICK_FILTER_VALUES,
@@ -23,6 +28,10 @@ type BuildAdminAnalyticsFilterFieldsArgs = {
   filterOptions: AnalyticsFilterOptions;
   customFrom: string;
   customTo: string;
+  couponFilters?: {
+    choices: CouponAnalyticsFilterChoices;
+    labels: CouponAnalyticsFilterLabels;
+  };
   labels: {
     rangeLabel: string;
     range7: string;
@@ -125,6 +134,11 @@ export function adminAnalyticsIntegratedFilterValues(
     bookingStatus: values.bookingStatus,
     sort: values.sort,
     quick: values.quick,
+    couponId: values.couponId,
+    discountType: values.discountType,
+    couponStatus: values.couponStatus,
+    creatorId: values.creatorId,
+    userEmail: values.userEmail,
   };
 }
 
@@ -133,6 +147,7 @@ export function buildAdminAnalyticsFilterFields({
   filterOptions,
   customFrom,
   customTo,
+  couponFilters,
   labels,
 }: BuildAdminAnalyticsFilterFieldsArgs): AdminIntegratedFilterField[] {
   const quickFilterOptions = ANALYTICS_QUICK_FILTER_VALUES.map((value) => ({
@@ -223,6 +238,10 @@ export function buildAdminAnalyticsFilterFields({
         ],
       },
     );
+  }
+
+  if (section === "coupons" && couponFilters) {
+    fields.push(...buildCouponAnalyticsFilterFields(couponFilters.choices, couponFilters.labels));
   }
 
   fields.push(
