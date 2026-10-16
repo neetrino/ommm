@@ -90,8 +90,8 @@ export function LimitsSection({
   return (
     <div className="flex flex-col gap-2">
       <div className="grid grid-cols-2 gap-2">
-        <TextField label={t("totalShort")} value={draft.totalUsageLimit} placeholder={t("limitPlaceholder")} onChange={(totalUsageLimit) => onPatch({ totalUsageLimit })} />
-        <TextField label={t("eachShort")} value={draft.usageLimitPerUser} placeholder={t("limitPlaceholder")} onChange={(usageLimitPerUser) => onPatch({ usageLimitPerUser })} />
+        <TextField label={t("totalLimit")} value={draft.totalUsageLimit} placeholder={t("limitPlaceholder")} onChange={(totalUsageLimit) => onPatch({ totalUsageLimit })} />
+        <TextField label={t("perUserLimit")} value={draft.usageLimitPerUser} placeholder={t("limitPlaceholder")} onChange={(usageLimitPerUser) => onPatch({ usageLimitPerUser })} />
       </div>
       <p className="text-xs text-sage-500">{t("limitsHint")}</p>
     </div>
