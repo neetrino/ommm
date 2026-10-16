@@ -77,6 +77,7 @@ function ChoiceMark({ selected }: { selected: boolean }) {
 
 export function TextField({
   label,
+  ariaLabel,
   value,
   onChange,
   type = "text",
@@ -84,7 +85,8 @@ export function TextField({
   required = false,
   placeholder,
 }: {
-  label: string;
+  label?: string;
+  ariaLabel?: string;
   value: string;
   onChange: (value: string) => void;
   type?: string;
@@ -94,10 +96,11 @@ export function TextField({
 }) {
   return (
     <label className="flex flex-col gap-1.5">
-      <span className="ommm-label text-xs uppercase tracking-wide">{label}</span>
+      {label ? <span className="ommm-label text-xs uppercase tracking-wide">{label}</span> : null}
       <input
         type={type}
         required={required}
+        aria-label={label ?? ariaLabel}
         placeholder={placeholder}
         value={value}
         onChange={(event) => onChange(event.target.value)}
@@ -109,22 +112,25 @@ export function TextField({
 
 export function UnitField({
   label,
+  ariaLabel,
   value,
   unit,
   onChange,
 }: {
-  label: string;
+  label?: string;
+  ariaLabel?: string;
   value: string;
   unit: string;
   onChange: (value: string) => void;
 }) {
   return (
     <label className="flex flex-col gap-1.5">
-      <span className="ommm-label text-xs uppercase tracking-wide">{label}</span>
+      {label ? <span className="ommm-label text-xs uppercase tracking-wide">{label}</span> : null}
       <span className="relative">
         <input
           inputMode="numeric"
           required
+          aria-label={label ?? ariaLabel}
           value={value}
           onChange={(event) => onChange(event.target.value)}
           className="ommm-input pr-14"

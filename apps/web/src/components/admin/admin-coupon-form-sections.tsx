@@ -25,7 +25,7 @@ type CouponCopy = ReturnType<typeof useTranslations<"adminPages.coupons">>;
 export function CodeSection({ draft, t, onChange }: { draft: CouponDraft; t: CouponCopy; onChange: (code: string) => void }) {
   return (
     <FormSection icon={<CouponTicketIcon />} title={t("sectionCode")} mark={t("requiredMark")} required>
-      <TextField label={t("code")} value={draft.code} required uppercase placeholder={t("codePlaceholder")} onChange={onChange} />
+      <TextField ariaLabel={t("code")} value={draft.code} required uppercase placeholder={t("codePlaceholder")} onChange={onChange} />
     </FormSection>
   );
 }
@@ -62,7 +62,7 @@ export function DiscountSection({
         />
       </div>
       <UnitField
-        label={t("value")}
+        ariaLabel={t("value")}
         value={draft.discountValue}
         unit={fixed ? AMD_SYMBOL : "%"}
         onChange={(discountValue) => onPatch({ discountValue })}
