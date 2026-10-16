@@ -2087,7 +2087,7 @@
   },
   "promoCode": {
     "label": "Промокод",
-    "placeholder": "HELEN20",
+    "placeholder": "EXAMPLE",
     "apply": "Применить",
     "applied": "Скидка {amount}",
     "remainder": "{amount} будет добавлено на gift credit.",

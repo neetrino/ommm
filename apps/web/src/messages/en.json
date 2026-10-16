@@ -2089,7 +2089,7 @@
   },
   "promoCode": {
     "label": "Promo code",
-    "placeholder": "HELEN20",
+    "placeholder": "EXAMPLE",
     "apply": "Apply",
     "applied": "Discount {amount}",
     "remainder": "{amount} will be added to your gift credit.",

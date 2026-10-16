@@ -2090,7 +2090,7 @@
   },
   "promoCode": {
     "label": "Պրոմոկոդ",
-    "placeholder": "HELEN20",
+    "placeholder": "EXAMPLE",
     "apply": "Կիրառել",
     "applied": "Զեղչ {amount}",
     "remainder": "{amount} կավելանա ձեր gift credit-ին։",
