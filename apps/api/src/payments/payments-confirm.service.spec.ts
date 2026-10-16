@@ -25,6 +25,9 @@ describe('PaymentsConfirmService package stock cache', () => {
                   status: PaymentStatus.SUCCEEDED,
                 }),
               },
+              couponRedemption: {
+                updateMany: jest.fn().mockResolvedValue({ count: 0 }),
+              },
             }),
         ),
       } as never,
@@ -88,6 +91,9 @@ describe('PaymentsConfirmService package stock cache', () => {
               payment: {
                 findUnique: jest.fn().mockResolvedValue(existing),
                 update: paymentUpdate,
+              },
+              couponRedemption: {
+                updateMany: jest.fn().mockResolvedValue({ count: 0 }),
               },
             }),
         ),
