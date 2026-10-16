@@ -88,7 +88,10 @@ export function PromoCodeField({
           value={code}
           disabled={disabled || busy}
           placeholder={t("placeholder")}
+          autoComplete="off"
           autoCapitalize="characters"
+          autoCorrect="off"
+          spellCheck={false}
           className="ommm-input min-w-0 flex-1 uppercase tracking-wide"
           onChange={(event) => {
             setCode(event.target.value);
