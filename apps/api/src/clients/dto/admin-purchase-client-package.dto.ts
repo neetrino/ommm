@@ -1,4 +1,5 @@
-import { IsEnum, IsString, MinLength } from 'class-validator';
+import { IsEnum, IsOptional, IsString, MaxLength, MinLength } from 'class-validator';
+import { COUPON_CODE_MAX_LENGTH } from '../../coupons/coupon.constants';
 
 /** Admin Client Packages purchase — Cash, physical terminal, or influencer comp. */
 export const ADMIN_CLIENT_PACKAGE_PAYMENT_METHODS = [
@@ -17,4 +18,19 @@ export class AdminPurchaseClientPackageDto {
 
   @IsEnum(ADMIN_CLIENT_PACKAGE_PAYMENT_METHODS)
   paymentMethod!: AdminClientPackagePaymentMethod;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(COUPON_CODE_MAX_LENGTH)
+  couponCode?: string;
+}
+
+export class AdminPreviewClientPackageCouponDto {
+  @IsString()
+  @MinLength(1)
+  planId!: string;
+
+  @IsString()
+  @MaxLength(COUPON_CODE_MAX_LENGTH)
+  code!: string;
 }

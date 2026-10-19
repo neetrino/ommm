@@ -26,7 +26,10 @@ import { AdminCreateClientBookingDto } from './dto/admin-create-client-booking.d
 import { AdminClientBookableSessionsQueryDto } from './dto/admin-client-bookable-sessions-query.dto';
 import { AdminListClientsQueryDto } from './dto/admin-list-clients-query.dto';
 import { AdminAttachPastSessionDto } from './dto/admin-attach-past-session.dto';
-import { AdminPurchaseClientPackageDto } from './dto/admin-purchase-client-package.dto';
+import {
+  AdminPreviewClientPackageCouponDto,
+  AdminPurchaseClientPackageDto,
+} from './dto/admin-purchase-client-package.dto';
 import { UpdateClientDto } from './dto/update-client.dto';
 import { ClientsBookingsCreateService } from './clients-bookings-create.service';
 import { ClientsBookingsRetroactiveService } from './clients-bookings-retroactive.service';
@@ -117,6 +120,15 @@ export class ClientsController {
     const take = query.take ?? 25;
     const offset = query.offset ?? 0;
     return this.tabLists.listPackages(id, take, offset);
+  }
+
+  @Post(':id/packages/coupon-preview')
+  @Roles(...BACKOFFICE_WRITE_ROLES)
+  previewPackageCoupon(
+    @Param('id') id: string,
+    @Body() dto: AdminPreviewClientPackageCouponDto,
+  ) {
+    return this.packagesPurchase.previewCoupon(id, dto);
   }
 
   @Post(':id/packages/purchase')
