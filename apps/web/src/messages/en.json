@@ -4826,6 +4826,10 @@
         "lead": "Review payment information and confirm cash receipts when needed.",
         "customer": "Customer",
         "email": "Email",
+        "sections": {
+          "payment": "Payment",
+          "linked": "Customer & purchase"
+        },
         "listPrice": "Package price",
         "giftDiscount": "Gift card",
         "couponDiscount": "Promo code",

@@ -2,94 +2,52 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import { SessionDateTimeHighlight } from "@/components/account/session-datetime-highlight";
-import { formatPaymentTime, toPaymentIso } from "@/components/account/user-payment-display";
-import { AdminFinancePaymentDetailRow } from "@/components/admin/admin-finance-payment-details-rows";
+import {
+  PAYMENT_DETAILS_INPUT_CLASS,
+  PaymentDetailsFieldRow,
+  PaymentDetailsFloatingLabel,
+} from "@/components/admin/admin-finance-payment-details-fields";
 import type { FinancePaymentItem } from "@/components/admin/admin-finance-types";
 import { DatePickerInput } from "@/components/ui/date-picker-input";
+import { OmmButton } from "@/components/ui/omm-button";
 import { isStudioManualPaymentMethod } from "@/lib/payment-confirmation";
 import { paidDateParts, savePaidDate } from "@/components/admin/admin-finance-payment-paid-date.lib";
 
 type PaidDateProps = {
-  locale: string;
   payment: FinancePaymentItem;
-  /** Admin-only. Managers see the paid date and cannot change it. */
-  canEdit: boolean;
   onSaved: (confirmedAt: string) => void;
   onError: (message: string) => void;
 };
 
-export function AdminFinancePaymentPaidDate({
-  locale,
-  payment,
-  canEdit,
-  onSaved,
-  onError,
-}: PaidDateProps) {
-  const editable =
+/** Admin-only, cash/terminal payments that are pending or paid. */
+export function isPaidDateEditable(payment: FinancePaymentItem, canEdit: boolean): boolean {
+  return (
     canEdit &&
     isStudioManualPaymentMethod(payment.paymentMethod) &&
-    (payment.status === "PENDING" || payment.status === "SUCCEEDED");
-
-  if (!editable) {
-    return <PaidDateReadOnly locale={locale} confirmedAt={payment.confirmedAt} />;
-  }
-
-  return (
-    <PaidDateEditor payment={payment} onSaved={onSaved} onError={onError} />
+    (payment.status === "PENDING" || payment.status === "SUCCEEDED")
   );
 }
 
-function PaidDateReadOnly({
-  locale,
-  confirmedAt,
-}: {
-  locale: string;
-  confirmedAt: string | null;
-}) {
-  const t = useTranslations("adminPages.finance.paymentDetails");
-  return (
-    <AdminFinancePaymentDetailRow
-      label={t("paidDate")}
-      value={
-        confirmedAt ? (
-          <PaidDateStamp locale={locale} iso={confirmedAt} />
-        ) : (
-          t("paidDateEmpty")
-        )
-      }
-    />
-  );
-}
-
-function PaidDateEditor({
-  payment,
-  onSaved,
-  onError,
-}: Omit<PaidDateProps, "canEdit" | "locale">) {
+/** Paid date + time editor. Render only when {@link isPaidDateEditable} is true. */
+export function AdminFinancePaymentPaidDate({ payment, onSaved, onError }: PaidDateProps) {
   const t = useTranslations("adminPages.finance.paymentDetails");
   const tActions = useTranslations("adminPages.finance.paymentActions");
   const draft = usePaidDateDraft(payment, onSaved, onError, tActions("actionFailed"));
 
   return (
-    <AdminFinancePaymentDetailRow
-      label={t("paidDate")}
-      value={
-        <PaidDateFields
-          date={draft.date}
-          time={draft.time}
-          busy={draft.busy}
-          dirty={draft.dirty}
-          pending={payment.status === "PENDING"}
-          dateLabel={t("paidDate")}
-          timeLabel={t("paidTime")}
-          hint={payment.status === "PENDING" ? t("paidDatePendingHint") : t("paidDateHint")}
-          saveLabel={draft.busy ? t("paidDateSaving") : t("paidDateSave")}
-          onDateChange={draft.changeDate}
-          onTimeChange={draft.changeTime}
-          onSave={draft.save}
-        />
-      }
+    <PaidDateFields
+      date={draft.date}
+      time={draft.time}
+      busy={draft.busy}
+      dirty={draft.dirty}
+      pending={payment.status === "PENDING"}
+      dateLabel={t("paidDate")}
+      timeLabel={t("paidTime")}
+      hint={payment.status === "PENDING" ? t("paidDatePendingHint") : t("paidDateHint")}
+      saveLabel={draft.busy ? t("paidDateSaving") : t("paidDateSave")}
+      onDateChange={draft.changeDate}
+      onTimeChange={draft.changeTime}
+      onSave={draft.save}
     />
   );
 }
@@ -206,53 +164,40 @@ function PaidDateFields({
   onSave: () => void;
 }) {
   return (
-    <div className="space-y-2">
-      <div className="grid grid-cols-2 gap-2">
-        <DatePickerInput
-          name="payment-paid-date"
-          ariaLabel={dateLabel}
-          value={date}
-          onChange={onDateChange}
-          disabled={busy}
-          allowManualEntry
-        />
-        <input
-          type="time"
-          name="payment-paid-time"
-          aria-label={timeLabel}
-          value={time}
-          disabled={busy}
-          onChange={(event) => onTimeChange(event.target.value)}
-          className="ommm-input"
-        />
+    <div className="space-y-3">
+      <PaymentDetailsFieldRow>
+        <PaymentDetailsFloatingLabel label={dateLabel}>
+          <DatePickerInput
+            name="payment-paid-date"
+            ariaLabel={dateLabel}
+            value={date}
+            onChange={onDateChange}
+            disabled={busy}
+            allowManualEntry
+            containerClassName={PAYMENT_DETAILS_INPUT_CLASS}
+          />
+        </PaymentDetailsFloatingLabel>
+        <PaymentDetailsFloatingLabel label={timeLabel}>
+          <input
+            type="time"
+            name="payment-paid-time"
+            aria-label={timeLabel}
+            value={time}
+            disabled={busy}
+            onChange={(event) => onTimeChange(event.target.value)}
+            className={`ommm-input ${PAYMENT_DETAILS_INPUT_CLASS}`}
+          />
+        </PaymentDetailsFloatingLabel>
+      </PaymentDetailsFieldRow>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <p className="min-w-0 flex-1 text-xs text-sage-500">{hint}</p>
+        {pending ? null : (
+          <OmmButton type="button" size="sm" disabled={busy || !dirty} onClick={onSave}>
+            {saveLabel}
+          </OmmButton>
+        )}
       </div>
-      <p className="text-xs text-sage-500">{hint}</p>
-      {pending ? null : (
-        <button
-          type="button"
-          className="ommm-btn-compact-primary"
-          disabled={busy || !dirty}
-          onClick={onSave}
-        >
-          {saveLabel}
-        </button>
-      )}
     </div>
-  );
-}
-
-function PaidDateStamp({ locale, iso }: { locale: string; iso: string }) {
-  const paidAtIso = toPaymentIso(iso);
-  return (
-    <span className="inline-flex flex-wrap items-center gap-2">
-      <SessionDateTimeHighlight
-        locale={locale}
-        startsAt={paidAtIso}
-        endsAt={paidAtIso}
-        variant="listDateYear"
-      />
-      <span className="text-sm text-sage-700">{formatPaymentTime(iso, locale)}</span>
-    </span>
   );
 }
 

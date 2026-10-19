@@ -25,18 +25,21 @@ type AdminStaffPaymentEditorsProps = {
   layout?: "stack" | "row";
 };
 
-export function AdminStaffPaymentEditors({
+type StaffPaymentEditorsState = Pick<
+  AdminStaffPaymentEditorsProps,
+  "paymentId" | "status" | "paymentMethod" | "onUpdated" | "onError"
+>;
+
+/** Status and method PATCH handlers shared by every staff payment editor layout. */
+export function useStaffPaymentEditors({
   paymentId,
   status,
   paymentMethod,
-  statusReason,
   onUpdated,
   onError,
-  layout = "stack",
-}: AdminStaffPaymentEditorsProps) {
+}: StaffPaymentEditorsState) {
   const t = useTranslations("adminPages.finance.paymentActions");
   const [busy, setBusy] = useState(false);
-  const appearance = layout === "row" ? "card" : "compact";
 
   async function changeStatus(nextStatus: AdminUpdatablePaymentStatus) {
     setBusy(true);
@@ -68,6 +71,26 @@ export function AdminStaffPaymentEditors({
     }
   }
 
+  return {
+    busy,
+    changeStatus: (next: AdminUpdatablePaymentStatus) => {
+      void changeStatus(next);
+    },
+    changeMethod: (next: StudioManualPaymentMethod) => {
+      void changeMethod(next);
+    },
+  };
+}
+
+export function AdminStaffPaymentEditors({
+  statusReason,
+  layout = "stack",
+  ...state
+}: AdminStaffPaymentEditorsProps) {
+  const { status, paymentMethod } = state;
+  const { busy, changeStatus, changeMethod } = useStaffPaymentEditors(state);
+  const appearance = layout === "row" ? "card" : "compact";
+
   return (
     <div
       className={
@@ -81,18 +104,14 @@ export function AdminStaffPaymentEditors({
         paymentMethod={paymentMethod}
         busy={busy}
         appearance={appearance}
-        onChangeStatus={(nextStatus) => {
-          void changeStatus(nextStatus);
-        }}
+        onChangeStatus={changeStatus}
       />
       <PaymentStatusReasonText status={status} reason={statusReason} />
       <AdminFinancePaymentMethodPicker
         paymentMethod={paymentMethod}
         busy={busy}
         appearance={appearance}
-        onChangeMethod={(nextMethod) => {
-          void changeMethod(nextMethod);
-        }}
+        onChangeMethod={changeMethod}
       />
     </div>
   );

@@ -1,27 +1,9 @@
-import type { ReactNode } from "react";
-import { useTranslations } from "next-intl";
-import {
-  ADMIN_DETAILS_SHEET_DETAIL_LABEL_CLASS,
-  ADMIN_DETAILS_SHEET_DETAIL_VALUE_CLASS,
-} from "@/components/admin/admin-details-sheet-layout";
+import type { useTranslations } from "next-intl";
 import type { FinancePaymentItem } from "@/components/admin/admin-finance-types";
 
 type FinanceT = ReturnType<typeof useTranslations<"adminPages.finance">>;
 
-export function AdminFinancePaymentDetailRow({
-  label,
-  value,
-}: {
-  label: string;
-  value: ReactNode;
-}) {
-  return (
-    <div className="space-y-1">
-      <dt className={ADMIN_DETAILS_SHEET_DETAIL_LABEL_CLASS}>{label}</dt>
-      <dd className={ADMIN_DETAILS_SHEET_DETAIL_VALUE_CLASS}>{value}</dd>
-    </div>
-  );
-}
+export type PaymentDetailsTextField = { label: string; value: string };
 
 function resolveRelatedLabel(t: FinanceT, payment: FinancePaymentItem): string {
   if (payment.relatedItemName?.trim()) {
@@ -36,59 +18,30 @@ function resolveRelatedLabel(t: FinanceT, payment: FinancePaymentItem): string {
   return "—";
 }
 
-export function AdminFinancePaymentPackageRows({
-  payment,
-  t,
-}: {
-  payment: FinancePaymentItem;
-  t: FinanceT;
-}) {
+/** Group + package for package payments; a single related item otherwise. */
+export function paymentPurchaseFields(
+  t: FinanceT,
+  payment: FinancePaymentItem,
+): PaymentDetailsTextField[] {
   if (payment.source === "package") {
-    const packageName = payment.relatedItemName?.trim() || "—";
-    const groupName = payment.relatedItemGroupName?.trim() || "—";
-    return (
-      <>
-        <AdminFinancePaymentDetailRow
-          label={t("paymentDetails.groupName")}
-          value={groupName}
-        />
-        <AdminFinancePaymentDetailRow
-          label={t("paymentDetails.packageName")}
-          value={packageName}
-        />
-      </>
-    );
+    return [
+      {
+        label: t("paymentDetails.groupName"),
+        value: payment.relatedItemGroupName?.trim() || "—",
+      },
+      {
+        label: t("paymentDetails.packageName"),
+        value: payment.relatedItemName?.trim() || "—",
+      },
+    ];
   }
-
-  return (
-    <AdminFinancePaymentDetailRow
-      label={t("paymentDetails.relatedLabel")}
-      value={resolveRelatedLabel(t, payment)}
-    />
-  );
+  return [{ label: t("paymentDetails.relatedLabel"), value: resolveRelatedLabel(t, payment) }];
 }
 
-/** Shown only when a fiscal receipt was not issued — printed data lives on Print. */
-export function AdminFinancePaymentEhdmRows({
-  payment,
-  t,
-}: {
-  payment: FinancePaymentItem;
-  t: FinanceT;
-}) {
+/** True when a settled payment still has no fiscal receipt — printed data lives on Print. */
+export function isEhdmReceiptMissing(payment: FinancePaymentItem): boolean {
   if (payment.status !== "SUCCEEDED" && payment.status !== "REFUNDED") {
-    return null;
+    return false;
   }
-  if (payment.ehdmReceipt) {
-    return null;
-  }
-
-  return (
-    <AdminFinancePaymentDetailRow
-      label={t("paymentDetails.ehdmReceipt")}
-      value={
-        <span className="text-sm text-sage-500">{t("paymentDetails.ehdmReceiptMissing")}</span>
-      }
-    />
-  );
+  return !payment.ehdmReceipt;
 }
