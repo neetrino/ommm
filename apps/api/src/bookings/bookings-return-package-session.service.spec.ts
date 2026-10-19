@@ -15,7 +15,13 @@ import {
 
 const BOOKING_ID = 'booking-1';
 
-const HELD = {
+type ConsumptionRow = {
+  restoredAt: Date | null;
+  consumedSessions: number;
+  consumedGuestSlots: number;
+};
+
+const HELD: ConsumptionRow = {
   restoredAt: null,
   consumedSessions: 1,
   consumedGuestSlots: 0,

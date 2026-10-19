@@ -58,21 +58,45 @@ export class CoachSalaryAccrualService {
    * Repairs finished classes left without a salary line — e.g. the class ended
    * before the coach rate existed, or attendance was marked after the fact.
    * Scoped to one coach when `coachProfileId` is given.
+   * Only classes that will actually accrue (attendance + a positive rate) are
+   * selected: anything else never leaves the "missing" set, so it would fill
+   * every batch and newer payable classes would never be reached.
    */
   async accrueMissingFinishedSessions(
     coachProfileId?: string,
   ): Promise<number> {
+    const payablePairs = await this.loadPayableCoachClassTypes(coachProfileId);
+    if (payablePairs.length === 0) {
+      return 0;
+    }
     const sessions = await this.prisma.classSession.findMany({
       where: {
         status: ClassSessionStatus.FINISHED,
         salaryAccrual: null,
-        ...(coachProfileId !== undefined && { coachId: coachProfileId }),
+        bookings: { some: { status: BookingStatus.COMPLETED } },
+        OR: payablePairs,
       },
       select: { id: true },
       orderBy: { endsAt: 'asc' },
       take: COACH_SALARY_ACCRUAL_BATCH_LIMIT,
     });
     return this.accrueFinishedSessions(sessions.map((session) => session.id));
+  }
+
+  private async loadPayableCoachClassTypes(
+    coachProfileId?: string,
+  ): Promise<Prisma.ClassSessionWhereInput[]> {
+    const rates = await this.prisma.coachClassTypeRate.findMany({
+      where: {
+        amountAmd: { gt: 0 },
+        ...(coachProfileId !== undefined && { coachProfileId }),
+      },
+      select: { coachProfileId: true, classTypeId: true },
+    });
+    return rates.map((rate) => ({
+      coachId: rate.coachProfileId,
+      classTypeId: rate.classTypeId,
+    }));
   }
 
   async accrueFinishedSession(sessionId: string): Promise<boolean> {

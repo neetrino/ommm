@@ -16,6 +16,7 @@ function payment(
   return {
     id: 'pay-1',
     createdAt: new Date('2026-10-08T06:30:00.000Z'),
+    confirmedAt: new Date('2026-10-09T07:15:00.000Z'),
     amountCents: 45_000,
     status: PaymentStatus.SUCCEEDED,
     paymentMethod: ManualPaymentMethod.CASH,
@@ -50,15 +51,18 @@ describe('payments workbook', () => {
     expect(sheet?.getCell('A2').value).toBe(
       '01/10/2026 – 31/10/2026 · 2 վճարում · Ընդամենը: 50,000 AMD',
     );
-    expect(sheet?.getCell(`A${HEADER_ROW}`).value).toBe('Ամսաթիվ');
+    expect(sheet?.getCell(`A${HEADER_ROW}`).value).toBe('Ստեղծման ամսաթիվ');
+    expect(sheet?.getCell(`C${HEADER_ROW}`).value).toBe('Վճարման ամսաթիվ');
     const first = HEADER_ROW + 1;
     expect(sheet?.getCell(`A${first}`).value).toBe('08/10/2026');
-    expect(sheet?.getCell(`C${first}`).value).toBe('Anna Petrosyan');
-    expect(sheet?.getCell(`F${first}`).value).toBe(45_000);
-    expect(sheet?.getCell(`G${first}`).value).toBe('Հաջողված');
-    expect(sheet?.getCell(`H${first}`).value).toBe('Կանխիկ');
-    expect(sheet?.getCell(`J${first}`).value).toBe('Reformer · 8 sessions');
-    expect(sheet?.getCell(`L${first}`).value).toBe('PKG-ABC123');
+    expect(sheet?.getCell(`C${first}`).value).toBe('09/10/2026');
+    expect(sheet?.getCell(`D${first}`).value).toBe('11:15');
+    expect(sheet?.getCell(`E${first}`).value).toBe('Anna Petrosyan');
+    expect(sheet?.getCell(`H${first}`).value).toBe(45_000);
+    expect(sheet?.getCell(`I${first}`).value).toBe('Հաջողված');
+    expect(sheet?.getCell(`J${first}`).value).toBe('Կանխիկ');
+    expect(sheet?.getCell(`L${first}`).value).toBe('Reformer · 8 sessions');
+    expect(sheet?.getCell(`N${first}`).value).toBe('PKG-ABC123');
   });
 
   it('names the file after the period and every active filter', () => {

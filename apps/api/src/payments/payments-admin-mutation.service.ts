@@ -34,6 +34,10 @@ import { releaseReservedCoupon } from '../coupons/coupon-redemption.util';
 import { undoStudioCartGift } from './payments-cart.refund';
 import { readCartCheckout } from './payments-cart.fulfill';
 import { withInternalPaymentUpdateFields } from './payments.helpers';
+import {
+  assertStudioPaidAtEditable,
+  resolveStudioPaidAt,
+} from './payments-paid-at';
 
 @Injectable()
 export class PaymentsAdminMutationService {
@@ -77,6 +81,22 @@ export class PaymentsAdminMutationService {
       });
     }
     return this.persistNonConfirmStatus(payment, status, actorId);
+  }
+
+  /** Sets the cash/terminal paid instant. Does not change `createdAt`. */
+  async adminUpdatePaymentPaidAt(paymentId: string, paidAtIso: string) {
+    const payment = await this.prisma.payment.findUnique({
+      where: { id: paymentId },
+    });
+    if (!payment) {
+      throw new NotFoundException('Payment not found');
+    }
+    assertStudioPaidAtEditable(payment);
+    const paidAt = resolveStudioPaidAt(paidAtIso, new Date());
+    return this.prisma.payment.update({
+      where: { id: paymentId },
+      data: withInternalPaymentUpdateFields({ confirmedAt: paidAt }),
+    });
   }
 
   async adminUpdatePaymentMethod(

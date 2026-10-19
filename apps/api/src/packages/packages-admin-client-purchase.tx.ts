@@ -9,6 +9,8 @@ import { mergeArcaMetadata } from '../payments/arca/arca-metadata.util';
 import { PAYMENT_STATUS_REASON } from '../payments/payment-status-reason';
 import { toManualPaymentMethod } from '../payments/payment-revenue.util';
 import { buildPackagePaymentDescription } from '../payments/payments-related-item.util';
+import { bindCouponRedemption } from '../coupons/coupon-redemption.util';
+import type { CouponSnapshot } from '../coupons/coupon.types';
 import { STUDIO_PACKAGE_FULFILLED_KEY } from './package-payment-metadata.util';
 import {
   createPaymentReference,
@@ -27,6 +29,7 @@ export async function createAdminClientPackagePurchaseTx(
     plan: PackagePlan;
     isStudioMethod: boolean;
     paymentMethod: 'CASH' | 'CARD_TERMINAL' | 'INFLUENCER';
+    coupon: CouponSnapshot | null;
   },
 ): Promise<{
   userPackageId: string;
@@ -46,18 +49,44 @@ export async function createAdminClientPackagePurchaseTx(
     plan: params.plan,
     userPackageId: userPackage.id,
   });
+  const payment = await createStaffPackagePayment(tx, params, userPackage.id);
+  await decrementPackagePlanStock(tx, params.plan.id);
+  return {
+    userPackageId: userPackage.id,
+    paymentId: payment.id,
+    amountCents: payment.amountCents,
+    currency: payment.currency,
+    stockTracked: params.plan.availableQuantity !== null,
+  };
+}
+
+async function createStaffPackagePayment(
+  tx: Prisma.TransactionClient,
+  params: {
+    adminId: string;
+    clientId: string;
+    plan: PackagePlan;
+    isStudioMethod: boolean;
+    paymentMethod: 'CASH' | 'CARD_TERMINAL' | 'INFLUENCER';
+    coupon: CouponSnapshot | null;
+  },
+  userPackageId: string,
+) {
   const now = new Date();
+  const amountCents =
+    params.coupon?.amountAfterCouponCents ??
+    resolveFinalPriceCents(params.plan);
   const payment = await tx.payment.create({
     data: {
       userId: params.clientId,
-      amountCents: resolveFinalPriceCents(params.plan),
+      amountCents,
       currency: params.plan.currency.toLowerCase(),
       status: params.isStudioMethod
         ? PaymentStatus.PENDING
         : PaymentStatus.SUCCEEDED,
       paymentReference: createPaymentReference('PACKAGE'),
       source: PaymentSource.PACKAGE,
-      sourceId: userPackage.id,
+      sourceId: userPackageId,
       description: buildPackagePaymentDescription(params.plan.name),
       confirmedAt: params.isStudioMethod ? null : now,
       confirmedByAdminId: params.isStudioMethod ? null : params.adminId,
@@ -72,12 +101,13 @@ export async function createAdminClientPackagePurchaseTx(
         : {}),
     },
   });
-  await decrementPackagePlanStock(tx, params.plan.id);
-  return {
-    userPackageId: userPackage.id,
-    paymentId: payment.id,
-    amountCents: payment.amountCents,
-    currency: payment.currency,
-    stockTracked: params.plan.availableQuantity !== null,
-  };
+  if (params.coupon !== null) {
+    await bindCouponRedemption(tx, {
+      userId: params.clientId,
+      paymentId: payment.id,
+      snapshot: params.coupon,
+      applyNow: !params.isStudioMethod,
+    });
+  }
+  return payment;
 }

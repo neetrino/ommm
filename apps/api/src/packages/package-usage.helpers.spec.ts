@@ -37,6 +37,8 @@ function createMembership(params: {
     sessionsRemaining: 8,
     guestSlotsTotal: 0,
     guestSlotsRemaining: 0,
+    removedAt: null,
+    removedByUserId: null,
     createdAt: now,
     updatedAt: now,
     plan: {

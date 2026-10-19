@@ -97,12 +97,16 @@ function createService(overrides?: {
     invalidatePublicCache: jest.fn().mockResolvedValue(undefined),
   };
   const realtime = { emitBookingSessionChange: jest.fn() };
+  const salaryAccrual = {
+    accrueFinishedSessions: jest.fn().mockResolvedValue(1),
+  };
   const service = new ClientsBookingsRetroactiveService(
     prisma as never,
     packageUsage as never,
     packagesActivation as never,
     schedule as never,
     realtime as never,
+    salaryAccrual as never,
   );
   return {
     service,
@@ -110,6 +114,7 @@ function createService(overrides?: {
     tx,
     packageUsage,
     packagesActivation,
+    salaryAccrual,
     bookingCreate,
     bookingUpdate,
     bookingNoteCreate,
@@ -172,6 +177,9 @@ describe('ClientsBookingsRetroactiveService', () => {
     expect(
       ctx.packagesActivation.activateFromCompletedBooking,
     ).toHaveBeenCalledWith('booking-new');
+    expect(ctx.salaryAccrual.accrueFinishedSessions).toHaveBeenCalledWith([
+      'session-1',
+    ]);
   });
 
   it('attaches an existing walk-in visit and consumes a credit', async () => {
@@ -202,6 +210,9 @@ describe('ClientsBookingsRetroactiveService', () => {
       expect.objectContaining({ bookingId: 'booking-existing' }),
     );
     expect(ctx.bookingCreate).not.toHaveBeenCalled();
+    expect(ctx.salaryAccrual.accrueFinishedSessions).toHaveBeenCalledWith([
+      'session-1',
+    ]);
   });
 
   it('rejects a visit that already has an unrestored consumption', async () => {

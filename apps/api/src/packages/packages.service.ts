@@ -97,8 +97,17 @@ export class PackagesService {
     clientId: string;
     planId: string;
     paymentMethod: AdminClientPackagePaymentMethod;
+    couponCode?: string;
   }) {
     return this.adminClientPurchase.purchase(params);
+  }
+
+  adminPreviewClientPackageCoupon(params: {
+    clientId: string;
+    planId: string;
+    code: string;
+  }) {
+    return this.adminClientPurchase.previewCoupon(params);
   }
 
   updateUserPackageValidity(

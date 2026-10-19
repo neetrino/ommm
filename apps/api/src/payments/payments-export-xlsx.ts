@@ -25,6 +25,7 @@ import type { PaymentListSource } from './payments.types';
 
 export type PaymentsExportRow = {
   createdAt: Date;
+  confirmedAt: Date | null;
   amountCents: number;
   status: PaymentStatus;
   paymentMethod: ManualPaymentMethod | null;
@@ -74,6 +75,8 @@ function paymentsColumns(copy: PaymentsExportCopy): TableXlsxColumn[] {
   return [
     { header: copy.date, width: WIDTHS.date },
     { header: copy.time, width: WIDTHS.time },
+    { header: copy.paidDate, width: WIDTHS.paidDate },
+    { header: copy.paidTime, width: WIDTHS.paidTime },
     { header: copy.client, width: WIDTHS.client },
     { header: copy.email, width: WIDTHS.email },
     { header: copy.phone, width: WIDTHS.phone },
@@ -94,6 +97,10 @@ function paymentCells(
   return [
     formatExportDay(utcToStudioCalendarDate(item.createdAt)),
     utcToStudioWallClockTime(item.createdAt),
+    item.confirmedAt
+      ? formatExportDay(utcToStudioCalendarDate(item.confirmedAt))
+      : null,
+    item.confirmedAt ? utcToStudioWallClockTime(item.confirmedAt) : null,
     personName(item.user.name, item.user.lastName),
     item.user.email,
     item.user.phone,

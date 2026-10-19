@@ -2,41 +2,25 @@
 
 import { useId, useState } from "react";
 import { useTranslations } from "next-intl";
-import { SessionDateTimeHighlight } from "@/components/account/session-datetime-highlight";
-import {
-  formatPaymentTime,
-  toPaymentIso,
-} from "@/components/account/user-payment-display";
 import {
   AdminFinanceArcaSyncButton,
   arcaOutcomeToStatus,
   type ArcaSyncOutcome,
 } from "@/components/admin/admin-finance-arca-sync-button";
-import { AdminStaffPaymentEditors } from "@/components/admin/admin-staff-payment-editors";
-import {
-  ADMIN_FINANCE_VALUE_BADGE_CLASS,
-  financeSourceTone,
-} from "@/components/admin/admin-finance-list-display";
 import {
   ADMIN_DETAILS_SHEET_BODY_CLASS,
   ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS,
-  ADMIN_DETAILS_SHEET_DETAIL_BLOCK_CLASS,
   ADMIN_DETAILS_SHEET_FOOTER_CLASS,
   ADMIN_DETAILS_SHEET_HEADER_CLASS,
   ADMIN_DETAILS_SHEET_LEDE_CLASS,
+  ADMIN_BOOKINGS_DETAILS_SHEET_PANEL_CLASS,
   ADMIN_DETAILS_SHEET_OVERLAY_CLASS,
-  ADMIN_DETAILS_SHEET_PANEL_CLASS,
   ADMIN_DETAILS_SHEET_TITLE_CLASS,
 } from "@/components/admin/admin-details-sheet-layout";
+import { AdminFinancePaymentDetailsBody } from "@/components/admin/admin-finance-payment-details-body";
 import { AdminFinancePaymentEhdmPrinter } from "@/components/admin/admin-finance-payment-ehdm-printer";
-import {
-  AdminFinancePaymentDetailRow,
-  AdminFinancePaymentEhdmRows,
-  AdminFinancePaymentPackageRows,
-} from "@/components/admin/admin-finance-payment-details-rows";
 import type { FinancePaymentItem } from "@/components/admin/admin-finance-types";
 import { AdminCenterToast, type AdminCenterToastTone } from "@/components/ui/admin-center-toast";
-import { AdminFinanceSheetAmountRows } from "@/components/admin/admin-finance-gift-discount";
 import { AdminSheetPortal } from "@/components/admin/admin-sheet-portal";
 import { useAdminAnimatedSheetClose } from "@/components/admin/use-admin-animated-sheet-close";
 import { isCardPaymentMethod } from "@/lib/payment-confirmation";
@@ -48,6 +32,8 @@ type AdminFinancePaymentDetailsSheetProps = {
   onPaymentUpdated: (payment: FinancePaymentItem) => void;
   /** Arca bank sync is Admin-only. */
   canSyncArca?: boolean;
+  /** Cash/terminal paid date edits are Admin-only. */
+  canEditPaidAt?: boolean;
 };
 
 type ToastState = { message: string; tone: AdminCenterToastTone } | null;
@@ -55,10 +41,6 @@ type ToastState = { message: string; tone: AdminCenterToastTone } | null;
 function displayName(payment: FinancePaymentItem): string {
   const merged = [payment.user.name, payment.user.lastName].filter(Boolean).join(" ").trim();
   return merged.length > 0 ? merged : payment.user.email;
-}
-
-function resolvePaymentDateTime(payment: FinancePaymentItem): string {
-  return payment.confirmedAt ?? payment.createdAt;
 }
 
 function arcaOutcomeToast(
@@ -83,6 +65,7 @@ export function AdminFinancePaymentDetailsSheet({
   onClose,
   onPaymentUpdated,
   canSyncArca = true,
+  canEditPaidAt = true,
 }: AdminFinancePaymentDetailsSheetProps) {
   const t = useTranslations("adminPages.finance");
   const titleId = useId();
@@ -95,8 +78,6 @@ export function AdminFinancePaymentDetailsSheet({
     return null;
   }
 
-  const paymentDateTime = resolvePaymentDateTime(payment);
-  const paymentDateTimeIso = toPaymentIso(paymentDateTime);
   const userLabel = displayName(payment);
   const showArcaSync =
     canSyncArca &&
@@ -112,7 +93,7 @@ export function AdminFinancePaymentDetailsSheet({
         backdropAriaLabel={t("paymentDetails.closeBackdrop")}
         ariaLabelledBy={titleId}
         drawerOverlayClassName={ADMIN_DETAILS_SHEET_OVERLAY_CLASS}
-        drawerPanelClassName={ADMIN_DETAILS_SHEET_PANEL_CLASS}
+        drawerPanelClassName={ADMIN_BOOKINGS_DETAILS_SHEET_PANEL_CLASS}
       >
         <header className={ADMIN_DETAILS_SHEET_HEADER_CLASS}>
           <div className="flex items-start justify-between gap-3">
@@ -135,75 +116,14 @@ export function AdminFinancePaymentDetailsSheet({
         </header>
 
         <div className={ADMIN_DETAILS_SHEET_BODY_CLASS}>
-          <dl className={ADMIN_DETAILS_SHEET_DETAIL_BLOCK_CLASS}>
-            <AdminFinancePaymentDetailRow label={t("paymentDetails.customer")} value={userLabel} />
-            <AdminFinancePaymentDetailRow label={t("paymentDetails.email")} value={payment.user.email} />
-            <AdminFinanceSheetAmountRows
-              amountCents={payment.amountCents}
-              giftCreditsAppliedCents={payment.giftCreditsAppliedCents}
-              couponCode={payment.coupon?.code}
-              couponDiscountCents={payment.coupon?.discountAmountCents}
-              locale={locale}
-              labels={{
-                amount: t("table.colAmount"),
-                listPrice: t("paymentDetails.listPrice"),
-                gift: t("paymentDetails.giftDiscount"),
-                coupon: t("paymentDetails.couponDiscount"),
-                paid: t("paymentDetails.amountPaid"),
-              }}
-            />
-            <AdminFinancePaymentDetailRow
-              label={t("table.colSource")}
-              value={
-                <span className={`${ADMIN_FINANCE_VALUE_BADGE_CLASS} ${financeSourceTone(payment.source)}`}>
-                  {t(`sources.${payment.source}`)}
-                </span>
-              }
-            />
-            <AdminFinancePaymentDetailRow
-              label={t("table.colStatus")}
-              value={
-                <AdminStaffPaymentEditors
-                  paymentId={payment.id}
-                  status={payment.status}
-                  paymentMethod={payment.paymentMethod}
-                  statusReason={payment.statusReason}
-                  onUpdated={(next) => {
-                    onPaymentUpdated({
-                      ...payment,
-                      status: next.status,
-                      paymentMethod: next.paymentMethod,
-                      confirmedAt:
-                        next.status === "PENDING"
-                          ? null
-                          : (payment.confirmedAt ?? new Date().toISOString()),
-                    });
-                  }}
-                  onError={(message) => {
-                    setToast({ message, tone: "err" });
-                  }}
-                />
-              }
-            />
-            <AdminFinancePaymentPackageRows payment={payment} t={t} />
-            <AdminFinancePaymentDetailRow
-              label={t("paymentDetails.dateTime")}
-              value={
-                <span className="inline-flex flex-wrap items-center gap-2">
-                  <SessionDateTimeHighlight
-                    locale={locale}
-                    startsAt={paymentDateTimeIso}
-                    endsAt={paymentDateTimeIso}
-                    variant="listDateYear"
-                  />
-                  <span className="text-sm text-sage-700">
-                    {formatPaymentTime(paymentDateTime, locale)}
-                  </span>
-                </span>
-              }
-            />
-            <AdminFinancePaymentEhdmRows payment={payment} t={t} />
-          </dl>
+          <AdminFinancePaymentDetailsBody
+            payment={payment}
+            locale={locale}
+            userLabel={userLabel}
+            canEditPaidAt={canEditPaidAt}
+            onPaymentUpdated={onPaymentUpdated}
+            onToast={(message, tone) => setToast({ message, tone })}
+          />
           <AdminFinancePaymentEhdmPrinter payment={payment} locale={locale} />
         </div>
 

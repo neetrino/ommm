@@ -21,6 +21,7 @@ export class ClientsPackagesPurchaseService {
       clientId,
       planId: dto.planId,
       paymentMethod: dto.paymentMethod,
+      couponCode: dto.couponCode,
     });
 
     await this.audit.log({
@@ -37,9 +38,18 @@ export class ClientsPackagesPurchaseService {
         paymentMethod: result.paymentMethod,
         amountCents: result.amountCents,
         currency: result.currency,
+        couponCode: result.couponCode,
       },
     });
 
     return result;
+  }
+
+  previewCoupon(clientId: string, dto: { planId: string; code: string }) {
+    return this.packages.adminPreviewClientPackageCoupon({
+      clientId,
+      planId: dto.planId,
+      code: dto.code,
+    });
   }
 }

@@ -21,6 +21,7 @@ import { RolesGuard } from '../common/guards/roles.guard';
 import { AdminExportPaymentsQueryDto } from './dto/admin-export-payments-query.dto';
 import { AdminListPaymentsQueryDto } from './dto/admin-list-payments-query.dto';
 import { AdminUpdatePaymentMethodDto } from './dto/admin-update-payment-method.dto';
+import { AdminUpdatePaymentPaidAtDto } from './dto/admin-update-payment-paid-at.dto';
 import { AdminUpdatePaymentStatusDto } from './dto/admin-update-payment-status.dto';
 import { ConfirmDropInPaymentDto } from './dto/confirm-dropin-payment.dto';
 import { ConfirmGiftPaymentDto } from './dto/confirm-gift-payment.dto';
@@ -191,6 +192,16 @@ export class PaymentsController {
       body.status,
       user.id,
     );
+  }
+
+  @Patch('admin/:paymentId/paid-at')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(...MANAGER_PERMISSION_MATRIX.payments.updatePaidAt)
+  adminUpdatePaidAt(
+    @Param('paymentId') paymentId: string,
+    @Body() body: AdminUpdatePaymentPaidAtDto,
+  ) {
+    return this.payments.adminUpdatePaymentPaidAt(paymentId, body.paidAt);
   }
 
   @Patch('admin/:paymentId/method')

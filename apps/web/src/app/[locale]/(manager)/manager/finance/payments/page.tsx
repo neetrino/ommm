@@ -65,6 +65,7 @@ export default async function ManagerFinancePaymentsPage({
       financeFilters={financeFilters}
       listEndpoint={FINANCE_PAYMENTS_TODAY_ENDPOINT}
       canSyncArca={false}
+      canEditPaidAt={false}
     />
   );
 }

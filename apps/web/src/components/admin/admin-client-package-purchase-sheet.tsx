@@ -20,6 +20,7 @@ import { AdminSheetPortal } from "@/components/admin/admin-sheet-portal";
 import { useAdminAnimatedSheetClose } from "@/components/admin/use-admin-animated-sheet-close";
 import { OMM_DRAWER_NESTED_BACKDROP_CLASS } from "@/components/ui/omm-modal";
 import { ApiError, apiFetch } from "@/lib/api";
+import type { PromoPreview } from "@/lib/preview-promo-code";
 import type { AdminClientPackagePaymentMethod } from "@/lib/manual-payment-method";
 import {
   normalizePublicPackagePlan,
@@ -57,6 +58,7 @@ export function AdminClientPackagePurchaseSheet({
   const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
   const [paymentMethod, setPaymentMethod] =
     useState<AdminClientPackagePaymentMethod>("CASH");
+  const [promo, setPromo] = useState<PromoPreview | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [toast, setToast] = useState<{ message: string; tone: "ok" | "err" } | null>(
     null,
@@ -104,6 +106,7 @@ export function AdminClientPackagePurchaseSheet({
       return;
     }
     setSelectedPlanId(planId);
+    setPromo(null);
     if (planId !== null) {
       setPaymentMethod("CASH");
     }
@@ -133,6 +136,9 @@ export function AdminClientPackagePurchaseSheet({
         body: JSON.stringify({
           planId: selectedPlan.id,
           paymentMethod,
+          ...(promo !== null && paymentMethod !== "INFLUENCER"
+            ? { couponCode: promo.code }
+            : {}),
         }),
       });
       onSuccess();
@@ -212,12 +218,20 @@ export function AdminClientPackagePurchaseSheet({
         ) : selectedPlan !== null ? (
           <AdminClientPackagePurchaseConfirm
             formId={confirmFormId}
+            clientId={client.id}
             clientName={clientDisplayName(client)}
             locale={locale}
             paymentMethod={paymentMethod}
             disabled={submitting}
             plan={selectedPlan}
-            onPaymentMethodChange={setPaymentMethod}
+            promo={paymentMethod === "INFLUENCER" ? null : promo}
+            onPromoChange={setPromo}
+            onPaymentMethodChange={(method) => {
+              setPaymentMethod(method);
+              if (method === "INFLUENCER") {
+                setPromo(null);
+              }
+            }}
             onConfirm={(event) => void handleConfirmPurchase(event)}
           />
         ) : null}

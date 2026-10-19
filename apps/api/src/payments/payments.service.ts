@@ -117,6 +117,11 @@ export class PaymentsService {
     );
   }
 
+  /** Admin-only correction of the cash or terminal paid instant (`confirmedAt`). */
+  adminUpdatePaymentPaidAt(paymentId: string, paidAtIso: string) {
+    return this.adminMutation.adminUpdatePaymentPaidAt(paymentId, paidAtIso);
+  }
+
   /** Re-checks a card payment against Arca and transitions it (admin on-demand). */
   async adminSyncArcaPayment(
     paymentId: string,

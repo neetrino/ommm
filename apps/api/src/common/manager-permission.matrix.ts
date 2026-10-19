@@ -69,6 +69,8 @@ export const MANAGER_PERMISSION_MATRIX = {
     listToday: BACKOFFICE_READ_ROLES,
     updateStatus: BACKOFFICE_WRITE_ROLES,
     updateMethod: BACKOFFICE_WRITE_ROLES,
+    /** Backdating cash/terminal paid date. Admin only. */
+    updatePaidAt: BACKOFFICE_DELETE_ROLES,
     adminArcaSync: BACKOFFICE_DELETE_ROLES,
   },
   schedule: {
