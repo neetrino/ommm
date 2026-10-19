@@ -155,16 +155,32 @@ describe('CoachSalaryAccrualService', () => {
     });
   });
 
-  it('backfills only finished classes that have attendance', async () => {
+  function buildBackfillService(
+    rates: { coachProfileId: string; classTypeId: string }[],
+  ) {
     const findMany = jest.fn().mockResolvedValue([]);
+    const findRates = jest.fn().mockResolvedValue(rates);
     const service = new CoachSalaryAccrualService({
       classSession: { findMany },
+      coachClassTypeRate: { findMany: findRates },
     } as never);
+    return { service, findMany, findRates };
+  }
 
-    await expect(service.accrueMissingFinishedSessions('coach-1')).resolves.toBe(
-      0,
-    );
+  it('backfills only attended classes whose coach×classType has a positive rate', async () => {
+    const { service, findMany, findRates } = buildBackfillService([
+      { coachProfileId: 'coach-1', classTypeId: 'pilates' },
+      { coachProfileId: 'coach-1', classTypeId: 'yoga' },
+    ]);
 
+    await expect(
+      service.accrueMissingFinishedSessions('coach-1'),
+    ).resolves.toBe(0);
+
+    expect(findRates).toHaveBeenCalledWith({
+      where: { amountAmd: { gt: 0 }, coachProfileId: 'coach-1' },
+      select: { coachProfileId: true, classTypeId: true },
+    });
     const [[findManyCall]] = findMany.mock.calls as [
       [{ where: Record<string, unknown> }],
     ];
@@ -172,7 +188,22 @@ describe('CoachSalaryAccrualService', () => {
       status: ClassSessionStatus.FINISHED,
       salaryAccrual: null,
       bookings: { some: { status: BookingStatus.COMPLETED } },
-      coachId: 'coach-1',
+      OR: [
+        { coachId: 'coach-1', classTypeId: 'pilates' },
+        { coachId: 'coach-1', classTypeId: 'yoga' },
+      ],
     });
+  });
+
+  it('skips the session scan when no coach has a payable rate', async () => {
+    const { service, findMany, findRates } = buildBackfillService([]);
+
+    await expect(service.accrueMissingFinishedSessions()).resolves.toBe(0);
+
+    expect(findRates).toHaveBeenCalledWith({
+      where: { amountAmd: { gt: 0 } },
+      select: { coachProfileId: true, classTypeId: true },
+    });
+    expect(findMany).not.toHaveBeenCalled();
   });
 });

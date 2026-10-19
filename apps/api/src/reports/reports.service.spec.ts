@@ -220,9 +220,7 @@ describe('ReportsService', () => {
     expect(result).not.toHaveProperty('revenue');
     expect(result).not.toHaveProperty('revenueCentsTotal');
     expect(prismaMock.payment.aggregate).not.toHaveBeenCalled();
-    expect(
-      (result as { studioPaymentDue: { count: number } }).studioPaymentDue,
-    ).toEqual({ count: 0, items: [] });
+    expect(result).toHaveProperty('studioPaymentDue', { count: 0, items: [] });
   });
 
   it('dashboard overview counts and lists only users created today', async () => {
@@ -271,9 +269,7 @@ describe('ReportsService', () => {
     expect(prismaMock.user.findMany).toHaveBeenCalledWith(
       expect.objectContaining({ where: todayWhere }),
     );
-    expect(
-      (result as { newUsers: { todayCount: number } }).newUsers.todayCount,
-    ).toBe(2);
+    expect(result).toHaveProperty('newUsers.todayCount', 2);
   });
 
   it('financeSummary returns aggregated totals, status and source breakdown', async () => {
