@@ -28,6 +28,7 @@ import {
   ADMIN_DETAILS_SHEET_PANEL_CLASS,
   ADMIN_DETAILS_SHEET_TITLE_CLASS,
 } from "@/components/admin/admin-details-sheet-layout";
+import { AdminFinancePaymentPaidDate } from "@/components/admin/admin-finance-payment-paid-date";
 import { AdminFinancePaymentEhdmPrinter } from "@/components/admin/admin-finance-payment-ehdm-printer";
 import {
   AdminFinancePaymentDetailRow,
@@ -48,6 +49,8 @@ type AdminFinancePaymentDetailsSheetProps = {
   onPaymentUpdated: (payment: FinancePaymentItem) => void;
   /** Arca bank sync is Admin-only. */
   canSyncArca?: boolean;
+  /** Cash/terminal paid date edits are Admin-only. */
+  canEditPaidAt?: boolean;
 };
 
 type ToastState = { message: string; tone: AdminCenterToastTone } | null;
@@ -55,10 +58,6 @@ type ToastState = { message: string; tone: AdminCenterToastTone } | null;
 function displayName(payment: FinancePaymentItem): string {
   const merged = [payment.user.name, payment.user.lastName].filter(Boolean).join(" ").trim();
   return merged.length > 0 ? merged : payment.user.email;
-}
-
-function resolvePaymentDateTime(payment: FinancePaymentItem): string {
-  return payment.confirmedAt ?? payment.createdAt;
 }
 
 function arcaOutcomeToast(
@@ -83,6 +82,7 @@ export function AdminFinancePaymentDetailsSheet({
   onClose,
   onPaymentUpdated,
   canSyncArca = true,
+  canEditPaidAt = true,
 }: AdminFinancePaymentDetailsSheetProps) {
   const t = useTranslations("adminPages.finance");
   const titleId = useId();
@@ -95,8 +95,7 @@ export function AdminFinancePaymentDetailsSheet({
     return null;
   }
 
-  const paymentDateTime = resolvePaymentDateTime(payment);
-  const paymentDateTimeIso = toPaymentIso(paymentDateTime);
+  const createdAtIso = toPaymentIso(payment.createdAt);
   const userLabel = displayName(payment);
   const showArcaSync =
     canSyncArca &&
@@ -187,20 +186,32 @@ export function AdminFinancePaymentDetailsSheet({
             />
             <AdminFinancePaymentPackageRows payment={payment} t={t} />
             <AdminFinancePaymentDetailRow
-              label={t("paymentDetails.dateTime")}
+              label={t("paymentDetails.createdDate")}
               value={
                 <span className="inline-flex flex-wrap items-center gap-2">
                   <SessionDateTimeHighlight
                     locale={locale}
-                    startsAt={paymentDateTimeIso}
-                    endsAt={paymentDateTimeIso}
+                    startsAt={createdAtIso}
+                    endsAt={createdAtIso}
                     variant="listDateYear"
                   />
                   <span className="text-sm text-sage-700">
-                    {formatPaymentTime(paymentDateTime, locale)}
+                    {formatPaymentTime(payment.createdAt, locale)}
                   </span>
                 </span>
               }
+            />
+            <AdminFinancePaymentPaidDate
+              locale={locale}
+              payment={payment}
+              canEdit={canEditPaidAt}
+              onSaved={(confirmedAt) => {
+                onPaymentUpdated({ ...payment, confirmedAt });
+                setToast({ message: t("paymentActions.paidDateUpdated"), tone: "ok" });
+              }}
+              onError={(message) => {
+                setToast({ message, tone: "err" });
+              }}
             />
             <AdminFinancePaymentEhdmRows payment={payment} t={t} />
           </dl>

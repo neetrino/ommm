@@ -46,6 +46,36 @@ type AdminFinancePaymentCompactRowProps = {
   onChangeMethod: (nextMethod: StudioManualPaymentMethod) => void;
 };
 
+function PaymentPaidDateCell({
+  locale,
+  confirmedAt,
+}: {
+  locale: string;
+  confirmedAt: string | null;
+}) {
+  const tTable = useTranslations("adminPages.finance.table");
+  const paidAtIso = confirmedAt ? toPaymentIso(confirmedAt) : null;
+
+  return (
+    <div className={ADMIN_FINANCE_PAYMENTS_LIST_DATE_CELL}>
+      <AdminListMobileLabel label={tTable("colPaidDate")} />
+      {paidAtIso ? (
+        <>
+          <SessionDateTimeHighlight
+            locale={locale}
+            startsAt={paidAtIso}
+            endsAt={paidAtIso}
+            variant="listDateYear"
+          />
+          <p className="mt-1 text-xs text-sage-500">{formatPaymentTime(paidAtIso, locale)}</p>
+        </>
+      ) : (
+        <p className="text-sm text-sage-400">—</p>
+      )}
+    </div>
+  );
+}
+
 function displayName(row: FinancePaymentItem): string {
   const merged = [row.user.name, row.user.lastName].filter(Boolean).join(" ").trim();
   return merged.length > 0 ? merged : row.user.email;
@@ -61,7 +91,7 @@ export function AdminFinancePaymentCompactRow({
 }: AdminFinancePaymentCompactRowProps) {
   const t = useTranslations("adminPages.finance");
   const tTable = useTranslations("adminPages.finance.table");
-  const paidAtIso = toPaymentIso(row.createdAt);
+  const createdAtIso = toPaymentIso(row.createdAt);
   const userLabel = displayName(row);
 
   return (
@@ -121,8 +151,8 @@ export function AdminFinancePaymentCompactRow({
         <AdminListMobileLabel label={tTable("colDate")} />
         <SessionDateTimeHighlight
           locale={locale}
-          startsAt={paidAtIso}
-          endsAt={paidAtIso}
+          startsAt={createdAtIso}
+          endsAt={createdAtIso}
           variant="listDateYear"
         />
       </div>
@@ -133,6 +163,8 @@ export function AdminFinancePaymentCompactRow({
           {formatPaymentTime(row.createdAt, locale)}
         </p>
       </div>
+
+      <PaymentPaidDateCell locale={locale} confirmedAt={row.confirmedAt} />
 
       <div className={ADMIN_FINANCE_PAYMENTS_LIST_SOURCE_CELL}>
         <AdminListMobileLabel label={tTable("colSource")} />

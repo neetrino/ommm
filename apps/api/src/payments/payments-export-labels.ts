@@ -9,6 +9,8 @@ export type PaymentsExportCopy = {
   total: string;
   date: string;
   time: string;
+  paidDate: string;
+  paidTime: string;
   client: string;
   email: string;
   phone: string;
@@ -32,8 +34,10 @@ export const PAYMENTS_EXPORT_COPY: Record<ExportLocale, PaymentsExportCopy> = {
     allTime: 'All time',
     count: (count) => `${count} payments`,
     total: 'Total',
-    date: 'Date',
-    time: 'Time',
+    date: 'Created date',
+    time: 'Created time',
+    paidDate: 'Paid date',
+    paidTime: 'Paid time',
     client: 'Client',
     email: 'Email',
     phone: 'Phone',
@@ -72,8 +76,10 @@ export const PAYMENTS_EXPORT_COPY: Record<ExportLocale, PaymentsExportCopy> = {
     allTime: 'Ամբողջ ժամանակահատված',
     count: (count) => `${count} վճարում`,
     total: 'Ընդամենը',
-    date: 'Ամսաթիվ',
-    time: 'Ժամ',
+    date: 'Ստեղծման ամսաթիվ',
+    time: 'Ստեղծման ժամ',
+    paidDate: 'Վճարման ամսաթիվ',
+    paidTime: 'Վճարման ժամ',
     client: 'Հաճախորդ',
     email: 'Էլ. փոստ',
     phone: 'Հեռախոս',
@@ -112,8 +118,10 @@ export const PAYMENTS_EXPORT_COPY: Record<ExportLocale, PaymentsExportCopy> = {
     allTime: 'За всё время',
     count: (count) => `Платежей: ${count}`,
     total: 'Итого',
-    date: 'Дата',
-    time: 'Время',
+    date: 'Дата создания',
+    time: 'Время создания',
+    paidDate: 'Дата оплаты',
+    paidTime: 'Время оплаты',
     client: 'Клиент',
     email: 'Email',
     phone: 'Телефон',

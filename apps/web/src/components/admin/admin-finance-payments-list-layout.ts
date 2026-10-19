@@ -11,12 +11,12 @@ import {
 } from "@/components/admin/admin-list-table-layout";
 
 /**
- * User · Package · Amount · Date · Time · Source · Status · Method.
- * Flexible tracks so all eight columns fit a 13" laptop with the admin sidebar
- * (~900–1100px content). Date/time stay compact; names and status get more room.
+ * User · Package · Amount · Created · Time · Paid · Source · Status · Method.
+ * Flexible tracks so all nine columns fit a 13" laptop with the admin sidebar.
+ * Date columns stay compact; names and status get more room.
  */
 const FINANCE_PAYMENTS_GRID_CLASS =
-  "md:grid-cols-[minmax(0,1.1fr)_minmax(0,1.05fr)_minmax(0,0.95fr)_minmax(0,0.75fr)_minmax(0,0.7fr)_minmax(0,0.85fr)_minmax(0,0.95fr)_minmax(0,0.9fr)]";
+  "md:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)_minmax(0,0.8fr)_minmax(0,0.7fr)_minmax(0,0.55fr)_minmax(0,0.75fr)_minmax(0,0.7fr)_minmax(0,0.85fr)_minmax(0,0.8fr)]";
 
 /** Horizontal scroll fallback if a locale string still overflows. */
 export const ADMIN_FINANCE_PAYMENTS_LIST_SCROLL_CLASS = [

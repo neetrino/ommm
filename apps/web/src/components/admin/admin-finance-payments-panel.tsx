@@ -40,6 +40,8 @@ type Props = {
   listEndpoint?: string;
   /** Arca bank sync is Admin-only. */
   canSyncArca?: boolean;
+  /** Setting the cash/terminal paid date is Admin-only. */
+  canEditPaidAt?: boolean;
 };
 
 type ToastState = { message: string; tone: AdminCenterToastTone } | null;
@@ -51,6 +53,7 @@ export function AdminFinancePaymentsPanel({
   financeFilters,
   listEndpoint,
   canSyncArca = true,
+  canEditPaidAt = true,
 }: Props) {
   const t = useTranslations("adminPages.finance.paymentsTab");
   const tFinance = useTranslations("adminPages.finance");
@@ -211,6 +214,7 @@ export function AdminFinancePaymentsPanel({
             <span className={ADMIN_FINANCE_PAYMENTS_LIST_CENTER_HEADER_CELL}>{tTable("colAmount")}</span>
             <span className={ADMIN_FINANCE_PAYMENTS_LIST_CENTER_HEADER_CELL}>{tTable("colDate")}</span>
             <span className={ADMIN_FINANCE_PAYMENTS_LIST_CENTER_HEADER_CELL}>{tTable("colTime")}</span>
+            <span className={ADMIN_FINANCE_PAYMENTS_LIST_CENTER_HEADER_CELL}>{tTable("colPaidDate")}</span>
             <span className={ADMIN_FINANCE_PAYMENTS_LIST_CENTER_HEADER_CELL}>{tTable("colSource")}</span>
             <span className={ADMIN_FINANCE_PAYMENTS_LIST_CENTER_HEADER_CELL}>{tTable("colStatus")}</span>
             <span className={ADMIN_FINANCE_PAYMENTS_LIST_CENTER_HEADER_CELL}>
@@ -247,6 +251,7 @@ export function AdminFinancePaymentsPanel({
         onClose={() => setSelectedPayment(null)}
         onPaymentUpdated={handlePaymentUpdated}
         canSyncArca={canSyncArca}
+        canEditPaidAt={canEditPaidAt}
       />
 
       <OmmListPagination

@@ -6,8 +6,10 @@ export const PAYMENTS_EXPORT_TOO_MANY = 'payments_export_too_many';
 export const PAYMENTS_XLSX_SHEET_NAME = 'Payments';
 
 export const PAYMENTS_XLSX_COLUMN_WIDTHS = {
-  date: 13,
+  date: 14,
   time: 9,
+  paidDate: 14,
+  paidTime: 9,
   client: 24,
   email: 28,
   phone: 16,
