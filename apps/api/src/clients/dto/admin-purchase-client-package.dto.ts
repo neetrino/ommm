@@ -1,4 +1,10 @@
-import { IsEnum, IsOptional, IsString, MaxLength, MinLength } from 'class-validator';
+import {
+  IsEnum,
+  IsOptional,
+  IsString,
+  MaxLength,
+  MinLength,
+} from 'class-validator';
 import { COUPON_CODE_MAX_LENGTH } from '../../coupons/coupon.constants';
 
 /** Admin Client Packages purchase — Cash, physical terminal, or influencer comp. */

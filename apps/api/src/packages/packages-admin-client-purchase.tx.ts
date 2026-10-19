@@ -74,13 +74,16 @@ async function createStaffPackagePayment(
 ) {
   const now = new Date();
   const amountCents =
-    params.coupon?.amountAfterCouponCents ?? resolveFinalPriceCents(params.plan);
+    params.coupon?.amountAfterCouponCents ??
+    resolveFinalPriceCents(params.plan);
   const payment = await tx.payment.create({
     data: {
       userId: params.clientId,
       amountCents,
       currency: params.plan.currency.toLowerCase(),
-      status: params.isStudioMethod ? PaymentStatus.PENDING : PaymentStatus.SUCCEEDED,
+      status: params.isStudioMethod
+        ? PaymentStatus.PENDING
+        : PaymentStatus.SUCCEEDED,
       paymentReference: createPaymentReference('PACKAGE'),
       source: PaymentSource.PACKAGE,
       sourceId: userPackageId,

@@ -66,16 +66,21 @@ describe('staff package coupon', () => {
       {
         user: { findFirst: jest.fn().mockResolvedValue({ id: 'client-1' }) },
         packagePlan: { findUnique: jest.fn().mockResolvedValue(createPlan()) },
-        $transaction: jest.fn(async (callback: (tx: unknown) => Promise<unknown>) =>
-          callback({
-            userPackage: { create: jest.fn().mockResolvedValue({ id: 'up-1' }) },
-            payment: { create: paymentCreate },
-            userPackageBalance: { create: jest.fn().mockResolvedValue({ id: 'bal-1' }) },
-            packagePlan: {
-              updateMany: jest.fn().mockResolvedValue({ count: 1 }),
-              findUnique: jest.fn(),
-            },
-          }),
+        $transaction: jest.fn(
+          async (callback: (tx: unknown) => Promise<unknown>) =>
+            callback({
+              userPackage: {
+                create: jest.fn().mockResolvedValue({ id: 'up-1' }),
+              },
+              payment: { create: paymentCreate },
+              userPackageBalance: {
+                create: jest.fn().mockResolvedValue({ id: 'bal-1' }),
+              },
+              packagePlan: {
+                updateMany: jest.fn().mockResolvedValue({ count: 1 }),
+                findUnique: jest.fn(),
+              },
+            }),
         ),
       } as never,
       { invalidatePublicPlansCache: jest.fn() } as never,

@@ -45,10 +45,7 @@ export class ClientsPackagesPurchaseService {
     return result;
   }
 
-  previewCoupon(
-    clientId: string,
-    dto: { planId: string; code: string },
-  ) {
+  previewCoupon(clientId: string, dto: { planId: string; code: string }) {
     return this.packages.adminPreviewClientPackageCoupon({
       clientId,
       planId: dto.planId,

@@ -14,15 +14,15 @@ describe('resolveStudioPaidAt', () => {
   });
 
   it('rejects a paid date after the current studio day', () => {
-    expect(() =>
-      resolveStudioPaidAt('2026-10-20T08:00:00.000Z', NOW),
-    ).toThrow(BadRequestException);
+    expect(() => resolveStudioPaidAt('2026-10-20T08:00:00.000Z', NOW)).toThrow(
+      BadRequestException,
+    );
   });
 
   it('rejects a paid date older than the lookback window', () => {
-    expect(() =>
-      resolveStudioPaidAt('2020-01-01T08:00:00.000Z', NOW),
-    ).toThrow(BadRequestException);
+    expect(() => resolveStudioPaidAt('2020-01-01T08:00:00.000Z', NOW)).toThrow(
+      BadRequestException,
+    );
   });
 
   it('rejects an unparseable instant', () => {

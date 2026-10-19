@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CouponProductKind, Role, type PackagePlan } from '@prisma/client';
 import type { AdminClientPackagePaymentMethod } from '../clients/dto/admin-purchase-client-package.dto';
 import { COUPON_ERROR } from '../coupons/coupon.constants';
@@ -81,7 +85,11 @@ export class PackagesAdminClientPurchaseService {
   }
 
   /** Prices a code for this client and plan without reserving a use. */
-  async previewCoupon(params: { clientId: string; planId: string; code: string }) {
+  async previewCoupon(params: {
+    clientId: string;
+    planId: string;
+    code: string;
+  }) {
     await this.assertClient(params.clientId);
     const plan = await this.loadPurchasablePlan(params.planId);
     return previewCouponCheckout(this.prisma, {
@@ -136,7 +144,9 @@ export class PackagesAdminClientPurchaseService {
       userId: params.clientId,
       code,
       subtotalCents: resolveFinalPriceCents(params.plan),
-      lines: [{ kind: CouponProductKind.PACKAGE, packagePlanId: params.plan.id }],
+      lines: [
+        { kind: CouponProductKind.PACKAGE, packagePlanId: params.plan.id },
+      ],
     });
     if (snapshot === null) {
       throw new BadRequestException(COUPON_ERROR.INVALID);
