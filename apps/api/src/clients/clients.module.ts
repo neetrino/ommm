@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { BookingsModule } from '../bookings/bookings.module';
+import { CoachesModule } from '../coaches/coaches.module';
 import { MailModule } from '../mail/mail.module';
 import { PackagesModule } from '../packages/packages.module';
 import { ScheduleItemsModule } from '../schedule/schedule.module';
@@ -14,7 +15,13 @@ import { ClientsService } from './clients.service';
 import { ClientsTabListsService } from './clients-tab-lists.service';
 
 @Module({
-  imports: [MailModule, PackagesModule, BookingsModule, ScheduleItemsModule],
+  imports: [
+    MailModule,
+    PackagesModule,
+    BookingsModule,
+    CoachesModule,
+    ScheduleItemsModule,
+  ],
   controllers: [ClientsController],
   providers: [
     ClientsService,

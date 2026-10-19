@@ -58,6 +58,8 @@ export class CoachSalaryAccrualService {
    * Repairs finished classes left without a salary line — e.g. the class ended
    * before the coach rate existed, or attendance was marked after the fact.
    * Scoped to one coach when `coachProfileId` is given.
+   * Classes without attendance never accrue, so they are excluded up front —
+   * otherwise they fill every batch and newer payable classes are never reached.
    */
   async accrueMissingFinishedSessions(
     coachProfileId?: string,
@@ -66,6 +68,7 @@ export class CoachSalaryAccrualService {
       where: {
         status: ClassSessionStatus.FINISHED,
         salaryAccrual: null,
+        bookings: { some: { status: BookingStatus.COMPLETED } },
         ...(coachProfileId !== undefined && { coachId: coachProfileId }),
       },
       select: { id: true },

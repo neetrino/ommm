@@ -154,4 +154,25 @@ describe('CoachSalaryAccrualService', () => {
       status: BookingStatus.COMPLETED,
     });
   });
+
+  it('backfills only finished classes that have attendance', async () => {
+    const findMany = jest.fn().mockResolvedValue([]);
+    const service = new CoachSalaryAccrualService({
+      classSession: { findMany },
+    } as never);
+
+    await expect(service.accrueMissingFinishedSessions('coach-1')).resolves.toBe(
+      0,
+    );
+
+    const [[findManyCall]] = findMany.mock.calls as [
+      [{ where: Record<string, unknown> }],
+    ];
+    expect(findManyCall.where).toEqual({
+      status: ClassSessionStatus.FINISHED,
+      salaryAccrual: null,
+      bookings: { some: { status: BookingStatus.COMPLETED } },
+      coachId: 'coach-1',
+    });
+  });
 });

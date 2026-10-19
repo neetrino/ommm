@@ -9,6 +9,7 @@ import type { Prisma } from '@prisma/client';
 import { BOOKING_INTERACTIVE_TX_TIMEOUT_MS } from '../bookings/bookings.constants';
 import { ownerBookingUniqueWhere } from '../bookings/bookings-guest-pass.constants';
 import { resolveBookingSessionCredits } from '../bookings/resolve-booking-session-credits';
+import { CoachSalaryAccrualService } from '../coaches/coaches-salary-accrual.service';
 import { PackagesActivationService } from '../packages/packages-activation.service';
 import { PackageUsageService } from '../packages/package-usage.service';
 import { PrismaService } from '../prisma/prisma.service';
@@ -52,6 +53,7 @@ export class ClientsBookingsRetroactiveService {
     private readonly packagesActivation: PackagesActivationService,
     private readonly schedule: ScheduleService,
     private readonly realtime: RealtimePublisherService,
+    private readonly salaryAccrual: CoachSalaryAccrualService,
   ) {}
 
   async listAttachableSessions(
@@ -130,6 +132,9 @@ export class ClientsBookingsRetroactiveService {
       { timeout: BOOKING_INTERACTIVE_TX_TIMEOUT_MS },
     );
     await this.packagesActivation.activateFromCompletedBooking(booking.id);
+    // The class usually finished before the visit was attached, so its salary
+    // check already ran with zero attendance and must be re-evaluated.
+    await this.salaryAccrual.accrueFinishedSessions([session.id]);
     await this.schedule.invalidatePublicCache();
     this.realtime.emitBookingSessionChange({
       userId: clientId,

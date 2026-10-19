@@ -72,21 +72,19 @@ export function coachSalaryExportCopy(
   return EXPORT_COPY[resolveCoachSalaryExportLocale(locale)];
 }
 
+const SESSION_STATUS_LABELS: Record<CoachSalarySessionReason, string> = {
+  PAID: 'COMPLETED',
+  NOT_FINISHED_YET: 'NOT FINISHED YET',
+  SESSION_CANCELLED: 'CANCELED',
+  NO_RATE_CONFIGURED: 'NO RATE SET',
+  NO_BOOKINGS: 'NOBODY BOOKED',
+  NO_SHOW_ONLY: 'NO SHOW',
+  PENDING_ACCRUAL: 'CALCULATING',
+};
+
 /** Same status words as the finance salary table. */
 export function coachSalarySessionStatusLabel(
   reason: CoachSalarySessionReason,
 ): string {
-  if (reason === 'PAID') {
-    return 'COMPLETED';
-  }
-  if (reason === 'NO_BOOKINGS') {
-    return 'NOBODY BOOKED';
-  }
-  if (reason === 'SESSION_CANCELLED') {
-    return 'CANCELED';
-  }
-  if (reason === 'NOT_FINISHED_YET') {
-    return 'NOT FINISHED YET';
-  }
-  return reason;
+  return SESSION_STATUS_LABELS[reason];
 }
