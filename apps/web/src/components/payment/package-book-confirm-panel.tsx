@@ -17,6 +17,7 @@ type PackageBookIntentStatus =
   | "already_booked"
   | "full"
   | "started"
+  | "closed"
   | "unavailable"
   | "not_covered";
 
@@ -36,7 +37,7 @@ type PackageBookConfirmPanelProps = {
 };
 
 function statusLead(
-  t: (key: "lead" | "pendingLead" | "booked" | "alreadyBooked" | "full" | "started" | "unavailable" | "notCovered") => string,
+  t: (key: "lead" | "pendingLead" | "booked" | "alreadyBooked" | "full" | "started" | "closed" | "unavailable" | "notCovered") => string,
   status: PackageBookIntentStatus,
   booked: boolean,
 ): string {
@@ -54,6 +55,9 @@ function statusLead(
   }
   if (status === "started") {
     return t("started");
+  }
+  if (status === "closed") {
+    return t("closed");
   }
   if (status === "unavailable") {
     return t("unavailable");

@@ -15,6 +15,7 @@ import { ScheduleService } from '../schedule/schedule.service';
 import { StaffActivityService } from '../staff-activity/staff-activity.service';
 import { WaitlistService } from '../waitlist/waitlist.service';
 import { BOOKING_INTERACTIVE_TX_TIMEOUT_MS } from './bookings.constants';
+import { assertMemberBookingWindow } from './bookings-member-window';
 import { GUEST_PASSES_ENABLED } from './guest-passes.config';
 import { readGuestPassName } from './bookings-guest-pass.constants';
 import type { CreateBookingDto } from './dto/create-booking.dto';
@@ -81,9 +82,7 @@ export class BookingsGuestPassService {
     ) {
       throw new NotFoundException('Session not found');
     }
-    if (session.startsAt < new Date()) {
-      throw new BadRequestException('Session already started');
-    }
+    assertMemberBookingWindow(session.startsAt);
     return session;
   }
 

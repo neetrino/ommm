@@ -18,6 +18,7 @@ import { ScheduleService } from '../schedule/schedule.service';
 import { StaffActivityService } from '../staff-activity/staff-activity.service';
 import { WaitlistService } from '../waitlist/waitlist.service';
 import { BOOKING_INTERACTIVE_TX_TIMEOUT_MS } from './bookings.constants';
+import { assertMemberBookingWindow } from './bookings-member-window';
 import { ownerBookingUniqueWhere } from './bookings-guest-pass.constants';
 import { BookingsSlotService } from './bookings-slot.service';
 import {
@@ -65,9 +66,7 @@ export class BookingsClientService {
     ) {
       throw new NotFoundException('Session not found');
     }
-    if (session.startsAt < new Date()) {
-      throw new BadRequestException('Session already started');
-    }
+    assertMemberBookingWindow(session.startsAt);
     return this.packageUsage.listEligibleUserPackages({
       userId,
       session: {
@@ -98,9 +97,7 @@ export class BookingsClientService {
     ) {
       throw new NotFoundException('Session not found');
     }
-    if (session.startsAt < new Date()) {
-      throw new BadRequestException('Session already started');
-    }
+    assertMemberBookingWindow(session.startsAt);
     return this.packages.listPlansCoveringClassType(session.classTypeId);
   }
 
@@ -121,9 +118,7 @@ export class BookingsClientService {
     ) {
       throw new NotFoundException('Session not found');
     }
-    if (session.startsAt < new Date()) {
-      throw new BadRequestException('Session already started');
-    }
+    assertMemberBookingWindow(session.startsAt);
     const existing = await this.prisma.booking.findUnique({
       where: ownerBookingUniqueWhere(userId, sessionId),
     });

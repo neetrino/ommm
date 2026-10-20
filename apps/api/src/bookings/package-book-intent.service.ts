@@ -10,6 +10,7 @@ import { PackageUsageService } from '../packages/package-usage.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { WaitlistService } from '../waitlist/waitlist.service';
 import { ownerBookingUniqueWhere } from './bookings-guest-pass.constants';
+import { isMemberBookingClosed } from './bookings-member-window';
 
 export type PackageBookIntentStatus =
   | 'none'
@@ -18,6 +19,7 @@ export type PackageBookIntentStatus =
   | 'already_booked'
   | 'full'
   | 'started'
+  | 'closed'
   | 'unavailable'
   | 'not_covered';
 
@@ -106,6 +108,9 @@ export class PackageBookIntentService {
     }
     if (session.startsAt < new Date()) {
       return 'started';
+    }
+    if (isMemberBookingClosed(session.startsAt)) {
+      return 'closed';
     }
     const existing = await this.prisma.booking.findUnique({
       where: ownerBookingUniqueWhere(userId, session.id),

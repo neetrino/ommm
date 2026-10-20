@@ -13,6 +13,7 @@ import {
   CANCEL_BOOKING_ERROR_MESSAGE_CLASS,
 } from "@/components/account/cancel-booking-button";
 import { scheduleStartTimeFromIso } from "@/lib/cancellation-policy";
+import { isMemberBookingClosedAt } from "@/lib/member-booking-window";
 import { JoinWaitlistButton } from "@/components/account/join-waitlist-button";
 
 type SessionBookingActionsProps = {
@@ -124,6 +125,14 @@ export function SessionBookingActions({
       return <div className="flex justify-end">{waitlistButton}</div>;
     }
     return waitlistButton;
+  }
+
+  if (isMemberBookingClosedAt(new Date(sessionStartsAt))) {
+    return (
+      <button type="button" disabled aria-disabled="true" className={SESSION_BOOKED_BUTTON_SM_CLASS}>
+        {tClasses("bookingClosed")}
+      </button>
+    );
   }
 
   return (

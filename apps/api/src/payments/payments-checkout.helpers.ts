@@ -10,6 +10,7 @@ import {
   PaymentStatus,
   Prisma,
 } from '@prisma/client';
+import { assertMemberBookingWindow } from '../bookings/bookings-member-window';
 import { withInternalPaymentWhereFields } from './payments.helpers';
 import {
   type InternalPaymentRecord,
@@ -113,9 +114,7 @@ export function assertDropInSessionForCheckout(
   if (classSession.status === ClassSessionStatus.CANCELLED) {
     throw new BadRequestException('Session is not available');
   }
-  if (classSession.startsAt < new Date()) {
-    throw new BadRequestException('Session already started');
-  }
+  assertMemberBookingWindow(classSession.startsAt);
   if (existingBooking?.status === BookingStatus.BOOKED) {
     throw new BadRequestException('Already booked');
   }
