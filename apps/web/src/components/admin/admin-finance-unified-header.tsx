@@ -60,7 +60,7 @@ function AdminFinanceTabFilters({ section, search }: AdminFinanceTabFiltersProps
       const initialValues = parseFinanceCoachesFiltersFromSearch(search);
       return (
         <AdminFinanceCoachesFilters
-          key={`${initialValues.q}|${initialValues.from}|${initialValues.to}|${initialValues.payoutStatus}|${initialValues.order}|${initialValues.quick}`}
+          key={`${initialValues.from}|${initialValues.to}|${initialValues.payoutStatus}|${initialValues.order}|${initialValues.quick}`}
           initialValues={initialValues}
         />
       );

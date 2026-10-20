@@ -38,6 +38,11 @@ import {
   mapClientPackageTypeBalances,
   type ClientPackageTypeBalanceItem,
 } from './clients-package-type-balances.util';
+import {
+  toClientPackagePaymentApi,
+  type ClientPackagePaymentApi,
+  type ClientPackagePaymentRow,
+} from './clients-package-payment.mapper';
 
 const bookingInclude = Prisma.validator<Prisma.BookingInclude>()({
   session: {
@@ -125,36 +130,35 @@ type ClientGiftCardsPage = {
 };
 
 type ClientPackagesPage = {
-  items: Array<{
-    id: string;
-    status: string;
-    packageName: string;
-    categoryName: string;
-    activationDate: string;
-    expirationDate: string;
-    totalSessions: number | null;
-    usedSessions: number | null;
-    remainingSessions: number | null;
-    isUnlimited: boolean;
-    guestSlotsTotal: number;
-    guestSlotsRemaining: number;
-    paymentId: string | null;
-    paymentStatus: string | null;
-    paymentMethod: string | null;
-    paymentDue: boolean;
-    typeBalances: ClientPackageTypeBalanceItem[];
-    lastSessionAdjustment: LastSessionAdjustmentDto | null;
-    freeze: {
-      allowedCount: number;
-      maxDaysPerUse: number;
-      usedCount: number;
-      remainingCount: number;
-      pausedAt: string | null;
-      pausedUntil: string | null;
-      canFreeze: boolean;
-      canUnfreeze: boolean;
-    };
-  }>;
+  items: Array<
+    ClientPackagePaymentApi & {
+      id: string;
+      status: string;
+      packageName: string;
+      categoryName: string;
+      activationDate: string;
+      expirationDate: string;
+      totalSessions: number | null;
+      usedSessions: number | null;
+      remainingSessions: number | null;
+      isUnlimited: boolean;
+      guestSlotsTotal: number;
+      guestSlotsRemaining: number;
+      paymentDue: boolean;
+      typeBalances: ClientPackageTypeBalanceItem[];
+      lastSessionAdjustment: LastSessionAdjustmentDto | null;
+      freeze: {
+        allowedCount: number;
+        maxDaysPerUse: number;
+        usedCount: number;
+        remainingCount: number;
+        pausedAt: string | null;
+        pausedUntil: string | null;
+        canFreeze: boolean;
+        canUnfreeze: boolean;
+      };
+    }
+  >;
   total: number;
   take: number;
   offset: number;
@@ -293,6 +297,8 @@ export class ClientsTabListsService {
               sourceId: true,
               status: true,
               paymentMethod: true,
+              amountCents: true,
+              metadata: true,
               createdAt: true,
             },
             orderBy: { createdAt: 'desc' },
@@ -301,20 +307,13 @@ export class ClientsTabListsService {
       loadStudioPackagePaymentDueIds(this.prisma, packageIds),
     ]);
 
-    const paymentByPackageId = new Map<
-      string,
-      { id: string; status: string; paymentMethod: string | null }
-    >();
+    const paymentByPackageId = new Map<string, ClientPackagePaymentRow>();
     for (const payment of payments) {
       if (payment.sourceId === null) {
         continue;
       }
       if (!paymentByPackageId.has(payment.sourceId)) {
-        paymentByPackageId.set(payment.sourceId, {
-          id: payment.id,
-          status: payment.status,
-          paymentMethod: payment.paymentMethod,
-        });
+        paymentByPackageId.set(payment.sourceId, payment);
       }
     }
 
@@ -341,9 +340,7 @@ export class ClientsTabListsService {
           usedSessions,
           remainingSessions: row.sessionsRemaining,
           isUnlimited: resolvedPlan.isUnlimited,
-          paymentId: paymentByPackageId.get(row.id)?.id ?? null,
-          paymentStatus: paymentByPackageId.get(row.id)?.status ?? null,
-          paymentMethod: paymentByPackageId.get(row.id)?.paymentMethod ?? null,
+          ...toClientPackagePaymentApi(paymentByPackageId.get(row.id)),
           paymentDue:
             paymentDueIds.has(row.id) &&
             isStudioUnpaidPayment({
