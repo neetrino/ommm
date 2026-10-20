@@ -18,6 +18,7 @@ import styles from "@/components/marketing/schedule/schedule-week-session-card.m
 import { coachCardInitials } from "@/components/coaches/coach-card-display";
 import { MemberProfileAvatar } from "@/components/shell/member-profile-avatar";
 import { formatScheduleTimeHHmm } from "@/lib/format-time-display";
+import { isMemberBookingClosed } from "@/lib/member-booking-window";
 import { resolveApiAssetUrl } from "@/lib/resolve-api-asset-url";
 
 const SCHEDULE_PAGE_LOGIN_RETURN_PATH = "/schedule";
@@ -99,6 +100,7 @@ export function ScheduleWeekSessionCard({
     eligibility: packageEligibility,
     eligibilityLoaded,
   });
+  const bookingClosed = isMemberBookingClosed(row.sessionDate, row.startTime);
   const instructorAvatarSrc =
     row.instructorAvatarUrl != null
       ? resolveApiAssetUrl(row.instructorAvatarUrl) ?? row.instructorAvatarUrl
@@ -156,7 +158,7 @@ export function ScheduleWeekSessionCard({
               />
             ) : null}
             <div className={styles.actionRow}>
-              {userBookingId === undefined ? (
+              {userBookingId === undefined && !bookingClosed ? (
                 <ScheduleSessionSpotsLabel
                   availableSpots={row.availableSpots}
                   status={row.status}
