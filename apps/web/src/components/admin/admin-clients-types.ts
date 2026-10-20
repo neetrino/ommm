@@ -171,6 +171,10 @@ export type ClientSheetPackageItem = {
   paymentId: string | null;
   paymentStatus: string | null;
   paymentMethod: string | null;
+  paymentAmountCents?: number | null;
+  /** Price before promo code and gift credits; null when nothing was discounted. */
+  paymentListPriceCents?: number | null;
+  paymentCouponCode?: string | null;
   paymentDue?: boolean;
   typeBalances?: ClientSheetPackageTypeBalance[];
   lastSessionAdjustment?: {

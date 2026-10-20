@@ -2719,6 +2719,7 @@
         "finalPrice": "Վերջնական գին",
         "studioCost": "Ստուդիայի ծախս",
         "clientPays": "Հաճախորդը վճարում է",
+        "promoCode": "Պրոմոկոդ {code}",
         "sessionsCount": "{count} սեսիա",
         "periodDays": "{days}-օրյա ժամանակաշրջան",
         "confirmLead": "Ընտրեք վճարման եղանակը, ստուգեք փաթեթի մանրամասները, ապա հաստատեք։",

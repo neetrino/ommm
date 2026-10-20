@@ -2716,6 +2716,7 @@
         "finalPrice": "Итоговая цена",
         "studioCost": "Расход студии",
         "clientPays": "Клиент платит",
+        "promoCode": "Промокод {code}",
         "sessionsCount": "{count} занятий",
         "periodDays": "Период {days} дн.",
         "confirmLead": "Выберите способ оплаты, проверьте детали пакета, затем подтвердите.",

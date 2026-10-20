@@ -13,6 +13,7 @@ import type { ClientSheetPackageItem } from "@/components/admin/admin-clients-ty
 import { shouldShowStudioPackagePaymentDue } from "@/components/admin/admin-client-package-payment-due";
 import { AdminClientPackageTypeBalances } from "@/components/admin/admin-client-package-type-balances";
 import { AdminClientPackageActions } from "@/components/admin/admin-client-package-actions";
+import { AdminClientPackagePrice } from "@/components/admin/admin-client-package-price";
 import { AdminClientPackageRemoveButton } from "@/components/admin/admin-client-package-remove-button";
 import { AdminStaffPaymentEditors } from "@/components/admin/admin-staff-payment-editors";
 import { AdminClientPackageValidityEditor } from "@/components/admin/admin-client-package-validity-editor";
@@ -194,6 +195,9 @@ export function AdminClientPackageCard({
         <p className="inline-flex justify-self-end rounded-full border border-sage-200/80 bg-white/90 px-3.5 py-1.5 text-sm font-semibold text-sage-800 shadow-[inset_0_1px_0_rgba(255,255,255,0.85)]">
           {validityLabel}
         </p>
+        <div className="col-span-2 border-t border-sage-200/60 pt-3">
+          <AdminClientPackagePrice item={item} locale={locale} />
+        </div>
       </div>
 
       <div className="mt-5 space-y-3">

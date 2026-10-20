@@ -38,6 +38,11 @@ import {
   mapClientPackageTypeBalances,
   type ClientPackageTypeBalanceItem,
 } from './clients-package-type-balances.util';
+import {
+  toClientPackagePaymentApi,
+  type ClientPackagePaymentApi,
+  type ClientPackagePaymentRow,
+} from './clients-package-payment.mapper';
 
 const bookingInclude = Prisma.validator<Prisma.BookingInclude>()({
   session: {
@@ -125,7 +130,7 @@ type ClientGiftCardsPage = {
 };
 
 type ClientPackagesPage = {
-  items: Array<{
+  items: Array<ClientPackagePaymentApi & {
     id: string;
     status: string;
     packageName: string;
@@ -138,9 +143,6 @@ type ClientPackagesPage = {
     isUnlimited: boolean;
     guestSlotsTotal: number;
     guestSlotsRemaining: number;
-    paymentId: string | null;
-    paymentStatus: string | null;
-    paymentMethod: string | null;
     paymentDue: boolean;
     typeBalances: ClientPackageTypeBalanceItem[];
     lastSessionAdjustment: LastSessionAdjustmentDto | null;
@@ -293,6 +295,8 @@ export class ClientsTabListsService {
               sourceId: true,
               status: true,
               paymentMethod: true,
+              amountCents: true,
+              metadata: true,
               createdAt: true,
             },
             orderBy: { createdAt: 'desc' },
@@ -301,20 +305,13 @@ export class ClientsTabListsService {
       loadStudioPackagePaymentDueIds(this.prisma, packageIds),
     ]);
 
-    const paymentByPackageId = new Map<
-      string,
-      { id: string; status: string; paymentMethod: string | null }
-    >();
+    const paymentByPackageId = new Map<string, ClientPackagePaymentRow>();
     for (const payment of payments) {
       if (payment.sourceId === null) {
         continue;
       }
       if (!paymentByPackageId.has(payment.sourceId)) {
-        paymentByPackageId.set(payment.sourceId, {
-          id: payment.id,
-          status: payment.status,
-          paymentMethod: payment.paymentMethod,
-        });
+        paymentByPackageId.set(payment.sourceId, payment);
       }
     }
 
@@ -341,9 +338,7 @@ export class ClientsTabListsService {
           usedSessions,
           remainingSessions: row.sessionsRemaining,
           isUnlimited: resolvedPlan.isUnlimited,
-          paymentId: paymentByPackageId.get(row.id)?.id ?? null,
-          paymentStatus: paymentByPackageId.get(row.id)?.status ?? null,
-          paymentMethod: paymentByPackageId.get(row.id)?.paymentMethod ?? null,
+          ...toClientPackagePaymentApi(paymentByPackageId.get(row.id)),
           paymentDue:
             paymentDueIds.has(row.id) &&
             isStudioUnpaidPayment({

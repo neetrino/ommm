@@ -2718,6 +2718,7 @@
         "finalPrice": "Final price",
         "studioCost": "Studio cost",
         "clientPays": "Client pays",
+        "promoCode": "Promo {code}",
         "sessionsCount": "{count} sessions",
         "periodDays": "{days}-day period",
         "confirmLead": "Choose the payment method, review the package details, then confirm.",
