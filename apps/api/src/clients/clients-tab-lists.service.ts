@@ -130,33 +130,35 @@ type ClientGiftCardsPage = {
 };
 
 type ClientPackagesPage = {
-  items: Array<ClientPackagePaymentApi & {
-    id: string;
-    status: string;
-    packageName: string;
-    categoryName: string;
-    activationDate: string;
-    expirationDate: string;
-    totalSessions: number | null;
-    usedSessions: number | null;
-    remainingSessions: number | null;
-    isUnlimited: boolean;
-    guestSlotsTotal: number;
-    guestSlotsRemaining: number;
-    paymentDue: boolean;
-    typeBalances: ClientPackageTypeBalanceItem[];
-    lastSessionAdjustment: LastSessionAdjustmentDto | null;
-    freeze: {
-      allowedCount: number;
-      maxDaysPerUse: number;
-      usedCount: number;
-      remainingCount: number;
-      pausedAt: string | null;
-      pausedUntil: string | null;
-      canFreeze: boolean;
-      canUnfreeze: boolean;
-    };
-  }>;
+  items: Array<
+    ClientPackagePaymentApi & {
+      id: string;
+      status: string;
+      packageName: string;
+      categoryName: string;
+      activationDate: string;
+      expirationDate: string;
+      totalSessions: number | null;
+      usedSessions: number | null;
+      remainingSessions: number | null;
+      isUnlimited: boolean;
+      guestSlotsTotal: number;
+      guestSlotsRemaining: number;
+      paymentDue: boolean;
+      typeBalances: ClientPackageTypeBalanceItem[];
+      lastSessionAdjustment: LastSessionAdjustmentDto | null;
+      freeze: {
+        allowedCount: number;
+        maxDaysPerUse: number;
+        usedCount: number;
+        remainingCount: number;
+        pausedAt: string | null;
+        pausedUntil: string | null;
+        canFreeze: boolean;
+        canUnfreeze: boolean;
+      };
+    }
+  >;
   total: number;
   take: number;
   offset: number;
