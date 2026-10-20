@@ -4541,6 +4541,7 @@
       "paymentsTab": {
         "loading": "Բեռնում…",
         "loadFailed": "Չհաջողվեց բեռնել վճարումները։",
+        "totalAmount": "Ընդամենը",
         "rowCount": "{count} վճարում"
       },
       "actions": {

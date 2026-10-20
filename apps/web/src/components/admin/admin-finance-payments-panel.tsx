@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { AdminFinancePaymentCompactRow } from "@/components/admin/admin-finance-payment-compact-row";
+import { AdminFinancePaymentsTotal } from "@/components/admin/admin-finance-payments-total";
 import { AdminFinancePaymentDetailsSheet } from "@/components/admin/admin-finance-payment-details-sheet";
 import type { AdminUpdatablePaymentStatus } from "@/components/admin/admin-finance-payment-status-picker";
 import type { StudioManualPaymentMethod } from "@/lib/payment-confirmation";
@@ -205,6 +206,12 @@ export function AdminFinancePaymentsPanel({
     <div className="space-y-4">
       {error ? <div className="app-alert-warn">{error}</div> : null}
       {loading ? <p className="text-sm text-sage-500">{t("loading")}</p> : null}
+
+      <AdminFinancePaymentsTotal
+        locale={locale}
+        totalAmountCents={paymentsPayload.totalAmountCents}
+        totalCount={paymentsPayload.total}
+      />
 
       <div className={ADMIN_FINANCE_PAYMENTS_LIST_SCROLL_CLASS}>
         <div className={ADMIN_FINANCE_PAYMENTS_LIST_TABLE_CLASS}>

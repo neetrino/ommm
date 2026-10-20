@@ -4538,6 +4538,7 @@
       "paymentsTab": {
         "loading": "Загрузка…",
         "loadFailed": "Не удалось загрузить платежи.",
+        "totalAmount": "Итого",
         "rowCount": "{count} платежей"
       },
       "actions": {
