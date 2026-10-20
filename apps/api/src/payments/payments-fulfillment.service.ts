@@ -21,6 +21,7 @@ import {
 import { reservePendingDropInGift } from './payments-dropin-gift';
 import { fulfillStudioCart, readCartCheckout } from './payments-cart.fulfill';
 import { decideGiftEmail, scheduleGiftEmail } from './payments-gift-delivery';
+import { assertMemberBookingWindow } from '../bookings/bookings-member-window';
 import { PrismaService } from '../prisma/prisma.service';
 import { WhatsappBookingConfirmedService } from '../whatsapp/whatsapp-booking-confirmed.service';
 import { WhatsappNotifyService } from '../whatsapp/whatsapp-notify.service';
@@ -76,9 +77,7 @@ export class PaymentsFulfillmentService {
     if (!classSession || classSession.status === ClassSessionStatus.CANCELLED) {
       throw new BadRequestException('Session is not available');
     }
-    if (classSession.startsAt < new Date()) {
-      throw new BadRequestException('Session already started');
-    }
+    assertMemberBookingWindow(classSession.startsAt);
     const existing = await tx.booking.findUnique({
       where: ownerBookingUniqueWhere(userId, sessionId),
     });

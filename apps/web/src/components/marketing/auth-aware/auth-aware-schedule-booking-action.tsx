@@ -24,6 +24,7 @@ import { buildLoginHrefWithReturnUrl } from "@/lib/auth-redirect";
 import { ApiError, apiFetch } from "@/lib/api";
 import { dispatchNotificationsRefresh } from "@/lib/notifications-refresh-event";
 import { dispatchPackagesRefresh } from "@/lib/packages-refresh-event";
+import { isMemberBookingClosed } from "@/lib/member-booking-window";
 import { isScheduleSessionFull } from "@/lib/schedule-session-spots";
 
 const DEFAULT_LOGIN_RETURN_PATH = "/schedule";
@@ -138,6 +139,7 @@ export function AuthAwareScheduleBookingAction({
   }
 
   const isFull = isScheduleSessionFull(availableSpots, sessionStatus);
+  const bookingClosed = isMemberBookingClosed(sessionDate, sessionStartTime);
   const resolvedBookingId = bookingId ?? userBookingId;
   const isBooked = resolvedBookingId !== undefined;
   const showOnWaitlist = !isBooked && (onWaitlist || initialOnWaitlist);
@@ -223,8 +225,19 @@ export function AuthAwareScheduleBookingAction({
     );
   }
 
+  function renderClosedAction(): ReactNode {
+    return (
+      <button type="button" className={className} disabled aria-disabled="true">
+        {tSchedule("bookingClosed")}
+      </button>
+    );
+  }
+
   function renderAction(): ReactNode {
     if (audience === "guest") {
+      if (bookingClosed && !isFull) {
+        return renderClosedAction();
+      }
       return (
         <button
           type="button"
@@ -280,6 +293,10 @@ export function AuthAwareScheduleBookingAction({
           {tWaitlist("action")}
         </button>
       );
+    }
+
+    if (bookingClosed) {
+      return renderClosedAction();
     }
 
     return (

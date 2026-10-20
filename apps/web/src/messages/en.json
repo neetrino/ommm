@@ -1114,6 +1114,7 @@
       "listHeaderSpots": "Spots",
       "listHeaderActions": "Actions",
       "bookedBadge": "Booked",
+      "bookingClosed": "Booking closed",
       "filteredEmptyTitle": "No sessions match your filters",
       "filteredEmptyDescription": "Try adjusting the date range, class type, coach, or availability.",
       "filters": {
@@ -1477,6 +1478,7 @@
           "alreadyBooked": "You are already booked for this class.",
           "full": "This class is full, so it was not booked. Your package is still active.",
           "started": "This class has already started, so it was not booked. Your package is still active.",
+          "closed": "Booking for this class closed 12 hours before it starts. Your package is still active.",
           "unavailable": "This class is no longer available. Your package is still active.",
           "notCovered": "This package does not cover this class. Your package is still active."
         },
@@ -1848,6 +1850,7 @@
       "spotsFull": "Full",
       "withInstructor": "{name}",
       "bookedBadge": "Booked",
+      "bookingClosed": "Booking closed",
       "onWaitlistBadge": "On waitlist",
       "actionLoading": "…",
       "prevDatesAria": "Previous dates",
@@ -4908,6 +4911,7 @@
       "paymentsTab": {
         "loading": "Loading…",
         "loadFailed": "Could not load payments.",
+        "totalAmount": "Total",
         "rowCount": "{count} payments"
       },
       "coachTab": {
