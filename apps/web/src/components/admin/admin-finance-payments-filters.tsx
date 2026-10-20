@@ -30,7 +30,6 @@ import {
   parseFinanceStatusFilter,
 } from "@/components/admin/admin-finance-url";
 import { ListPageSearchFilters } from "@/components/shared/search/list-page-search-filters";
-import { usePropSyncedState } from "@/hooks/use-prop-synced-state";
 import { apiFetch } from "@/lib/api";
 import { resetListPageQuery } from "@/lib/list-pagination";
 
@@ -55,10 +54,12 @@ type AdminFinancePaymentsFiltersProps = {
   todayOnly?: boolean;
 };
 
-/** Remount key so external URL changes reset the local filter draft. */
+/**
+ * Remount key so external URL changes reset the local filter draft.
+ * Excludes `q`: the debounced search write-back would otherwise remount the input mid-typing.
+ */
 export function financePaymentsFiltersKey(values: FinanceFilterValues): string {
   return [
-    values.q,
     values.from,
     values.to,
     values.source,
@@ -83,7 +84,7 @@ export function AdminFinancePaymentsFilters({
   const hasMounted = useRef(false);
   const searchParamsRef = useRef(searchParams.toString());
   const [, startTransition] = useTransition();
-  const [values, setValues] = usePropSyncedState(initialValues);
+  const [values, setValues] = useState(initialValues);
 
   useEffect(() => {
     searchParamsRef.current = searchParams.toString();

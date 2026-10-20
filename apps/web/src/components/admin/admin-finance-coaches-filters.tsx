@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useTransition } from "react";
+import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { usePathname, useRouter } from "@/i18n/navigation";
@@ -17,7 +17,6 @@ import {
   buildFinanceCoachesFiltersQuery,
   FINANCE_COACH_PAGE_KEYS,
 } from "@/components/admin/admin-finance-url";
-import { usePropSyncedState } from "@/hooks/use-prop-synced-state";
 import { resetListPageQuery } from "@/lib/list-pagination";
 
 const FILTER_DEBOUNCE_MS = 300;
@@ -37,7 +36,7 @@ export function AdminFinanceCoachesFilters({ initialValues }: AdminFinanceCoache
   const searchParamsRef = useRef(searchParams.toString());
   const hasMounted = useRef(false);
   const [, startTransition] = useTransition();
-  const [values, setValues] = usePropSyncedState(initialValues);
+  const [values, setValues] = useState(initialValues);
 
   useEffect(() => {
     searchParamsRef.current = searchParams.toString();
