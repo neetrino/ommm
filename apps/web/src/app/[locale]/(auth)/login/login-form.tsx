@@ -2,7 +2,7 @@
 
 import { useLocale, useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "@/i18n/navigation";
 import { GoogleLogoIcon } from "@/components/ui/google-logo-icon";
 import { FormErrorBanner } from "@/components/ui/form-validation";
@@ -18,6 +18,15 @@ import { buildGoogleAuthStartUrl } from "@/lib/google-auth-start-url";
 import { GOOGLE_NO_ACCOUNT_ERROR } from "@/lib/google-auth-errors";
 import { PSEUDO_EMAIL, PSEUDO_PASSWORD } from "@/lib/pseudo-form-placeholders";
 
+function withoutClosedAccountError(params: { toString(): string }): string {
+  const next = new URLSearchParams(params.toString());
+  if (next.get("error") !== GOOGLE_NO_ACCOUNT_ERROR) {
+    return next.toString();
+  }
+  next.delete("error");
+  return next.toString();
+}
+
 export function LoginForm() {
   const searchParams = useSearchParams();
   const urlLocale = useLocale();
@@ -30,10 +39,26 @@ export function LoginForm() {
     readClientInviteRef(searchParams.get("ref")),
   );
   const emailFromQuery = searchParams.get("email")?.trim() ?? "";
-  const closedAccountError =
+  const registerQuery = withoutClosedAccountError(searchParams);
+  const [closedAccountError] = useState<string | null>(() =>
     searchParams.get("error") === GOOGLE_NO_ACCOUNT_ERROR
       ? tAuth("googleNoAccount")
-      : null;
+      : null,
+  );
+
+  useEffect(() => {
+    if (searchParams.get("error") !== GOOGLE_NO_ACCOUNT_ERROR) {
+      return;
+    }
+    const query = withoutClosedAccountError(
+      new URLSearchParams(window.location.search),
+    );
+    const nextUrl =
+      query.length > 0
+        ? `${window.location.pathname}?${query}`
+        : window.location.pathname;
+    window.history.replaceState(window.history.state, "", nextUrl);
+  }, [searchParams]);
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -130,11 +155,7 @@ export function LoginForm() {
       <p className="ommm-body-muted mt-8 text-center text-sm">
         {tAuth("noAccountPrompt")}{" "}
         <Link
-          href={
-            searchParams.toString() !== ""
-              ? `/register?${searchParams.toString()}`
-              : "/register"
-          }
+          href={registerQuery.length > 0 ? `/register?${registerQuery}` : "/register"}
           className="ommm-link-sage"
         >
           {t("register")}
