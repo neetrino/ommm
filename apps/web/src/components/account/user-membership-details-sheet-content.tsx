@@ -21,25 +21,26 @@ import {
   ADMIN_DETAILS_SHEET_HEADER_CLASS,
   ADMIN_DETAILS_SHEET_TITLE_CLASS,
 } from "@/components/admin/admin-details-sheet-layout";
+import {
+  DETAILS_CARD_FOOTER_CLASS,
+  DetailsCard,
+  DetailsField,
+  DetailsFieldRow,
+  DetailsStat,
+  DetailsStatStrip,
+} from "@/components/shared/details/details-card";
+import {
+  CalendarGlyph,
+  PauseGlyph,
+  TicketGlyph,
+  UsersGlyph,
+  WalletGlyph,
+} from "@/components/shared/details/details-glyphs";
 import { GUEST_PASSES_ENABLED } from "@/lib/guest-passes";
 import { formatAmdFromCents } from "@/lib/price-amd";
 import type { UserMembershipRow, UserPackageStatus } from "@/lib/user-package-types";
 
 export const MEMBERSHIP_DETAILS_SHEET_TITLE_ID = "user-membership-details-sheet-title";
-
-const DETAIL_LABEL_CLASS =
-  "text-[11px] font-semibold uppercase tracking-[0.1em] text-sage-500";
-
-const DETAIL_VALUE_CLASS = "text-sm font-medium text-sage-900 text-right";
-
-const DETAIL_BLOCK_CLASS =
-  "divide-y divide-sand-100/90 rounded-[1.35rem] border border-white/70 bg-white/70 p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.85)]";
-
-const DETAIL_ROW_CLASS =
-  "flex items-baseline justify-between gap-x-6 gap-y-1 px-3.5 py-3";
-
-const USAGE_BLOCK_CLASS =
-  "mt-4 space-y-3 rounded-[1.35rem] border border-white/70 bg-gradient-to-br from-white/90 via-white/75 to-sand-50/80 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.9)]";
 
 type MembershipDetailsSheetContentProps = {
   membership: UserMembershipRow;
@@ -86,7 +87,7 @@ export function MembershipDetailsSheetContent({
               {display.sessionName}
             </h2>
             {membership.plan.categoryName ? (
-              <p className="text-sm text-sage-600">{membership.plan.categoryName}</p>
+              <p className="text-sm text-sage-500">{membership.plan.categoryName}</p>
             ) : null}
           </div>
           <div className="flex shrink-0 items-center gap-2">
@@ -108,84 +109,56 @@ export function MembershipDetailsSheetContent({
       </header>
 
       <div className={`${ADMIN_DETAILS_SHEET_BODY_CLASS} min-h-0 flex-1`}>
-        <dl className={DETAIL_BLOCK_CLASS}>
-          <DetailRow
-            label={t("membershipDetailsPrice")}
-            value={formatAmdFromCents(membership.plan.priceCents, locale)}
-            valueClassName="text-base font-semibold tracking-tight text-sage-950 text-right"
-          />
-          <DetailRow
-            label={t("membershipDetailsValidity")}
-            value={display.validityLabel}
-          />
-          {membership.freeze !== undefined && membership.freeze.allowedCount > 0 ? (
-            <DetailRow
-              label={t("membershipDetailsFreeze")}
-              value={t("membershipFreezeRemaining", {
-                remaining: membership.freeze.remainingCount,
-                allowed: membership.freeze.allowedCount,
-                days: membership.freeze.maxDaysPerUse,
-              })}
-            />
-          ) : null}
-          {guestUsed !== null && membership.guestSlotsTotal != null ? (
-            <DetailRow
-              label={t("membershipDetailsGuestPasses")}
-              value={t("sessionsUsedOfTotal", {
-                used: guestUsed,
-                total: membership.guestSlotsTotal,
-              })}
-            />
-          ) : null}
-          {!showUsage ? (
-            <DetailRow
-              label={t("membershipDetailsSessions")}
-              value={display.sessionsSummary}
-            />
-          ) : null}
-        </dl>
-
-        {showUsage &&
-        display.usedSessions !== null &&
-        display.totalSessions !== null ? (
-          <div className={USAGE_BLOCK_CLASS}>
-            <div className="flex items-baseline justify-between gap-3">
-              <p className={DETAIL_LABEL_CLASS}>{t("membershipDetailsSessions")}</p>
-              <p className="text-sm font-semibold text-sage-950">
+        <DetailsCard>
+          <div>
+            <DetailsStatStrip bordered={false}>
+              <DetailsStat label={t("membershipDetailsPrice")} icon={<WalletGlyph />} tone="mint">
+                <span className="font-serif text-lg">
+                  {formatAmdFromCents(membership.plan.priceCents, locale)}
+                </span>
+              </DetailsStat>
+              <DetailsStat label={t("membershipDetailsValidity")} icon={<CalendarGlyph />} tone="blue">
+                {display.validityLabel}
+              </DetailsStat>
+              <DetailsStat label={t("membershipDetailsSessions")} icon={<TicketGlyph />} tone="peach">
                 {display.sessionsSummary}
-              </p>
-            </div>
-            <PackageUsageBar
-              used={display.usedSessions}
-              total={display.totalSessions}
-              ariaLabel={display.sessionsSummary}
-            />
+              </DetailsStat>
+            </DetailsStatStrip>
+            {showUsage && display.usedSessions !== null && display.totalSessions !== null ? (
+              <div className="pt-4">
+                <PackageUsageBar
+                  used={display.usedSessions}
+                  total={display.totalSessions}
+                  ariaLabel={display.sessionsSummary}
+                />
+              </div>
+            ) : null}
           </div>
-        ) : null}
 
-        {membership.awaitingFirstVisit === true ? null : (
-          <div className="mt-4">
+          <MembershipExtraFields membership={membership} guestUsed={guestUsed} />
+
+          {membership.awaitingFirstVisit === true ? null : (
             <MembershipPeriodHighlight
               locale={locale}
               periodStart={membership.currentPeriodStart}
               periodEnd={membership.currentPeriodEnd}
               variant="board"
             />
-          </div>
-        )}
+          )}
 
-        {showLifecycleActions ? (
-          <div className="mt-5 flex justify-end">
-            <UserPackageLifecycleActions
-              userPackageId={membership.id}
-              status={status}
-              freeze={membership.freeze}
-              layout="boardPhone"
-              hiddenActions={["renew"]}
-              lifecycle={lifecycle}
-            />
-          </div>
-        ) : null}
+          {showLifecycleActions ? (
+            <div className={`${DETAILS_CARD_FOOTER_CLASS} justify-end`}>
+              <UserPackageLifecycleActions
+                userPackageId={membership.id}
+                status={status}
+                freeze={membership.freeze}
+                layout="boardPhone"
+                hiddenActions={["renew"]}
+                lifecycle={lifecycle}
+              />
+            </div>
+          ) : null}
+        </DetailsCard>
       </div>
 
       {showLifecycleActions && lifecycle.showRenew ? (
@@ -207,22 +180,50 @@ export function MembershipDetailsSheetContent({
   );
 }
 
-type DetailRowProps = {
-  label: string;
-  value: string;
-  valueClassName?: string;
-};
+/** Freeze allowance and guest passes, side by side when both apply. */
+function MembershipExtraFields({
+  membership,
+  guestUsed,
+}: {
+  membership: UserMembershipRow;
+  guestUsed: number | null;
+}) {
+  const t = useTranslations("userPages.packages");
+  const freeze =
+    membership.freeze !== undefined && membership.freeze.allowedCount > 0
+      ? membership.freeze
+      : null;
+  const guestTotal = guestUsed !== null ? membership.guestSlotsTotal : null;
+  if (freeze === null && guestTotal == null) {
+    return null;
+  }
 
-function DetailRow({
-  label,
-  value,
-  valueClassName = DETAIL_VALUE_CLASS,
-}: DetailRowProps) {
   return (
-    <div className={DETAIL_ROW_CLASS}>
-      <dt className={DETAIL_LABEL_CLASS}>{label}</dt>
-      <dd className={`min-w-0 ${valueClassName}`}>{value}</dd>
-    </div>
+    <DetailsFieldRow>
+      {freeze !== null ? (
+        <DetailsField
+          label={t("membershipDetailsFreeze")}
+          icon={<PauseGlyph />}
+          wide={guestTotal == null}
+          multiline
+        >
+          {t("membershipFreezeRemaining", {
+            remaining: freeze.remainingCount,
+            allowed: freeze.allowedCount,
+            days: freeze.maxDaysPerUse,
+          })}
+        </DetailsField>
+      ) : null}
+      {guestTotal != null && guestUsed !== null ? (
+        <DetailsField
+          label={t("membershipDetailsGuestPasses")}
+          icon={<UsersGlyph />}
+          wide={freeze === null}
+        >
+          {t("sessionsUsedOfTotal", { used: guestUsed, total: guestTotal })}
+        </DetailsField>
+      ) : null}
+    </DetailsFieldRow>
   );
 }
 

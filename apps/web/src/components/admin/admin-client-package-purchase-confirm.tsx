@@ -3,9 +3,19 @@
 import type { FormEvent } from "react";
 import { useTranslations } from "next-intl";
 import {
-  ADMIN_DETAILS_SHEET_DETAIL_LABEL_CLASS,
-  ADMIN_DETAILS_SHEET_DETAIL_VALUE_CLASS,
-} from "@/components/admin/admin-details-sheet-layout";
+  DetailsCard,
+  DetailsField,
+  DetailsFieldRow,
+  DetailsStat,
+  DetailsStatStrip,
+} from "@/components/shared/details/details-card";
+import {
+  CalendarGlyph,
+  CheckCircleGlyph,
+  TicketGlyph,
+  UserGlyph,
+  WalletGlyph,
+} from "@/components/shared/details/details-glyphs";
 import {
   ADMIN_CLIENT_PACKAGE_PAYMENT_METHODS,
   type AdminClientPackagePaymentMethod,
@@ -14,6 +24,13 @@ import { AdminClientPackagePromoField } from "@/components/admin/admin-client-pa
 import { formatAmdFromCents } from "@/lib/price-amd";
 import type { PromoPreview } from "@/lib/preview-promo-code";
 import type { PublicPackagePlan } from "@/lib/public-package-plan";
+
+const PAYMENT_CHOICE_CLASS = [
+  "flex min-h-12 cursor-pointer items-center gap-3 rounded-2xl border border-sage-500/15 bg-white px-4 py-3",
+  "transition-colors hover:border-sand-500/40",
+  "has-[:checked]:border-sand-500 has-[:checked]:bg-sand-100/40",
+  "has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-60",
+].join(" ");
 
 type AdminClientPackagePurchaseConfirmProps = {
   formId: string;
@@ -46,7 +63,7 @@ export function AdminClientPackagePurchaseConfirm({
 
   return (
     <form id={formId} className="space-y-5" onSubmit={onConfirm}>
-      <p className="text-sm text-sage-600">{view.lead}</p>
+      <p className="text-sm text-sage-500">{view.lead}</p>
       <PackagePurchaseSummary {...view.summary} />
       <PaymentMethodChoices
         legend={view.paymentLegend}
@@ -67,7 +84,7 @@ export function AdminClientPackagePurchaseConfirm({
         />
       )}
 
-      <div className="rounded-2xl border border-mint-200/80 bg-mint-50/90 px-4 py-3 text-sm text-sage-800 shadow-[0_12px_28px_-18px_rgba(45,40,35,0.18)]">
+      <div className="rounded-2xl border border-mint-200/80 bg-mint-100/70 px-4 py-3 text-sm text-sage-800">
         {view.hint}
       </div>
     </form>
@@ -136,126 +153,62 @@ function PaymentMethodChoices({
   onChange: (method: AdminClientPackagePaymentMethod) => void;
 }) {
   return (
-    <fieldset className="space-y-3">
-      <legend className="text-sm font-semibold text-sage-800">{legend}</legend>
-      <div className="space-y-2">
-        {ADMIN_CLIENT_PACKAGE_PAYMENT_METHODS.map((method) => (
-          <label
-            key={method}
-            className="flex cursor-pointer items-center gap-3 rounded-2xl border border-white/60 bg-white/70 px-4 py-3"
-          >
-            <input
-              type="radio"
-              name="admin-client-package-payment-method"
-              value={method}
-              checked={paymentMethod === method}
-              disabled={disabled}
-              onChange={() => onChange(method)}
-              className="h-4 w-4 accent-sand-600"
-            />
-            <span className="text-sm text-sage-800">{labelFor(method)}</span>
-          </label>
-        ))}
-      </div>
-    </fieldset>
+    <DetailsCard title={legend} icon={<WalletGlyph />} iconTone="sand">
+      <fieldset>
+        <legend className="sr-only">{legend}</legend>
+        <div className="grid grid-cols-1 gap-2 min-[400px]:grid-cols-2">
+          {ADMIN_CLIENT_PACKAGE_PAYMENT_METHODS.map((method) => (
+            <label key={method} className={PAYMENT_CHOICE_CLASS}>
+              <input
+                type="radio"
+                name="admin-client-package-payment-method"
+                value={method}
+                checked={paymentMethod === method}
+                disabled={disabled}
+                onChange={() => onChange(method)}
+                className="h-4 w-4 accent-sand-700"
+              />
+              <span className="text-sm font-medium text-sage-900">{labelFor(method)}</span>
+            </label>
+          ))}
+        </div>
+      </fieldset>
+    </DetailsCard>
   );
 }
 
-function PackagePurchaseSummary({
-  clientNameLabel,
-  clientName,
-  planName,
-  categoryName,
-  priceCaption,
-  priceLabel,
-  catalogLabel,
-  clientPaysLabel,
-  durationLabel,
-  durationValue,
-  sessionsLabel,
-  sessionsValue,
-  categoryLabel,
-}: {
-  clientNameLabel: string;
-  clientName: string;
-  planName: string;
-  categoryName: string;
-  priceCaption: string;
-  priceLabel: string;
-  catalogLabel: string | null;
-  clientPaysLabel: string | null;
-  durationLabel: string;
-  durationValue: string;
-  sessionsLabel: string;
-  sessionsValue: string;
-  categoryLabel: string;
-}) {
-  return (
-    <article className="overflow-hidden rounded-2xl border border-white/70 bg-gradient-to-b from-white/95 to-sand-50/50 shadow-[0_16px_40px_-28px_rgba(45,40,35,0.35)]">
-      <div className="border-b border-white/70 bg-white/55 px-5 py-4">
-        <p className={ADMIN_DETAILS_SHEET_DETAIL_LABEL_CLASS}>{clientNameLabel}</p>
-        <p className={`mt-1 ${ADMIN_DETAILS_SHEET_DETAIL_VALUE_CLASS}`}>{clientName}</p>
-      </div>
-      <PackagePurchaseBody
-        planName={planName}
-        categoryName={categoryName}
-        priceCaption={priceCaption}
-        priceLabel={priceLabel}
-        catalogLabel={catalogLabel}
-        clientPaysLabel={clientPaysLabel}
-        durationLabel={durationLabel}
-        durationValue={durationValue}
-        sessionsLabel={sessionsLabel}
-        sessionsValue={sessionsValue}
-        categoryLabel={categoryLabel}
-      />
-    </article>
-  );
-}
+type PackagePurchaseSummaryProps = ReturnType<typeof usePackageConfirmView>["summary"];
 
-function PackagePurchaseBody(props: {
-  planName: string;
-  categoryName: string;
-  priceCaption: string;
-  priceLabel: string;
-  catalogLabel: string | null;
-  clientPaysLabel: string | null;
-  durationLabel: string;
-  durationValue: string;
-  sessionsLabel: string;
-  sessionsValue: string;
-  categoryLabel: string;
-}) {
+function PackagePurchaseSummary(props: PackagePurchaseSummaryProps) {
   return (
-    <div className="space-y-5 px-5 py-5">
-      <div className="min-w-0">
-        <h3 className="font-serif text-2xl font-normal leading-snug text-sage-900">{props.planName}</h3>
-        <p className="mt-1 text-sm text-sage-600">{props.categoryName}</p>
-      </div>
-      <div>
-        <p className={ADMIN_DETAILS_SHEET_DETAIL_LABEL_CLASS}>{props.priceCaption}</p>
-        <p className="mt-1 font-serif text-3xl font-normal tracking-tight text-sage-900">{props.priceLabel}</p>
-        {props.catalogLabel !== null ? (
-          <p className="mt-1 text-sm text-sage-500 line-through">{props.catalogLabel}</p>
-        ) : null}
-        {props.clientPaysLabel !== null ? (
-          <p className="mt-2 text-sm text-sage-600">{props.clientPaysLabel}</p>
-        ) : null}
-      </div>
-      <dl className="grid gap-4 sm:grid-cols-2">
-        <ConfirmField label={props.durationLabel} value={props.durationValue} />
-        <ConfirmField label={props.sessionsLabel} value={props.sessionsValue} />
-        <ConfirmField label={props.categoryLabel} value={props.categoryName} />
-      </dl>
-    </div>
-  );
-}
-
-function ConfirmField({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-xl border border-white/70 bg-white/60 px-3.5 py-3">
-      <dt className={ADMIN_DETAILS_SHEET_DETAIL_LABEL_CLASS}>{label}</dt>
-      <dd className={`mt-1 ${ADMIN_DETAILS_SHEET_DETAIL_VALUE_CLASS}`}>{value}</dd>
-    </div>
+    <DetailsCard title={props.planName} icon={<TicketGlyph />}>
+      <DetailsFieldRow>
+        <DetailsField label={props.clientNameLabel} icon={<UserGlyph />} title={props.clientName}>
+          {props.clientName}
+        </DetailsField>
+        <DetailsField label={props.categoryLabel} title={props.categoryName}>
+          {props.categoryName}
+        </DetailsField>
+      </DetailsFieldRow>
+      <DetailsStatStrip>
+        <DetailsStat label={props.priceCaption} icon={<WalletGlyph />} tone="mint">
+          <span className="block font-serif text-lg">{props.priceLabel}</span>
+          {props.catalogLabel !== null ? (
+            <span className="block text-xs font-medium text-sage-500 line-through">
+              {props.catalogLabel}
+            </span>
+          ) : null}
+          {props.clientPaysLabel !== null ? (
+            <span className="block text-xs font-medium text-sage-500">{props.clientPaysLabel}</span>
+          ) : null}
+        </DetailsStat>
+        <DetailsStat label={props.durationLabel} icon={<CalendarGlyph />} tone="blue">
+          {props.durationValue}
+        </DetailsStat>
+        <DetailsStat label={props.sessionsLabel} icon={<CheckCircleGlyph />} tone="peach">
+          {props.sessionsValue}
+        </DetailsStat>
+      </DetailsStatStrip>
+    </DetailsCard>
   );
 }

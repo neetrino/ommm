@@ -2552,6 +2552,8 @@
       "bookingDetailsSessionTime": "Դասի ժամ",
       "bookingDetailsBookedOn": "Ամրագրման ամսաթիվ",
       "bookingDetailsGuest": "Հյուր",
+      "bookingDetailsSectionSession": "Պարապմունք",
+      "bookingDetailsName": "Անուն",
       "bookingDetailsNotes": "Ներքին նշումներ",
       "bookingDetailsNoNotes": "Ներքին նշումներ դեռ չկան։",
       "noteComposeLabel": "Ներքին նշում",

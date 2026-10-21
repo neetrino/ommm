@@ -2549,6 +2549,8 @@
       "bookingDetailsSessionTime": "Время занятия",
       "bookingDetailsBookedOn": "Дата бронирования",
       "bookingDetailsGuest": "Гость",
+      "bookingDetailsSectionSession": "Занятие",
+      "bookingDetailsName": "Имя",
       "bookingDetailsNotes": "Внутренние заметки",
       "bookingDetailsNoNotes": "Внутренних заметок пока нет.",
       "noteComposeLabel": "Внутренняя заметка",

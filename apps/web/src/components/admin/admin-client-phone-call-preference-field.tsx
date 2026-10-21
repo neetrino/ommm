@@ -4,9 +4,10 @@ import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import { apiFetch } from "@/lib/api";
 import { formatPhoneDisplay } from "@/lib/phone";
-
-const FIELD_LABEL_CLASS =
-  "inline-flex items-center gap-1.5 ommm-label text-[11px] uppercase tracking-wide";
+import {
+  DETAILS_FIELD_BOX_CLASS,
+  DetailsFloatingLabel,
+} from "@/components/shared/details/details-card";
 
 const TOGGLE_BUTTON_CLASS = [
   "inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg",
@@ -44,35 +45,41 @@ export function ClientPhoneCallPreferenceField({
     : `${TOGGLE_BUTTON_CLASS} bg-mint-100 text-sage-800 hover:bg-mint-200/80 focus-visible:ring-mint-400`;
 
   return (
-    <div className="flex flex-col gap-1">
-      <span className={FIELD_LABEL_CLASS}>
-        <span className="shrink-0 text-mint-600">{icon}</span>
-        {t("fieldPhone")}
-      </span>
-      <div className="flex flex-col gap-2">
-        <p className="min-h-0 break-words text-sm font-medium leading-snug text-sage-800">
-          {display}
-        </p>
-        {hasPhone ? (
-          <div className="flex min-w-0 items-center gap-2">
+    <div className="flex min-w-0 flex-col gap-1.5">
+      <DetailsFloatingLabel label={t("fieldPhone")}>
+        <div className={`${DETAILS_FIELD_BOX_CLASS} gap-2.5 py-1.5`}>
+          <span className="shrink-0 text-sage-500">{icon}</span>
+          <p className="min-w-0 flex-1 truncate text-sm font-medium text-sage-900" title={display}>
+            {hasPhone ? (
+              <a href={`tel:${phone}`} className="hover:underline">
+                {display}
+              </a>
+            ) : (
+              display
+            )}
+          </p>
+          {hasPhone ? (
             <button
               type="button"
               className={buttonClass}
               disabled={busy}
               aria-pressed={doNotCall}
               aria-label={t("callPreferenceToggleAria", { status: badgeLabel })}
+              title={badgeLabel}
               onClick={() => onToggle(!doNotCall)}
             >
               <PhoneHandsetIcon />
             </button>
-            <span
-              className={`inline-flex w-fit rounded-full px-2.5 py-0.5 text-[11px] font-medium ${badgeClass}`}
-            >
-              {badgeLabel}
-            </span>
-          </div>
-        ) : null}
-      </div>
+          ) : null}
+        </div>
+      </DetailsFloatingLabel>
+      {hasPhone ? (
+        <span
+          className={`ml-1 inline-flex w-fit rounded-full px-2.5 py-0.5 text-[11px] font-medium ${badgeClass}`}
+        >
+          {badgeLabel}
+        </span>
+      ) : null}
     </div>
   );
 }

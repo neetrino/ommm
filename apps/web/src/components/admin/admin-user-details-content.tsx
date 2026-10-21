@@ -8,10 +8,12 @@ import {
   type AdminBookingListStatus,
 } from "@/components/admin/admin-booking-list-badges";
 import {
-  ADMIN_DETAILS_SHEET_DETAIL_BLOCK_CLASS,
-  ADMIN_DETAILS_SHEET_DETAIL_LABEL_CLASS,
-  ADMIN_DETAILS_SHEET_DETAIL_VALUE_CLASS,
-} from "@/components/admin/admin-details-sheet-layout";
+  DetailsCard,
+  DetailsField,
+  DetailsFieldRow,
+  DetailsStack,
+} from "@/components/shared/details/details-card";
+import { CalendarGlyph, MailGlyph, PhoneGlyph } from "@/components/shared/details/details-glyphs";
 import type {
   ClientSheetBookingItem,
   ClientSheetPaginatedResponse,
@@ -37,15 +39,9 @@ const BOOKING_STATUSES = new Set<string>([
   "WAITLISTED",
 ]);
 
-const PROFILE_AVATAR_CLASS =
-  "flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-sand-700 text-sm font-semibold text-cream-50 ring-2 ring-white";
+const META_ICON_CLASS = "h-3.5 w-3.5 shrink-0 text-sage-500";
 
-const META_ICON_CLASS = "h-3.5 w-3.5 shrink-0 text-mint-600";
-
-const BOOKING_CARD_CLASS = [
-  "rounded-2xl border border-white/70 bg-white/80 px-3.5 py-3",
-  "shadow-[0_8px_24px_-20px_rgba(45,40,35,0.22)]",
-].join(" ");
+const BOOKING_CARD_CLASS = "rounded-2xl border border-sage-500/15 bg-white px-3.5 py-3";
 
 function fullName(name: string | null, lastName: string | null): string {
   const value = [name, lastName].filter((part) => part && part.trim().length > 0).join(" ");
@@ -114,7 +110,7 @@ export function AdminUserDetailsContent({
   }, [userId]);
 
   if (loading) {
-    return <p className="text-sm text-sage-600">{t("drawer.loading")}</p>;
+    return <p className="text-sm text-sage-500">{t("drawer.loading")}</p>;
   }
 
   if (loadFailed) {
@@ -122,34 +118,41 @@ export function AdminUserDetailsContent({
   }
 
   if (data === null) {
-    return <p className="text-sm text-sage-600">{t("drawer.empty")}</p>;
+    return <p className="text-sm text-sage-500">{t("drawer.empty")}</p>;
   }
 
   const displayName = fullName(data.name, data.lastName);
 
+  const phone = displayPhoneOrFallback(data.phone);
+
   return (
-    <div className="space-y-5">
-      <section className={ADMIN_DETAILS_SHEET_DETAIL_BLOCK_CLASS}>
-        <div className="flex items-center gap-3">
-          <span className={PROFILE_AVATAR_CLASS} aria-hidden>
+    <DetailsStack>
+      <DetailsCard
+        title={displayName}
+        iconTone="sand"
+        icon={
+          <span className="text-sm font-semibold" aria-hidden>
             {userDisplayInitials(data.name, data.lastName, data.email)}
           </span>
-          <p className="min-w-0 truncate font-semibold text-sage-900">{displayName}</p>
-        </div>
-        <dl className="mt-4 space-y-3 border-t border-sage-100 pt-4">
-          <DetailRow
-            icon="phone"
-            label={t("drawer.phone")}
-            value={displayPhoneOrFallback(data.phone)}
-          />
-          <DetailRow icon="mail" label={t("drawer.email")} value={data.email} />
-        </dl>
-      </section>
+        }
+      >
+        <DetailsFieldRow>
+          <DetailsField label={t("drawer.phone")} icon={<PhoneGlyph />} title={phone}>
+            {data.phone ? (
+              <a href={`tel:${data.phone}`} className="hover:underline">
+                {phone}
+              </a>
+            ) : (
+              phone
+            )}
+          </DetailsField>
+          <DetailsField label={t("drawer.email")} icon={<MailGlyph />} title={data.email}>
+            {data.email}
+          </DetailsField>
+        </DetailsFieldRow>
+      </DetailsCard>
 
-      <section>
-        <p className="mb-3 text-xs font-semibold uppercase tracking-[0.08em] text-sage-500">
-          {t("drawer.bookings")}
-        </p>
+      <DetailsCard title={t("drawer.bookings")} icon={<CalendarGlyph />} iconTone="blue">
         {bookings.length === 0 ? (
           <p className="text-sm text-sage-500">{t("drawer.noBookings")}</p>
         ) : (
@@ -193,63 +196,7 @@ export function AdminUserDetailsContent({
             })}
           </ul>
         )}
-      </section>
-    </div>
-  );
-}
-
-function DetailRow({
-  icon,
-  label,
-  value,
-}: {
-  icon: "phone" | "mail";
-  label: string;
-  value: string;
-}) {
-  return (
-    <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-0.5">
-      <dt className="flex items-center gap-1.5">
-        <DetailIcon name={icon} />
-        <span className={ADMIN_DETAILS_SHEET_DETAIL_LABEL_CLASS}>{label}</span>
-      </dt>
-      <dd className={`min-w-0 break-words text-right ${ADMIN_DETAILS_SHEET_DETAIL_VALUE_CLASS}`}>
-        {value}
-      </dd>
-    </div>
-  );
-}
-
-function DetailIcon({ name }: { name: "phone" | "mail" }) {
-  if (name === "phone") {
-    return (
-      <svg
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth={1.75}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        className={META_ICON_CLASS}
-        aria-hidden
-      >
-        <path d="M22 16.9v2.2a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3.1-8.7A2 2 0 0 1 4.1 2h2.2a2 2 0 0 1 2 1.7c.1.9.3 1.8.6 2.6a2 2 0 0 1-.5 2.1L7.1 9.9a16 16 0 0 0 6 6l1.5-1.3a2 2 0 0 1 2.1-.4c.8.3 1.7.5 2.6.6a2 2 0 0 1 1.7 2.1z" />
-      </svg>
-    );
-  }
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={1.75}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={META_ICON_CLASS}
-      aria-hidden
-    >
-      <rect x="3" y="5" width="18" height="14" rx="2" />
-      <path d="m3 7 9 7 9-7" />
-    </svg>
+      </DetailsCard>
+    </DetailsStack>
   );
 }

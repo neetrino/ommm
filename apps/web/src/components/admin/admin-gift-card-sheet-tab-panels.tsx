@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { adminChrome } from "@/components/admin/admin-chrome";
 import { AdminGiftCardActions } from "@/components/admin/admin-gift-card-actions";
 import { AdminGiftIssuedCards } from "@/components/admin/admin-gift-issued-cards";
 import {
@@ -30,6 +29,22 @@ import { useGiftCardValueLabel } from "@/components/admin/admin-gift-card-value"
 import { formatDateForUi } from "@/lib/date-display";
 import { formatAmdFromCents } from "@/lib/price-amd";
 import { GiftCardFace } from "@/components/gift-cards/gift-card-face";
+import {
+  DetailsCard,
+  DetailsField,
+  DetailsFieldRow,
+  DetailsStat,
+  DetailsStatStrip,
+} from "@/components/shared/details/details-card";
+import {
+  CalendarGlyph,
+  ClockGlyph,
+  GiftGlyph,
+  NoteGlyph,
+  TicketGlyph,
+  UserGlyph,
+  WalletGlyph,
+} from "@/components/shared/details/details-glyphs";
 
 const SECTION_CLASS =
   "rounded-[24px] border border-white/60 bg-white/75 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.18)]";
@@ -110,7 +125,7 @@ function GiftCardOverviewPanel({
               className={`inline-flex rounded-full border px-2 py-0.5 text-xs ${
                 expired
                   ? "border-red-200 bg-red-50 text-red-700"
-                  : "border-mint-200 bg-mint-50 text-sage-900"
+                  : "border-mint-200 bg-mint-100 text-sage-900"
               }`}
             >
               {expired ? t("drawerExpired") : t("drawerValid")}
@@ -119,26 +134,35 @@ function GiftCardOverviewPanel({
         </div>
       </section>
 
-      <div className="grid gap-3 sm:grid-cols-2">
-        <MetricCard label={t("colAmount")} value={amountLabel} />
-        <MetricCard label={t("colAvailableQuantity")} value={giftCardQuantityLabel(card)} />
-      </div>
-
-      <section className={`${SECTION_CLASS} p-4 sm:p-5`}>
-        <p className="font-medium text-sage-900">{t("detailsModalInfoHeading")}</p>
-        <dl className="mt-4 grid gap-4 text-sm sm:grid-cols-2">
-          <DetailField label={t("colPurchaser")} value={purchaserLabel(card)} />
-          <DetailField
-            label={t("colRecipient")}
-            value={recipient.length > 0 ? recipient : "—"}
-          />
-          <DetailField label={t("colCreated")} value={displayGiftCardDate(card.createdAt)} />
-          <DetailField label={t("colExpiration")} value={displayGiftCardDate(card.expiresAt)} />
+      <DetailsCard title={t("detailsModalInfoHeading")} icon={<GiftGlyph />}>
+        <DetailsStatStrip columns={2}>
+          <DetailsStat label={t("colAmount")} icon={<WalletGlyph />} tone="mint">
+            <span className="font-serif text-lg">{amountLabel}</span>
+          </DetailsStat>
+          <DetailsStat label={t("colAvailableQuantity")} icon={<TicketGlyph />} tone="peach">
+            {giftCardQuantityLabel(card)}
+          </DetailsStat>
+        </DetailsStatStrip>
+        <DetailsFieldRow>
+          <DetailsField label={t("colPurchaser")} icon={<UserGlyph />} title={purchaserLabel(card)}>
+            {purchaserLabel(card)}
+          </DetailsField>
+          <DetailsField label={t("colRecipient")} icon={<UserGlyph />} title={recipient}>
+            {recipient.length > 0 ? recipient : "—"}
+          </DetailsField>
+          <DetailsField label={t("colCreated")} icon={<CalendarGlyph />}>
+            {displayGiftCardDate(card.createdAt)}
+          </DetailsField>
+          <DetailsField label={t("colExpiration")} icon={<ClockGlyph />}>
+            {displayGiftCardDate(card.expiresAt)}
+          </DetailsField>
           {card.message ? (
-            <DetailField label={t("fieldMessage")} value={card.message} className="sm:col-span-2" />
+            <DetailsField label={t("fieldMessage")} icon={<NoteGlyph />} wide multiline>
+              {card.message}
+            </DetailsField>
           ) : null}
-        </dl>
-      </section>
+        </DetailsFieldRow>
+      </DetailsCard>
     </div>
   );
 }
@@ -211,7 +235,7 @@ function GiftCardHistoryPanel({ batchId, locale }: { batchId: string; locale: st
   }, [batchId, t]);
 
   if (loading) {
-    return <p className="text-sm text-sage-600">{t("historyLoading")}</p>;
+    return <p className="text-sm text-sage-500">{t("historyLoading")}</p>;
   }
 
   if (error !== null) {
@@ -219,7 +243,7 @@ function GiftCardHistoryPanel({ batchId, locale }: { batchId: string; locale: st
   }
 
   if (history === null) {
-    return <p className="text-sm text-sage-600">{t("historyEmpty")}</p>;
+    return <p className="text-sm text-sage-500">{t("historyEmpty")}</p>;
   }
 
   return (
@@ -255,32 +279,6 @@ function GiftCardHistoryPanel({ batchId, locale }: { batchId: string; locale: st
         )}
       </ul>
       {history.note ? <p className="mt-3 text-sage-500">{history.note}</p> : null}
-    </div>
-  );
-}
-
-function MetricCard({ label, value }: { label: string; value: string }) {
-  return (
-    <div className={adminChrome.metricCard}>
-      <p className={adminChrome.metricLabel}>{label}</p>
-      <p className={adminChrome.metricValue}>{value}</p>
-    </div>
-  );
-}
-
-function DetailField({
-  label,
-  value,
-  className = "",
-}: {
-  label: string;
-  value: string;
-  className?: string;
-}) {
-  return (
-    <div className={className}>
-      <dt className="text-xs uppercase tracking-wide text-sage-500">{label}</dt>
-      <dd className="mt-1 break-words font-medium text-sage-800">{value}</dd>
     </div>
   );
 }

@@ -14,17 +14,21 @@ import {
   isPaidDateEditable,
 } from "@/components/admin/admin-finance-payment-paid-date";
 import {
+  DETAILS_CARD_FOOTER_CLASS,
+  DetailsCard,
+  DetailsDateTime,
+  DetailsField,
+  DetailsFieldRow,
+  DetailsStack,
+  DetailsStat,
+  DetailsStatStrip,
+} from "@/components/shared/details/details-card";
+import {
   CalendarGlyph,
   CheckCircleGlyph,
   LinkGlyph,
-  PAYMENT_DETAILS_DIVIDER_CLASS,
-  PaymentDetailsCard,
-  PaymentDetailsField,
-  PaymentDetailsFieldRow,
-  PaymentDetailsStat,
-  PaymentDetailsStatStrip,
   WalletGlyph,
-} from "@/components/admin/admin-finance-payment-details-fields";
+} from "@/components/shared/details/details-glyphs";
 import {
   isEhdmReceiptMissing,
   paymentPurchaseFields,
@@ -53,17 +57,17 @@ type SectionProps = PaymentDetailsBodyProps & { t: FinanceT };
 export function AdminFinancePaymentDetailsBody(props: PaymentDetailsBodyProps) {
   const t = useTranslations("adminPages.finance");
   return (
-    <div className="space-y-4">
+    <DetailsStack>
       <PaymentCard {...props} t={t} />
       <LinkedCard {...props} t={t} />
-    </div>
+    </DetailsStack>
   );
 }
 
 function PaymentCard(props: SectionProps) {
   const { payment, t, canEditPaidAt } = props;
   return (
-    <PaymentDetailsCard
+    <DetailsCard
       title={t("paymentDetails.sections.payment")}
       icon={<WalletGlyph />}
       aside={
@@ -88,7 +92,7 @@ function PaymentCard(props: SectionProps) {
         />
       ) : null}
       <EhdmFooter payment={payment} t={t} />
-    </PaymentDetailsCard>
+    </DetailsCard>
   );
 }
 
@@ -111,23 +115,23 @@ function StatusFields({ payment, t, onPaymentUpdated, onToast }: SectionProps) {
 
   return (
     <div className="space-y-2">
-      <PaymentDetailsFieldRow>
-        <PaymentDetailsField label={t("table.colStatus")}>
+      <DetailsFieldRow>
+        <DetailsField label={t("table.colStatus")}>
           <AdminFinancePaymentStatusPicker
             status={payment.status}
             paymentMethod={payment.paymentMethod}
             busy={editors.busy}
             onChangeStatus={editors.changeStatus}
           />
-        </PaymentDetailsField>
-        <PaymentDetailsField label={t("table.colPaymentMethod")}>
+        </DetailsField>
+        <DetailsField label={t("table.colPaymentMethod")}>
           <AdminFinancePaymentMethodPicker
             paymentMethod={payment.paymentMethod}
             busy={editors.busy}
             onChangeMethod={editors.changeMethod}
           />
-        </PaymentDetailsField>
-      </PaymentDetailsFieldRow>
+        </DetailsField>
+      </DetailsFieldRow>
       <PaymentStatusReasonText
         status={payment.status}
         reason={payment.statusReason}
@@ -139,33 +143,26 @@ function StatusFields({ payment, t, onPaymentUpdated, onToast }: SectionProps) {
 
 function PaymentSummary({ payment, locale, t }: SectionProps) {
   return (
-    <PaymentDetailsStatStrip>
-      <PaymentDetailsStat label={t("table.colAmount")} icon={<WalletGlyph />} tone="mint">
+    <DetailsStatStrip>
+      <DetailsStat label={t("table.colAmount")} icon={<WalletGlyph />} tone="mint">
         <AmdMoneyText cents={payment.amountCents} locale={locale} className="font-serif text-lg" />
-      </PaymentDetailsStat>
-      <PaymentDetailsStat label={t("table.colDate")} icon={<CalendarGlyph />} tone="blue">
+      </DetailsStat>
+      <DetailsStat label={t("table.colDate")} icon={<CalendarGlyph />} tone="blue">
         <StatDateTime iso={payment.createdAt} locale={locale} />
-      </PaymentDetailsStat>
-      <PaymentDetailsStat label={t("table.colPaidDate")} icon={<CheckCircleGlyph />} tone="peach">
+      </DetailsStat>
+      <DetailsStat label={t("table.colPaidDate")} icon={<CheckCircleGlyph />} tone="peach">
         {payment.confirmedAt ? (
           <StatDateTime iso={payment.confirmedAt} locale={locale} />
         ) : (
           <span className="font-medium text-sage-500">{t("paymentDetails.paidDateEmpty")}</span>
         )}
-      </PaymentDetailsStat>
-    </PaymentDetailsStatStrip>
+      </DetailsStat>
+    </DetailsStatStrip>
   );
 }
 
 function StatDateTime({ iso, locale }: { iso: string; locale: string }) {
-  return (
-    <span className="flex flex-col items-center leading-tight">
-      <span className="tabular-nums">{formatDateForUi(iso)}</span>
-      <span className="text-xs font-medium tabular-nums text-sage-500">
-        {formatPaymentTime(iso, locale)}
-      </span>
-    </span>
-  );
+  return <DetailsDateTime date={formatDateForUi(iso)} time={formatPaymentTime(iso, locale)} />;
 }
 
 function AmountBreakdown({ payment, locale, t }: SectionProps) {
@@ -207,9 +204,7 @@ function EhdmFooter({ payment, t }: { payment: FinancePaymentItem; t: FinanceT }
     return null;
   }
   return (
-    <div
-      className={`flex items-center justify-between gap-3 pt-4 text-sm ${PAYMENT_DETAILS_DIVIDER_CLASS}`}
-    >
+    <div className={`${DETAILS_CARD_FOOTER_CLASS} justify-between text-sm`}>
       <span className="font-medium text-sage-700">{t("paymentDetails.ehdmReceipt")}</span>
       <span className="text-sage-500">{t("paymentDetails.ehdmReceiptMissing")}</span>
     </div>
@@ -219,27 +214,27 @@ function EhdmFooter({ payment, t }: { payment: FinancePaymentItem; t: FinanceT }
 function LinkedCard({ payment, userLabel, t }: SectionProps) {
   const purchase = paymentPurchaseFields(t, payment);
   return (
-    <PaymentDetailsCard title={t("paymentDetails.sections.linked")} icon={<LinkGlyph />}>
-      <PaymentDetailsFieldRow>
-        <PaymentDetailsField label={t("paymentDetails.customer")} title={userLabel}>
+    <DetailsCard title={t("paymentDetails.sections.linked")} icon={<LinkGlyph />}>
+      <DetailsFieldRow>
+        <DetailsField label={t("paymentDetails.customer")} title={userLabel}>
           {userLabel}
-        </PaymentDetailsField>
-        <PaymentDetailsField label={t("paymentDetails.email")} title={payment.user.email}>
+        </DetailsField>
+        <DetailsField label={t("paymentDetails.email")} title={payment.user.email}>
           {payment.user.email}
-        </PaymentDetailsField>
-      </PaymentDetailsFieldRow>
-      <PaymentDetailsFieldRow>
+        </DetailsField>
+      </DetailsFieldRow>
+      <DetailsFieldRow>
         {purchase.map((field) => (
-          <PaymentDetailsField
+          <DetailsField
             key={field.label}
             label={field.label}
             title={field.value}
-            className={purchase.length === 1 ? "min-[400px]:col-span-2" : undefined}
+            wide={purchase.length === 1}
           >
             {field.value}
-          </PaymentDetailsField>
+          </DetailsField>
         ))}
-      </PaymentDetailsFieldRow>
-    </PaymentDetailsCard>
+      </DetailsFieldRow>
+    </DetailsCard>
   );
 }

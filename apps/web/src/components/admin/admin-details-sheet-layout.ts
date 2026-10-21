@@ -155,7 +155,7 @@ export const ADMIN_DETAILS_SHEET_FOOTER_CLASS =
   "shrink-0 border-t border-white/60 px-5 py-4 sm:px-6";
 
 export const ADMIN_DETAILS_SHEET_DETAIL_BLOCK_CLASS =
-  "space-y-4 rounded-2xl border border-sage-200/80 bg-white p-4 shadow-[0_12px_32px_-18px_rgba(45,40,35,0.28)]";
+  "space-y-4 rounded-2xl border border-sage-500/10 bg-white p-4 shadow-[0_12px_32px_-18px_rgba(45,40,35,0.28)]";
 
 /**
  * Phone bottom sheets already dismiss via grabber swipe — hide the X below 744px.
@@ -178,7 +178,7 @@ export const ADMIN_SHEET_PHONE_HIDE_CLOSE_CLASS = "max-[743px]:hidden" as const;
 export const ADMIN_DETAILS_SHEET_TITLE_CLASS =
   "font-serif text-2xl font-normal text-sage-900";
 
-export const ADMIN_DETAILS_SHEET_LEDE_CLASS = "text-sm text-sage-600";
+export const ADMIN_DETAILS_SHEET_LEDE_CLASS = "text-sm text-sage-500";
 
 export const ADMIN_DETAILS_SHEET_DETAIL_LABEL_CLASS =
   "text-xs font-semibold uppercase tracking-[0.08em] text-sage-500";

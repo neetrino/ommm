@@ -2551,6 +2551,8 @@
       "bookingDetailsSessionTime": "Session time",
       "bookingDetailsBookedOn": "Booked on",
       "bookingDetailsGuest": "Guest",
+      "bookingDetailsSectionSession": "Session",
+      "bookingDetailsName": "Name",
       "bookingDetailsNotes": "Internal notes",
       "bookingDetailsNoNotes": "No internal notes yet.",
       "noteComposeLabel": "Internal note",
