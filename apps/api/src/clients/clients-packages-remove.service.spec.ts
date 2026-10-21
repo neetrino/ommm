@@ -54,11 +54,20 @@ describe('ClientsPackagesRemoveService', () => {
     });
     expect(tx.booking.deleteMany).not.toHaveBeenCalled();
     expect(tx.bookingConsumption.deleteMany).not.toHaveBeenCalled();
-    expect(tx.auditLog.create).toHaveBeenCalledWith(
-      expect.objectContaining({
-        data: expect.objectContaining({ action: 'CLIENT_PACKAGE_REMOVED' }),
-      }),
-    );
+    expect(tx.auditLog.create).toHaveBeenCalledWith({
+      data: {
+        actorId: 'manager-1',
+        actorRole: Role.MANAGER,
+        action: 'CLIENT_PACKAGE_REMOVED',
+        entityType: 'UserPackage',
+        entityId: 'pkg-1',
+        payload: JSON.stringify({
+          clientId: 'client-1',
+          previousStatus: UserPackageStatus.ACTIVE,
+          planName: 'Reformer 8',
+        }),
+      },
+    });
   });
 
   it('rejects a missing client', async () => {

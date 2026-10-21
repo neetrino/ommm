@@ -78,9 +78,7 @@ describe('buildClientsListWhere', () => {
     const searched = andClauses(
       buildClientsListWhere(query({ search: 'liza' })),
     );
-    expect(searched).not.toEqual(
-      expect.arrayContaining([{ deletedAt: null }]),
-    );
+    expect(searched).not.toEqual(expect.arrayContaining([{ deletedAt: null }]));
 
     expect(
       andClauses(
