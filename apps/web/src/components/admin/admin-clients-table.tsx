@@ -19,6 +19,8 @@ type AdminClientsTableProps = {
   /** @deprecated Prefer `capabilities`. */
   readOnly?: boolean;
   capabilities?: ClientCapabilities;
+  /** Coach directory shows the name only, never the phone. */
+  hideContact?: boolean;
 };
 
 export function AdminClientsTable({
@@ -27,6 +29,7 @@ export function AdminClientsTable({
   onChanged,
   readOnly = false,
   capabilities,
+  hideContact = false,
 }: AdminClientsTableProps) {
   const t = useTranslations("adminPages.clients");
   const hideActions = capabilities ? !capabilities.canUpdate : readOnly;
@@ -62,6 +65,7 @@ export function AdminClientsTable({
           onChanged={onChanged}
           capabilities={capabilities}
           readOnly={hideActions}
+          hideContact={hideContact}
         />
       ))}
     </div>

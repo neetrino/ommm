@@ -3,6 +3,8 @@
 import { useId } from "react";
 import { useTranslations } from "next-intl";
 import { CoachClientBookingsHistory } from "@/components/coach/coach-client-bookings-history";
+import { AdminClientPackageBadge } from "@/components/admin/admin-client-package-badge";
+import type { ClientRow } from "@/components/admin/admin-clients-types";
 import {
   ADMIN_BOOKINGS_DETAILS_SHEET_PANEL_CLASS,
   ADMIN_DETAILS_SHEET_BODY_CLASS,
@@ -16,10 +18,15 @@ import { AdminSheetPortal } from "@/components/admin/admin-sheet-portal";
 import { useAdminAnimatedSheetClose } from "@/components/admin/use-admin-animated-sheet-close";
 import { formatDateTimeForUi } from "@/lib/date-display";
 
-type CoachClientBookingsTarget = {
-  id: string;
-  name: string | null;
-  lastName: string | null;
+type CoachClientBookingsTarget = Pick<
+  ClientRow,
+  | "id"
+  | "name"
+  | "lastName"
+  | "activePackageId"
+  | "activePackageStatus"
+  | "activePlanName"
+> & {
   lastSessionAt?: string | null;
 };
 
@@ -95,6 +102,9 @@ function CoachClientBookingsSheetContent({
             {when !== null ? (
               <p className={ADMIN_DETAILS_SHEET_LEDE_CLASS}>{t("lastSession", { when })}</p>
             ) : null}
+            <div className="mt-3 w-fit">
+              <AdminClientPackageBadge row={client} />
+            </div>
           </div>
           <button
             type="button"
