@@ -43,7 +43,10 @@ export type CoachPanelClientBookingsPage = {
   offset: number;
 };
 
-/** Booking history for clients who booked this coach. */
+/**
+ * Full visit history for a guest who has booked this coach.
+ * The roster stays coach-scoped; the history includes every studio visit.
+ */
 @Injectable()
 export class CoachesPanelClientsService {
   constructor(private readonly prisma: PrismaService) {}
@@ -55,11 +58,9 @@ export class CoachesPanelClientsService {
     offset: number,
   ): Promise<CoachPanelClientBookingsPage> {
     const coachId = await this.requireCoachId(userId);
-    const where = bookingWhere(coachId, clientId);
+    await this.assertClientBookedCoach(coachId, clientId);
+    const where = clientHistoryWhere(clientId);
     const total = await this.prisma.booking.count({ where });
-    if (total === 0) {
-      throw new NotFoundException();
-    }
     const rows = await this.prisma.booking.findMany({
       where,
       include: bookingInclude,
@@ -83,16 +84,29 @@ export class CoachesPanelClientsService {
     }
     return profile.id;
   }
+
+  /** 404 when this guest has never booked the signed-in coach. */
+  private async assertClientBookedCoach(
+    coachId: string,
+    clientId: string,
+  ): Promise<void> {
+    const owned = await this.prisma.booking.count({
+      where: {
+        userId: clientId,
+        user: { deletedAt: null },
+        session: { coachId },
+      },
+    });
+    if (owned === 0) {
+      throw new NotFoundException();
+    }
+  }
 }
 
-function bookingWhere(
-  coachId: string,
-  clientId: string,
-): Prisma.BookingWhereInput {
+function clientHistoryWhere(clientId: string): Prisma.BookingWhereInput {
   return {
     userId: clientId,
     user: { deletedAt: null },
-    session: { coachId },
   };
 }
 
