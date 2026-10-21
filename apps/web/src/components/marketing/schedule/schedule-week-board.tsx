@@ -24,6 +24,7 @@ import {
   type DayPeriod,
 } from "@/components/marketing/schedule/schedule-week-board-helpers";
 import { isUpcomingPublicScheduleSession } from "@/lib/filter-public-schedule-items";
+import { toLocalIsoDate } from "@/lib/local-iso-date";
 import {
   resolveMemberOnWaitlistBadge,
   resolveMemberScheduleRowDisplay,
@@ -101,12 +102,11 @@ export function ScheduleWeekBoard({
   const [collapsedPeriods, setCollapsedPeriods] = useState<ReadonlySet<DayPeriod>>(
     () => new Set(),
   );
-  const [focus, setFocus] = useState<{ weekKey: string; dayKey: string } | null>(
-    null,
-  );
   const columns = useMemo(() => buildScheduleWeekColumns(windowStart), [windowStart]);
-  const weekKey = columns[0]?.dayKey ?? "";
-  const focusedDayKey = focus?.weekKey === weekKey ? focus.dayKey : null;
+  const selectedDayKey = toLocalIsoDate(startOfLocalDay(selectedDate));
+  const focusedDayKey = columns.some((column) => column.dayKey === selectedDayKey)
+    ? selectedDayKey
+    : null;
   const weekRangeLabel = formatScheduleWeekRangeLabel(locale, windowStart);
   const sessionsByDayAndPeriod = useMemo(
     () => groupSessionsByDayAndPeriod(sessions),
@@ -117,13 +117,8 @@ export function ScheduleWeekBoard({
     [columns, sessionsByDayAndPeriod],
   );
 
-  function focusDay(day: Date, dayKey: string) {
+  function focusDay(day: Date) {
     onSelectDay(day);
-    setFocus((current) =>
-      current?.weekKey === weekKey && current.dayKey === dayKey
-        ? null
-        : { weekKey, dayKey },
-    );
   }
 
   function togglePeriod(period: DayPeriod) {

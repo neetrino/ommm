@@ -275,22 +275,25 @@
   min-width: 0;
   grid-row: span var(--period-session-rows, 1);
   grid-template-rows: subgrid;
-  transition: opacity 220ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /**
- * Soft-focus past days via opacity only.
- * Avoid filter:blur — it recomposites backdrop-filter cards and tanks performance.
+ * Dim the cards, not the subgrid column.
+ * Opacity on a subgrid item fails to repaint when focus moves to another day.
  */
 .columnDimmed {
-  opacity: 0.38;
   pointer-events: none;
+}
+
+.columnDimmed .sessions > li,
+.columnDimmed > .skeletonCard {
+  opacity: 0.38;
 }
 
 @media (prefers-reduced-motion: reduce) {
   .dayHeader,
   .dayNumber,
-  .column {
+  .sessions > li {
     transition: none;
   }
 }
@@ -306,6 +309,7 @@
   display: flex;
   min-width: 0;
   min-height: 0;
+  transition: opacity 220ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .sessions > li > * {
