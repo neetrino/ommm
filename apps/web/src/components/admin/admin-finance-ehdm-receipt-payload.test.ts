@@ -41,6 +41,15 @@ describe("toAdminEhdmReceiptPayload", () => {
     assert.equal(toAdminEhdmReceiptPayload(stubPayment({ ehdmReceipt: null })), null);
   });
 
+  it("hides an existing receipt unless the payment is online card", () => {
+    for (const paymentMethod of ["CASH", "CARD_TERMINAL", "INFLUENCER", null]) {
+      assert.equal(
+        toAdminEhdmReceiptPayload(stubPayment({ paymentMethod })),
+        null,
+      );
+    }
+  });
+
   it("uses the package name and confirmed time for the member printer", () => {
     const payload = toAdminEhdmReceiptPayload(stubPayment());
     assert.ok(payload);

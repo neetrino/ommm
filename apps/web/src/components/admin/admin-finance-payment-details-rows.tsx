@@ -1,5 +1,8 @@
 import type { useTranslations } from "next-intl";
-import type { FinancePaymentItem } from "@/components/admin/admin-finance-types";
+import {
+  isOnlineCardPaymentMethod,
+  type FinancePaymentItem,
+} from "@/components/admin/admin-finance-types";
 
 type FinanceT = ReturnType<typeof useTranslations<"adminPages.finance">>;
 
@@ -38,8 +41,11 @@ export function paymentPurchaseFields(
   return [{ label: t("paymentDetails.relatedLabel"), value: resolveRelatedLabel(t, payment) }];
 }
 
-/** True when a settled payment still has no fiscal receipt — printed data lives on Print. */
+/** True when a settled online-card payment still has no fiscal receipt. */
 export function isEhdmReceiptMissing(payment: FinancePaymentItem): boolean {
+  if (!isOnlineCardPaymentMethod(payment.paymentMethod)) {
+    return false;
+  }
   if (payment.status !== "SUCCEEDED" && payment.status !== "REFUNDED") {
     return false;
   }

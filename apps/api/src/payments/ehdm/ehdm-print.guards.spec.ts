@@ -9,11 +9,11 @@ describe('ehdm-print.guards', () => {
     status: PaymentStatus.SUCCEEDED,
     currency: 'amd',
     amountCents: 10_000,
-    paymentMethod: ManualPaymentMethod.CASH,
+    paymentMethod: ManualPaymentMethod.CARD,
     ehdmReceipt: null,
   };
 
-  it('skips non-succeeded, already receipted, non-AMD, zero, and influencer', () => {
+  it('skips non-succeeded, already receipted, non-AMD, zero, and non-card methods', () => {
     expect(
       skipReasonForEhdmPrint({ ...basePrint, status: PaymentStatus.PENDING }),
     ).toBe('payment is not SUCCEEDED');
@@ -29,13 +29,19 @@ describe('ehdm-print.guards', () => {
     expect(skipReasonForEhdmPrint({ ...basePrint, amountCents: 0 })).toBe(
       'amount is not positive',
     );
-    expect(
-      skipReasonForEhdmPrint({
-        ...basePrint,
-        paymentMethod: ManualPaymentMethod.INFLUENCER,
-      }),
-    ).toBe('influencer payment');
     expect(skipReasonForEhdmPrint(basePrint)).toBeNull();
+    for (const paymentMethod of [
+      ManualPaymentMethod.CASH,
+      ManualPaymentMethod.CARD_TERMINAL,
+      ManualPaymentMethod.BANK_TRANSFER,
+      ManualPaymentMethod.OTHER,
+      ManualPaymentMethod.INFLUENCER,
+      null,
+    ]) {
+      expect(skipReasonForEhdmPrint({ ...basePrint, paymentMethod })).toBe(
+        'payment method is not online card',
+      );
+    }
   });
 
   it('skips return when sale is missing, mock, or already returned', () => {

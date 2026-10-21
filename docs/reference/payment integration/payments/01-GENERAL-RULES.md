@@ -118,7 +118,7 @@ APP_URL=https://yoursite.com
 
 ## 8. EHDM (фискальный чек)
 
-После **любого** успешного платежа (`paymentStatus → paid`) автоматически вызывается EHDM `/print` (fire-and-forget):
+После успешного **online card** платежа (`paymentMethod = CARD`, `paymentStatus → paid`) автоматически вызывается EHDM `/print` (fire-and-forget). Cash, terminal, influencer и остальные способы чек не печатают:
 - Из callback handler-а каждого провайдера
 - При ручном изменении статуса на `paid` в админке
 - Только для заказов в AMD

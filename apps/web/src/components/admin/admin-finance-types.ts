@@ -29,6 +29,13 @@ export const FINANCE_PAYMENT_METHOD_FILTER_VALUES = [
 export type FinancePaymentMethodValue =
   (typeof FINANCE_PAYMENT_METHOD_FILTER_VALUES)[number];
 
+export const ONLINE_CARD_PAYMENT_METHOD = "CARD" satisfies FinancePaymentMethodValue;
+
+/** Fiscal receipts are shown and printed only for online card payments. */
+export function isOnlineCardPaymentMethod(method: string | null): boolean {
+  return method === ONLINE_CARD_PAYMENT_METHOD;
+}
+
 export type FinancePaymentMethodFilter = "all" | FinancePaymentMethodValue;
 
 export function isFinancePaymentMethodValue(
