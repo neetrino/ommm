@@ -9,19 +9,17 @@ type ScheduleWeekDayHeaderProps = {
   isToday: boolean;
   isSelected: boolean;
   isPastDay: boolean;
-  isDimmed: boolean;
   isFocused: boolean;
   onFocusDay: (day: Date, dayKey: string) => void;
 };
 
-/** Week-board day chip. Dimmed days stay clickable unless the day is already past. */
+/** Week-board day chip. Only past days fade; other days stay clear so they read as clickable. */
 export function ScheduleWeekDayHeader({
   column,
   locale,
   isToday,
   isSelected,
   isPastDay,
-  isDimmed,
   isFocused,
   onFocusDay,
 }: ScheduleWeekDayHeaderProps) {
@@ -33,7 +31,7 @@ export function ScheduleWeekDayHeader({
     <button
       type="button"
       disabled={isPastDay}
-      className={[styles.dayHeader, isDimmed ? styles.dayHeaderDimmed : ""]
+      className={[styles.dayHeader, isPastDay ? styles.dayHeaderDimmed : ""]
         .filter(Boolean)
         .join(" ")}
       onClick={() => onFocusDay(column.day, column.dayKey)}

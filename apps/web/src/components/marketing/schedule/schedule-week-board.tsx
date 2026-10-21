@@ -203,11 +203,6 @@ export function ScheduleWeekBoard({
             const isToday = isSameCalendarDay(column.day, today);
             const isSelected = isSameCalendarDay(column.day, selectedDate);
             const isPastDay = isBeforeCalendarDay(column.day, today);
-            const isDimmed = isScheduleWeekColumnDimmed(
-              column.dayKey,
-              isPastDay,
-              focusedDayKey,
-            );
 
             return (
               <ScheduleWeekDayHeader
@@ -217,7 +212,6 @@ export function ScheduleWeekBoard({
                 isToday={isToday}
                 isSelected={isSelected}
                 isPastDay={isPastDay}
-                isDimmed={isDimmed}
                 isFocused={column.dayKey === focusedDayKey}
                 onFocusDay={focusDay}
               />
