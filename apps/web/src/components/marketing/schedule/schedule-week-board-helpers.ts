@@ -67,6 +67,18 @@ export function formatScheduleWeekRangeLabel(
   return `${formatChip(windowStart)} - ${formatChip(weekEnd)}`;
 }
 
+/** Past columns stay dimmed. Focusing a day applies that same dim to every other column. */
+export function isScheduleWeekColumnDimmed(
+  dayKey: string,
+  isPastDay: boolean,
+  focusedDayKey: string | null,
+): boolean {
+  if (isPastDay) {
+    return true;
+  }
+  return focusedDayKey !== null && focusedDayKey !== dayKey;
+}
+
 export function buildScheduleWeekColumns(windowStart: Date): ScheduleWeekColumn[] {
   return Array.from({ length: 7 }, (_, idx) => {
     const day = startOfLocalDay(addDays(windowStart, idx));
