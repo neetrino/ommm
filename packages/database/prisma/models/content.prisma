@@ -38,7 +38,7 @@ model ContentPostTranslation {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  post ContentPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  post ContentPost @relation(fields: [postId], references: [id], onDelete: Restrict)
 
   @@unique([postId, locale])
   @@unique([locale, slug])

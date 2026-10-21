@@ -3,10 +3,10 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import {
-  PAYMENT_DETAILS_INPUT_CLASS,
-  PaymentDetailsFieldRow,
-  PaymentDetailsFloatingLabel,
-} from "@/components/admin/admin-finance-payment-details-fields";
+  DETAILS_INPUT_CLASS,
+  DetailsFieldRow,
+  DetailsFloatingLabel,
+} from "@/components/shared/details/details-card";
 import type { FinancePaymentItem } from "@/components/admin/admin-finance-types";
 import { DatePickerInput } from "@/components/ui/date-picker-input";
 import { OmmButton } from "@/components/ui/omm-button";
@@ -165,8 +165,8 @@ function PaidDateFields({
 }) {
   return (
     <div className="space-y-3">
-      <PaymentDetailsFieldRow>
-        <PaymentDetailsFloatingLabel label={dateLabel}>
+      <DetailsFieldRow>
+        <DetailsFloatingLabel label={dateLabel}>
           <DatePickerInput
             name="payment-paid-date"
             ariaLabel={dateLabel}
@@ -174,10 +174,10 @@ function PaidDateFields({
             onChange={onDateChange}
             disabled={busy}
             allowManualEntry
-            containerClassName={PAYMENT_DETAILS_INPUT_CLASS}
+            containerClassName={DETAILS_INPUT_CLASS}
           />
-        </PaymentDetailsFloatingLabel>
-        <PaymentDetailsFloatingLabel label={timeLabel}>
+        </DetailsFloatingLabel>
+        <DetailsFloatingLabel label={timeLabel}>
           <input
             type="time"
             name="payment-paid-time"
@@ -185,10 +185,10 @@ function PaidDateFields({
             value={time}
             disabled={busy}
             onChange={(event) => onTimeChange(event.target.value)}
-            className={`ommm-input ${PAYMENT_DETAILS_INPUT_CLASS}`}
+            className={`ommm-input ${DETAILS_INPUT_CLASS}`}
           />
-        </PaymentDetailsFloatingLabel>
-      </PaymentDetailsFieldRow>
+        </DetailsFloatingLabel>
+      </DetailsFieldRow>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="min-w-0 flex-1 text-xs text-sage-500">{hint}</p>
         {pending ? null : (

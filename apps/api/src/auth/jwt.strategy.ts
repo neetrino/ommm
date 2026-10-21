@@ -6,6 +6,7 @@ import type { Request } from 'express';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { ACCESS_TOKEN_COOKIE } from '../common/constants';
 import { PrismaService } from '../prisma/prisma.service';
+import { isSignInBlocked } from './user-sign-in-block';
 
 type JwtPayload = {
   sub: string;
@@ -53,7 +54,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     if (!user) {
       throw new UnauthorizedException();
     }
-    if (user.isBlocked) {
+    if (isSignInBlocked(user)) {
       throw new UnauthorizedException();
     }
     return user;

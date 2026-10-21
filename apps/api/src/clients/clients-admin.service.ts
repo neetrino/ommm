@@ -4,20 +4,18 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { BookingStatus, Prisma, Role, type User } from '@prisma/client';
-import { AuditService } from '../audit/audit.service';
+import { Role, type User } from '@prisma/client';
+import { writeAuditLog } from '../audit/write-audit-log';
 import { BACKOFFICE_WRITE_ROLES } from '../common/backoffice-roles';
 import { roleAllows } from '../common/manager-permission.matrix';
 import { normalizeOptionalPhone } from '../common/phone';
 import { PrismaService } from '../prisma/prisma.service';
+import { archiveUser, restoreArchivedUser } from '../users/archive-user';
 import type { UpdateClientDto } from './dto/update-client.dto';
 
 @Injectable()
 export class ClientsAdminService {
-  constructor(
-    private readonly prisma: PrismaService,
-    private readonly audit: AuditService,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   async updateBasicInfo(actor: User, id: string, dto: UpdateClientDto) {
     if (
@@ -30,10 +28,15 @@ export class ClientsAdminService {
     }
     const user = await this.prisma.user.findFirst({
       where: { id, role: Role.USER },
-      select: { id: true },
+      select: { id: true, deletedAt: true },
     });
     if (!user) {
       throw new NotFoundException();
+    }
+    if (dto.isBlocked === false && user.deletedAt !== null) {
+      throw new BadRequestException(
+        'Restore the archived client before activating them',
+      );
     }
     const data = {
       ...(dto.email !== undefined && { email: dto.email.toLowerCase() }),
@@ -54,33 +57,36 @@ export class ClientsAdminService {
     if (Object.keys(data).length === 0) {
       throw new BadRequestException('No updatable fields were provided');
     }
-    const updated = await this.prisma.user.update({
-      where: { id },
-      data,
-      select: {
-        id: true,
-        email: true,
-        name: true,
-        lastName: true,
-        phone: true,
-        whatsappPhone: true,
-        doNotCall: true,
-      },
-    });
-    await this.audit.log({
-      actorId: actor.id,
-      actorRole: actor.role,
-      action: 'CLIENT_UPDATED',
-      entityType: 'User',
-      entityId: id,
-      payload: data,
+    const updated = await this.prisma.$transaction(async (tx) => {
+      const row = await tx.user.update({
+        where: { id },
+        data,
+        select: {
+          id: true,
+          email: true,
+          name: true,
+          lastName: true,
+          phone: true,
+          whatsappPhone: true,
+          doNotCall: true,
+        },
+      });
+      await writeAuditLog(tx, {
+        actorId: actor.id,
+        actorRole: actor.role,
+        action: 'CLIENT_UPDATED',
+        entityType: 'User',
+        entityId: id,
+        payload: data,
+      });
+      return row;
     });
     return updated;
   }
 
   async remove(actor: User, id: string): Promise<void> {
     if (actor.role !== Role.ADMIN) {
-      throw new ForbiddenException('Only admins can delete clients');
+      throw new ForbiddenException('Only admins can archive clients');
     }
     const user = await this.prisma.user.findFirst({
       where: { id, role: Role.USER },
@@ -89,37 +95,34 @@ export class ClientsAdminService {
     if (!user) {
       throw new NotFoundException('Client not found');
     }
+    await this.prisma.$transaction((tx) =>
+      archiveUser(tx, {
+        userId: id,
+        actorId: actor.id,
+        actorRole: actor.role,
+        action: 'CLIENT_ARCHIVED',
+      }),
+    );
+  }
 
-    const activeBookings = await this.prisma.booking.count({
-      where: { userId: id, status: BookingStatus.BOOKED },
-    });
-    if (activeBookings > 0) {
-      throw new BadRequestException(
-        'Cannot delete a client with active bookings. Cancel bookings or block the client instead.',
-      );
+  async restore(actor: User, id: string): Promise<void> {
+    if (actor.role !== Role.ADMIN) {
+      throw new ForbiddenException('Only admins can restore clients');
     }
-
-    try {
-      await this.prisma.user.delete({ where: { id } });
-    } catch (error) {
-      if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.code === 'P2003'
-      ) {
-        throw new BadRequestException(
-          'This client account has linked records and cannot be deleted. Block the client instead.',
-        );
-      }
-      throw error;
-    }
-
-    await this.audit.log({
-      actorId: actor.id,
-      actorRole: actor.role,
-      action: 'CLIENT_DELETED',
-      entityType: 'User',
-      entityId: id,
+    const user = await this.prisma.user.findFirst({
+      where: { id, role: Role.USER },
+      select: { id: true },
     });
+    if (!user) {
+      throw new NotFoundException('Client not found');
+    }
+    await this.prisma.$transaction((tx) =>
+      restoreArchivedUser(tx, {
+        userId: id,
+        actorId: actor.id,
+        actorRole: actor.role,
+      }),
+    );
   }
 
   async listNotes(userId: string) {
@@ -141,25 +144,27 @@ export class ClientsAdminService {
     body: string,
   ) {
     await this.assertUserExists(userId);
-    const note = await this.prisma.clientNote.create({
-      data: {
-        userId,
-        authorId,
-        body: body.trim(),
-      },
-      include: {
-        author: { select: { id: true, name: true, email: true } },
-      },
+    return this.prisma.$transaction(async (tx) => {
+      const note = await tx.clientNote.create({
+        data: {
+          userId,
+          authorId,
+          body: body.trim(),
+        },
+        include: {
+          author: { select: { id: true, name: true, email: true } },
+        },
+      });
+      await writeAuditLog(tx, {
+        actorId: authorId,
+        actorRole: authorRole,
+        action: 'CLIENT_NOTE_ADDED',
+        entityType: 'ClientNote',
+        entityId: note.id,
+        payload: { userId },
+      });
+      return note;
     });
-    await this.audit.log({
-      actorId: authorId,
-      actorRole: authorRole,
-      action: 'CLIENT_NOTE_ADDED',
-      entityType: 'ClientNote',
-      entityId: note.id,
-      payload: { userId },
-    });
-    return note;
   }
 
   private async assertUserExists(id: string) {

@@ -28,6 +28,7 @@ import {
   CLIENT_SHEET_TAB_PROFILE,
 } from "@/components/admin/admin-client-sheet-tabs";
 import {
+  ADMIN_SHEET_PROFILE_CARD_CLASS,
   AdminSheetEditableField,
   AdminSheetReadOnlyField,
 } from "@/components/admin/admin-sheet-editable-field";
@@ -55,14 +56,15 @@ import {
   patchClientDoNotCall,
 } from "@/components/admin/admin-client-phone-call-preference-field";
 import { DashboardNavIcon } from "@/components/shell/dashboard-nav-icon";
+import { ClientActivityStats } from "@/components/admin/admin-client-activity-stats";
 
 type ClientFormController = ReturnType<typeof useClientEditForm>;
 
-const PROFILE_SECTION_CLASS =
-  "rounded-2xl border border-white/60 bg-white/60 p-3 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.22)] backdrop-blur-md sm:p-4";
+const PROFILE_SECTION_CLASS = ADMIN_SHEET_PROFILE_CARD_CLASS;
 const COMPACT_INPUT_CLASS = "ommm-input !rounded-lg !px-2.5 !py-1.5 text-sm";
 const CLIENT_AVATAR_SIZE_PX = 72;
-const PERSONAL_INFO_GRID_CLASS = "grid gap-x-2 gap-y-5 sm:grid-cols-3";
+const PERSONAL_INFO_GRID_CLASS =
+  "grid grid-cols-1 gap-x-3 gap-y-5 min-[400px]:grid-cols-2 xl:grid-cols-3";
 const FIELD_META_ICON_CLASS = "h-3.5 w-3.5 shrink-0";
 
 type ClientSheetTabPanelsProps = {
@@ -134,20 +136,7 @@ export function ClientSheetTabPanels({
   if (activeTab === CLIENT_SHEET_TAB_PROFILE) {
     return (
       <div className="space-y-5">
-        <div className="grid grid-cols-2 gap-3 xl:grid-cols-3">
-          <Metric label={t("drawer.totalVisits")} value={String(activity.totalVisits)} />
-          <Metric label={t("drawer.totalBookings")} value={String(activity.totalBookings)} />
-          <Metric label={t("drawer.cancellations")} value={String(activity.totalCancellations)} />
-          <Metric label={t("drawer.noShows")} value={String(activity.totalNoShows)} />
-          <Metric
-            label={t("drawer.lastVisit")}
-            value={activity.lastVisitDate ? formatDateForUi(activity.lastVisitDate) : "—"}
-          />
-          <Metric
-            label={t("drawer.lifetimeValue")}
-            value={formatAmdFromCents(activity.lifetimeValueCents, locale)}
-          />
-        </div>
+        <ClientActivityStats activity={activity} locale={locale} />
 
         <section className={PROFILE_SECTION_CLASS}>
           <div className="mb-3 flex items-start justify-between gap-3">
@@ -165,7 +154,7 @@ export function ClientSheetTabPanels({
           </div>
 
           {activity.preferredCoach ? (
-            <p className="mb-3 text-[11px] leading-snug text-sage-600">
+            <p className="mb-5 text-[11px] leading-snug text-sage-500">
               {t("drawer.preferredCoach")}
               <span className="mt-0.5 block font-medium text-sage-800">
                 {activity.preferredCoach.name}
@@ -563,15 +552,6 @@ function clientDisplayName(client: {
 }): string {
   const value = [client.name, client.lastName].filter(Boolean).join(" ").trim();
   return value.length > 0 ? value : client.email;
-}
-
-function Metric({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-2xl border border-white/60 bg-white/70 px-4 py-3">
-      <p className="text-xs uppercase tracking-wide text-sage-500">{label}</p>
-      <p className="mt-1 font-semibold text-sage-900">{value}</p>
-    </div>
-  );
 }
 
 function StatusBadge({ label }: { label: string }) {

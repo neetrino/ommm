@@ -14,6 +14,7 @@ function createService() {
     userPackage: { update: packageUpdate },
     booking: { deleteMany: jest.fn() },
     bookingConsumption: { deleteMany: jest.fn() },
+    auditLog: { create: jest.fn().mockResolvedValue({ id: 'audit-1' }) },
   };
   const prisma = {
     user: { findFirst: jest.fn().mockResolvedValue({ id: 'client-1' }) },
@@ -28,17 +29,13 @@ function createService() {
       fn(tx),
     ),
   };
-  const audit = { log: jest.fn().mockResolvedValue(undefined) };
-  const service = new ClientsPackagesRemoveService(
-    prisma as never,
-    audit as never,
-  );
-  return { service, prisma, tx, audit };
+  const service = new ClientsPackagesRemoveService(prisma as never);
+  return { service, prisma, tx };
 }
 
 describe('ClientsPackagesRemoveService', () => {
   it('hides the package and leaves bookings untouched', async () => {
-    const { service, tx, audit } = createService();
+    const { service, tx } = createService();
 
     const result = await service.remove(createActor(), 'client-1', 'pkg-1');
 
@@ -57,9 +54,20 @@ describe('ClientsPackagesRemoveService', () => {
     });
     expect(tx.booking.deleteMany).not.toHaveBeenCalled();
     expect(tx.bookingConsumption.deleteMany).not.toHaveBeenCalled();
-    expect(audit.log).toHaveBeenCalledWith(
-      expect.objectContaining({ action: 'CLIENT_PACKAGE_REMOVED' }),
-    );
+    expect(tx.auditLog.create).toHaveBeenCalledWith({
+      data: {
+        actorId: 'manager-1',
+        actorRole: Role.MANAGER,
+        action: 'CLIENT_PACKAGE_REMOVED',
+        entityType: 'UserPackage',
+        entityId: 'pkg-1',
+        payload: JSON.stringify({
+          clientId: 'client-1',
+          previousStatus: UserPackageStatus.ACTIVE,
+          planName: 'Reformer 8',
+        }),
+      },
+    });
   });
 
   it('rejects a missing client', async () => {

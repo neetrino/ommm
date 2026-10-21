@@ -75,7 +75,7 @@ export class ClassesService {
     return this.sessionsAdminService.cancelSession(id);
   }
 
-  deleteSession(id: string) {
-    return this.sessionsAdminService.deleteSession(id);
+  deleteSession(id: string, actor: { id: string; role: string }) {
+    return this.sessionsAdminService.deleteSession(id, actor);
   }
 }

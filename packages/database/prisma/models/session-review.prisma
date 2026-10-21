@@ -1,11 +1,11 @@
 model SessionReview {
   id              String               @id @default(cuid())
   bookingId       String               @unique
-  booking         Booking              @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  booking         Booking              @relation(fields: [bookingId], references: [id], onDelete: Restrict)
   authorUserId    String
-  author          User                 @relation("SessionReviewAuthor", fields: [authorUserId], references: [id], onDelete: Cascade)
+  author          User                 @relation("SessionReviewAuthor", fields: [authorUserId], references: [id], onDelete: Restrict)
   sessionId       String
-  session         ClassSession         @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  session         ClassSession         @relation(fields: [sessionId], references: [id], onDelete: Restrict)
   coachProfileId  String
   coachProfile    CoachProfile         @relation(fields: [coachProfileId], references: [id], onDelete: Restrict)
   isAnonymous     Boolean              @default(false)

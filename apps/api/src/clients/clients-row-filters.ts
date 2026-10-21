@@ -29,6 +29,7 @@ function matchesTag(tags: ClientTag[], tag: AdminClientTagFilter) {
 }
 
 function matchesStatus(status: ClientStatus, filter: AdminClientStatusFilter) {
+  if (filter === AdminClientStatusFilter.DELETED) return status === 'Deleted';
   if (filter === AdminClientStatusFilter.BLOCKED) return status === 'Blocked';
   if (filter === AdminClientStatusFilter.FROZEN) return false;
   if (filter === AdminClientStatusFilter.ACTIVE) return status === 'Active';

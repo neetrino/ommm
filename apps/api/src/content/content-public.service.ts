@@ -11,6 +11,7 @@ import {
   type ContentPostLocale,
 } from './content-locales';
 import { toPublicPost, type PublicContentPost } from './content-post.helpers';
+import { RETIRED_TRANSLATION_SLUG_PREFIX } from './content-translation-sync';
 
 @Injectable()
 export class ContentPublicService {
@@ -52,7 +53,10 @@ export class ContentPublicService {
       },
       include: {
         translations: {
-          where: { locale },
+          where: {
+            locale,
+            slug: { not: { startsWith: RETIRED_TRANSLATION_SLUG_PREFIX } },
+          },
         },
       },
       orderBy: { publishedAt: 'desc' },
@@ -71,6 +75,7 @@ export class ContentPublicService {
       where: {
         slug: slug.toLowerCase(),
         locale,
+        NOT: { slug: { startsWith: RETIRED_TRANSLATION_SLUG_PREFIX } },
         post: { status: ContentStatus.PUBLISHED },
       },
       include: { post: true },
@@ -89,7 +94,10 @@ export class ContentPublicService {
       },
       include: {
         translations: {
-          where: { locale },
+          where: {
+            locale,
+            slug: { not: { startsWith: RETIRED_TRANSLATION_SLUG_PREFIX } },
+          },
         },
       },
     });

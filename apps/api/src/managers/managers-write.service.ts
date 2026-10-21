@@ -13,6 +13,7 @@ import {
   normalizeRequiredPhone,
 } from '../common/phone';
 import { PrismaService } from '../prisma/prisma.service';
+import { archiveUser } from '../users/archive-user';
 import type { CreateManagerDto } from './dto/create-manager.dto';
 import type { UpdateManagerDto } from './dto/update-manager.dto';
 import { managerListSelect, toManagerDirectoryRow } from './managers.mapper';
@@ -99,26 +100,14 @@ export class ManagersWriteService {
       );
     }
     await this.requireManager(id);
-    try {
-      await this.prisma.user.delete({ where: { id } });
-    } catch (error) {
-      if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.code === 'P2003'
-      ) {
-        throw new BadRequestException(
-          'This manager account has linked records and cannot be deleted. Block the manager instead.',
-        );
-      }
-      throw error;
-    }
-    await this.audit.log({
-      actorId: actor.id,
-      actorRole: actor.role,
-      action: 'MANAGER_DELETED',
-      entityType: 'User',
-      entityId: id,
-    });
+    await this.prisma.$transaction((tx) =>
+      archiveUser(tx, {
+        userId: id,
+        actorId: actor.id,
+        actorRole: actor.role,
+        action: 'MANAGER_ARCHIVED',
+      }),
+    );
   }
 
   async resendInvite(actor: User, id: string) {

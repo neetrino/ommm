@@ -68,6 +68,7 @@ export function buildAdminClientsFilterFields({
         { value: "inactive", label: "Inactive" },
         { value: "frozen", label: "Frozen" },
         { value: "blocked", label: "Blocked" },
+        { value: "deleted", label: "Deleted" },
       ],
     },
     {

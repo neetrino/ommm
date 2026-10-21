@@ -8,8 +8,8 @@ import type { PrismaService } from '../prisma/prisma.service';
 const FAKE_CANCELLED_CLEANUP_BATCH_SIZE = 100;
 
 /**
- * Deletes CANCELLED UserPackages that never had a SUCCEEDED payment
- * (failed card checkouts from the old PENDING→CANCELLED flow).
+ * Hides CANCELLED UserPackages that never had a SUCCEEDED payment.
+ * The row stays so a later complaint can still see the checkout.
  */
 export async function cleanupUnpaidCancelledUserPackages(
   prisma: PrismaService,
@@ -55,12 +55,13 @@ export async function cleanupUnpaidCancelledUserPackages(
     return 0;
   }
 
-  const deleted = await prisma.userPackage.deleteMany({
+  const hidden = await prisma.userPackage.updateMany({
     where: {
       id: { in: deletableIds },
       status: UserPackageStatus.CANCELLED,
       removedAt: null,
     },
+    data: { removedAt: new Date() },
   });
-  return deleted.count;
+  return hidden.count;
 }

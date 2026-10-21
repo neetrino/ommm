@@ -19,7 +19,7 @@ export class CoachesPublicService {
       PUBLIC_CACHE_TTL_SEC.coaches,
       () =>
         this.prisma.coachProfile.findMany({
-          where: { isActive: true },
+          where: { isActive: true, user: { deletedAt: null } },
           include: {
             user: {
               select: {

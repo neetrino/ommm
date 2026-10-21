@@ -7,7 +7,6 @@ import { PromoCodeField } from "@/components/account/promo-code-field";
 import type { PromoPreview } from "@/lib/preview-promo-code";
 import {
   ADMIN_DETAILS_SHEET_BODY_CLASS,
-  ADMIN_DETAILS_SHEET_DETAIL_LABEL_CLASS,
   ADMIN_DETAILS_SHEET_FOOTER_CLASS,
   ADMIN_DETAILS_SHEET_HEADER_CLASS,
   ADMIN_DETAILS_SHEET_OVERLAY_CLASS,
@@ -17,6 +16,8 @@ import {
 import { displayGiftCardDate, giftCardStatusBadgeClass } from "@/components/gift-cards/gift-card-display-helpers";
 import { GiftCardFace } from "@/components/gift-cards/gift-card-face";
 import { OmmButton } from "@/components/ui/omm-button";
+import { DetailsCard, DetailsStat, DetailsStatStrip } from "@/components/shared/details/details-card";
+import { ClockGlyph, GiftGlyph, TicketGlyph } from "@/components/shared/details/details-glyphs";
 import { OmmDrawerPortal } from "@/components/ui/omm-modal";
 import { isGiftRecipientEmail } from "@/lib/gift-recipient-email";
 import { formatAmdFromCents } from "@/lib/price-amd";
@@ -160,24 +161,21 @@ function GiftMarketCardDetailsSheetInner({
 
         <p className="ommm-body-muted text-sm">{tPurchase("detailsLead")}</p>
 
-        <section className="rounded-[24px] border border-white/60 bg-white/75 p-4 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.18)] sm:p-5">
-          <dl className="grid gap-4 text-sm sm:grid-cols-2">
-            <DetailField label={amountFieldLabel} value={amountLabel} />
-            <DetailField
-              label={tPurchase("availableLabel")}
-              value={`${card.availableQuantity} / ${card.totalQuantity}`}
-            />
-            <DetailField
-              label={t("cardExpiration")}
-              value={
-                card.expiresAt !== null
-                  ? displayGiftCardDate(card.expiresAt)
-                  : t("cardNoExpiration")
-              }
-              className="sm:col-span-2"
-            />
-          </dl>
-        </section>
+        <DetailsCard>
+          <DetailsStatStrip bordered={false}>
+            <DetailsStat label={amountFieldLabel} icon={<GiftGlyph />} tone="mint">
+              {amountLabel}
+            </DetailsStat>
+            <DetailsStat label={tPurchase("availableLabel")} icon={<TicketGlyph />} tone="peach">
+              {`${card.availableQuantity} / ${card.totalQuantity}`}
+            </DetailsStat>
+            <DetailsStat label={t("cardExpiration")} icon={<ClockGlyph />} tone="blue">
+              {card.expiresAt !== null
+                ? displayGiftCardDate(card.expiresAt)
+                : t("cardNoExpiration")}
+            </DetailsStat>
+          </DetailsStatStrip>
+        </DetailsCard>
 
         {card.amountCents > 0 ? (
           <PromoCodeField
@@ -210,22 +208,5 @@ function GiftMarketCardDetailsSheetInner({
         </OmmButton>
       </footer>
     </OmmDrawerPortal>
-  );
-}
-
-function DetailField({
-  label,
-  value,
-  className = "",
-}: {
-  label: string;
-  value: string;
-  className?: string;
-}) {
-  return (
-    <div className={className}>
-      <dt className={ADMIN_DETAILS_SHEET_DETAIL_LABEL_CLASS}>{label}</dt>
-      <dd className="mt-1 font-medium text-sage-900">{value}</dd>
-    </div>
   );
 }

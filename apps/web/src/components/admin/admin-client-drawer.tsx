@@ -4,6 +4,7 @@ import { useCallback, useEffect, useId, useMemo, useState, type FormEvent } from
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { formatIsoDateToUi } from "@/lib/date-display";
+import { AdminClientRestoreAction } from "@/components/admin/admin-client-restore-action";
 import { AdminClientSheetHeaderActions } from "@/components/admin/admin-client-sheet-header-actions";
 import { AdminDetailSheetFormFooter } from "@/components/admin/admin-detail-sheet-form-footer";
 import { AdminDetailSheetTabBar } from "@/components/admin/admin-detail-sheet-tab-bar";
@@ -374,6 +375,8 @@ function AdminClientDrawerInner({
     ? editForm.messageTone
     : statusNotice?.tone ?? actionTone;
 
+  const isArchived =
+    detail?.activity.status === "Deleted" || client.status === "Deleted";
   const isActive = !(detail?.activity.isBlocked ?? client.isBlocked);
   const isNestedOverlay = useOverlayPortalRoot;
   const bodyClassName = isNestedOverlay
@@ -404,10 +407,21 @@ function AdminClientDrawerInner({
             {clientHeaderName(client)}
           </h2>
           <div className="flex shrink-0 items-center gap-2">
+            {isArchived ? (
+              <AdminClientRestoreAction
+                clientId={client.id}
+                onStatusMessage={(message, tone) => setStatusNotice({ message, tone })}
+                onRestored={() => {
+                  void refreshDetail();
+                  onChanged();
+                }}
+              />
+            ) : null}
             <AdminClientSheetHeaderActions
               clientId={client.id}
               email={detail?.email ?? client.email}
               isActive={isActive}
+              allowStatusChange={!isArchived}
               statusLabels={statusLabels}
               disabled={editForm.busy || loading}
               onBusyChange={setHeaderActionsBusy}

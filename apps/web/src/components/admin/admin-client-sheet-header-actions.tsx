@@ -41,6 +41,7 @@ type AdminClientSheetHeaderActionsProps = {
   email: string;
   isActive: boolean;
   statusLabels: StatusLabels;
+  allowStatusChange?: boolean;
   disabled?: boolean;
   onBusyChange?: (busy: boolean) => void;
   onStatusMessage?: (message: string, tone: "ok" | "err") => void;
@@ -52,6 +53,7 @@ export function AdminClientSheetHeaderActions({
   email,
   isActive,
   statusLabels,
+  allowStatusChange = true,
   disabled = false,
   onBusyChange,
   onStatusMessage,
@@ -243,17 +245,19 @@ export function AdminClientSheetHeaderActions({
             >
               {t("resetPassword")}
             </button>
-            <button
-              type="button"
-              role="menuitem"
-              className={`${MENU_ITEM_CLASS} ${
-                isActive ? "text-red-800 hover:bg-red-50/80" : "text-sage-800"
-              }`}
-              disabled={isDisabled}
-              onClick={openStatusConfirm}
-            >
-              {statusLabel}
-            </button>
+            {allowStatusChange ? (
+              <button
+                type="button"
+                role="menuitem"
+                className={`${MENU_ITEM_CLASS} ${
+                  isActive ? "text-red-800 hover:bg-red-50/80" : "text-sage-800"
+                }`}
+                disabled={isDisabled}
+                onClick={openStatusConfirm}
+              >
+                {statusLabel}
+              </button>
+            ) : null}
           </div>,
           document.body,
         )
@@ -268,16 +272,18 @@ export function AdminClientSheetHeaderActions({
           onBusyChange={onBusyChange}
           onStatusMessage={onStatusMessage}
         />
-        <AdminClientStatusAction
-          clientId={clientId}
-          isActive={isActive}
-          labels={statusLabels}
-          layout="inline"
-          disabled={disabled}
-          onBusyChange={onBusyChange}
-          onStatusMessage={onStatusMessage}
-          onChanged={onStatusChanged}
-        />
+        {allowStatusChange ? (
+          <AdminClientStatusAction
+            clientId={clientId}
+            isActive={isActive}
+            labels={statusLabels}
+            layout="inline"
+            disabled={disabled}
+            onBusyChange={onBusyChange}
+            onStatusMessage={onStatusMessage}
+            onChanged={onStatusChanged}
+          />
+        ) : null}
       </div>
 
       <div className="md:hidden">

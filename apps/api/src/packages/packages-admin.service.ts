@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { writeAuditLog } from '../audit/write-audit-log';
 import { PrismaService } from '../prisma/prisma.service';
 import { DeleteCategoryDto } from './dto/delete-category.dto';
 import { ReconcilePackagesDto } from './dto/reconcile-packages.dto';
@@ -147,12 +148,23 @@ export class PackagesAdminService {
   async deletePlan(id: string) {
     const plan = await this.prisma.packagePlan.findUnique({
       where: { id },
-      select: { id: true },
+      select: { id: true, name: true },
     });
     if (plan === null) {
       throw new NotFoundException('Plan not found');
     }
-    await this.prisma.packagePlan.delete({ where: { id } });
+    await this.prisma.$transaction(async (tx) => {
+      await tx.packagePlan.update({
+        where: { id },
+        data: { isActive: false },
+      });
+      await writeAuditLog(tx, {
+        action: 'PACKAGE_PLAN_DEACTIVATED',
+        entityType: 'PackagePlan',
+        entityId: id,
+        payload: { name: plan.name },
+      });
+    });
     await this.publicService.invalidatePublicPlansCache();
     return { ok: true };
   }
@@ -185,7 +197,18 @@ export class PackagesAdminService {
       return { deletedIds: [] as string[] };
     }
     const ids = rows.map((row) => row.id);
-    await this.prisma.packagePlan.deleteMany({ where: { id: { in: ids } } });
+    await this.prisma.$transaction(async (tx) => {
+      await tx.packagePlan.updateMany({
+        where: { id: { in: ids } },
+        data: { isActive: false },
+      });
+      await writeAuditLog(tx, {
+        action: 'PACKAGE_CATEGORY_DEACTIVATED',
+        entityType: 'PackagePlan',
+        entityId: ids[0],
+        payload: { categorySlug, planIds: ids },
+      });
+    });
     await this.publicService.invalidatePublicPlansCache();
     return { deletedIds: ids };
   }

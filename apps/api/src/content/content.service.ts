@@ -47,7 +47,7 @@ export class ContentService {
     return this.adminContent.review(id, dto, actor);
   }
 
-  delete(id: string) {
-    return this.adminContent.delete(id);
+  delete(id: string, actor: { id: string; role: Role }) {
+    return this.adminContent.delete(id, actor);
   }
 }

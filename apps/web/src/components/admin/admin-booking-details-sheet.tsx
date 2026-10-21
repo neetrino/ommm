@@ -5,15 +5,11 @@ import { useTranslations } from "next-intl";
 import { AdminBookingRowActions } from "@/components/admin/admin-booking-row-actions";
 import { AdminBookingStatusPicker } from "@/components/admin/admin-booking-status-picker";
 import { normalizeBookingStatusBadgePaymentMethod } from "@/components/admin/admin-booking-list-badges";
-import { formatPackagePlanName } from "@/components/admin/admin-packages-display";
-import { GUEST_PASSES_ENABLED } from "@/lib/guest-passes";
+import { AdminBookingDetailsBody } from "@/components/admin/admin-booking-details-body";
 import {
   ADMIN_DETAILS_SHEET_BODY_CLASS,
   ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS,
   ADMIN_BOOKINGS_DETAILS_SHEET_PANEL_CLASS,
-  ADMIN_DETAILS_SHEET_DETAIL_BLOCK_CLASS,
-  ADMIN_DETAILS_SHEET_DETAIL_LABEL_CLASS,
-  ADMIN_DETAILS_SHEET_DETAIL_VALUE_CLASS,
   ADMIN_DETAILS_SHEET_FOOTER_CLASS,
   ADMIN_DETAILS_SHEET_HEADER_CLASS,
   ADMIN_DETAILS_SHEET_LEDE_CLASS,
@@ -23,8 +19,6 @@ import {
 import { AdminSheetPortal } from "@/components/admin/admin-sheet-portal";
 import { useAdminAnimatedSheetClose } from "@/components/admin/use-admin-animated-sheet-close";
 import { apiFetch } from "@/lib/api";
-import { displayPhoneOrFallback } from "@/lib/phone";
-import { formatDateTimeForUi } from "@/lib/date-display";
 
 type ListRow = {
   id: string;
@@ -178,39 +172,20 @@ export function AdminBookingDetailsSheet({
         {loading ? (
           <p className="text-sm text-sage-500">{t("bookingDetailsLoading")}</p>
         ) : (
-          <dl className={ADMIN_DETAILS_SHEET_DETAIL_BLOCK_CLASS}>
-            <DetailRow label={t("bookingDetailsClient")} value={row.user.name ?? row.user.email} />
-            <DetailRow label={t("bookingDetailsEmail")} value={row.user.email} />
-            <DetailRow label={t("bookingDetailsPhone")} value={displayPhoneOrFallback(row.user.phone)} />
-            <DetailRow label={t("bookingDetailsClass")} value={row.session.classType.name} />
-            <DetailRow
-              label={t("bookingDetailsCoach")}
-              value={details?.session.coach.user.name ?? row.session.coach.name ?? "—"}
-            />
-            <DetailRow
-              label={t("bookingDetailsSessionTime")}
-              value={formatDateTimeForUi(row.session.startsAt, locale)}
-            />
-            <DetailRow
-              label={t("bookingDetailsBookedOn")}
-              value={formatDateTimeForUi(
-                details?.createdAt ?? row.registerDate,
-                locale,
-              )}
-            />
-            {GUEST_PASSES_ENABLED && row.guestName ? (
-              <DetailRow label={t("bookingDetailsGuest")} value={row.guestName} />
-            ) : null}
-            {row.package !== null ? (
-              <DetailRow
-                label={t("packageInfo")}
-                value={formatPackagePlanName(
-                  row.package.planName,
-                  row.package.sessionsPerMonth,
-                )}
-              />
-            ) : null}
-          </dl>
+          <AdminBookingDetailsBody
+            locale={locale}
+            view={{
+              clientName: row.user.name ?? row.user.email,
+              email: row.user.email,
+              phone: row.user.phone,
+              coachName: details?.session.coach.user.name ?? row.session.coach.name ?? "—",
+              startsAt: row.session.startsAt,
+              endsAt: row.session.endsAt,
+              bookedAt: details?.createdAt ?? row.registerDate,
+              guestName: row.guestName ?? null,
+              packagePlan: row.package,
+            }}
+          />
         )}
       </div>
 
@@ -227,15 +202,6 @@ export function AdminBookingDetailsSheet({
         </footer>
       ) : null}
     </AdminSheetPortal>
-  );
-}
-
-function DetailRow({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-0.5">
-      <dt className={ADMIN_DETAILS_SHEET_DETAIL_LABEL_CLASS}>{label}</dt>
-      <dd className={ADMIN_DETAILS_SHEET_DETAIL_VALUE_CLASS}>{value}</dd>
-    </div>
   );
 }
 

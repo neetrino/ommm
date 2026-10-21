@@ -12,6 +12,7 @@ import { RedisCacheService } from '../cache/redis-cache.service';
 import { hashPassword } from '../common/password-crypto';
 import { normalizeRequiredPhone } from '../common/phone';
 import { PrismaService } from '../prisma/prisma.service';
+import { archiveUser } from '../users/archive-user';
 import type { CreateCoachDto } from './dto/create-coach.dto';
 import type { UpdateCoachDto } from './dto/update-coach.dto';
 import {
@@ -28,7 +29,6 @@ import {
   normalizeCoachUpdateFields,
   normalizePhotoUrl,
   normalizeSchedule,
-  rethrowCoachDeleteForeignKeyViolation,
   rethrowCoachUpdateUniqueViolation,
   resolveDateOfBirthForUpdate,
   resolveDateOfBirthFromInputs,
@@ -260,45 +260,19 @@ export class CoachesAdminWriteService {
   async remove(actor: User, coachProfileId: string): Promise<void> {
     const profile = await this.prisma.coachProfile.findUnique({
       where: { id: coachProfileId },
-      include: {
-        user: { select: { id: true, avatarUrl: true } },
-        _count: { select: { sessions: true } },
-      },
+      select: { id: true, userId: true },
     });
     if (!profile) {
       throw new NotFoundException('Coach profile not found');
     }
-    if (profile._count.sessions > 0) {
-      throw new BadRequestException(
-        'Cannot delete a coach assigned to class sessions. Deactivate the coach instead.',
-      );
-    }
-
-    const avatarUrl = profile.user.avatarUrl;
-    const cardImageUrl = profile.cardImageUrl;
-
-    try {
-      await this.prisma.$transaction(async (tx) => {
-        await tx.classSession.updateMany({
-          where: { substituteCoachId: coachProfileId },
-          data: { substituteCoachId: null },
-        });
-        await tx.coachProfile.delete({ where: { id: coachProfileId } });
-        await tx.user.delete({ where: { id: profile.user.id } });
-      });
-    } catch (error) {
-      rethrowCoachDeleteForeignKeyViolation(error);
-    }
-
-    await this.photo.removeOldCoachPhoto(avatarUrl, '');
-    await this.photo.removeOldCoachPhoto(cardImageUrl, '');
-    await this.audit.log({
-      actorId: actor.id,
-      actorRole: actor.role,
-      action: 'COACH_DELETED',
-      entityType: 'CoachProfile',
-      entityId: coachProfileId,
-    });
+    await this.prisma.$transaction((tx) =>
+      archiveUser(tx, {
+        userId: profile.userId,
+        actorId: actor.id,
+        actorRole: actor.role,
+        action: 'COACH_ARCHIVED',
+      }),
+    );
     await this.cache.invalidate(PUBLIC_CACHE_KEYS.coaches);
   }
 

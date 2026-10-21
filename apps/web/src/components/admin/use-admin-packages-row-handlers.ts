@@ -72,7 +72,11 @@ export function useAdminPackagesRowHandlers({
 
   const handlePackageDeleted = useCallback(
     (packageId: string) => {
-      setPackageRows((current) => current.filter((row) => row.id !== packageId));
+      setPackageRows((current) =>
+        current.map((row) =>
+          row.id === packageId ? { ...row, isActive: false } : row,
+        ),
+      );
       setToastMessage(deleteSuccessMessage);
       closeDeletePackage();
       router.refresh();
@@ -107,8 +111,10 @@ export function useAdminPackagesRowHandlers({
     (categorySlug: string, deletedPackageIds: readonly string[]) => {
       const removed = new Set(deletedPackageIds);
       setPackageRows((current) =>
-        current.filter(
-          (row) => !removed.has(row.id) && row.categorySlug !== categorySlug,
+        current.map((row) =>
+          removed.has(row.id) || row.categorySlug === categorySlug
+            ? { ...row, isActive: false }
+            : row,
         ),
       );
       setSelectedCategoryIds((current) => {

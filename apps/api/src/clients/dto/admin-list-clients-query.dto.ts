@@ -44,6 +44,7 @@ export enum AdminClientStatusFilter {
   INACTIVE = 'inactive',
   FROZEN = 'frozen',
   BLOCKED = 'blocked',
+  DELETED = 'deleted',
 }
 
 export enum AdminClientPackageTypeFilter {

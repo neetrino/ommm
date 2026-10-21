@@ -181,22 +181,25 @@ export class GiftCardsAdminBatchLifecycleService {
     if (!existing) {
       throw new NotFoundException('Gift card batch not found');
     }
-    if (existing.availableQuantity !== existing.totalQuantity) {
-      throw new BadRequestException(
-        'Cannot delete a batch with issued gift cards. Deactivate it instead.',
-      );
-    }
-    await batchDelegate.delete({ where: { id } });
-    await this.audit.log({
-      actorId,
-      actorRole: 'ADMIN',
-      action: 'GIFT_CARD_BATCH_DELETED',
-      entityType: 'GiftCardBatch',
-      entityId: id,
+    await this.prisma.$transaction(async (tx) => {
+      await tx.giftCardBatch.update({
+        where: { id },
+        data: { status: GiftCardStatus.DEACTIVATED },
+      });
+      await tx.auditLog.create({
+        data: {
+          actorId,
+          actorRole: 'ADMIN',
+          action: 'GIFT_CARD_BATCH_ARCHIVED',
+          entityType: 'GiftCardBatch',
+          entityId: id,
+          payload: JSON.stringify({
+            totalQuantity: existing.totalQuantity,
+            availableQuantity: existing.availableQuantity,
+          }),
+        },
+      });
     });
-    if (existing.imageUrl !== null) {
-      await this.images.removeStoredGiftCardImage(existing.imageUrl);
-    }
     return { ok: true };
   }
 

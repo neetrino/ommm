@@ -1,5 +1,5 @@
 export type ClientTag = "New" | "Beginner" | "Influencer";
-export type ClientStatus = "Active" | "Inactive" | "Frozen" | "Blocked";
+export type ClientStatus = "Active" | "Inactive" | "Frozen" | "Blocked" | "Deleted";
 export type PaymentBehavior = "paid" | "unpaid" | "overdue" | "partial";
 export type AttendanceBehavior =
   | "regular"
@@ -19,6 +19,7 @@ export type ClientRow = {
   createdAt: string;
   status: ClientStatus;
   isBlocked: boolean;
+  deletedAt: string | null;
   doNotCall: boolean;
   source: "website" | "mobile-app" | "admin" | null;
   registrationSource: "SELF" | "STAFF" | "INVITE";

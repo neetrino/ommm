@@ -7,11 +7,13 @@ import { ContentStatus, Role } from '@prisma/client';
 import { AuditService } from '../audit/audit.service';
 import { PrismaService } from '../prisma/prisma.service';
 import {
+  contentPostUpdateData,
   normalizeTranslations,
   resolvePrimaryTranslation,
   resolvePublishedAt,
   sanitizeTags,
 } from './content-post.helpers';
+import { syncContentTranslations } from './content-translation-sync';
 import { ContentPublicService } from './content-public.service';
 import { ReviewDecision, ReviewPostDto } from './dto/review-post.dto';
 import type { UpsertPostDto } from './dto/upsert-post.dto';
@@ -95,41 +97,17 @@ export class ContentAdminService {
     }
     const translations = normalizeTranslations(dto.translations);
     const primary = resolvePrimaryTranslation(translations);
-    const updated = await this.prisma.contentPost.update({
-      where: { id },
-      data: {
-        type: dto.type,
-        status: dto.status,
-        slug: primary.slug,
-        title: primary.title,
-        excerpt: primary.excerpt,
-        body: primary.body,
-        seoTitle: primary.seoTitle,
-        seoDescription: primary.seoDescription,
-        authorName: dto.authorName,
-        tags: sanitizeTags(dto.tags),
-        editorialNotes: dto.editorialNotes,
-        reviewNotes: dto.reviewNotes,
-        reviewedById: dto.reviewedById,
-        reviewedAt: dto.reviewedAt ? new Date(dto.reviewedAt) : null,
-        submittedForReviewAt: dto.submittedForReviewAt
-          ? new Date(dto.submittedForReviewAt)
-          : null,
-        coverImageUrl:
-          dto.coverImageUrl !== undefined
-            ? (dto.coverImageUrl ?? null)
-            : existing.coverImageUrl,
-        publishedAt: resolvePublishedAt(dto, existing.publishedAt),
-        translations: {
-          deleteMany: {},
-          create: translations,
+    const updated = await this.prisma.$transaction(async (tx) => {
+      await syncContentTranslations(tx, id, translations);
+      return tx.contentPost.update({
+        where: { id },
+        data: contentPostUpdateData(dto, primary, existing),
+        include: {
+          translations: {
+            orderBy: { locale: 'asc' },
+          },
         },
-      },
-      include: {
-        translations: {
-          orderBy: { locale: 'asc' },
-        },
-      },
+      });
     });
     await this.audit.log({
       actorId: actor.id,
@@ -227,8 +205,30 @@ export class ContentAdminService {
     return updated;
   }
 
-  async delete(id: string) {
-    await this.prisma.contentPost.delete({ where: { id } });
+  async delete(id: string, actor: { id: string; role: Role }) {
+    const existing = await this.prisma.contentPost.findUnique({
+      where: { id },
+      select: { id: true, status: true },
+    });
+    if (!existing) {
+      throw new NotFoundException();
+    }
+    await this.prisma.$transaction(async (tx) => {
+      await tx.contentPost.update({
+        where: { id },
+        data: { status: ContentStatus.HIDDEN },
+      });
+      await tx.auditLog.create({
+        data: {
+          actorId: actor.id,
+          actorRole: actor.role,
+          action: 'CONTENT_ARCHIVED',
+          entityType: 'ContentPost',
+          entityId: id,
+          payload: JSON.stringify({ previousStatus: existing.status }),
+        },
+      });
+    });
     await this.publicContent.invalidatePublicContentCache();
     return { ok: true };
   }

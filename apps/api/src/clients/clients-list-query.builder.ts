@@ -99,6 +99,7 @@ export function buildClientsListWhere(
   }
 
   appendStatusFilter(and, query.status);
+  appendArchiveVisibility(and, query);
   appendPackageFilter(and, query.package);
   appendPaymentStatusFilter(and, query.paymentStatus);
   appendTagFilter(and, query.tag);
@@ -157,9 +158,25 @@ function packageMembershipWhere(
   };
 }
 
+function appendArchiveVisibility(
+  and: Prisma.UserWhereInput[],
+  query: AdminListClientsQueryDto,
+): void {
+  const searching = Boolean((query.search ?? query.q)?.trim());
+  const wantsDeleted = (query.status ?? []).includes(
+    AdminClientStatusFilter.DELETED,
+  );
+  if (!searching && !wantsDeleted) {
+    and.push({ deletedAt: null });
+  }
+}
+
 function statusClause(status: AdminClientStatusFilter): Prisma.UserWhereInput {
+  if (status === AdminClientStatusFilter.DELETED) {
+    return { deletedAt: { not: null } };
+  }
   if (status === AdminClientStatusFilter.BLOCKED) {
-    return { isBlocked: true };
+    return { isBlocked: true, deletedAt: null };
   }
   if (status === AdminClientStatusFilter.FROZEN) {
     return { id: '__frozen-none__' };

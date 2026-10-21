@@ -5,7 +5,6 @@ import type { useTranslations } from "next-intl";
 import type { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import { ApiError, apiFetch } from "@/lib/api";
 import {
-  bookingRowKey,
   type AdminBookingRow,
   type AdminBookingsManagementPayload,
 } from "@/components/admin/admin-bookings-query";
@@ -22,7 +21,6 @@ export type AdminBookingsRowActionHandlers = {
   onActivate: () => void;
   onMove: () => void;
   onChangeStatus: (nextStatus: AdminBookingRow["status"]) => void;
-  onDelete: () => void;
 };
 
 type UseAdminBookingsRowActionsParams = {
@@ -31,8 +29,6 @@ type UseAdminBookingsRowActionsParams = {
   setStatusMessage: (message: string | null) => void;
   setPayload: React.Dispatch<React.SetStateAction<AdminBookingsManagementPayload>>;
   router: AppRouterInstance;
-  selectedRowKey: string | null;
-  closeBookingDetails: () => void;
   openBookingDetails: (row: AdminBookingRow) => void;
   openMoveModal: (row: AdminBookingRow) => void;
   pendingConfirm: PendingBookingConfirm | null;
@@ -46,8 +42,6 @@ export function useAdminBookingsRowActions({
   setStatusMessage,
   setPayload,
   router,
-  selectedRowKey,
-  closeBookingDetails,
   openBookingDetails,
   openMoveModal,
   pendingConfirm,
@@ -134,25 +128,12 @@ export function useAdminBookingsRowActions({
           ),
         }));
       }, t("successActivated"));
-    } else {
-      await runRowAction(row.id, async () => {
-        await apiFetch(`/bookings/admin/${row.id}/permanent`, { method: "DELETE" });
-        setPayload((prev) => ({
-          ...prev,
-          rows: prev.rows.filter((item) => item.id !== row.id),
-        }));
-        if (selectedRowKey === bookingRowKey(row)) {
-          closeBookingDetails();
-        }
-      }, t("successDeleted"));
     }
 
     setPendingConfirm(null);
   }, [
-    closeBookingDetails,
     pendingConfirm,
     runRowAction,
-    selectedRowKey,
     setPayload,
     setPendingConfirm,
     t,
@@ -191,7 +172,6 @@ export function useAdminBookingsRowActions({
           }));
         }, t("successEdited"));
       },
-      onDelete: () => openBookingConfirm("delete", row),
     }),
     [
       openBookingConfirm,

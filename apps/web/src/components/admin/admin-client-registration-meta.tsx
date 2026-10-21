@@ -21,13 +21,13 @@ type ClientRegistrationMetaProps = {
 };
 
 const CARD_CLASS =
-  "overflow-hidden rounded-2xl border border-sand-200/70 bg-gradient-to-br from-white/90 via-sand-50/40 to-mint-50/30 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.22)] backdrop-blur-md";
+  "overflow-hidden rounded-[28px] border border-sage-500/10 bg-white shadow-[0_12px_32px_-18px_rgba(45,40,35,0.28)]";
 
 const LABEL_CLASS =
   "text-[10px] font-semibold uppercase tracking-[0.14em] text-sage-500";
 
 const ICON_WELL_CLASS =
-  "flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-sand-200/80 bg-gradient-to-b from-white to-sand-50 text-sand-700 shadow-[inset_0_1px_0_rgb(255_255_255_/_0.95),0_6px_16px_-12px_rgba(45,40,35,0.2)]";
+  "flex size-10 shrink-0 items-center justify-center rounded-full bg-sand-100 text-sand-700";
 
 const TILE_CLASS =
   "flex min-w-0 items-center gap-3.5 px-4 py-4 sm:px-5";
@@ -163,24 +163,20 @@ export function ClientRegistrationMeta({
 
   return (
     <section className={CARD_CLASS} aria-label={`${registeredLabel}, ${sourceLabel}`}>
-      <div
-        className="pointer-events-none h-px bg-gradient-to-r from-transparent via-sand-300/70 to-transparent"
-        aria-hidden
-      />
-      <div className="grid sm:grid-cols-2 sm:divide-x sm:divide-sand-200/70">
+      <div className="grid sm:grid-cols-2 sm:divide-x divide-y divide-sage-500/10 sm:divide-y-0 sm:divide-sage-500/10">
         <MetaTile label={registeredLabel} icon={<CalendarGlyph />}>
-          <p className="font-serif text-lg leading-none tracking-tight text-sage-950 tabular-nums sm:text-xl">
+          <p className="font-serif text-lg leading-none tracking-tight text-sage-900 tabular-nums sm:text-xl">
             {formatDateForUi(createdAt)}
           </p>
         </MetaTile>
 
         <MetaTile label={sourceLabel} icon={<SourceGlyph tone={tone} />}>
           <p className="flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-1">
-            <span className="font-serif text-lg leading-none tracking-tight text-sage-950 sm:text-xl">
+            <span className="font-serif text-lg leading-none tracking-tight text-sage-900 sm:text-xl">
               {sourceText}
             </span>
             {showCreator ? (
-              <span className="truncate text-sm font-medium text-sage-600">
+              <span className="truncate text-sm font-medium text-sage-500">
                 · {creatorName}
               </span>
             ) : null}

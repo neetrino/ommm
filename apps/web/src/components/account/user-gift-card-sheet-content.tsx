@@ -7,7 +7,12 @@ import {
   giftCardStatusBadgeClass,
   isGiftCardDateExpired,
 } from "@/components/gift-cards/gift-card-display-helpers";
-import { ADMIN_DETAILS_SHEET_DETAIL_LABEL_CLASS } from "@/components/admin/admin-details-sheet-layout";
+import {
+  DetailsCard,
+  DetailsStat,
+  DetailsStatStrip,
+} from "@/components/shared/details/details-card";
+import { GiftGlyph, WalletGlyph } from "@/components/shared/details/details-glyphs";
 import { formatAmdFromCents } from "@/lib/price-amd";
 import { UserGiftCardHistory } from "@/components/account/user-gift-card-history";
 import { UserGiftCardSheetFacts } from "@/components/account/user-gift-card-sheet-facts";
@@ -44,7 +49,7 @@ export function UserGiftCardSheetContent({ card, locale }: UserGiftCardSheetCont
               className={`inline-flex rounded-full border px-2 py-0.5 text-xs ${
                 expired
                   ? "border-red-200 bg-red-50 text-red-700"
-                  : "border-mint-200 bg-mint-50 text-sage-900"
+                  : "border-mint-200 bg-mint-100 text-sage-900"
               }`}
             >
               {expired ? t("drawerExpired") : t("drawerValid")}
@@ -53,14 +58,19 @@ export function UserGiftCardSheetContent({ card, locale }: UserGiftCardSheetCont
         </div>
       </section>
 
-      <div className="grid gap-3 sm:grid-cols-2">
-        <MetricCard label={t("cardAmount")} value={amountLabel} />
-        <MetricCard label={t("cardBalance")} value={balanceLabel} />
-      </div>
+      <DetailsCard>
+        <DetailsStatStrip columns={2} bordered={false}>
+          <DetailsStat label={t("cardAmount")} icon={<GiftGlyph />} tone="mint">
+            <span className="font-serif text-lg">{amountLabel}</span>
+          </DetailsStat>
+          <DetailsStat label={t("cardBalance")} icon={<WalletGlyph />} tone="peach">
+            <span className="font-serif text-lg">{balanceLabel}</span>
+          </DetailsStat>
+        </DetailsStatStrip>
+        {canSpendGiftCard(card, expired) ? <GiftCardUseNow label={t("useNow")} /> : null}
+        <UserGiftCardSheetFacts card={card} />
+      </DetailsCard>
 
-      {canSpendGiftCard(card, expired) ? <GiftCardUseNow label={t("useNow")} /> : null}
-
-      <UserGiftCardSheetFacts card={card} />
       <UserGiftCardHistory code={card.code} locale={locale} />
     </div>
   );
@@ -75,14 +85,5 @@ function GiftCardUseNow({ label }: { label: string }) {
     <Link href="/package" className="ommm-cta-primary inline-flex w-full justify-center">
       {label}
     </Link>
-  );
-}
-
-function MetricCard({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-[20px] border border-white/60 bg-white/75 p-4 shadow-[0_12px_28px_-20px_rgba(45,40,35,0.16)]">
-      <p className={ADMIN_DETAILS_SHEET_DETAIL_LABEL_CLASS}>{label}</p>
-      <p className="mt-1 text-lg font-semibold text-sage-900">{value}</p>
-    </div>
   );
 }

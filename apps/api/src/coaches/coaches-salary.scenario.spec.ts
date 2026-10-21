@@ -11,6 +11,17 @@ import {
  * End-to-end logic of the product rules, using the same helpers/services
  * the API uses — without a live database.
  */
+function periodMonthFromWhere(where: {
+  periodMonth?: number;
+  AND?: ReadonlyArray<{ periodMonth?: number }>;
+}): number | undefined {
+  if (typeof where.periodMonth === 'number') {
+    return where.periodMonth;
+  }
+  return where.AND?.find((part) => typeof part.periodMonth === 'number')
+    ?.periodMonth;
+}
+
 describe('coach salary product scenario', () => {
   const rateForClassTypeAmd = 8000;
 
@@ -69,19 +80,39 @@ describe('coach salary product scenario', () => {
 
     const summary = new CoachSalarySummaryService({
       coachSalaryAccrual: {
-        aggregate: jest.fn(({ where }: { where: { periodMonth: number } }) => {
-          const key = where.periodMonth === 8 ? '2026-08' : '2026-09';
-          return {
-            _sum: { amountAmd: months[key]?.accrued ?? 0 },
-            _count: months[key]?.count ?? 0,
-          };
-        }),
+        aggregate: jest.fn(
+          ({
+            where,
+          }: {
+            where: {
+              periodMonth?: number;
+              AND?: ReadonlyArray<{ periodMonth?: number }>;
+            };
+          }) => {
+            const key =
+              periodMonthFromWhere(where) === 8 ? '2026-08' : '2026-09';
+            return {
+              _sum: { amountAmd: months[key]?.accrued ?? 0 },
+              _count: months[key]?.count ?? 0,
+            };
+          },
+        ),
       },
       coachSalaryPayout: {
-        aggregate: jest.fn(({ where }: { where: { periodMonth: number } }) => {
-          const key = where.periodMonth === 8 ? '2026-08' : '2026-09';
-          return { _sum: { amountAmd: months[key]?.paid ?? 0 } };
-        }),
+        aggregate: jest.fn(
+          ({
+            where,
+          }: {
+            where: {
+              periodMonth?: number;
+              AND?: ReadonlyArray<{ periodMonth?: number }>;
+            };
+          }) => {
+            const key =
+              periodMonthFromWhere(where) === 8 ? '2026-08' : '2026-09';
+            return { _sum: { amountAmd: months[key]?.paid ?? 0 } };
+          },
+        ),
       },
     } as never);
 

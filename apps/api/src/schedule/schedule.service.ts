@@ -14,6 +14,7 @@ import {
 } from '../cache/public-cache-keys';
 import { BookingCancelIntentService } from '../cache/booking-cancel-intent.service';
 import { RedisCacheService } from '../cache/redis-cache.service';
+import { writeAuditLog } from '../audit/write-audit-log';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateScheduleItemDto } from './dto/create-schedule-item.dto';
 import { UpdateScheduleItemDto } from './dto/update-schedule-item.dto';
@@ -189,8 +190,28 @@ export class ScheduleService {
     return item;
   }
 
-  async remove(id: string): Promise<void> {
-    await this.prisma.scheduleItem.delete({ where: { id } });
+  async remove(id: string, actor: { id: string; role: string }): Promise<void> {
+    const existing = await this.prisma.scheduleItem.findUnique({
+      where: { id },
+      select: { id: true, className: true },
+    });
+    if (!existing) {
+      throw new NotFoundException('Schedule item not found');
+    }
+    await this.prisma.$transaction(async (tx) => {
+      await tx.scheduleItem.update({
+        where: { id },
+        data: { isActive: false },
+      });
+      await writeAuditLog(tx, {
+        actorId: actor.id,
+        actorRole: actor.role,
+        action: 'SCHEDULE_ITEM_ARCHIVED',
+        entityType: 'ScheduleItem',
+        entityId: id,
+        payload: { className: existing.className },
+      });
+    });
     await this.cache.invalidateByPrefix(PUBLIC_CACHE_KEYS.schedule);
   }
 }

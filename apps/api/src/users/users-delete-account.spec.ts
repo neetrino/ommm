@@ -1,5 +1,5 @@
 import { BadRequestException } from '@nestjs/common';
-import { BookingStatus, Prisma, Role } from '@prisma/client';
+import { Role } from '@prisma/client';
 import { UsersService } from './users.service';
 
 describe('UsersService.deleteOwnAccount', () => {
@@ -9,80 +9,80 @@ describe('UsersService.deleteOwnAccount', () => {
     return new UsersService(prismaMock as never, homeImage);
   }
 
-  it('deletes the user row when role is USER and there are no active bookings', async () => {
+  it('archives the account and keeps the row', async () => {
+    const tx = {
+      user: {
+        findUnique: jest.fn().mockResolvedValue({
+          id: 'user-1',
+          email: 'ada@example.com',
+          phone: null,
+          whatsappPhone: null,
+          name: 'Ada',
+          lastName: null,
+          role: Role.USER,
+          deletedAt: null,
+        }),
+        update: jest.fn().mockResolvedValue({ id: 'user-1' }),
+      },
+      coachProfile: { updateMany: jest.fn().mockResolvedValue({ count: 0 }) },
+      auditLog: { create: jest.fn().mockResolvedValue({ id: 'audit-1' }) },
+    };
     const prisma = {
       user: {
         findUniqueOrThrow: jest.fn().mockResolvedValue({ role: Role.USER }),
-        delete: jest.fn().mockResolvedValue({ id: 'user-1' }),
+        delete: jest.fn(),
       },
-      booking: {
-        count: jest.fn().mockResolvedValue(0),
-      },
+      $transaction: jest.fn(
+        async (callback: (client: typeof tx) => Promise<void>) => callback(tx),
+      ),
     };
     const service = makeService(prisma);
 
     await service.deleteOwnAccount('user-1');
 
-    expect(prisma.booking.count).toHaveBeenCalledWith({
-      where: { userId: 'user-1', status: BookingStatus.BOOKED },
-    });
-    expect(prisma.user.delete).toHaveBeenCalledWith({
+    expect(prisma.user.delete).not.toHaveBeenCalled();
+    expect(tx.user.update).toHaveBeenCalledWith({
       where: { id: 'user-1' },
+      data: expect.objectContaining({
+        isBlocked: true,
+        deletedById: 'user-1',
+      }) as { isBlocked: boolean; deletedById: string },
     });
+    expect(tx.auditLog.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: {
+          actorId: 'user-1',
+          actorRole: Role.USER,
+          action: 'ACCOUNT_ARCHIVED',
+          entityType: 'User',
+          entityId: 'user-1',
+          payload: JSON.stringify({
+            email: 'ada@example.com',
+            phone: null,
+            whatsappPhone: null,
+            name: 'Ada',
+            lastName: null,
+            role: Role.USER,
+          }),
+        },
+      }),
+    );
   });
 
-  it('rejects coach self-deletion', async () => {
+  it('rejects coach self-archival', async () => {
     const prisma = {
       user: {
         findUniqueOrThrow: jest.fn().mockResolvedValue({ role: Role.COACH }),
         delete: jest.fn(),
       },
-      booking: { count: jest.fn() },
+      $transaction: jest.fn(),
     };
     const service = makeService(prisma);
 
     await expect(service.deleteOwnAccount('coach-1')).rejects.toBeInstanceOf(
       BadRequestException,
     );
+    expect(prisma.$transaction).not.toHaveBeenCalled();
     expect(prisma.user.delete).not.toHaveBeenCalled();
-  });
-
-  it('rejects deletion when active bookings exist', async () => {
-    const prisma = {
-      user: {
-        findUniqueOrThrow: jest.fn().mockResolvedValue({ role: Role.USER }),
-        delete: jest.fn(),
-      },
-      booking: { count: jest.fn().mockResolvedValue(2) },
-    };
-    const service = makeService(prisma);
-
-    await expect(service.deleteOwnAccount('user-1')).rejects.toBeInstanceOf(
-      BadRequestException,
-    );
-    expect(prisma.user.delete).not.toHaveBeenCalled();
-  });
-
-  it('maps linked-record FK failures to a support message', async () => {
-    const prisma = {
-      user: {
-        findUniqueOrThrow: jest.fn().mockResolvedValue({ role: Role.USER }),
-        delete: jest.fn().mockRejectedValue(
-          new Prisma.PrismaClientKnownRequestError('FK', {
-            code: 'P2003',
-            clientVersion: 'test',
-          }),
-        ),
-      },
-      booking: { count: jest.fn().mockResolvedValue(0) },
-    };
-    const service = makeService(prisma);
-
-    await expect(service.deleteOwnAccount('user-1')).rejects.toMatchObject({
-      response: {
-        message:
-          'This account has linked records and cannot be deleted. Contact support.',
-      },
-    });
   });
 });

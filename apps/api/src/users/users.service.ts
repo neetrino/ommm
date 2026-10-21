@@ -6,13 +6,14 @@ import {
 } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
 import type { Express } from 'express';
-import { Prisma, BookingStatus, Role } from '@prisma/client';
+import { Prisma, Role } from '@prisma/client';
 import { sanitizeUser } from '../auth/auth-public-user';
 import { GOOGLE_PROVIDER } from '../auth/google-oauth.types';
 import { hashPassword, verifyPassword } from '../common/password-crypto';
 import { isAppUiLocale } from '../common/app-ui-locales';
 import { normalizeOptionalPhone } from '../common/phone';
 import { PrismaService } from '../prisma/prisma.service';
+import { archiveUser } from './archive-user';
 import type { ChangePasswordDto } from './dto/change-password.dto';
 import type { HomeImageJsonDto } from './dto/home-image-json.dto';
 import type { NotificationPrefsDto } from './dto/notification-prefs.dto';
@@ -246,29 +247,14 @@ export class UsersService {
         'Coach accounts can only be removed by an administrator.',
       );
     }
-
-    const activeBookings = await this.prisma.booking.count({
-      where: { userId, status: BookingStatus.BOOKED },
-    });
-    if (activeBookings > 0) {
-      throw new BadRequestException(
-        'Cannot delete an account with active bookings. Cancel them first.',
-      );
-    }
-
-    try {
-      await this.prisma.user.delete({ where: { id: userId } });
-    } catch (error) {
-      if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.code === 'P2003'
-      ) {
-        throw new BadRequestException(
-          'This account has linked records and cannot be deleted. Contact support.',
-        );
-      }
-      throw error;
-    }
+    await this.prisma.$transaction((tx) =>
+      archiveUser(tx, {
+        userId,
+        actorId: userId,
+        actorRole: user.role,
+        action: 'ACCOUNT_ARCHIVED',
+      }),
+    );
   }
 
   async requestAccountDeletion(userId: string, dto: RequestAccountDeletionDto) {

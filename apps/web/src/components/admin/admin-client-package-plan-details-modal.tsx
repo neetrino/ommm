@@ -1,9 +1,8 @@
 "use client";
 
-import { useId, type ReactNode } from "react";
+import { useId } from "react";
 import { useTranslations } from "next-intl";
 import {
-  ADMIN_DETAILS_SHEET_DETAIL_LABEL_CLASS,
   ADMIN_DETAILS_SHEET_HEADER_CLOSE_BUTTON_CLASS,
   ADMIN_DETAILS_SHEET_TITLE_CLASS,
 } from "@/components/admin/admin-details-sheet-layout";
@@ -24,6 +23,25 @@ import { PublicPackageTypeSessionsBreakdown } from "@/components/marketing/packa
 import { OmmButton } from "@/components/ui/omm-button";
 import { AdminSheetPortal } from "@/components/admin/admin-sheet-portal";
 import { useAdminAnimatedSheetClose } from "@/components/admin/use-admin-animated-sheet-close";
+import {
+  DETAILS_DIVIDER_CLASS,
+  DetailsCard,
+  DetailsField,
+  DetailsFieldRow,
+  DetailsStack,
+  DetailsStat,
+  DetailsStatStrip,
+} from "@/components/shared/details/details-card";
+import {
+  CalendarGlyph,
+  CheckCircleGlyph,
+  ClockGlyph,
+  PauseGlyph,
+  SparkGlyph,
+  TicketGlyph,
+  UsersGlyph,
+  WalletGlyph,
+} from "@/components/shared/details/details-glyphs";
 import { GUEST_PASSES_ENABLED } from "@/lib/guest-passes";
 import type { PublicPackagePlan } from "@/lib/public-package-plan";
 
@@ -33,33 +51,7 @@ type AdminClientPackagePlanDetailsModalProps = {
   onClose: () => void;
 };
 
-const DETAILS_GRID_CLASS = GUEST_PASSES_ENABLED
-  ? "grid w-full min-w-0 max-w-full grid-cols-[minmax(0,1.3fr)_minmax(0,0.65fr)_minmax(0,0.8fr)_minmax(0,0.65fr)_minmax(0,0.45fr)_minmax(0,0.7fr)_minmax(0,0.45fr)_minmax(0,0.8fr)] items-center gap-x-2"
-  : "grid w-full min-w-0 max-w-full grid-cols-[minmax(0,1.3fr)_minmax(0,0.65fr)_minmax(0,0.8fr)_minmax(0,0.65fr)_minmax(0,0.7fr)_minmax(0,0.45fr)_minmax(0,0.8fr)] items-center gap-x-2";
-
-function EmptyCell() {
-  return <span className="text-[rgba(80,69,59,0.4)]">—</span>;
-}
-
-function Cell({
-  children,
-  lead = false,
-}: {
-  children: ReactNode;
-  lead?: boolean;
-}) {
-  return (
-    <div
-      className={
-        lead
-          ? "min-w-0 py-2 text-left text-sm font-semibold leading-snug text-[#1b1c1a] sm:text-base"
-          : "flex min-w-0 items-center justify-center py-2 text-center text-sm font-medium leading-snug text-[#1b1c1a] sm:text-base"
-      }
-    >
-      {children}
-    </div>
-  );
-}
+const EMPTY_VALUE = "—";
 
 function resolvePlanTotalSessions(plan: PublicPackagePlan): number | null {
   if (plan.isUnlimited) {
@@ -75,41 +67,49 @@ function resolvePlanTotalSessions(plan: PublicPackagePlan): number | null {
   return null;
 }
 
+function usePlanDetailsView(plan: PublicPackagePlan, locale: string) {
+  const tPackages = useTranslations("adminPages.packages");
+  const hasDiscount =
+    typeof plan.discountedPriceCents === "number" &&
+    plan.discountedPriceCents > 0 &&
+    plan.discountedPriceCents < plan.priceCents;
+  const totalSessions = resolvePlanTotalSessions(plan);
+  return {
+    packageName: formatPackagePlanName(plan.name, plan.sessionsPerMonth),
+    originalPrice: hasDiscount
+      ? formatPackagePriceLabel({ ...plan, discountedPriceCents: null }, locale)
+      : null,
+    finalPrice: formatPackagePriceLabel(plan, locale),
+    totalSessions: totalSessions !== null ? String(totalSessions) : EMPTY_VALUE,
+    validity: formatPackageValidityLabel(plan, {
+      days: (count) => tPackages("validityDays", { count }),
+      months: (count) => tPackages("validityMonths", { count }),
+    }),
+    guests: formatPackageGuestCount(plan),
+    freeze: formatPackageFreezeLabel(plan, {
+      timesDays: (times, days) => tPackages("freezeTimesDays", { times, days }),
+    }),
+    stock: formatPackageStockCount(plan),
+    startDate: formatPackageStartDateLabel(plan),
+    features: plan.features.filter((feature) => feature.trim().length > 0),
+  };
+}
+
+type PlanDetailsView = ReturnType<typeof usePlanDetailsView>;
+
 export function AdminClientPackagePlanDetailsModal({
   locale,
   plan,
   onClose,
 }: AdminClientPackagePlanDetailsModalProps) {
   const t = useTranslations("adminPages.clients");
-  const tPackages = useTranslations("adminPages.packages");
   const titleId = useId();
   const { isOpen: sheetOpen, requestClose, onAfterClose } = useAdminAnimatedSheetClose(onClose);
-  const packageName = formatPackagePlanName(plan.name, plan.sessionsPerMonth);
-  const hasDiscount =
-    typeof plan.discountedPriceCents === "number" &&
-    plan.discountedPriceCents > 0 &&
-    plan.discountedPriceCents < plan.priceCents;
-  const originalPriceLabel = hasDiscount
-    ? formatPackagePriceLabel({ ...plan, discountedPriceCents: null }, locale)
-    : null;
-  const finalPriceLabel = formatPackagePriceLabel(plan, locale);
-  const totalSessions = resolvePlanTotalSessions(plan);
-  const validityLabel = formatPackageValidityLabel(plan, {
-    days: (count) => tPackages("validityDays", { count }),
-    months: (count) => tPackages("validityMonths", { count }),
-  });
-  const guestCount = formatPackageGuestCount(plan);
-  const freezeLabel = formatPackageFreezeLabel(plan, {
-    timesDays: (times, days) => tPackages("freezeTimesDays", { times, days }),
-  });
-  const stockCount = formatPackageStockCount(plan);
-  const startDateLabel = formatPackageStartDateLabel(plan);
-  const features = plan.features.filter((feature) => feature.trim().length > 0);
-  const hasMixSessions = hasPublicPackageTypeSessions(plan.typeSessionAllocations);
-  const mixSessionRows = resolvePublicPackageTypeSessionRows(plan.typeSessionAllocations);
+  const view = usePlanDetailsView(plan, locale);
 
   return (
-    <AdminSheetPortal presentation="modal"
+    <AdminSheetPortal
+      presentation="modal"
       isOpen={sheetOpen}
       onClose={requestClose}
       onAfterClose={onAfterClose}
@@ -117,15 +117,15 @@ export function AdminClientPackagePlanDetailsModal({
       ariaLabelledBy={titleId}
       useOverlayPortalRoot
       modalOverlayClassName="ommm-modal-overlay z-[120]"
-      modalPanelClassName="w-full max-w-5xl rounded-[28px] border border-white/70 bg-white p-0 shadow-[0_30px_70px_-30px_rgba(45,40,35,0.45)]"
+      modalPanelClassName="w-full max-w-2xl rounded-[28px] border border-white/70 bg-paper p-0 shadow-[0_30px_70px_-30px_rgba(45,40,35,0.45)]"
     >
       <div className="flex max-h-[min(88dvh,44rem)] flex-col">
-        <header className="flex shrink-0 items-start justify-between gap-3 border-b border-white/60 px-5 py-4 sm:px-6">
+        <header className="flex shrink-0 items-start justify-between gap-3 border-b border-sage-500/10 px-5 py-4 sm:px-6">
           <div className="min-w-0">
             <h2 id={titleId} className={ADMIN_DETAILS_SHEET_TITLE_CLASS}>
               {t("packages.planDetailsTitle")}
             </h2>
-            <p className="mt-1 text-sm text-sage-600">{plan.categoryName}</p>
+            <p className="mt-1 text-sm text-sage-500">{plan.categoryName}</p>
           </div>
           <button
             type="button"
@@ -137,97 +137,89 @@ export function AdminClientPackagePlanDetailsModal({
           </button>
         </header>
 
-        <div className="min-h-0 flex-1 space-y-5 overflow-y-auto overflow-x-hidden px-5 py-5 sm:px-6">
-          <div className="w-full min-w-0 max-w-full overflow-x-hidden rounded-[24px] border border-[rgba(212,196,183,0.2)] bg-white/70 px-3 py-4 sm:px-5">
-            <div
-              className={`${DETAILS_GRID_CLASS} border-b border-[rgba(212,196,183,0.2)] pb-4 pt-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[rgba(80,69,59,0.6)] sm:text-xs sm:tracking-[0.12em]`}
-            >
-              <div className="min-w-0 text-left leading-snug">{tPackages("tablePageName")}</div>
-              <div className="min-w-0 text-center leading-snug">
-                {tPackages("tableTotalSessions")}
-              </div>
-              <div className="min-w-0 text-center leading-snug">{tPackages("tablePrice")}</div>
-              <div className="min-w-0 text-center leading-snug">{tPackages("tableValidity")}</div>
-              {GUEST_PASSES_ENABLED ? (
-                <div className="min-w-0 text-center leading-snug">{tPackages("tableGuests")}</div>
-              ) : null}
-              <div className="min-w-0 text-center leading-snug">{tPackages("tableFreeze")}</div>
-              <div className="min-w-0 text-center leading-snug">{tPackages("tableStockCount")}</div>
-              <div className="min-w-0 text-center leading-snug">{tPackages("tableStartDate")}</div>
-            </div>
-
-            <div className={`${DETAILS_GRID_CLASS} rounded-[20px] px-0.5 py-2`}>
-              <Cell lead>
-                <span className="break-words">{packageName}</span>
-              </Cell>
-              <Cell>{totalSessions !== null ? totalSessions : <EmptyCell />}</Cell>
-              <Cell>
-                {hasDiscount && originalPriceLabel !== null ? (
-                  <span className="inline-flex flex-col items-center gap-0.5">
-                    <span className="text-xs leading-tight text-sage-500 line-through">
-                      {originalPriceLabel}
-                    </span>
-                    <span className="font-semibold text-sage-900">{finalPriceLabel}</span>
-                  </span>
-                ) : (
-                  <span className="break-words">{finalPriceLabel}</span>
-                )}
-              </Cell>
-              <Cell>
-                <span className="break-words">{validityLabel}</span>
-              </Cell>
-              {GUEST_PASSES_ENABLED ? (
-                <Cell>{guestCount !== null ? guestCount : <EmptyCell />}</Cell>
-              ) : null}
-              <Cell>
-                {freezeLabel !== null ? (
-                  <span className="break-words">{freezeLabel}</span>
-                ) : (
-                  <EmptyCell />
-                )}
-              </Cell>
-              <Cell>{stockCount !== null ? stockCount : <EmptyCell />}</Cell>
-              <Cell>
-                {startDateLabel !== null ? (
-                  <span className="break-words">{startDateLabel}</span>
-                ) : (
-                  <EmptyCell />
-                )}
-              </Cell>
-            </div>
-
-            {hasMixSessions ? (
-              <div className="mt-4 border-t border-[rgba(212,196,183,0.15)] pt-4">
-                <PublicPackageTypeSessionsBreakdown rows={mixSessionRows} />
-              </div>
-            ) : null}
-          </div>
-
-          {features.length > 0 ? (
-            <div className="space-y-2">
-              <p className={ADMIN_DETAILS_SHEET_DETAIL_LABEL_CLASS}>
-                {t("packages.features")}
-              </p>
-              <ul className="space-y-2">
-                {features.map((feature) => (
-                  <li
-                    key={feature}
-                    className="rounded-xl border border-white/70 bg-white/60 px-3.5 py-3 text-sm text-sage-800"
-                  >
-                    {feature}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ) : null}
+        <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-5 py-5 sm:px-6">
+          <DetailsStack>
+            <PlanSummaryCard plan={plan} view={view} />
+            <PlanFeaturesCard features={view.features} title={t("packages.features")} />
+          </DetailsStack>
         </div>
 
-        <footer className="flex shrink-0 justify-end border-t border-white/60 px-5 py-4 sm:px-6">
+        <footer className="flex shrink-0 justify-end border-t border-sage-500/10 px-5 py-4 sm:px-6">
           <OmmButton type="button" variant="secondary" onClick={requestClose}>
             {t("cancelButton")}
           </OmmButton>
         </footer>
       </div>
     </AdminSheetPortal>
+  );
+}
+
+function PlanSummaryCard({ plan, view }: { plan: PublicPackagePlan; view: PlanDetailsView }) {
+  const tPackages = useTranslations("adminPages.packages");
+  const mixSessionRows = resolvePublicPackageTypeSessionRows(plan.typeSessionAllocations);
+
+  return (
+    <DetailsCard title={view.packageName} icon={<TicketGlyph />}>
+      <DetailsStatStrip>
+        <DetailsStat label={tPackages("tablePrice")} icon={<WalletGlyph />} tone="mint">
+          <span className="block font-serif text-lg">{view.finalPrice}</span>
+          {view.originalPrice !== null ? (
+            <span className="block text-xs font-medium text-sage-500 line-through">
+              {view.originalPrice}
+            </span>
+          ) : null}
+        </DetailsStat>
+        <DetailsStat label={tPackages("tableTotalSessions")} icon={<CheckCircleGlyph />} tone="peach">
+          {view.totalSessions}
+        </DetailsStat>
+        <DetailsStat label={tPackages("tableValidity")} icon={<CalendarGlyph />} tone="blue">
+          {view.validity}
+        </DetailsStat>
+      </DetailsStatStrip>
+      <DetailsFieldRow>
+        {GUEST_PASSES_ENABLED ? (
+          <DetailsField label={tPackages("tableGuests")} icon={<UsersGlyph />}>
+            {view.guests ?? EMPTY_VALUE}
+          </DetailsField>
+        ) : null}
+        <DetailsField label={tPackages("tableFreeze")} icon={<PauseGlyph />} title={view.freeze ?? undefined}>
+          {view.freeze ?? EMPTY_VALUE}
+        </DetailsField>
+        <DetailsField label={tPackages("tableStockCount")} icon={<TicketGlyph />}>
+          {view.stock ?? EMPTY_VALUE}
+        </DetailsField>
+        <DetailsField label={tPackages("tableStartDate")} icon={<ClockGlyph />}>
+          {view.startDate ?? EMPTY_VALUE}
+        </DetailsField>
+      </DetailsFieldRow>
+      {hasPublicPackageTypeSessions(plan.typeSessionAllocations) ? (
+        <div className={`${DETAILS_DIVIDER_CLASS} pt-4`}>
+          <PublicPackageTypeSessionsBreakdown rows={mixSessionRows} />
+        </div>
+      ) : null}
+    </DetailsCard>
+  );
+}
+
+function PlanFeaturesCard({ features, title }: { features: readonly string[]; title: string }) {
+  if (features.length === 0) {
+    return null;
+  }
+  return (
+    <DetailsCard title={title} icon={<SparkGlyph />} iconTone="sand">
+      <ul className="grid grid-cols-1 gap-2 min-[400px]:grid-cols-2">
+        {features.map((feature) => (
+          <li
+            key={feature}
+            className="flex items-start gap-2.5 rounded-2xl border border-sage-500/15 bg-white px-3.5 py-3 text-sm font-medium text-sage-900"
+          >
+            <span className="shrink-0 text-sage-700">
+              <CheckCircleGlyph />
+            </span>
+            <span className="min-w-0 break-words">{feature}</span>
+          </li>
+        ))}
+      </ul>
+    </DetailsCard>
   );
 }

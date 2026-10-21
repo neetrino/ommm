@@ -53,6 +53,10 @@ export class ClientsService {
     return this.admin.remove(actor, id);
   }
 
+  restore(actor: Parameters<ClientsAdminService['restore']>[0], id: string) {
+    return this.admin.restore(actor, id);
+  }
+
   addNote(authorId: string, authorRole: Role, userId: string, body: string) {
     return this.admin.addNote(authorId, authorRole, userId, body);
   }

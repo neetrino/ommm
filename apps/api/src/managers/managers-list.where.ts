@@ -30,6 +30,8 @@ export function buildManagersListWhere(
   const searchWhere = buildTokenAndWhere(query.q, userContainsToken);
   if (searchWhere) {
     and.push(searchWhere);
+  } else {
+    and.push({ deletedAt: null });
   }
 
   const statusClauses = (query.status ?? [])

@@ -9,6 +9,7 @@ import {
   AdminSheetEditableField,
   AdminSheetReadOnlyField,
   ADMIN_SHEET_FORM_SECTION_CLASS,
+  ADMIN_SHEET_PROFILE_CARD_CLASS,
 } from "@/components/admin/admin-sheet-editable-field";
 import {
   calculateAgeFromBirthday,
@@ -43,16 +44,16 @@ import {
 } from "@/components/admin/admin-coach-assigned-classes-picker";
 import { CoachClassBadges } from "@/components/admin/admin-coach-directory-display";
 import { coachCardInitials, type CoachCardUser } from "@/components/coaches/coach-card-display";
+import {
+  CoachActivityStats,
+  type CoachActivityCounts,
+} from "@/components/admin/admin-coach-activity-stats";
 
 type CoachFormController = ReturnType<typeof useCoachEditForm>;
 
-export type CoachSheetOverviewContext = {
+export type CoachSheetOverviewContext = CoachActivityCounts & {
   isActive: boolean;
   createdAt: string;
-  totalClasses: number;
-  substituteClasses: number;
-  assignedClassesCount: number;
-  availabilitySlotsCount: number;
   initials: string;
 };
 
@@ -142,7 +143,7 @@ export function CoachSheetTabPanels({
   if (activeTab === "profile") {
     return (
       <div className="space-y-5">
-        <section className={SECTION_CLASS}>
+        <section className={ADMIN_SHEET_PROFILE_CARD_CLASS}>
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
             <div className="shrink-0">
               <p className="ommm-label mb-2 text-xs uppercase tracking-wide text-sage-700">
@@ -187,12 +188,12 @@ export function CoachSheetTabPanels({
                   className={`inline-flex rounded-full px-2.5 py-1 text-[11px] font-medium uppercase tracking-wide ${
                     overview.isActive
                       ? "bg-mint-100 text-sage-800"
-                      : "bg-sand-100 text-sage-600"
+                      : "bg-sand-100 text-sage-500"
                   }`}
                 >
                   {overview.isActive ? t("filters.statusActive") : t("filters.statusInactive")}
                 </span>
-                <span className="text-sm text-sage-600">
+                <span className="text-sm text-sage-500">
                   {t("drawer.registrationDate")}: {formatDateForUi(overview.createdAt)}
                 </span>
               </div>
@@ -204,12 +205,7 @@ export function CoachSheetTabPanels({
         </section>
 
         {overview ? (
-          <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
-            <Metric label={t("drawer.totalClasses")} value={overview.totalClasses} />
-            <Metric label={t("drawer.substitutions")} value={overview.substituteClasses} />
-            <Metric label={t("drawer.assignedClasses")} value={overview.assignedClassesCount} />
-            <Metric label={t("drawer.availabilitySlots")} value={overview.availabilitySlotsCount} />
-          </div>
+          <CoachActivityStats counts={overview} />
         ) : null}
 
         {form.assignedClassTypeIds.length > 0 ? (
@@ -221,7 +217,7 @@ export function CoachSheetTabPanels({
           </div>
         ) : null}
 
-        <section className={SECTION_CLASS}>
+        <section className={ADMIN_SHEET_PROFILE_CARD_CLASS}>
           <div className="mb-4 flex items-center justify-between gap-3">
             <h3 className="min-w-0 text-sm font-semibold leading-5 uppercase tracking-[0.12em] text-sage-800">
               {labels.personalInfoHeading}
@@ -389,6 +385,7 @@ export function CoachSheetTabPanels({
                   )
                 }
                 hint={t("fieldBioHint")}
+                multiline
                 className="col-span-2"
               />
             </div>
@@ -551,14 +548,6 @@ export function CoachSheetTabPanels({
   return null;
 }
 
-function Metric({ label, value }: { label: string; value: number }) {
-  return (
-    <div className="rounded-2xl border border-white/60 bg-white/70 px-4 py-3">
-      <p className="text-xs uppercase tracking-wide text-sage-500">{label}</p>
-      <p className="mt-1 text-2xl font-semibold text-sage-900">{value}</p>
-    </div>
-  );
-}
 
 function SectionHeading({
   title,

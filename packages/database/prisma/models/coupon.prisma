@@ -50,8 +50,8 @@ model Coupon {
 model CouponEligibleUser {
   couponId String
   userId   String
-  coupon   Coupon @relation(fields: [couponId], references: [id], onDelete: Cascade)
-  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  coupon   Coupon @relation(fields: [couponId], references: [id], onDelete: Restrict)
+  user     User   @relation(fields: [userId], references: [id], onDelete: Restrict)
 
   @@id([couponId, userId])
   @@index([userId])
@@ -62,8 +62,8 @@ model CouponEligibleProduct {
   couponId      String
   productKind   CouponProductKind
   packagePlanId String?
-  coupon        Coupon            @relation(fields: [couponId], references: [id], onDelete: Cascade)
-  packagePlan   PackagePlan?      @relation(fields: [packagePlanId], references: [id], onDelete: Cascade)
+  coupon        Coupon            @relation(fields: [couponId], references: [id], onDelete: Restrict)
+  packagePlan   PackagePlan?      @relation(fields: [packagePlanId], references: [id], onDelete: Restrict)
 
   @@index([couponId])
   @@index([packagePlanId])
@@ -75,9 +75,9 @@ model CouponRedemption {
   couponId            String
   coupon              Coupon                  @relation(fields: [couponId], references: [id], onDelete: Restrict)
   userId              String
-  user                User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user                User                    @relation(fields: [userId], references: [id], onDelete: Restrict)
   paymentId           String                  @unique
-  payment             Payment                 @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+  payment             Payment                 @relation(fields: [paymentId], references: [id], onDelete: Restrict)
   status              CouponRedemptionStatus  @default(RESERVED)
   code                String
   discountType        CouponDiscountType

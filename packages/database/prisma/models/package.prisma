@@ -44,7 +44,7 @@ model PackagePlan {
 model UserPackage {
   id                           String            @id @default(cuid())
   userId                       String
-  user                         User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user                         User              @relation(fields: [userId], references: [id], onDelete: Restrict)
   planId                       String?
   plan                         PackagePlan?      @relation(fields: [planId], references: [id], onDelete: SetNull)
   sourcePlanIdSnapshot         String
@@ -94,7 +94,7 @@ model UserPackage {
 model UserPackageFreeze {
   id                String                     @id @default(cuid())
   userPackageId     String
-  userPackage       UserPackage                @relation(fields: [userPackageId], references: [id], onDelete: Cascade)
+  userPackage       UserPackage                @relation(fields: [userPackageId], references: [id], onDelete: Restrict)
   daysRequested     Int
   startedAt         DateTime
   scheduledEndAt    DateTime
@@ -113,7 +113,7 @@ model UserPackageFreeze {
 model UserPackageBalance {
   id                         String      @id @default(cuid())
   userPackageId              String
-  userPackage                UserPackage @relation(fields: [userPackageId], references: [id], onDelete: Cascade)
+  userPackage                UserPackage @relation(fields: [userPackageId], references: [id], onDelete: Restrict)
   sourcePlanId               String?
   sourcePlan                 PackagePlan? @relation("BalanceSourcePlan", fields: [sourcePlanId], references: [id], onDelete: SetNull)
   /** Stable class-type identity for booking eligibility (preferred over name snapshot). */

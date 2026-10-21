@@ -15,7 +15,9 @@ import {
   BACKOFFICE_WRITE_ROLES,
 } from '../common/backoffice-roles';
 import { Roles } from '../common/decorators/roles.decorator';
+import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import type { User } from '@prisma/client';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { CreateScheduleItemDto } from './dto/create-schedule-item.dto';
 import { UpdateScheduleItemDto } from './dto/update-schedule-item.dto';
@@ -56,7 +58,7 @@ export class ScheduleController {
   @Delete('admin/:id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(...BACKOFFICE_DELETE_ROLES)
-  remove(@Param('id') id: string) {
-    return this.schedule.remove(id);
+  remove(@CurrentUser() user: User, @Param('id') id: string) {
+    return this.schedule.remove(id, user);
   }
 }

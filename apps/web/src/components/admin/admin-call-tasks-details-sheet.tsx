@@ -12,9 +12,6 @@ import {
   ADMIN_BOOKINGS_DETAILS_SHEET_PANEL_CLASS,
   ADMIN_DETAILS_SHEET_BODY_CLASS,
   ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS,
-  ADMIN_DETAILS_SHEET_DETAIL_BLOCK_CLASS,
-  ADMIN_DETAILS_SHEET_DETAIL_LABEL_CLASS,
-  ADMIN_DETAILS_SHEET_DETAIL_VALUE_CLASS,
   ADMIN_DETAILS_SHEET_FOOTER_CLASS,
   ADMIN_DETAILS_SHEET_HEADER_CLASS,
   ADMIN_DETAILS_SHEET_OVERLAY_CLASS,
@@ -22,6 +19,12 @@ import {
 } from "@/components/admin/admin-details-sheet-layout";
 import { AdminSheetPortal } from "@/components/admin/admin-sheet-portal";
 import { useAdminAnimatedSheetClose } from "@/components/admin/use-admin-animated-sheet-close";
+import {
+  DetailsCard,
+  DetailsField,
+  DetailsFieldRow,
+} from "@/components/shared/details/details-card";
+import { CalendarGlyph, NoteGlyph, PhoneGlyph } from "@/components/shared/details/details-glyphs";
 import { formatDateForUi } from "@/lib/date-display";
 import { displayPhoneOrFallback } from "@/lib/phone";
 
@@ -85,16 +88,25 @@ export function AdminCallTasksDetailsSheet({
       </header>
 
       <div className={ADMIN_DETAILS_SHEET_BODY_CLASS}>
-        <dl className={ADMIN_DETAILS_SHEET_DETAIL_BLOCK_CLASS}>
-          <DetailRow label={t("colPhone")} value={displayPhoneOrFallback(row.phone)} />
-          <DetailRow label={t("colDue")} value={formatDateForUi(row.dueOnDate)} />
-          <div className="flex flex-col gap-1">
-            <dt className={ADMIN_DETAILS_SHEET_DETAIL_LABEL_CLASS}>{t("colComment")}</dt>
-            <dd className={`${ADMIN_DETAILS_SHEET_DETAIL_VALUE_CLASS} whitespace-pre-wrap`}>
+        <DetailsCard>
+          <DetailsFieldRow>
+            <DetailsField label={t("colPhone")} icon={<PhoneGlyph />}>
+              {row.phone ? (
+                <a href={`tel:${row.phone}`} className="hover:underline">
+                  {displayPhoneOrFallback(row.phone)}
+                </a>
+              ) : (
+                displayPhoneOrFallback(row.phone)
+              )}
+            </DetailsField>
+            <DetailsField label={t("colDue")} icon={<CalendarGlyph />}>
+              {formatDateForUi(row.dueOnDate)}
+            </DetailsField>
+            <DetailsField label={t("colComment")} icon={<NoteGlyph />} wide multiline>
               {row.comment}
-            </dd>
-          </div>
-        </dl>
+            </DetailsField>
+          </DetailsFieldRow>
+        </DetailsCard>
       </div>
 
       {pending ? (
@@ -109,15 +121,6 @@ export function AdminCallTasksDetailsSheet({
         </footer>
       ) : null}
     </AdminSheetPortal>
-  );
-}
-
-function DetailRow({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-0.5">
-      <dt className={ADMIN_DETAILS_SHEET_DETAIL_LABEL_CLASS}>{label}</dt>
-      <dd className={ADMIN_DETAILS_SHEET_DETAIL_VALUE_CLASS}>{value}</dd>
-    </div>
   );
 }
 

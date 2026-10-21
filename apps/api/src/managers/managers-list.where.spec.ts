@@ -5,7 +5,7 @@ import { AdminManagerStatusFilter } from './managers-list.constants';
 describe('buildManagersListWhere', () => {
   it('scopes the directory to MANAGER role', () => {
     expect(buildManagersListWhere({})).toEqual({
-      AND: [{ role: Role.MANAGER }],
+      AND: [{ role: Role.MANAGER }, { deletedAt: null }],
     });
   });
 
@@ -13,7 +13,7 @@ describe('buildManagersListWhere', () => {
     expect(
       buildManagersListWhere({ status: [AdminManagerStatusFilter.BLOCKED] }),
     ).toEqual({
-      AND: [{ role: Role.MANAGER }, { isBlocked: true }],
+      AND: [{ role: Role.MANAGER }, { deletedAt: null }, { isBlocked: true }],
     });
   });
 
@@ -21,7 +21,7 @@ describe('buildManagersListWhere', () => {
     expect(
       buildManagersListWhere({ status: [AdminManagerStatusFilter.ACTIVE] }),
     ).toEqual({
-      AND: [{ role: Role.MANAGER }, { isBlocked: false }],
+      AND: [{ role: Role.MANAGER }, { deletedAt: null }, { isBlocked: false }],
     });
   });
 
@@ -36,6 +36,7 @@ describe('buildManagersListWhere', () => {
     ).toEqual({
       AND: [
         { role: Role.MANAGER },
+        { deletedAt: null },
         { OR: [{ isBlocked: false }, { isBlocked: true }] },
       ],
     });
