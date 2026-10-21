@@ -139,8 +139,8 @@ function CoachClientSheetSections({
     <>
       <AdminDetailSheetTabBar
         tabs={[
-          { value: COACH_CLIENT_SHEET_TAB_PACKAGE, label: packageLabel },
           { value: COACH_CLIENT_SHEET_TAB_BOOKING, label: bookingLabel },
+          { value: COACH_CLIENT_SHEET_TAB_PACKAGE, label: packageLabel },
         ]}
         activeTab={activeTab}
         onTabChange={(value) => onTabChange(parseCoachClientSheetTab(value))}
