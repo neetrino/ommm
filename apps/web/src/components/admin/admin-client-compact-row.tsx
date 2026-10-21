@@ -103,16 +103,18 @@ function ClientCardFields({
   return (
     <>
       <ClientNameCell row={row} name={name} hideContact={hideContact} />
-
-      <div className={`${ADMIN_CLIENTS_LIST_DATE_CELL} ${ADMIN_CLIENTS_LIST_BIRTHDAY_AREA_CLASS}`}>
-        <p className={ADMIN_CLIENTS_LIST_VALUE_CLASS}>
-          {row.dateOfBirth ? formatDateForUi(row.dateOfBirth) : "—"}
-        </p>
-      </div>
-
-      <div className={`${ADMIN_CLIENTS_LIST_DATE_CELL} ${ADMIN_CLIENTS_LIST_JOINED_AREA_CLASS}`}>
-        <p className={ADMIN_CLIENTS_LIST_VALUE_CLASS}>{formatDateCompactForUi(row.createdAt)}</p>
-      </div>
+      {hideContact ? null : (
+        <>
+          <div className={`${ADMIN_CLIENTS_LIST_DATE_CELL} ${ADMIN_CLIENTS_LIST_BIRTHDAY_AREA_CLASS}`}>
+            <p className={ADMIN_CLIENTS_LIST_VALUE_CLASS}>
+              {row.dateOfBirth ? formatDateForUi(row.dateOfBirth) : "—"}
+            </p>
+          </div>
+          <div className={`${ADMIN_CLIENTS_LIST_DATE_CELL} ${ADMIN_CLIENTS_LIST_JOINED_AREA_CLASS}`}>
+            <p className={ADMIN_CLIENTS_LIST_VALUE_CLASS}>{formatDateCompactForUi(row.createdAt)}</p>
+          </div>
+        </>
+      )}
 
       <div
         className={`${ADMIN_CLIENTS_LIST_MEMBERSHIP_CELL} ${ADMIN_CLIENTS_LIST_MEMBERSHIP_AREA_CLASS} min-w-0`}
