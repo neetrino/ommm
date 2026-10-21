@@ -57,7 +57,10 @@ describe("dashboard-nav manager parity", () => {
     const hrefs = dashboardNavDefinitionsForRole("COACH").map((item) => item.href);
     const groupsIndex = hrefs.indexOf("/coach/groups");
     const clientsIndex = hrefs.indexOf("/coach/clients");
-    assert.ok(groupsIndex >= 0);
+    const groups = dashboardNavDefinitionsForRole("COACH").find(
+      (item) => item.href === "/coach/groups",
+    );
+    assert.equal(groups?.oliveIconSlug, "bookings");
     assert.equal(clientsIndex, groupsIndex + 1);
     const clients = dashboardNavDefinitionsForRole("COACH").find(
       (item) => item.href === "/coach/clients",
