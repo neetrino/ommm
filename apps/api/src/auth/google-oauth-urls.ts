@@ -18,7 +18,10 @@ export function resolveWebEntryUrl(
   locale: string | null | undefined,
   configured: string | undefined,
 ): string {
-  const normalized = normalizeAppUiLocale(locale ?? undefined, DEFAULT_UI_LOCALE);
+  const normalized = normalizeAppUiLocale(
+    locale ?? undefined,
+    DEFAULT_UI_LOCALE,
+  );
   return `${webBase(configured)}/${normalized}/${WEB_AUTH_ENTRY_SEGMENT}`;
 }
 
@@ -27,7 +30,10 @@ export function resolveClosedAccountLoginUrl(
   locale: string | null | undefined,
   configured: string | undefined,
 ): string {
-  const normalized = normalizeAppUiLocale(locale ?? undefined, DEFAULT_UI_LOCALE);
+  const normalized = normalizeAppUiLocale(
+    locale ?? undefined,
+    DEFAULT_UI_LOCALE,
+  );
   const error = encodeURIComponent(GOOGLE_NO_ACCOUNT_ERROR);
   return `${webBase(configured)}/${normalized}/${WEB_LOGIN_SEGMENT}?error=${error}`;
 }

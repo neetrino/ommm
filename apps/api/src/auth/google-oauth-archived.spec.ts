@@ -101,12 +101,14 @@ describe('GoogleOAuthService archived account', () => {
     };
     const selfClosed = { ...archivedUser, deletedById: archivedUser.id };
     const issueAccessTokenForUser = jest.fn().mockReturnValue('token');
-    const prisma = {
+    const db = {
       oAuthAccount: {
         findUnique: jest.fn().mockResolvedValue({ user: selfClosed }),
         findMany: jest
           .fn()
-          .mockResolvedValue([{ id: 'oauth-1', providerAccountId: 'google-1' }]),
+          .mockResolvedValue([
+            { id: 'oauth-1', providerAccountId: 'google-1' },
+          ]),
         update: jest.fn().mockResolvedValue({ id: 'oauth-1' }),
         create: jest.fn(),
       },
@@ -125,9 +127,12 @@ describe('GoogleOAuthService archived account', () => {
         update: jest.fn().mockResolvedValue({ id: 'user-1' }),
         create: jest.fn().mockResolvedValue(created),
       },
+    };
+    const prisma = {
+      ...db,
       $transaction: jest.fn((work: unknown) => {
         if (typeof work === 'function') {
-          return (work as (tx: typeof prisma) => Promise<unknown>)(prisma);
+          return (work as (tx: typeof db) => Promise<unknown>)(db);
         }
         return Promise.all(work as Promise<unknown>[]);
       }),

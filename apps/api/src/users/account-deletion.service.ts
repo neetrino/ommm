@@ -99,7 +99,10 @@ export class AccountDeletionService {
     });
   }
 
-  private async sendCodeEmail(user: DeletionMember, code: string): Promise<void> {
+  private async sendCodeEmail(
+    user: DeletionMember,
+    code: string,
+  ): Promise<void> {
     const recipientName = [user.name, user.lastName].filter(Boolean).join(' ');
     await this.mail.sendEmail({
       to: user.email,

@@ -1,7 +1,5 @@
 import { createHmac, randomInt, timingSafeEqual } from 'node:crypto';
-import {
-  ACCOUNT_DELETION_CODE_LENGTH,
-} from './account-deletion.constants';
+import { ACCOUNT_DELETION_CODE_LENGTH } from './account-deletion.constants';
 
 const CODE_SPAN = 10 ** ACCOUNT_DELETION_CODE_LENGTH;
 const CODE_PATTERN = new RegExp(`^\\d{${ACCOUNT_DELETION_CODE_LENGTH}}$`);

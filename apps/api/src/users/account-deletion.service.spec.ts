@@ -11,6 +11,16 @@ import { AccountDeletionService } from './account-deletion.service';
 const SECRET = 'test-secret';
 const USER_ID = 'user-1';
 
+type AccountDeletionEmail = {
+  to: string;
+  subject: string;
+  html: string;
+};
+
+type StoredDeletionToken = {
+  data: { tokenHash: string };
+};
+
 const member = {
   id: USER_ID,
   email: 'ada@example.com',
@@ -41,23 +51,28 @@ describe('AccountDeletionService', () => {
   }
 
   it('emails a code and stores only its hash', async () => {
-    const mail = { sendEmail: jest.fn().mockResolvedValue(undefined) };
+    const mail = {
+      sendEmail: jest
+        .fn<Promise<void>, [AccountDeletionEmail]>()
+        .mockResolvedValue(undefined),
+    };
     const prisma = {
       user: { findUniqueOrThrow: jest.fn().mockResolvedValue(member) },
       authToken: {
         deleteMany: jest.fn().mockResolvedValue({ count: 0 }),
-        create: jest.fn().mockResolvedValue({ id: 'token-1' }),
+        create: jest
+          .fn<Promise<{ id: string }>, [StoredDeletionToken]>()
+          .mockResolvedValue({ id: 'token-1' }),
       },
     };
     const service = makeService(prisma, mail, {});
 
     await expect(service.sendCode(USER_ID)).resolves.toEqual({ ok: true });
 
-    const sent = mail.sendEmail.mock.calls[0]?.[0] as {
-      to: string;
-      subject: string;
-      html: string;
-    };
+    const sent = mail.sendEmail.mock.calls[0]?.[0];
+    if (sent === undefined) {
+      throw new Error('email was not sent');
+    }
     const code = emailedCode(sent.html);
     expect(sent.to).toBe(member.email);
     expect(sent.subject).toBe(ACCOUNT_DELETION_CODE_SUBJECT);
@@ -68,9 +83,7 @@ describe('AccountDeletionService', () => {
         tokenHash: hashAccountDeletionCode(SECRET, USER_ID, code),
       }) as { tokenHash: string },
     });
-    const stored = (
-      prisma.authToken.create.mock.calls[0]?.[0] as { data: { tokenHash: string } }
-    ).data.tokenHash;
+    const stored = prisma.authToken.create.mock.calls[0]?.[0]?.data.tokenHash;
     expect(stored).not.toBe(code);
   });
 
