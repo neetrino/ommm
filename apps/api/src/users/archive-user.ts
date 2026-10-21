@@ -19,6 +19,41 @@ type ArchiveActor = {
   action: string;
 };
 
+const CLOSED_ACCOUNT_EMAIL_DOMAIN = 'users.invalid';
+
+/** Self-closed member. Staff archives stay locked to the same email. */
+export function isSelfClosedAccount(user: {
+  id: string;
+  deletedAt: Date | null;
+  deletedById?: string | null;
+}): boolean {
+  return user.deletedAt !== null && user.deletedById === user.id;
+}
+
+export function retiredAccountEmail(userId: string): string {
+  return `closed+${userId}@${CLOSED_ACCOUNT_EMAIL_DOMAIN}`;
+}
+
+/** Frees a self-closed login so the same email can register again. */
+export async function releaseSelfClosedAccount(
+  store: {
+    $transaction: (
+      fn: (tx: Prisma.TransactionClient) => Promise<void>,
+    ) => Promise<void>;
+  },
+  user: {
+    id: string;
+    deletedAt: Date | null;
+    deletedById?: string | null;
+  },
+): Promise<boolean> {
+  if (!isSelfClosedAccount(user)) {
+    return false;
+  }
+  await store.$transaction((tx) => releaseClosedSignInIdentity(tx, user.id));
+  return true;
+}
+
 /** Blocks sign-in and keeps every related row. A second call is a no-op. */
 export async function archiveUser(
   tx: Prisma.TransactionClient,
@@ -61,6 +96,48 @@ export async function archiveUser(
         lastName: user.lastName,
         role: user.role,
       }),
+    },
+  });
+  if (params.actorId === params.userId) {
+    await releaseClosedSignInIdentity(tx, user.id);
+  }
+}
+
+/**
+ * Keeps the archived row and its history, but frees the email, phone, and
+ * Google id so the person can open a new account.
+ */
+export async function releaseClosedSignInIdentity(
+  tx: Prisma.TransactionClient,
+  userId: string,
+): Promise<void> {
+  const accounts = await tx.oAuthAccount.findMany({
+    where: { userId },
+    select: { id: true, providerAccountId: true },
+  });
+  for (const account of accounts) {
+    if (account.providerAccountId.startsWith('closed:')) {
+      continue;
+    }
+    await tx.oAuthAccount.update({
+      where: { id: account.id },
+      data: { providerAccountId: `closed:${account.id}` },
+    });
+  }
+  const retiredEmail = retiredAccountEmail(userId);
+  const current = await tx.user.findUnique({
+    where: { id: userId },
+    select: { email: true },
+  });
+  if (current === null || current.email === retiredEmail) {
+    return;
+  }
+  await tx.user.update({
+    where: { id: userId },
+    data: {
+      email: retiredEmail,
+      phone: null,
+      whatsappPhone: null,
     },
   });
 }

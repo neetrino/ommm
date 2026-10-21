@@ -26,6 +26,10 @@ describe('UsersService.deleteOwnAccount', () => {
       },
       coachProfile: { updateMany: jest.fn().mockResolvedValue({ count: 0 }) },
       auditLog: { create: jest.fn().mockResolvedValue({ id: 'audit-1' }) },
+      oAuthAccount: {
+        findMany: jest.fn().mockResolvedValue([]),
+        update: jest.fn(),
+      },
     };
     const prisma = {
       user: {
@@ -47,6 +51,14 @@ describe('UsersService.deleteOwnAccount', () => {
         isBlocked: true,
         deletedById: 'user-1',
       }) as { isBlocked: boolean; deletedById: string },
+    });
+    expect(tx.user.update).toHaveBeenCalledWith({
+      where: { id: 'user-1' },
+      data: {
+        email: 'closed+user-1@users.invalid',
+        phone: null,
+        whatsappPhone: null,
+      },
     });
     expect(tx.auditLog.create).toHaveBeenCalledWith(
       expect.objectContaining({

@@ -799,7 +799,8 @@
       "continueWithGoogle": "Continue with Google",
       "forgotPassword": "Forgot password?",
       "noAccountPrompt": "No account?",
-      "loginFailed": "Login failed"
+      "loginFailed": "Login failed",
+      "googleNoAccount": "No account exists for this email."
     },
     "register": {
       "lead": "Create a member account to book classes and manage packages.",
@@ -1590,6 +1591,12 @@
       "deleteAccountBackdropClose": "Close account dialog",
       "deleteAccountDeleting": "Closing…",
       "deleteAccountFailed": "Could not close the account.",
+      "deleteAccountCodeTitle": "Enter the code from your email",
+      "deleteAccountCodeDescription": "We sent a 6-digit code to your email. Enter it to close the account.",
+      "deleteAccountCodeLabel": "Email code",
+      "deleteAccountCodePlaceholder": "6-digit code",
+      "deleteAccountCodeInvalid": "That code is incorrect or expired.",
+      "deleteAccountCodeSending": "Sending code…",
       "preferences": "Preferences",
       "labels": {
         "email": "Email",

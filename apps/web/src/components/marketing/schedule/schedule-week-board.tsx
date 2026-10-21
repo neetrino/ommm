@@ -11,6 +11,7 @@ import {
   startOfLocalDay,
 } from "@/components/marketing/schedule/schedule-date-utils";
 import styles from "@/components/marketing/schedule/schedule-week-board.module.css";
+import { ScheduleWeekDayHeader } from "@/components/marketing/schedule/schedule-week-day-header";
 import { ScheduleWeekSessionCard } from "@/components/marketing/schedule/schedule-week-session-card";
 import { ScheduleWeekPeriodSection } from "@/components/marketing/schedule/schedule-week-period-section";
 import { ScheduleWeekRangePicker } from "@/components/marketing/schedule/schedule-week-range-picker";
@@ -18,10 +19,12 @@ import {
   buildScheduleWeekColumns,
   formatScheduleWeekRangeLabel,
   groupSessionsByDayAndPeriod,
+  isScheduleWeekColumnDimmed,
   resolveVisibleDayPeriods,
   type DayPeriod,
 } from "@/components/marketing/schedule/schedule-week-board-helpers";
 import { isUpcomingPublicScheduleSession } from "@/lib/filter-public-schedule-items";
+import { toLocalIsoDate } from "@/lib/local-iso-date";
 import {
   resolveMemberOnWaitlistBadge,
   resolveMemberScheduleRowDisplay,
@@ -99,8 +102,11 @@ export function ScheduleWeekBoard({
   const [collapsedPeriods, setCollapsedPeriods] = useState<ReadonlySet<DayPeriod>>(
     () => new Set(),
   );
-
   const columns = useMemo(() => buildScheduleWeekColumns(windowStart), [windowStart]);
+  const selectedDayKey = toLocalIsoDate(startOfLocalDay(selectedDate));
+  const focusedDayKey = columns.some((column) => column.dayKey === selectedDayKey)
+    ? selectedDayKey
+    : null;
   const weekRangeLabel = formatScheduleWeekRangeLabel(locale, windowStart);
   const sessionsByDayAndPeriod = useMemo(
     () => groupSessionsByDayAndPeriod(sessions),
@@ -110,6 +116,10 @@ export function ScheduleWeekBoard({
     () => resolveVisibleDayPeriods(columns, sessionsByDayAndPeriod),
     [columns, sessionsByDayAndPeriod],
   );
+
+  function focusDay(day: Date) {
+    onSelectDay(day);
+  }
 
   function togglePeriod(period: DayPeriod) {
     setCollapsedPeriods((current) => {
@@ -188,47 +198,18 @@ export function ScheduleWeekBoard({
             const isToday = isSameCalendarDay(column.day, today);
             const isSelected = isSameCalendarDay(column.day, selectedDate);
             const isPastDay = isBeforeCalendarDay(column.day, today);
-            const weekday = new Intl.DateTimeFormat(locale, {
-              weekday: "long",
-            }).format(column.day);
 
             return (
-              <button
+              <ScheduleWeekDayHeader
                 key={column.dayKey}
-                type="button"
-                disabled={isPastDay}
-                className={[
-                  styles.dayHeader,
-                  isPastDay ? styles.dayHeaderDimmed : "",
-                ]
-                  .filter(Boolean)
-                  .join(" ")}
-                onClick={() => onSelectDay(column.day)}
-                aria-pressed={isSelected}
-              >
-                <span
-                  className={[
-                    styles.weekday,
-                    isToday || isSelected ? styles.weekdayActive : "",
-                  ]
-                    .filter(Boolean)
-                    .join(" ")}
-                >
-                  {weekday}
-                </span>
-                <span
-                  className={[
-                    styles.dayNumber,
-                    isPastDay ? styles.dayNumberPast : "",
-                    isToday ? styles.dayNumberToday : "",
-                    !isToday && isSelected ? styles.dayNumberSelected : "",
-                  ]
-                    .filter(Boolean)
-                    .join(" ")}
-                >
-                  {column.day.getDate()}
-                </span>
-              </button>
+                column={column}
+                locale={locale}
+                isToday={isToday}
+                isSelected={isSelected}
+                isPastDay={isPastDay}
+                isFocused={column.dayKey === focusedDayKey}
+                onFocusDay={focusDay}
+              />
             );
           })}
         </div>
@@ -246,12 +227,17 @@ export function ScheduleWeekBoard({
         >
           {columns.map((column) => {
             const isPastDay = isBeforeCalendarDay(column.day, today);
+            const isDimmed = isScheduleWeekColumnDimmed(
+              column.dayKey,
+              isPastDay,
+              focusedDayKey,
+            );
             return (
               <div
                 key={column.dayKey}
                 className={[
                   styles.column,
-                  isPastDay ? styles.columnDimmed : "",
+                  isDimmed ? styles.columnDimmed : "",
                 ]
                   .filter(Boolean)
                   .join(" ")}
@@ -273,6 +259,7 @@ export function ScheduleWeekBoard({
             collapsed={collapsedPeriods.has(period)}
             columns={columns}
             today={today}
+            focusedDayKey={focusedDayKey}
             sessionsByDayAndPeriod={sessionsByDayAndPeriod}
             onToggle={() => togglePeriod(period)}
             renderSessionCard={renderSessionCard}

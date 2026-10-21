@@ -1,4 +1,5 @@
 import { LinearGradient } from "expo-linear-gradient";
+import type { ReactNode } from "react";
 import { ActivityIndicator, Modal, Pressable, StyleSheet, Text, View } from "react-native";
 import { fontFamilies } from "../../theme/fontFamilies";
 import { platformShadow } from "../../theme/platformShadow";
@@ -17,6 +18,7 @@ type OmmConfirmDialogProps = {
   pending?: boolean;
   tone?: OmmConfirmDialogTone;
   errorMessage?: string | null;
+  children?: ReactNode;
   onConfirm: () => void;
   onCancel: () => void;
 };
@@ -31,6 +33,7 @@ export function OmmConfirmDialog({
   pending = false,
   tone = "default",
   errorMessage = null,
+  children,
   onConfirm,
   onCancel,
 }: OmmConfirmDialogProps) {
@@ -89,6 +92,7 @@ export function OmmConfirmDialog({
               <View style={styles.textBlock}>
                 <Text style={styles.title}>{title}</Text>
                 <Text style={styles.description}>{description}</Text>
+                {children}
                 {errorMessage !== null && errorMessage !== "" ? (
                   <Text style={styles.errorMessage} accessibilityLiveRegion="polite">
                     {errorMessage}

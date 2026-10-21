@@ -21,6 +21,7 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { sanitizeUser } from './auth-public-user';
 import { AuthService } from './auth.service';
 import { GoogleOAuthService } from './google-oauth.service';
+import { GoogleAccountClosedException } from './google-sign-in.guard';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { RequestPasswordResetDto } from './dto/request-password-reset.dto';
@@ -171,6 +172,11 @@ export class AuthController {
     } catch (error) {
       res.clearCookie(OAUTH_STATE_COOKIE, oauthStateCookieClearOptions());
       res.clearCookie(CLIENT_INVITE_COOKIE, oauthStateCookieClearOptions());
+      if (error instanceof GoogleAccountClosedException) {
+        res.clearCookie(ACCESS_TOKEN_COOKIE, accessTokenCookieBaseOptions());
+        res.redirect(this.googleOAuth.closedAccountLoginUrl(error.uiLocale));
+        return;
+      }
       throw error;
     }
   }

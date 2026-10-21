@@ -225,21 +225,36 @@ function isDeleteAccountResponse(value: unknown): value is { ok: true } {
   );
 }
 
-/** Permanently deletes the signed-in user (`DELETE /v1/users/me`). */
-export async function deleteAccount(): Promise<{ ok: true }> {
+/** Emails a closure code (`POST /v1/users/me/deletion-code`). */
+export function requestAccountDeletionCode(): Promise<{ ok: true }> {
+  return authedOk("/v1/users/me/deletion-code", "POST");
+}
+
+/** Closes the signed-in account after the emailed code (`DELETE /v1/users/me`). */
+export function deleteAccount(code: string): Promise<{ ok: true }> {
+  return authedOk("/v1/users/me", "DELETE", { code });
+}
+
+async function authedOk(
+  path: string,
+  method: "POST" | "DELETE",
+  body?: { code: string },
+): Promise<{ ok: true }> {
   const token = await readStoredAccessToken();
   if (token === null) {
     throw new Error("Not signed in");
   }
   const base = getApiBaseUrl();
   const res = await fetchWithReachabilityHint(
-    joinApiPath(base, "/v1/users/me"),
+    joinApiPath(base, path),
     {
-      method: "DELETE",
+      method,
       headers: {
         Accept: "application/json",
+        "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
+      body: body === undefined ? undefined : JSON.stringify(body),
     },
     base,
   );

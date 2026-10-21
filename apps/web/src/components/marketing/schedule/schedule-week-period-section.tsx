@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { ChevronDownIcon } from "@/components/marketing/schedule/schedule-view-icons";
 import styles from "@/components/marketing/schedule/schedule-week-board.module.css";
 import {
+  isScheduleWeekColumnDimmed,
   resolvePeriodMaxSessionRows,
   type DayPeriod,
   type ScheduleWeekColumn,
@@ -19,6 +20,7 @@ type ScheduleWeekPeriodSectionProps = {
   collapsed: boolean;
   columns: readonly ScheduleWeekColumn[];
   today: Date;
+  focusedDayKey: string | null;
   sessionsByDayAndPeriod: ReadonlyMap<string, readonly MarketingScheduleItem[]>;
   onToggle: () => void;
   renderSessionCard: (row: MarketingScheduleItem, isPastDay: boolean) => ReactNode;
@@ -36,6 +38,7 @@ export function ScheduleWeekPeriodSection({
   collapsed,
   columns,
   today,
+  focusedDayKey,
   sessionsByDayAndPeriod,
   onToggle,
   renderSessionCard,
@@ -75,16 +78,21 @@ export function ScheduleWeekPeriodSection({
         <div className={styles.periodTrack} style={trackStyle}>
           {columns.map((column) => {
             const isPastDay = isBeforeCalendarDay(column.day, today);
+            const isDimmed = isScheduleWeekColumnDimmed(
+              column.dayKey,
+              isPastDay,
+              focusedDayKey,
+            );
             const daySessions =
               sessionsByDayAndPeriod.get(`${column.dayKey}:${period}`) ?? [];
 
             return (
               <div
                 key={column.dayKey}
-                className={[styles.column, isPastDay ? styles.columnDimmed : ""]
+                className={[styles.column, isDimmed ? styles.columnDimmed : ""]
                   .filter(Boolean)
                   .join(" ")}
-                inert={isPastDay}
+                inert={isDimmed}
               >
                 <ul className={styles.sessions}>
                   {daySessions.map((row) => (

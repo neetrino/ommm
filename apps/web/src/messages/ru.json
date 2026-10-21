@@ -799,7 +799,8 @@
       "continueWithGoogle": "Продолжить через Google",
       "forgotPassword": "Забыли пароль?",
       "noAccountPrompt": "Нет аккаунта?",
-      "loginFailed": "Не удалось войти"
+      "loginFailed": "Не удалось войти",
+      "googleNoAccount": "Аккаунта с этой почтой нет."
     },
     "register": {
       "lead": "Создайте аккаунт участника, чтобы записываться на классы и управлять абонементами.",
@@ -1590,6 +1591,12 @@
       "deleteAccountBackdropClose": "Закрыть окно закрытия аккаунта",
       "deleteAccountDeleting": "Закрываем…",
       "deleteAccountFailed": "Не удалось закрыть аккаунт.",
+      "deleteAccountCodeTitle": "Введите код из письма",
+      "deleteAccountCodeDescription": "Мы отправили 6-значный код на вашу почту. Введите его, чтобы закрыть аккаунт.",
+      "deleteAccountCodeLabel": "Код из письма",
+      "deleteAccountCodePlaceholder": "6-значный код",
+      "deleteAccountCodeInvalid": "Код неверный или истёк.",
+      "deleteAccountCodeSending": "Отправляем код…",
       "preferences": "Настройки",
       "labels": {
         "email": "Email",

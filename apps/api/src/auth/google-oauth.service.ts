@@ -5,15 +5,21 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Prisma, Role, type User } from '@prisma/client';
+import { Role, type User } from '@prisma/client';
 import { OAuth2Client } from 'google-auth-library';
-import { randomBytes, timingSafeEqual } from 'node:crypto';
+import { randomBytes } from 'node:crypto';
 import { inviteRegistrationFields } from '../client-invites/client-invite-code';
 import { ClientInviteService } from '../client-invites/client-invite.service';
-import { normalizeAppUiLocale } from '../common/app-ui-locales';
 import { PrismaService } from '../prisma/prisma.service';
+import { releaseSelfClosedAccount } from '../users/archive-user';
 import { AuthService } from './auth.service';
-import { isSignInBlocked } from './user-sign-in-block';
+import { isStateMatch, isUniqueConstraintError } from './google-oauth.helpers';
+import { fetchVerifiedGoogleProfile as readGoogleProfile } from './google-oauth.profile';
+import {
+  resolveClosedAccountLoginUrl,
+  resolveWebEntryUrl,
+} from './google-oauth-urls';
+import { assertGoogleSignInAllowed } from './google-sign-in.guard';
 import {
   GOOGLE_PROVIDER,
   type GoogleAuthCompletion,
@@ -22,61 +28,12 @@ import {
 
 const GOOGLE_OAUTH_SCOPES = ['openid', 'email', 'profile'];
 const DEFAULT_UI_LOCALE = 'en';
-const WEB_DEFAULT_URL = 'http://localhost:3000';
-const WEB_AUTH_ENTRY_SEGMENT = 'account';
 
 type GoogleOAuthConfig = {
   clientId: string;
   clientSecret: string;
   callbackUrl: string;
 };
-
-function normalizeEmail(email: string): string {
-  return email.trim().toLowerCase();
-}
-
-function parseGoogleName(payload: {
-  given_name?: string | null;
-  family_name?: string | null;
-  name?: string | null;
-}): { name: string | null; lastName: string | null } {
-  const first = payload.given_name?.trim() ?? '';
-  const last = payload.family_name?.trim() ?? '';
-  if (first || last) {
-    return {
-      name: first || null,
-      lastName: last || null,
-    };
-  }
-  const fullName = payload.name?.trim() ?? '';
-  if (!fullName) {
-    return { name: null, lastName: null };
-  }
-  const parts = fullName.split(/\s+/).filter(Boolean);
-  if (parts.length === 1) {
-    return { name: parts[0], lastName: null };
-  }
-  return {
-    name: parts[0] ?? null,
-    lastName: parts.slice(1).join(' ') || null,
-  };
-}
-
-function isStateMatch(state: string, storedState: string): boolean {
-  const stateBuffer = Buffer.from(state, 'utf8');
-  const storedStateBuffer = Buffer.from(storedState, 'utf8');
-  if (stateBuffer.length !== storedStateBuffer.length) {
-    return false;
-  }
-  return timingSafeEqual(stateBuffer, storedStateBuffer);
-}
-
-function isUniqueConstraintError(error: unknown): boolean {
-  return (
-    error instanceof Prisma.PrismaClientKnownRequestError &&
-    error.code === 'P2002'
-  );
-}
 
 @Injectable()
 export class GoogleOAuthService {
@@ -142,61 +99,10 @@ export class GoogleOAuthService {
     return code;
   }
 
-  private async fetchVerifiedGoogleProfile(
+  private fetchVerifiedGoogleProfile(
     code: string,
   ): Promise<GoogleOAuthProfile> {
-    const { clientId, clientSecret, callbackUrl } = this.getGoogleConfig();
-    const client = new OAuth2Client({
-      clientId,
-      clientSecret,
-      redirectUri: callbackUrl,
-    });
-    const { tokens } = await client.getToken(code);
-    const idToken = tokens.id_token;
-    if (!idToken) {
-      throw new UnauthorizedException('Missing Google ID token');
-    }
-    const ticket = await client.verifyIdToken({ idToken, audience: clientId });
-    const payload = ticket.getPayload();
-    if (!payload) {
-      throw new UnauthorizedException('Invalid Google ID token payload');
-    }
-    const audienceRaw: unknown = Reflect.get(
-      payload as unknown as Record<string, unknown>,
-      'aud',
-    );
-    const audienceMatches =
-      typeof audienceRaw === 'string'
-        ? audienceRaw === clientId
-        : Array.isArray(audienceRaw) &&
-          audienceRaw.some(
-            (item: unknown) => typeof item === 'string' && item === clientId,
-          );
-    if (!audienceMatches) {
-      throw new UnauthorizedException('Google audience does not match');
-    }
-    const providerAccountId = payload.sub?.trim();
-    const providerEmail = payload.email?.trim();
-    if (
-      !providerAccountId ||
-      !providerEmail ||
-      payload.email_verified !== true
-    ) {
-      throw new UnauthorizedException('Google email is missing or unverified');
-    }
-    const parsedName = parseGoogleName({
-      given_name: payload.given_name,
-      family_name: payload.family_name,
-      name: payload.name,
-    });
-    return {
-      providerAccountId,
-      providerEmail: normalizeEmail(providerEmail),
-      providerEmailVerified: true,
-      name: parsedName.name,
-      lastName: parsedName.lastName,
-      avatarUrl: payload.picture?.trim() ?? null,
-    };
+    return readGoogleProfile(this.getGoogleConfig(), code);
   }
 
   private async resolveGoogleAuthCompletion(
@@ -212,17 +118,21 @@ export class GoogleOAuthService {
       },
       include: { user: true },
     });
-    if (linked) {
+    const linkedReleased = linked
+      ? await releaseSelfClosedAccount(this.prisma, linked.user)
+      : false;
+    if (linked && !linkedReleased) {
       return this.sessionCompletion(linked.user);
     }
 
     const existingUser = await this.prisma.user.findUnique({
       where: { email: profile.providerEmail },
     });
-    if (existingUser) {
-      if (isSignInBlocked(existingUser)) {
-        throw new UnauthorizedException();
-      }
+    if (
+      existingUser &&
+      !(await releaseSelfClosedAccount(this.prisma, existingUser))
+    ) {
+      assertGoogleSignInAllowed(existingUser);
       const user = await this.linkOAuthToExistingUser(existingUser, profile);
       return this.sessionCompletion(user);
     }
@@ -233,13 +143,21 @@ export class GoogleOAuthService {
   }
 
   private sessionCompletion(user: User): GoogleAuthCompletion {
-    if (isSignInBlocked(user)) {
-      throw new UnauthorizedException();
-    }
+    assertGoogleSignInAllowed(user);
     return {
       accessToken: this.auth.issueAccessTokenForUser(user),
-      redirectUrl: this.resolveWebEntryUrl(user),
+      redirectUrl: resolveWebEntryUrl(
+        user.locale,
+        this.config.get<string>('WEB_APP_URL'),
+      ),
     };
+  }
+
+  closedAccountLoginUrl(locale: string): string {
+    return resolveClosedAccountLoginUrl(
+      locale,
+      this.config.get<string>('WEB_APP_URL'),
+    );
   }
 
   private async createUserFromGoogleProfile(
@@ -282,10 +200,14 @@ export class GoogleOAuthService {
         const existingUser = await this.prisma.user.findUnique({
           where: { email: profile.providerEmail },
         });
+        if (
+          existingUser &&
+          (await releaseSelfClosedAccount(this.prisma, existingUser))
+        ) {
+          return this.createUserFromGoogleProfile(profile, referrerId);
+        }
         if (existingUser) {
-          if (isSignInBlocked(existingUser)) {
-            throw new UnauthorizedException();
-          }
+          assertGoogleSignInAllowed(existingUser);
           return this.linkOAuthToExistingUser(existingUser, profile);
         }
       }
@@ -333,13 +255,5 @@ export class GoogleOAuthService {
       }
       throw error;
     }
-  }
-
-  private resolveWebEntryUrl(user: Pick<User, 'locale'>): string {
-    const configured = this.config.get<string>('WEB_APP_URL')?.trim();
-    const baseUrl =
-      configured && configured.length > 0 ? configured : WEB_DEFAULT_URL;
-    const locale = normalizeAppUiLocale(user.locale, DEFAULT_UI_LOCALE);
-    return `${baseUrl.replace(/\/$/, '')}/${locale}/${WEB_AUTH_ENTRY_SEGMENT}`;
   }
 }
