@@ -4,7 +4,10 @@ import { createPortal } from "react-dom";
 import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from "react";
 import { ChevronDownIcon } from "@/components/marketing/schedule/schedule-view-icons";
 import { DropdownCheckGlyph } from "@/components/ui/dropdown-check-glyph";
-import type { FloatingMenuAlign } from "@/components/ui/use-floating-menu-position";
+import type {
+  FloatingMenuAlign,
+  FloatingMenuPlacement,
+} from "@/components/ui/use-floating-menu-position";
 import { useFloatingMenuPosition } from "@/components/ui/use-floating-menu-position";
 import { useIsClientMounted } from "@/hooks/use-is-client-mounted";
 import {
@@ -38,6 +41,8 @@ export type OmmFilterMultiSelectProps = {
   menuMinWidth?: number;
   menuMaxHeight?: number;
   menuAlign?: FloatingMenuAlign;
+  /** `top` opens above the field so a sheet footer does not hide the options. */
+  menuPlacement?: FloatingMenuPlacement;
 };
 
 const MENU_MIN_HEIGHT = 140;
@@ -82,6 +87,7 @@ export function OmmFilterMultiSelect({
   menuMinWidth = TRIGGER_MIN_WIDTH,
   menuMaxHeight,
   menuAlign = "start",
+  menuPlacement = "auto",
 }: OmmFilterMultiSelectProps) {
   const listboxId = useId();
   const rootRef = useRef<HTMLDivElement | null>(null);
@@ -107,6 +113,10 @@ export function OmmFilterMultiSelect({
     MENU_MIN_HEIGHT,
     menuMinWidth,
     menuAlign,
+    undefined,
+    false,
+    false,
+    menuPlacement,
   );
 
   useEffect(() => {
