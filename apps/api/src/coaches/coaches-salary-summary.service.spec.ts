@@ -59,7 +59,9 @@ describe('CoachSalarySummaryService', () => {
       expect.objectContaining({ where: monthWhere }),
     );
     expect(payoutAgg).toHaveBeenCalledWith(
-      expect.objectContaining({ where: monthWhere }),
+      expect.objectContaining({
+        where: { AND: [monthWhere, { voidedAt: null }] },
+      }),
     );
   });
 });
