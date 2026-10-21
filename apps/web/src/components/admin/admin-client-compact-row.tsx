@@ -43,6 +43,8 @@ type AdminClientCompactRowProps = {
   /** @deprecated Prefer `capabilities`. */
   readOnly?: boolean;
   capabilities?: ClientCapabilities;
+  /** Coach directory shows the name only, never the phone. */
+  hideContact?: boolean;
 };
 
 export function AdminClientCompactRow({
@@ -51,15 +53,16 @@ export function AdminClientCompactRow({
   onChanged,
   readOnly = false,
   capabilities,
+  hideContact = false,
 }: AdminClientCompactRowProps) {
-  const name = fullName(row);
+  const name = fullName(row, hideContact);
   const hideActions = capabilities ? !capabilities.canUpdate : readOnly;
 
   return (
     <article
       role="button"
       tabIndex={0}
-      aria-label={name}
+      aria-label={name.length > 0 ? name : "?"}
       onClick={() => onSelect(row)}
       onKeyDown={(event) => {
         if (event.key === "Enter" || event.key === " ") {
@@ -77,6 +80,7 @@ export function AdminClientCompactRow({
         row={row}
         name={name}
         hideActions={hideActions}
+        hideContact={hideContact}
         onChanged={onChanged}
       />
     </article>
@@ -87,34 +91,30 @@ function ClientCardFields({
   row,
   name,
   hideActions,
+  hideContact,
   onChanged,
 }: {
   row: ClientRow;
   name: string;
   hideActions: boolean;
+  hideContact: boolean;
   onChanged: () => void;
 }) {
   return (
     <>
-      <div className={`${ADMIN_CLIENTS_LIST_NAME_CELL} ${ADMIN_CLIENTS_LIST_NAME_AREA_CLASS}`}>
-        <div className="flex min-w-0 items-start gap-3 overflow-visible md:items-center md:gap-4">
-          <ClientAvatarWithTags row={row} />
-          <div className="min-w-0 flex-1">
-            <p className={ADMIN_CLIENTS_LIST_TITLE_CLASS}>{name}</p>
-            <p className={ADMIN_CLIENTS_LIST_SUBTITLE_CLASS}>{displayPhoneOrFallback(row.phone)}</p>
+      <ClientNameCell row={row} name={name} hideContact={hideContact} />
+      {hideContact ? null : (
+        <>
+          <div className={`${ADMIN_CLIENTS_LIST_DATE_CELL} ${ADMIN_CLIENTS_LIST_BIRTHDAY_AREA_CLASS}`}>
+            <p className={ADMIN_CLIENTS_LIST_VALUE_CLASS}>
+              {row.dateOfBirth ? formatDateForUi(row.dateOfBirth) : "—"}
+            </p>
           </div>
-        </div>
-      </div>
-
-      <div className={`${ADMIN_CLIENTS_LIST_DATE_CELL} ${ADMIN_CLIENTS_LIST_BIRTHDAY_AREA_CLASS}`}>
-        <p className={ADMIN_CLIENTS_LIST_VALUE_CLASS}>
-          {row.dateOfBirth ? formatDateForUi(row.dateOfBirth) : "—"}
-        </p>
-      </div>
-
-      <div className={`${ADMIN_CLIENTS_LIST_DATE_CELL} ${ADMIN_CLIENTS_LIST_JOINED_AREA_CLASS}`}>
-        <p className={ADMIN_CLIENTS_LIST_VALUE_CLASS}>{formatDateCompactForUi(row.createdAt)}</p>
-      </div>
+          <div className={`${ADMIN_CLIENTS_LIST_DATE_CELL} ${ADMIN_CLIENTS_LIST_JOINED_AREA_CLASS}`}>
+            <p className={ADMIN_CLIENTS_LIST_VALUE_CLASS}>{formatDateCompactForUi(row.createdAt)}</p>
+          </div>
+        </>
+      )}
 
       <div
         className={`${ADMIN_CLIENTS_LIST_MEMBERSHIP_CELL} ${ADMIN_CLIENTS_LIST_MEMBERSHIP_AREA_CLASS} min-w-0`}
@@ -139,14 +139,38 @@ function ClientCardFields({
   );
 }
 
-function ClientAvatarWithTags({ row }: { row: ClientRow }) {
+function ClientNameCell({
+  row,
+  name,
+  hideContact,
+}: {
+  row: ClientRow;
+  name: string;
+  hideContact: boolean;
+}) {
+  return (
+    <div className={`${ADMIN_CLIENTS_LIST_NAME_CELL} ${ADMIN_CLIENTS_LIST_NAME_AREA_CLASS}`}>
+      <div className="flex min-w-0 items-start gap-3 overflow-visible md:items-center md:gap-4">
+        <ClientAvatarWithTags row={row} name={name} />
+        <div className="min-w-0 flex-1">
+          <p className={ADMIN_CLIENTS_LIST_TITLE_CLASS}>{name}</p>
+          {hideContact ? null : (
+            <p className={ADMIN_CLIENTS_LIST_SUBTITLE_CLASS}>{displayPhoneOrFallback(row.phone)}</p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ClientAvatarWithTags({ row, name }: { row: ClientRow; name: string }) {
   const t = useTranslations("adminPages.clients");
   const primaryTag = row.tags[0];
 
   return (
     <div className={ADMIN_CLIENT_AVATAR_WRAPPER_CLASS}>
       <div className={ADMIN_CLIENT_AVATAR_LAYER_CLASS}>
-        <ClientAvatar row={row} />
+        <ClientAvatar name={name} row={row} />
       </div>
       {primaryTag ? (
         <span
@@ -159,7 +183,7 @@ function ClientAvatarWithTags({ row }: { row: ClientRow }) {
   );
 }
 
-function ClientAvatar({ row }: { row: ClientRow }) {
+function ClientAvatar({ row, name }: { row: ClientRow; name: string }) {
   const src = resolveApiAssetUrl(row.avatarUrl);
   if (src) {
     return (
@@ -173,7 +197,7 @@ function ClientAvatar({ row }: { row: ClientRow }) {
       />
     );
   }
-  const initials = fullName(row)
+  const initials = name
     .split(/\s+/)
     .slice(0, 2)
     .map((part) => part[0]?.toUpperCase())
@@ -185,6 +209,13 @@ function ClientAvatar({ row }: { row: ClientRow }) {
   );
 }
 
-function fullName(row: { name: string | null; lastName: string | null; email: string }) {
-  return [row.name, row.lastName].filter(Boolean).join(" ").trim() || row.email;
+function fullName(
+  row: { name: string | null; lastName: string | null; email: string },
+  hideContact: boolean,
+): string {
+  const name = [row.name, row.lastName].filter(Boolean).join(" ").trim();
+  if (name.length > 0 || hideContact) {
+    return name;
+  }
+  return row.email;
 }

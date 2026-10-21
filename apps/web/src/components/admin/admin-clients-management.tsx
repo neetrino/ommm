@@ -84,6 +84,7 @@ export function AdminClientsManagement({
   const isStaff = variant === "staff";
   const t = useTranslations("adminPages.clients");
   const tFilters = useTranslations("adminPages.clients.filters");
+  const tCoach = useTranslations("coachPages.clients");
   /** Mobile-first: `false` until mount — avoids board/list swap flash on phones. */
   const supportsDesktopViews = useSupportsListBoardView();
   const { viewMode, setViewMode } = useAdminClientsView();
@@ -120,7 +121,9 @@ export function AdminClientsManagement({
     <ListPageSearchFilters
       search={filters.search}
       onSearchChange={(value) => updateFilter("search", value)}
-      searchPlaceholder={tFilters("searchPlaceholder")}
+      searchPlaceholder={
+        bookingsOnly ? tCoach("searchPlaceholder") : tFilters("searchPlaceholder")
+      }
       fields={filterFields}
       filterValues={integratedFilterValues}
       onFilterChange={handleIntegratedFilterChange}
@@ -158,6 +161,7 @@ export function AdminClientsManagement({
             onChanged={refetchClients}
             capabilities={caps}
             readOnly={!caps.canUpdate || isStaff}
+            hideContact={bookingsOnly}
           />
         )}
       </div>
@@ -232,6 +236,5 @@ function coachBookingsTarget(row: ClientRow | null) {
     id: row.id,
     name: row.name,
     lastName: row.lastName,
-    lastSessionAt: row.lastVisitDate,
   };
 }

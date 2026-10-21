@@ -23,7 +23,10 @@ import {
   INACTIVE_CLIENT_DAYS,
   NEW_CLIENT_DAYS,
 } from './clients-list.constants';
-import { buildClientsTextSearchWhere } from './clients-list-search';
+import {
+  buildClientsNameSearchWhere,
+  buildClientsTextSearchWhere,
+} from './clients-list-search';
 
 const inactiveThreshold = () =>
   new Date(Date.now() - INACTIVE_CLIENT_DAYS * 24 * 60 * 60 * 1000);
@@ -101,9 +104,14 @@ export function scopeClientsListWhere(
 
 export function buildClientsListWhere(
   query: AdminListClientsQueryDto,
+  search: 'directory' | 'name' = 'directory',
 ): Prisma.UserWhereInput {
   const and: Prisma.UserWhereInput[] = [{ role: Role.USER }];
-  const searchWhere = buildClientsTextSearchWhere(query.search ?? query.q);
+  const rawSearch = query.search ?? query.q;
+  const searchWhere =
+    search === 'name'
+      ? buildClientsNameSearchWhere(rawSearch)
+      : buildClientsTextSearchWhere(rawSearch);
   if (searchWhere) {
     and.push(searchWhere);
   }

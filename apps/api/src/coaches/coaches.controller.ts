@@ -87,7 +87,7 @@ export class CoachesController {
     return this.coaches.panelSessionsList(user.id);
   }
 
-  /** Booking history for one client, limited to this coach's sessions. */
+  /** Full visit history for a guest who has booked this coach. */
   @Get('panel/clients/:clientId/bookings')
   @SkipThrottle()
   @UseGuards(JwtAuthGuard, RolesGuard)

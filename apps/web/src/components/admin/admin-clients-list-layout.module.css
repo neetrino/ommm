@@ -58,4 +58,8 @@
       minmax(0, 0.9fr)
       minmax(0, 1fr);
   }
+
+  .tableCoach {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }

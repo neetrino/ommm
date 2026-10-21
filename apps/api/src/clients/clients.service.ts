@@ -21,11 +21,17 @@ import {
   summaryFromRows,
 } from './clients-list-summary';
 import { matchesClientFilters, sortClientRows } from './clients-row-filters';
+import {
+  redactCoachClientDirectory,
+  redactCoachClientContact,
+} from './clients-coach-contact';
 import { clientInclude, toClientRow } from './clients-row.mapper';
 import {
   attachNextBookingsToRows,
   loadNextBookingsByUserId,
 } from './clients-row-next-booking';
+import { ClientsTabListsService } from './clients-tab-lists.service';
+import { toCoachClientPackagesPage } from './clients-coach-packages';
 
 @Injectable()
 export class ClientsService {
@@ -33,6 +39,7 @@ export class ClientsService {
     private readonly prisma: PrismaService,
     private readonly adminCreate: ClientsAdminCreateService,
     private readonly admin: ClientsAdminService,
+    private readonly tabLists: ClientsTabListsService,
   ) {}
 
   create(
@@ -63,7 +70,7 @@ export class ClientsService {
   }
 
   async list(query: AdminListClientsQueryDto, coachId?: string) {
-    const built = buildClientsListWhere(query);
+    const built = buildClientsListWhere(query, coachId ? 'name' : 'directory');
     const where = coachId ? scopeClientsListWhere(built, coachId) : built;
     const take = query.take ?? (query.meta ? 100 : 500);
     const offset = query.offset ?? 0;
@@ -162,7 +169,8 @@ export class ClientsService {
   /** Admin-shaped client directory for the signed-in coach's own students. */
   async listForCoachUser(userId: string, query: AdminListClientsQueryDto) {
     const coachId = await this.requireCoachProfileId(userId);
-    return this.list(query, coachId);
+    const page = await this.list(query, coachId);
+    return redactCoachClientDirectory(page);
   }
 
   /** One client row, only when they have booked this coach. */
@@ -180,7 +188,39 @@ export class ClientsService {
       throw new NotFoundException();
     }
     const [activity] = await this.withAccurateNextBookings([toClientRow(user)]);
-    return { activity };
+    if (!activity) {
+      throw new NotFoundException();
+    }
+    return { activity: redactCoachClientContact(activity) };
+  }
+
+  /** Package summary for a guest who has booked this coach. */
+  async listPackagesForCoachUser(
+    userId: string,
+    clientId: string,
+    take: number,
+    offset: number,
+  ) {
+    await this.assertCoachOwnsClient(userId, clientId);
+    const page = await this.tabLists.listPackages(clientId, take, offset);
+    return toCoachClientPackagesPage(page);
+  }
+
+  private async assertCoachOwnsClient(
+    userId: string,
+    clientId: string,
+  ): Promise<void> {
+    const coachId = await this.requireCoachProfileId(userId);
+    const owned = await this.prisma.booking.count({
+      where: {
+        userId: clientId,
+        user: { deletedAt: null },
+        session: { coachId },
+      },
+    });
+    if (owned === 0) {
+      throw new NotFoundException();
+    }
   }
 
   private async requireCoachProfileId(userId: string): Promise<string> {

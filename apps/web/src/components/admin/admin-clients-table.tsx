@@ -7,6 +7,7 @@ import {
   ADMIN_CLIENTS_LIST_EMPHASIZED_HEADER,
   ADMIN_CLIENTS_LIST_HEADER_CLASS,
   ADMIN_CLIENTS_LIST_TABLE_CLASS,
+  ADMIN_CLIENTS_LIST_TABLE_COACH_CLASS,
   ADMIN_CLIENTS_LIST_TABLE_READONLY_CLASS,
 } from "@/components/admin/admin-clients-list-layout";
 import type { ClientRow } from "@/components/admin/admin-clients-types";
@@ -19,6 +20,8 @@ type AdminClientsTableProps = {
   /** @deprecated Prefer `capabilities`. */
   readOnly?: boolean;
   capabilities?: ClientCapabilities;
+  /** Coach directory shows the name only, never the phone. */
+  hideContact?: boolean;
 };
 
 export function AdminClientsTable({
@@ -27,33 +30,14 @@ export function AdminClientsTable({
   onChanged,
   readOnly = false,
   capabilities,
+  hideContact = false,
 }: AdminClientsTableProps) {
-  const t = useTranslations("adminPages.clients");
   const hideActions = capabilities ? !capabilities.canUpdate : readOnly;
-  const tableClass = hideActions
-    ? ADMIN_CLIENTS_LIST_TABLE_READONLY_CLASS
-    : ADMIN_CLIENTS_LIST_TABLE_CLASS;
+  const tableClass = resolveClientsTableClass(hideContact, hideActions);
 
   return (
     <div className={tableClass}>
-      <div className={ADMIN_CLIENTS_LIST_HEADER_CLASS}>
-        <span>{t("colName")}</span>
-        <span className={`${ADMIN_CLIENTS_LIST_EMPHASIZED_HEADER} md:text-center`}>
-          {t("fieldBirthday")}
-        </span>
-        <span className={`${ADMIN_CLIENTS_LIST_EMPHASIZED_HEADER} md:text-center`}>
-          {t("colJoined")}
-        </span>
-        <span className={`${ADMIN_CLIENTS_LIST_EMPHASIZED_HEADER} md:text-center`}>
-          {t("colMembership")}
-        </span>
-        <span className={`${ADMIN_CLIENTS_LIST_EMPHASIZED_HEADER} md:text-center`}>
-          {t("colBooking")}
-        </span>
-        {hideActions ? null : (
-          <span className={ADMIN_CLIENTS_LIST_ACTIONS_HEADER_CELL}>{t("colActions")}</span>
-        )}
-      </div>
+      <ClientsTableHeader hideContact={hideContact} hideActions={hideActions} />
       {rows.map((row) => (
         <AdminClientCompactRow
           key={row.id}
@@ -62,8 +46,53 @@ export function AdminClientsTable({
           onChanged={onChanged}
           capabilities={capabilities}
           readOnly={hideActions}
+          hideContact={hideContact}
         />
       ))}
+    </div>
+  );
+}
+
+function resolveClientsTableClass(hideContact: boolean, hideActions: boolean): string {
+  if (hideContact) {
+    return ADMIN_CLIENTS_LIST_TABLE_COACH_CLASS;
+  }
+  if (hideActions) {
+    return ADMIN_CLIENTS_LIST_TABLE_READONLY_CLASS;
+  }
+  return ADMIN_CLIENTS_LIST_TABLE_CLASS;
+}
+
+function ClientsTableHeader({
+  hideContact,
+  hideActions,
+}: {
+  hideContact: boolean;
+  hideActions: boolean;
+}) {
+  const t = useTranslations("adminPages.clients");
+  return (
+    <div className={ADMIN_CLIENTS_LIST_HEADER_CLASS}>
+      <span>{t("colName")}</span>
+      {hideContact ? null : (
+        <>
+          <span className={`${ADMIN_CLIENTS_LIST_EMPHASIZED_HEADER} md:text-center`}>
+            {t("fieldBirthday")}
+          </span>
+          <span className={`${ADMIN_CLIENTS_LIST_EMPHASIZED_HEADER} md:text-center`}>
+            {t("colJoined")}
+          </span>
+        </>
+      )}
+      <span className={`${ADMIN_CLIENTS_LIST_EMPHASIZED_HEADER} md:text-center`}>
+        {t("colMembership")}
+      </span>
+      <span className={`${ADMIN_CLIENTS_LIST_EMPHASIZED_HEADER} md:text-center`}>
+        {t("colBooking")}
+      </span>
+      {hideActions ? null : (
+        <span className={ADMIN_CLIENTS_LIST_ACTIONS_HEADER_CELL}>{t("colActions")}</span>
+      )}
     </div>
   );
 }

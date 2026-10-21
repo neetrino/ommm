@@ -34,6 +34,10 @@ export const ADMIN_CLIENTS_LIST_TABLE_READONLY_CLASS = buildClientsListTableClas
   clientsListLayoutStyles.tableReadOnly,
 );
 
+export const ADMIN_CLIENTS_LIST_TABLE_COACH_CLASS = buildClientsListTableClass(
+  clientsListLayoutStyles.tableCoach,
+);
+
 export const ADMIN_CLIENTS_LIST_HEADER_CLASS = [
   "hidden",
   USER_LIST_TABLE_SUBGRID_ROW,

@@ -1,5 +1,8 @@
 import { Prisma } from '@prisma/client';
-import { buildClientsTextSearchWhere } from './clients-list-search';
+import {
+  buildClientsNameSearchWhere,
+  buildClientsTextSearchWhere,
+} from './clients-list-search';
 
 const insensitive = Prisma.QueryMode.insensitive;
 
@@ -35,6 +38,15 @@ describe('buildClientsTextSearchWhere', () => {
   it('matches a partial last name together with the first name', () => {
     expect(buildClientsTextSearchWhere('Anna L')).toEqual({
       AND: [fieldContains('Anna'), fieldContains('L')],
+    });
+  });
+
+  it('matches a coach search against the name only', () => {
+    expect(buildClientsNameSearchWhere('Anna')).toEqual({
+      OR: [
+        { name: { contains: 'Anna', mode: insensitive } },
+        { lastName: { contains: 'Anna', mode: insensitive } },
+      ],
     });
   });
 });

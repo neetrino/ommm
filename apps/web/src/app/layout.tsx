@@ -1,16 +1,9 @@
 import type { Metadata, Viewport } from "next";
-import { Manrope } from "next/font/google";
 import { routing } from "@/i18n/routing";
 import { gtSuperDsTrial } from "@/lib/fonts/gt-super-ds-trial";
+import { manrope } from "@/lib/fonts/manrope";
 import { resolveSiteMetadataBase, siteMetadata } from "@/lib/site-metadata";
 import "./globals.css";
-
-const manrope = Manrope({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-manrope",
-  display: "swap",
-});
 
 export const viewport: Viewport = {
   width: "device-width",
