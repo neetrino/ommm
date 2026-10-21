@@ -9,9 +9,6 @@ import {
 } from "@/components/account/user-membership-display";
 import { ADMIN_CARD_CONTAIN_CLASS } from "@/components/admin/admin-list-table-layout";
 import { formatPackagePlanName } from "@/components/admin/admin-packages-display";
-import { formatDateForUi } from "@/lib/date-display";
-import type { UserPackageStatus } from "@/lib/user-package-types";
-import { USER_PACKAGE_VALIDITY_DAY_MS } from "@/lib/user-package-validity";
 
 export type CoachClientPackageItem = {
   id: string;
@@ -35,12 +32,6 @@ const CARD_CLASS = [
   "sm:p-6",
 ].join(" ");
 
-const VALIDITY_PILL_CLASS = [
-  "mt-2 inline-flex rounded-full border border-sage-200/80 bg-white/90",
-  "px-3.5 py-1.5 text-sm font-semibold text-sage-800",
-  "shadow-[inset_0_1px_0_rgba(255,255,255,0.85)]",
-].join(" ");
-
 type PackageUsageCopy = {
   summary: string;
   remaining: string | null;
@@ -57,7 +48,6 @@ type PackageLabel = (
 export function CoachClientPackageCard({ item }: { item: CoachClientPackageItem }) {
   const t = useTranslations("userPages.packages");
   const tMarketing = useTranslations("marketing");
-  const tAdmin = useTranslations("adminPages.clients");
   const status = normalizeUserPackageStatus(item.status);
   const usage = packageUsageCopy(item, t, tMarketing);
 
@@ -77,12 +67,6 @@ export function CoachClientPackageCard({ item }: { item: CoachClientPackageItem 
         </span>
       </div>
       <PackageUsage usage={usage} />
-      <div className="mt-5 rounded-[22px] border border-white/80 bg-white/70 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.85)]">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-sage-500">
-          {tAdmin("packages.validity")}
-        </p>
-        <p className={VALIDITY_PILL_CLASS}>{resolveValidityLabel(item, status, t)}</p>
-      </div>
     </article>
   );
 }
@@ -124,29 +108,4 @@ function packageUsageCopy(
     used,
     total,
   };
-}
-
-function resolveValidityLabel(
-  item: CoachClientPackageItem,
-  status: UserPackageStatus,
-  t: PackageLabel,
-): string {
-  if (item.awaitingFirstVisit) {
-    return t("validityActivatesOnFirstVisit", {
-      date: formatDateForUi(item.activationDeadline ?? item.activationDate),
-    });
-  }
-  if (status === "EXPIRED") {
-    return t("validityExpired");
-  }
-  const endMs = Date.parse(item.expirationDate);
-  if (Number.isNaN(endMs)) {
-    return "—";
-  }
-  const remainingMs = endMs - Date.now();
-  if (remainingMs <= 0) {
-    return t("validityExpired");
-  }
-  const days = Math.ceil(remainingMs / USER_PACKAGE_VALIDITY_DAY_MS);
-  return t("validityDaysRemaining", { count: days });
 }

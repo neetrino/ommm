@@ -35,17 +35,15 @@ export function CoachClientPackagesPanel({ clientId }: CoachClientPackagesPanelP
         emptyLabel={t("packages.empty")}
         errorLabel={t("packages.loadError")}
       />
-      {packages.total > packages.pageSize ? (
-        <OmmListPagination
-          total={packages.total}
-          page={packages.page}
-          pageSize={packages.pageSize}
-          offset={packages.offset}
-          disabled={packages.loading}
-          onPageChange={packages.setPage}
-          scrollOnPageChange={false}
-        />
-      ) : null}
+      <OmmListPagination
+        total={packages.total}
+        page={packages.page}
+        pageSize={packages.pageSize}
+        offset={packages.offset}
+        disabled={packages.loading}
+        onPageChange={packages.setPage}
+        scrollOnPageChange={false}
+      />
     </section>
   );
 }
