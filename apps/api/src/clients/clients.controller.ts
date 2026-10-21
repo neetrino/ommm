@@ -10,7 +10,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { SkipThrottle } from '@nestjs/throttler';
-import type { User } from '@prisma/client';
+import { Role, type User } from '@prisma/client';
 import {
   BACKOFFICE_DELETE_ROLES,
   BACKOFFICE_WRITE_ROLES,
@@ -56,6 +56,24 @@ export class ClientsController {
   @SkipThrottle()
   list(@Query() query: AdminListClientsQueryDto) {
     return this.clients.list(query);
+  }
+
+  /** Same directory as admin clients, limited to people who booked this coach. */
+  @Get('coach-panel')
+  @SkipThrottle()
+  @Roles(Role.COACH)
+  listCoachPanel(
+    @CurrentUser() user: User,
+    @Query() query: AdminListClientsQueryDto,
+  ) {
+    return this.clients.listForCoachUser(user.id, query);
+  }
+
+  @Get('coach-panel/:id')
+  @SkipThrottle()
+  @Roles(Role.COACH)
+  getCoachPanelClient(@CurrentUser() user: User, @Param('id') id: string) {
+    return this.clients.getForCoachUser(user.id, id);
   }
 
   @Post()

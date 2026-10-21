@@ -53,6 +53,22 @@ describe("dashboard-nav manager parity", () => {
     assert.equal(hrefs.includes("/admin/guest-users"), false);
   });
 
+  it("coach nav includes a clients section after bookings", () => {
+    const hrefs = dashboardNavDefinitionsForRole("COACH").map((item) => item.href);
+    const groupsIndex = hrefs.indexOf("/coach/groups");
+    const clientsIndex = hrefs.indexOf("/coach/clients");
+    const groups = dashboardNavDefinitionsForRole("COACH").find(
+      (item) => item.href === "/coach/groups",
+    );
+    assert.equal(groups?.oliveIconSlug, "bookings");
+    assert.equal(clientsIndex, groupsIndex + 1);
+    const clients = dashboardNavDefinitionsForRole("COACH").find(
+      (item) => item.href === "/coach/clients",
+    );
+    assert.equal(clients?.labelKey, "clients");
+    assert.equal(clients?.oliveIconSlug, "clients");
+  });
+
   it("manager schedule uses calendar icon like admin", () => {
     const schedule = dashboardNavDefinitionsForRole("MANAGER").find(
       (item) => item.href === "/manager/schedule",

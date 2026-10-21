@@ -12,6 +12,7 @@ import {
   buildClientsListWhere,
   requiresClientsPostProcessing,
   resolveClientsListOrderBy,
+  scopeClientsListWhere,
 } from './clients-list-query.builder';
 import {
   computeClientsFilterOptionsFromDb,
@@ -61,8 +62,9 @@ export class ClientsService {
     return this.admin.addNote(authorId, authorRole, userId, body);
   }
 
-  async list(query: AdminListClientsQueryDto) {
-    const where = buildClientsListWhere(query);
+  async list(query: AdminListClientsQueryDto, coachId?: string) {
+    const built = buildClientsListWhere(query);
+    const where = coachId ? scopeClientsListWhere(built, coachId) : built;
     const take = query.take ?? (query.meta ? 100 : 500);
     const offset = query.offset ?? 0;
 
@@ -155,6 +157,41 @@ export class ClientsService {
       rows.map((row) => row.id),
     );
     return attachNextBookingsToRows(rows, nextByUserId);
+  }
+
+  /** Admin-shaped client directory for the signed-in coach's own students. */
+  async listForCoachUser(userId: string, query: AdminListClientsQueryDto) {
+    const coachId = await this.requireCoachProfileId(userId);
+    return this.list(query, coachId);
+  }
+
+  /** One client row, only when they have booked this coach. */
+  async getForCoachUser(userId: string, clientId: string) {
+    const coachId = await this.requireCoachProfileId(userId);
+    const user = await this.prisma.user.findFirst({
+      where: {
+        id: clientId,
+        role: Role.USER,
+        bookings: { some: { session: { coachId } } },
+      },
+      include: clientInclude,
+    });
+    if (!user) {
+      throw new NotFoundException();
+    }
+    const [activity] = await this.withAccurateNextBookings([toClientRow(user)]);
+    return { activity };
+  }
+
+  private async requireCoachProfileId(userId: string): Promise<string> {
+    const profile = await this.prisma.coachProfile.findUnique({
+      where: { userId },
+      select: { id: true },
+    });
+    if (!profile) {
+      throw new NotFoundException();
+    }
+    return profile.id;
   }
 
   async get(id: string) {

@@ -69,7 +69,6 @@ export function AdminBookingsManagement({
   const [pendingConfirm, setPendingConfirm] = useState<PendingBookingConfirm | null>(null);
 
   const {
-    selectedRowKey,
     selectedRow,
     drawerRow,
     showMoveModal,

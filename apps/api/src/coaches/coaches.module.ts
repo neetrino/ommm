@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { R2HomeImageStorage } from '../storage/r2-home-image.storage';
 import { CoachesAdminListService } from './coaches-admin-list.service';
 import { CoachesAdminWriteService } from './coaches-admin-write.service';
+import { CoachesPanelClientsService } from './coaches-panel-clients.service';
 import { CoachesPanelSessionsService } from './coaches-panel-sessions.service';
 import { CoachesPanelService } from './coaches-panel.service';
 import { CoachesPhotoService } from './coaches-photo.service';
@@ -22,6 +23,7 @@ import { CoachesService } from './coaches.service';
     CoachesAdminWriteService,
     CoachesAdminListService,
     CoachesPanelService,
+    CoachesPanelClientsService,
     CoachesPanelSessionsService,
     CoachSalaryAccrualService,
     CoachSalaryPayoutService,

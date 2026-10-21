@@ -22,6 +22,7 @@ import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
+import { ListPaginationQueryDto } from '../common/dto/list-pagination-query.dto';
 import { CoachesService } from './coaches.service';
 import { AdminListCoachesQueryDto } from './dto/admin-list-coaches-query.dto';
 import { AdminSalaryPayoutsQueryDto } from './dto/admin-salary-payouts-query.dto';
@@ -84,6 +85,21 @@ export class CoachesController {
   @Roles(Role.COACH)
   panelSessions(@CurrentUser() user: { id: string }) {
     return this.coaches.panelSessionsList(user.id);
+  }
+
+  /** Booking history for one client, limited to this coach's sessions. */
+  @Get('panel/clients/:clientId/bookings')
+  @SkipThrottle()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.COACH)
+  panelClientBookings(
+    @CurrentUser() user: { id: string },
+    @Param('clientId') clientId: string,
+    @Query() query: ListPaginationQueryDto,
+  ) {
+    const take = query.take ?? 25;
+    const offset = query.offset ?? 0;
+    return this.coaches.panelClientBookings(user.id, clientId, take, offset);
   }
 
   /** Per-session breakdown behind the current coach's own monthly salary total. */

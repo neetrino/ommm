@@ -89,6 +89,16 @@ export function requiresClientsPostProcessing(
   );
 }
 
+/** Keeps every admin filter, and limits rows to clients who booked this coach. */
+export function scopeClientsListWhere(
+  where: Prisma.UserWhereInput,
+  coachId: string,
+): Prisma.UserWhereInput {
+  return {
+    AND: [where, { bookings: { some: { session: { coachId } } } }],
+  };
+}
+
 export function buildClientsListWhere(
   query: AdminListClientsQueryDto,
 ): Prisma.UserWhereInput {
