@@ -75,10 +75,12 @@ model AuthToken {
   id        String        @id @default(cuid())
   userId    String
   user      User          @relation(fields: [userId], references: [id], onDelete: Restrict)
-  tokenHash String        @unique
-  type      AuthTokenType
-  expiresAt DateTime
-  createdAt DateTime      @default(now())
+  tokenHash    String        @unique
+  type         AuthTokenType
+  /** Wrong guesses for a short code. Long opaque tokens leave this at 0. */
+  attemptCount Int           @default(0)
+  expiresAt    DateTime
+  createdAt    DateTime      @default(now())
 
   @@index([userId, type])
 }

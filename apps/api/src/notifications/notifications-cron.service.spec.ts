@@ -99,7 +99,7 @@ describe('NotificationsCronService', () => {
     expect(prisma.booking.findMany).not.toHaveBeenCalled();
   });
 
-  it('queries one 30-minute slot exactly 24h and 2h ahead', async () => {
+  it('queries the catch-up half-hour plus the half-hour being scheduled', async () => {
     jest
       .spyOn(Date, 'now')
       .mockReturnValue(Date.parse('2026-09-21T15:00:00.000Z'));
@@ -115,12 +115,12 @@ describe('NotificationsCronService', () => {
     );
     expect(windows).toEqual([
       {
-        from: '2026-09-22T15:00:00.000Z',
+        from: '2026-09-22T14:30:00.000Z',
         to: '2026-09-22T15:30:00.000Z',
         status: BookingStatus.BOOKED,
       },
       {
-        from: '2026-09-21T17:00:00.000Z',
+        from: '2026-09-21T16:30:00.000Z',
         to: '2026-09-21T17:30:00.000Z',
         status: BookingStatus.BOOKED,
       },
@@ -205,17 +205,41 @@ describe('NotificationsCronService', () => {
     expect(twoHoursBefore.loggedHours).toEqual([2]);
   });
 
-  it('reminds an off-grid 16:15 class on the preceding tick, never late', async () => {
+  it('catch-up sends a missed 16:15 reminder on the next tick', async () => {
     const startsAt = new Date(yerevanWallTimeMs('2026-10-06T16:15'));
     const tooEarly = await sendForClassAt(startsAt, '2026-10-05T15:30');
     expect(tooEarly.whatsapp.trySendToUser).not.toHaveBeenCalled();
 
-    const onTheHour = await sendForClassAt(startsAt, '2026-10-05T16:00');
-    expect(onTheHour.whatsapp.trySendToUser).toHaveBeenCalledTimes(1);
-    expect(onTheHour.loggedHours).toEqual([24]);
+    const missedExactMinute = await sendForClassAt(
+      startsAt,
+      '2026-10-05T16:30',
+    );
+    expect(missedExactMinute.loggedHours).toEqual([24]);
+  });
 
-    const nextTick = await sendForClassAt(startsAt, '2026-10-05T16:30');
-    expect(nextTick.whatsapp.trySendToUser).not.toHaveBeenCalled();
+  it('sends a 16:29 class at 14:29, not two and a half hours early', async () => {
+    jest.useFakeTimers({
+      doNotFake: ['nextTick', 'queueMicrotask', 'setImmediate'],
+    });
+    try {
+      const startsAt = new Date(yerevanWallTimeMs('2026-10-06T16:29'));
+      jest.setSystemTime(yerevanWallTimeMs('2026-10-06T14:00'));
+      const booking = bookingFixture(startsAt);
+      const { cron, prisma, whatsapp } = createCron(true);
+      prisma.booking.findMany.mockImplementation((args: ReminderQuery) =>
+        queryIncludesStart(startsAt, args) ? [booking] : [],
+      );
+      await cron.sendClassReminders();
+      expect(whatsapp.trySendToUser).not.toHaveBeenCalled();
+      await jest.advanceTimersByTimeAsync(29 * 60 * 1000);
+      expect(whatsapp.trySendToUser).toHaveBeenCalledTimes(1);
+      expect(prisma.classReminderSendLog.create).toHaveBeenCalledWith({
+        data: { bookingId: 'booking-1', hoursBefore: 2 },
+      });
+      cron.onModuleDestroy();
+    } finally {
+      jest.useRealTimers();
+    }
   });
 
   it('does not dispatch scheduled broadcasts at night in Yerevan', async () => {

@@ -15,6 +15,7 @@ import { pickUiLocaleForUser, setUiLocaleCookie } from "@/lib/ui-locale-cookie";
 import { resolveAuthDestination } from "@/lib/auth-redirect";
 import { readClientInviteRef } from "@/lib/client-invite-ref";
 import { buildGoogleAuthStartUrl } from "@/lib/google-auth-start-url";
+import { GOOGLE_NO_ACCOUNT_ERROR } from "@/lib/google-auth-errors";
 import { PSEUDO_EMAIL, PSEUDO_PASSWORD } from "@/lib/pseudo-form-placeholders";
 
 export function LoginForm() {
@@ -29,6 +30,10 @@ export function LoginForm() {
     readClientInviteRef(searchParams.get("ref")),
   );
   const emailFromQuery = searchParams.get("email")?.trim() ?? "";
+  const closedAccountError =
+    searchParams.get("error") === GOOGLE_NO_ACCOUNT_ERROR
+      ? tAuth("googleNoAccount")
+      : null;
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -115,8 +120,12 @@ export function LoginForm() {
           </Link>
         </p>
       </form>
-      {error ? (
-        <FormErrorBanner message={error} variant="inline" className="mt-4" />
+      {error ?? closedAccountError ? (
+        <FormErrorBanner
+          message={error ?? closedAccountError ?? ""}
+          variant="inline"
+          className="mt-4"
+        />
       ) : null}
       <p className="ommm-body-muted mt-8 text-center text-sm">
         {tAuth("noAccountPrompt")}{" "}

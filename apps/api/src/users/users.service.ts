@@ -13,6 +13,7 @@ import { hashPassword, verifyPassword } from '../common/password-crypto';
 import { isAppUiLocale } from '../common/app-ui-locales';
 import { normalizeOptionalPhone } from '../common/phone';
 import { PrismaService } from '../prisma/prisma.service';
+import { COACH_SELF_DELETE_MESSAGE } from './account-deletion.constants';
 import { archiveUser } from './archive-user';
 import type { ChangePasswordDto } from './dto/change-password.dto';
 import type { HomeImageJsonDto } from './dto/home-image-json.dto';
@@ -243,9 +244,7 @@ export class UsersService {
       select: { role: true },
     });
     if (user.role === Role.COACH) {
-      throw new BadRequestException(
-        'Coach accounts can only be removed by an administrator.',
-      );
+      throw new BadRequestException(COACH_SELF_DELETE_MESSAGE);
     }
     await this.prisma.$transaction((tx) =>
       archiveUser(tx, {

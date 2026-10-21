@@ -800,7 +800,8 @@
       "continueWithGoogle": "Շարունակել Google-ով",
       "forgotPassword": "Մոռացե՞լ եք գաղտնաբառը",
       "noAccountPrompt": "Հաշիվ չունե՞ք",
-      "loginFailed": "Մուտքը ձախողվեց"
+      "loginFailed": "Մուտքը ձախողվեց",
+      "googleNoAccount": "Այս էլ․ փոստով հաշիվ չկա։"
     },
     "register": {
       "lead": "Ստեղծեք անդամի հաշիվ՝ դասեր գրանցելու և աբոնեմենտները կառավարելու համար։",
@@ -1591,6 +1592,12 @@
       "deleteAccountBackdropClose": "Փակել հաշիվի փակման պատուհանը",
       "deleteAccountDeleting": "Փակվում է…",
       "deleteAccountFailed": "Չհաջողվեց փակել հաշիվը։",
+      "deleteAccountCodeTitle": "Մուտքագրեք էլ․ փոստի կոդը",
+      "deleteAccountCodeDescription": "6 նիշանոց կոդը ուղարկել ենք ձեր էլ․ փոստին։ Մուտքագրեք այն՝ հաշիվը փակելու համար։",
+      "deleteAccountCodeLabel": "Էլ․ փոստի կոդ",
+      "deleteAccountCodePlaceholder": "6 նիշանոց կոդ",
+      "deleteAccountCodeInvalid": "Կոդը սխալ է կամ ժամկետն անցել է։",
+      "deleteAccountCodeSending": "Կոդն ուղարկվում է…",
       "preferences": "Նախընտրություններ",
       "labels": {
         "email": "Էլ. փոստ",

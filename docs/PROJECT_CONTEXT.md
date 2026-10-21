@@ -185,7 +185,7 @@ Notes:
 | `/v1/auth/register` | POST | Register account | `RegisterDto` | user + access token | Creates user, verify token, sets cookie, sends email |
 | `/v1/auth/login` | POST | Login | `LoginDto` | sanitized user + access token | Sets auth cookie |
 | `/v1/auth/google` | GET | Start Google OAuth | none | redirect | Sets OAuth state cookie |
-| `/v1/auth/google/callback` | GET | Complete Google OAuth | `code`, `state` query + state cookie | redirect | Creates/links OAuth account, sets auth cookie |
+| `/v1/auth/google/callback` | GET | Complete Google OAuth | `code`, `state` query + state cookie | redirect | Creates/links OAuth account, sets auth cookie. A closed account redirects to login with `error=no_account` and does not open a new one. |
 | `/v1/auth/logout` | POST | Logout | none | `{ok:true}` | Clears auth cookie |
 | `/v1/auth/verify-email` | POST | Verify email token | `VerifyEmailDto` | `{ok:true}` | Marks email verified, consumes token |
 | `/v1/auth/request-password-reset` | POST | Request reset | `RequestPasswordResetDto` | `{ok:true}` | Creates reset token, sends email |
@@ -199,7 +199,8 @@ Notes:
 | `/v1/users/me/notifications` | PATCH | Update notification prefs | `NotificationPrefsDto` | updated profile payload | Upserts `NotificationPreference` |
 | `/v1/users/me/push-token` | POST | Register push token | `RegisterPushTokenDto` | `{ok:true}` | Upserts `PushDeviceToken` |
 | `/v1/users/me/delete-request` | POST | Submit account deletion request | `RequestAccountDeletionDto` | `{ok:true}` | Writes a `ContactMessage` request record |
-| `/v1/users/me` | DELETE | Close own account | JWT | `{ok:true}` | Sets `deletedAt`, blocks sign-in, keeps studio rows |
+| `/v1/users/me/deletion-code` | POST | Email an account-closure code | JWT | `{ok:true}` | Stores a hashed 6-digit code for 10 minutes |
+| `/v1/users/me` | DELETE | Close own account | `ConfirmAccountDeletionDto` + JWT | `{ok:true}` | Requires the emailed code, then sets `deletedAt`, blocks sign-in, keeps studio rows |
 | `/v1/studio` | GET | Public studio settings | none | settings | none |
 | `/v1/studio` | PATCH | Update studio settings | `UpdateStudioDto` (ADMIN) | updated settings | Updates singleton settings |
 | `/v1/contact` | POST | Public contact submission | `CreateContactMessageDto` | create result | Creates `ContactMessage` |
@@ -499,7 +500,7 @@ Legend:
 | `RESEND_FROM_EMAIL` | documented sender email key | Needs verification | `.env.example`, deploy doc (direct API usage not found) |
 | `WHATSAPP_GATEWAY_URL` | WhatsApp Gateway public base URL | Optional fallback if DB credentials are empty | `apps/api/src/whatsapp/whatsapp-credentials.service.ts` |
 | `WHATSAPP_GATEWAY_TOKEN` | WhatsApp Gateway project token | Optional fallback if DB credentials are empty | `apps/api/src/whatsapp/whatsapp-credentials.service.ts` |
-| `ENABLE_BACKGROUND_REMINDERS` | class reminders 24h + 2h + membership expiry WhatsApp (once at 7 days and once at 1 day, unused packages only) | Required `true` in production | `apps/api/src/notifications/notifications-cron.service.ts` |
+| `ENABLE_BACKGROUND_REMINDERS` | class reminders at exactly 24h and 2h before start (30-min cron schedules the exact minute) + membership expiry WhatsApp (once at 7 days and once at 1 day, unused packages only) | Required `true` in production | `apps/api/src/notifications/notifications-cron.service.ts` |
 | `ENABLE_WAITLIST_BACKGROUND_JOBS` | toggle waitlist cron | Optional | `apps/api/src/waitlist/waitlist.service.ts` |
 | `UPLOAD_DIR` | local upload root path | Optional | `apps/api/src/users/users.service.ts` |
 | `R2_HOME_IMAGE_REQUIRED` | force R2 for home images | Optional | `apps/api/src/users/users.service.ts` |

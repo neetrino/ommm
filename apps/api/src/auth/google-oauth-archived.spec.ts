@@ -1,7 +1,7 @@
-import { UnauthorizedException } from '@nestjs/common';
 import { Role } from '@prisma/client';
 import { GoogleOAuthService } from './google-oauth.service';
 import type { GoogleOAuthProfile } from './google-oauth.types';
+import { GoogleAccountClosedException } from './google-sign-in.guard';
 
 const profile: GoogleOAuthProfile = {
   providerAccountId: 'google-1',
@@ -18,6 +18,7 @@ const archivedUser = {
   role: Role.USER,
   isBlocked: true,
   deletedAt: new Date('2026-10-14T00:00:00.000Z'),
+  locale: 'hy',
 };
 
 describe('GoogleOAuthService archived account', () => {
@@ -58,8 +59,34 @@ describe('GoogleOAuthService archived account', () => {
         state,
         storedState: state,
       }),
-    ).rejects.toBeInstanceOf(UnauthorizedException);
+    ).rejects.toBeInstanceOf(GoogleAccountClosedException);
     expect(issueAccessTokenForUser).not.toHaveBeenCalled();
     expect(prisma.oAuthAccount.create).not.toHaveBeenCalled();
+  });
+
+  it('does not create a new user when that email belongs to a closed account', async () => {
+    const issueAccessTokenForUser = jest.fn();
+    const prisma = {
+      oAuthAccount: {
+        findUnique: jest.fn().mockResolvedValue(null),
+        create: jest.fn(),
+      },
+      user: {
+        findUnique: jest.fn().mockResolvedValue(archivedUser),
+        create: jest.fn(),
+      },
+    };
+    const service = serviceWith(prisma, issueAccessTokenForUser);
+
+    await expect(
+      service.completeGoogleAuth({
+        code: 'code',
+        state,
+        storedState: state,
+      }),
+    ).rejects.toBeInstanceOf(GoogleAccountClosedException);
+    expect(prisma.user.create).not.toHaveBeenCalled();
+    expect(prisma.oAuthAccount.create).not.toHaveBeenCalled();
+    expect(issueAccessTokenForUser).not.toHaveBeenCalled();
   });
 });

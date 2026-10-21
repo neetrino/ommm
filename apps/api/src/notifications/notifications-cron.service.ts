@@ -1,4 +1,9 @@
-import { Injectable, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  type OnModuleDestroy,
+  type OnModuleInit,
+} from '@nestjs/common';
 import { BookingStatus } from '@prisma/client';
 import { AuditService } from '../audit/audit.service';
 import { ExpoPushService, loadPushTokensForUser } from './expo-push.service';
@@ -11,7 +16,12 @@ import {
   ENABLE_BACKGROUND_REMINDERS_ENV,
   SCHEDULED_TIMELINE_ACTIONS,
 } from './notifications-audit.constants';
-import { classReminderSessionWindow } from './class-reminder-window';
+import { ClassReminderScheduler } from './class-reminder-scheduler';
+import {
+  classReminderDelayMs,
+  classReminderScheduleKey,
+  classReminderSessionWindow,
+} from './class-reminder-window';
 import { notificationDueUntil } from './notification-send-window';
 import { WhatsappNotifyService } from '../whatsapp/whatsapp-notify.service';
 import { formatWhatsappDateTime } from '../whatsapp/whatsapp-locale';
@@ -35,9 +45,10 @@ type ClassReminderBooking = {
 };
 
 @Injectable()
-export class NotificationsCronService {
+export class NotificationsCronService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(NotificationsCronService.name);
   private readonly remindersCronEnabled: boolean;
+  private readonly reminderScheduler = new ClassReminderScheduler();
 
   constructor(
     private readonly prisma: PrismaService,
@@ -59,9 +70,18 @@ export class NotificationsCronService {
     }
   }
 
+  onModuleInit(): void {
+    void this.recoverClassReminders();
+  }
+
+  onModuleDestroy(): void {
+    this.reminderScheduler.clear();
+  }
+
   /**
-   * Invoked by CronBatchService (every 30 min), around the clock: reminders follow
-   * the class time (24h and 2h before), not the 13:00–21:00 broadcast window.
+   * Invoked by CronBatchService (every 30 min) and once on startup.
+   * Delivery is `startsAt` minus 24h or 2h, not the tick itself.
+   * Quiet hours do not apply: class reminders run around the clock.
    */
   async sendClassReminders(): Promise<void> {
     if (!this.remindersCronEnabled) {
@@ -81,6 +101,7 @@ export class NotificationsCronService {
     const bookings = await this.prisma.booking.findMany({
       where: {
         status: BookingStatus.BOOKED,
+        reminderLogs: { none: { hoursBefore } },
         session: {
           startsAt: { gte: window.start, lt: window.endExclusive },
         },
@@ -89,16 +110,52 @@ export class NotificationsCronService {
         user: { include: { notificationPrefs: true } },
         session: { include: { classType: true } },
       },
+      orderBy: { session: { startsAt: 'asc' } },
       take: CLASS_REMINDER_BATCH_TAKE,
     });
     for (const booking of bookings) {
-      await this.tryDeliverClassReminder(booking, hoursBefore);
+      await this.planClassReminder(now, booking, hoursBefore);
     }
     if (bookings.length > 0) {
       this.logger.log(
-        `Sent up to ${bookings.length} class reminders (${hoursBefore}h)`,
+        `Queued ${bookings.length} class reminders (${hoursBefore}h)`,
       );
     }
+  }
+
+  /** Startup pass: reschedule the open tick after a restart. */
+  private recoverClassReminders(): Promise<void> {
+    return this.sendClassReminders().catch((error: unknown) => {
+      this.logger.error(
+        'Class reminder startup pass failed',
+        error instanceof Error ? error.stack : undefined,
+      );
+    });
+  }
+
+  /**
+   * On-grid classes send immediately. Off-grid classes wait until
+   * `startsAt - hoursBefore`, so a 19:20 class is not pinged at 17:00.
+   */
+  private async planClassReminder(
+    now: Date,
+    booking: ClassReminderBooking,
+    hoursBefore: number,
+  ): Promise<void> {
+    const key = classReminderScheduleKey(booking.id, hoursBefore);
+    const delayMs = classReminderDelayMs(
+      now,
+      booking.session.startsAt,
+      hoursBefore,
+    );
+    if (delayMs === 0) {
+      this.reminderScheduler.cancel(key);
+      await this.tryDeliverClassReminder(booking, hoursBefore);
+      return;
+    }
+    this.reminderScheduler.schedule(key, delayMs, () =>
+      this.tryDeliverClassReminder(booking, hoursBefore),
+    );
   }
 
   private async tryDeliverClassReminder(
@@ -150,7 +207,7 @@ export class NotificationsCronService {
         tokens.map((to) => ({
           to,
           title: buildClassReminderSubject(className),
-          body: `${className} starts in about ${hoursBefore} hours.`,
+          body: `${className} starts in ${hoursBefore} hours.`,
         })),
       );
     }

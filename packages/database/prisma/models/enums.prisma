@@ -99,6 +99,8 @@ enum AuthTokenType {
   PASSWORD_RESET
   /** Admin-created client invite: first-time password creation (passwordHash was null). */
   PASSWORD_SETUP
+  /** One-time code emailed before a member closes their own account. */
+  ACCOUNT_DELETION
 }
 
 /** How a client account was created (self-serve, staff form, or staff invite link). */

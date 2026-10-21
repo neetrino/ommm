@@ -23,9 +23,11 @@ import { HOME_IMAGE_MAX_BYTES } from './constants/home-image.constants';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { HomeImageJsonDto } from './dto/home-image-json.dto';
 import { NotificationPrefsDto } from './dto/notification-prefs.dto';
+import { ConfirmAccountDeletionDto } from './dto/confirm-account-deletion.dto';
 import { RequestAccountDeletionDto } from './dto/request-account-deletion.dto';
 import { RegisterPushTokenDto } from './dto/register-push-token.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
+import { AccountDeletionService } from './account-deletion.service';
 import { UsersService } from './users.service';
 
 @Controller('users')
@@ -34,6 +36,7 @@ export class UsersController {
   constructor(
     private readonly users: UsersService,
     private readonly auth: AuthService,
+    private readonly accountDeletion: AccountDeletionService,
   ) {}
 
   /**
@@ -118,12 +121,18 @@ export class UsersController {
     return this.users.registerPushToken(user.id, dto.token, dto.platform);
   }
 
+  @Post('me/deletion-code')
+  sendDeletionCode(@CurrentUser() user: { id: string }) {
+    return this.accountDeletion.sendCode(user.id);
+  }
+
   @Delete('me')
   async deleteMe(
     @CurrentUser() user: { id: string },
+    @Body() dto: ConfirmAccountDeletionDto,
     @Res({ passthrough: true }) res: Response,
   ) {
-    await this.users.deleteOwnAccount(user.id);
+    await this.accountDeletion.confirm(user.id, dto.code);
     res.clearCookie(ACCESS_TOKEN_COOKIE, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
