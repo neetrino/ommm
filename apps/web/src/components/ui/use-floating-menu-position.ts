@@ -4,6 +4,8 @@ import { useEffect, useState, type RefObject } from "react";
 
 export type FloatingMenuAlign = "start" | "end";
 
+export type FloatingMenuPlacement = "auto" | "top" | "bottom";
+
 export type FloatingMenuPosition = {
   top: number;
   left: number;
@@ -26,6 +28,24 @@ function readFixedSiteHeaderInset(): number {
     return MENU_VIEWPORT_PADDING;
   }
   return Math.max(MENU_VIEWPORT_PADDING, header.getBoundingClientRect().bottom + MENU_SPACING);
+}
+
+/** Prefer the side with room. `top` and `bottom` stay put unless that side cannot fit the menu. */
+export function shouldOpenMenuAbove(input: {
+  preferPlacement: FloatingMenuPlacement;
+  availableAbove: number;
+  availableBelow: number;
+  minMenuHeight: number;
+}): boolean {
+  const aboveFits = input.availableAbove >= input.minMenuHeight;
+  const belowFits = input.availableBelow >= input.minMenuHeight;
+  if (input.preferPlacement === "top") {
+    return aboveFits || input.availableAbove >= input.availableBelow;
+  }
+  if (input.preferPlacement === "bottom") {
+    return !belowFits && aboveFits;
+  }
+  return !belowFits && input.availableAbove > input.availableBelow;
 }
 
 function clampMenuLeft(preferredLeft: number, width: number): number {
@@ -58,6 +78,7 @@ export function useFloatingMenuPosition(
   menuSpacing = MENU_SPACING,
   freezePosition = false,
   respectHeaderInset = false,
+  preferPlacement: FloatingMenuPlacement = "auto",
 ): FloatingMenuPosition | null {
   const [menuPosition, setMenuPosition] = useState<FloatingMenuPosition | null>(null);
 
@@ -81,7 +102,12 @@ export function useFloatingMenuPosition(
       );
       const availableBelow = window.innerHeight - rect.bottom - menuSpacing;
       const availableAbove = rect.top - menuSpacing - headerInset;
-      const openAbove = availableBelow < minMenuHeight && availableAbove > availableBelow;
+      const openAbove = shouldOpenMenuAbove({
+        preferPlacement,
+        availableAbove,
+        availableBelow,
+        minMenuHeight,
+      });
       const preferredLeft =
         menuAlign === "end" ? rect.right - width : rect.left;
       const menuTop = openAbove ? rect.top - menuSpacing : rect.bottom + menuSpacing;
@@ -112,6 +138,7 @@ export function useFloatingMenuPosition(
     minMenuHeight,
     minWidth,
     open,
+    preferPlacement,
     respectHeaderInset,
     triggerRef,
   ]);

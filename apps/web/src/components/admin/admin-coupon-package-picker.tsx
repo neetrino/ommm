@@ -44,6 +44,7 @@ export function CouponPackagePlanPicker({
         selectedValues={selectedIds}
         disabled={phase !== "ready"}
         wrapLabel
+        menuPlacement="top"
         formatSelectedCount={(count) => t("packagePlansSelected", { count })}
         onChange={applySelection}
       />
