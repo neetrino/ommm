@@ -1,5 +1,4 @@
 import { ManualPaymentMethod, PaymentStatus } from '@prisma/client';
-import { isInfluencerPaymentMethod } from '../payment-revenue.util';
 
 export type EhdmPrintCandidate = {
   status: PaymentStatus;
@@ -24,8 +23,8 @@ export function skipReasonForEhdmPrint(
   if (payment.amountCents <= 0) {
     return 'amount is not positive';
   }
-  if (isInfluencerPaymentMethod(payment.paymentMethod)) {
-    return 'influencer payment';
+  if (payment.paymentMethod !== ManualPaymentMethod.CARD) {
+    return 'payment method is not online card';
   }
   return null;
 }

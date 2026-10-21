@@ -38,8 +38,13 @@ export function paymentPurchaseFields(
   return [{ label: t("paymentDetails.relatedLabel"), value: resolveRelatedLabel(t, payment) }];
 }
 
-/** True when a settled payment still has no fiscal receipt — printed data lives on Print. */
+const ONLINE_CARD_PAYMENT_METHOD = "CARD";
+
+/** True when a settled online-card payment still has no fiscal receipt. */
 export function isEhdmReceiptMissing(payment: FinancePaymentItem): boolean {
+  if (payment.paymentMethod !== ONLINE_CARD_PAYMENT_METHOD) {
+    return false;
+  }
   if (payment.status !== "SUCCEEDED" && payment.status !== "REFUNDED") {
     return false;
   }

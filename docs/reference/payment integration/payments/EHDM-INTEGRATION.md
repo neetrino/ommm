@@ -77,7 +77,7 @@ Fire-and-forget after a payment **newly** becomes `SUCCEEDED`:
 - Gift checkout card success (`PaymentsCheckoutService`)
 - Admin status → `SUCCEEDED` (non-pending path)
 
-Guards: enabled + fully configured, AMD, amount > 0, not influencer, no existing `EhdmReceipt` for `paymentId`.
+Guards: enabled + fully configured, AMD, amount > 0, online card (`CARD`) only — cash, terminal, influencer, bank transfer, and other methods are skipped — no existing `EhdmReceipt` for `paymentId`.
 
 One line item:
 
