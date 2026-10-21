@@ -84,11 +84,12 @@ const USER_NAV: readonly DashboardNavDefinition[] = [
   { href: USER_PROFILE_PATH, icon: "user", labelKey: "profile", oliveIconSlug: "clients" },
 ];
 
-/** Coach panel: Dashboard, My schedule, Bookings, Salary, Analytics, Profile settings. */
+/** Coach panel: Dashboard, My schedule, Bookings, Clients, Salary, Analytics, Profile. */
 const COACH_NAV: readonly DashboardNavDefinition[] = [
   { href: "/coach/home", icon: "layoutDashboard", labelKey: "dashboard" },
   { href: "/coach/schedule", icon: "calendar", labelKey: "schedule" },
   { href: "/coach/groups", icon: "users", labelKey: "groups" },
+  { href: "/coach/clients", icon: "userCheck", labelKey: "clients" },
   { href: "/coach/salary", icon: "wallet", labelKey: "salary" },
   { href: "/coach/analytics", icon: "barChart", labelKey: "analytics" },
   { href: "/coach/profile", icon: "user", labelKey: "profile" },

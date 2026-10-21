@@ -10,6 +10,7 @@ import type { UploadCoachPhotoJsonDto } from './dto/upload-coach-photo-json.dto'
 import type { UpdateCoachDto } from './dto/update-coach.dto';
 import { CoachesAdminListService } from './coaches-admin-list.service';
 import { CoachesAdminWriteService } from './coaches-admin-write.service';
+import { CoachesPanelClientsService } from './coaches-panel-clients.service';
 import { CoachesPanelSessionsService } from './coaches-panel-sessions.service';
 import { CoachesPanelService } from './coaches-panel.service';
 import { CoachesPhotoService } from './coaches-photo.service';
@@ -25,6 +26,7 @@ export class CoachesService {
     private readonly adminWrite: CoachesAdminWriteService,
     private readonly adminList: CoachesAdminListService,
     private readonly panel: CoachesPanelService,
+    private readonly clientsPanel: CoachesPanelClientsService,
     private readonly panelSessions: CoachesPanelSessionsService,
     private readonly salaryPayout: CoachSalaryPayoutService,
     private readonly salarySessions: CoachSalarySessionsService,
@@ -105,5 +107,23 @@ export class CoachesService {
 
   async panelSessionsList(userId: string) {
     return (await this.panelSessions.listForUser(userId)) ?? [];
+  }
+
+  panelClients(userId: string) {
+    return this.clientsPanel.listForUser(userId);
+  }
+
+  panelClientBookings(
+    userId: string,
+    clientId: string,
+    take: number,
+    offset: number,
+  ) {
+    return this.clientsPanel.listBookingsForUser(
+      userId,
+      clientId,
+      take,
+      offset,
+    );
   }
 }
