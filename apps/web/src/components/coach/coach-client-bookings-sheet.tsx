@@ -52,6 +52,23 @@ function parseCoachClientSheetTab(value: string): CoachClientSheetTab {
   return COACH_CLIENT_SHEET_TAB_BOOKING;
 }
 
+/** Each time the sheet opens, Bookings is the selected tab. */
+function useCoachClientSheetTab(isOpen: boolean) {
+  const [activeTab, setActiveTab] = useState<CoachClientSheetTab>(
+    COACH_CLIENT_SHEET_TAB_BOOKING,
+  );
+  const [wasOpen, setWasOpen] = useState(false);
+  if (isOpen && !wasOpen) {
+    setWasOpen(true);
+    if (activeTab !== COACH_CLIENT_SHEET_TAB_BOOKING) {
+      setActiveTab(COACH_CLIENT_SHEET_TAB_BOOKING);
+    }
+  } else if (!isOpen && wasOpen) {
+    setWasOpen(false);
+  }
+  return [activeTab, setActiveTab] as const;
+}
+
 export function CoachClientBookingsSheet({
   client,
   locale,
@@ -83,9 +100,7 @@ function CoachClientBookingsSheetContent({
   const tTabs = useTranslations("adminPages.clients.sheetTabs");
   const titleId = useId();
   const { isOpen, requestClose, onAfterClose } = useAdminAnimatedSheetClose(onClose);
-  const [activeTab, setActiveTab] = useState<CoachClientSheetTab>(
-    COACH_CLIENT_SHEET_TAB_BOOKING,
-  );
+  const [activeTab, setActiveTab] = useCoachClientSheetTab(isOpen);
   const name = coachClientDisplayName(client, t("unnamed"));
 
   return (
