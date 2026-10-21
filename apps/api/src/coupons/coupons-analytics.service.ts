@@ -1,6 +1,15 @@
 import { Injectable } from '@nestjs/common';
-import { CouponRedemptionStatus, type Prisma } from '@prisma/client';
+import { type Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import { readPackagePlanIdFromMetadata } from '../packages/package-payment-metadata.util';
+import { readCartCheckout } from '../payments/payments-cart.fulfill';
+import {
+  collectCouponPurchaseIds,
+  COUNTED_COUPON_USE_STATUSES,
+  couponAnalyticsTimeWhere,
+  couponPurchaseLabel,
+  sessionDisplayName,
+} from './coupon-analytics.util';
 import { deriveCouponDisplayStatus } from './coupon-status.util';
 import type { ListCouponAnalyticsQueryDto } from './dto/list-coupon-analytics.dto';
 
@@ -21,16 +30,21 @@ export class CouponsAnalyticsService {
     }
     const rows = await this.prisma.couponRedemption.findMany({
       where: {
-        status: CouponRedemptionStatus.APPLIED,
+        status: { in: [...COUNTED_COUPON_USE_STATUSES] },
         couponId: { in: couponIds },
         ...(userId ? { userId } : {}),
-        ...appliedRange(query),
+        ...couponAnalyticsTimeWhere(query),
       },
       include: redemptionInclude(),
-      orderBy: { appliedAt: 'desc' },
+      orderBy: { createdAt: 'desc' },
       take: ANALYTICS_TAKE,
     });
-    return { items: rows.map(toAnalyticsRow) };
+    const purchases = await this.purchaseLabels(rows);
+    return {
+      items: rows.map((row) =>
+        toAnalyticsRow(row, purchases.get(row.id) ?? null),
+      ),
+    };
   }
 
   private async resolveUserId(
@@ -84,6 +98,57 @@ export class CouponsAnalyticsService {
       )
       .map((row) => row.id);
   }
+
+  private async purchaseLabels(
+    rows: RedemptionRow[],
+  ): Promise<Map<string, string | null>> {
+    const names = await this.purchaseNameMaps(rows);
+    return new Map(
+      rows.map((row) => [row.id, labelFromPayment(row.payment, names)]),
+    );
+  }
+
+  private async purchaseNameMaps(
+    rows: RedemptionRow[],
+  ): Promise<PurchaseNameMaps> {
+    const ids = collectCouponPurchaseIds(rows.map((row) => row.payment));
+    const [packages, sessions, plans, bars] = await Promise.all([
+      this.prisma.userPackage.findMany({
+        where: { id: { in: ids.userPackageIds } },
+        select: { id: true, planNameSnapshot: true },
+      }),
+      this.prisma.classSession.findMany({
+        where: { id: { in: ids.sessionIds } },
+        select: {
+          id: true,
+          title: true,
+          classType: { select: { name: true } },
+        },
+      }),
+      this.prisma.packagePlan.findMany({
+        where: { id: { in: ids.planIds } },
+        select: { id: true, name: true },
+      }),
+      this.prisma.barProduct.findMany({
+        where: { id: { in: ids.barProductIds } },
+        select: { id: true, name: true },
+      }),
+    ]);
+    return {
+      packages: new Map(packages.map((row) => [row.id, row.planNameSnapshot])),
+      sessions: new Map(
+        sessions.map((row) => [
+          row.id,
+          sessionDisplayName({
+            title: row.title,
+            classTypeName: row.classType.name,
+          }),
+        ]),
+      ),
+      plans: new Map(plans.map((row) => [row.id, row.name])),
+      bars: new Map(bars.map((row) => [row.id, row.name])),
+    };
+  }
 }
 
 async function openUseCounts(
@@ -97,27 +162,11 @@ async function openUseCounts(
     by: ['couponId'],
     where: {
       couponId: { in: ids },
-      status: {
-        in: [CouponRedemptionStatus.RESERVED, CouponRedemptionStatus.APPLIED],
-      },
+      status: { in: [...COUNTED_COUPON_USE_STATUSES] },
     },
     _count: { _all: true },
   });
   return new Map(groups.map((row) => [row.couponId, row._count._all]));
-}
-
-function appliedRange(
-  query: ListCouponAnalyticsQueryDto,
-): Prisma.CouponRedemptionWhereInput {
-  if (query.from === undefined && query.to === undefined) {
-    return {};
-  }
-  return {
-    appliedAt: {
-      ...(query.from ? { gte: new Date(query.from) } : {}),
-      ...(query.to ? { lte: new Date(query.to) } : {}),
-    },
-  };
 }
 
 function redemptionInclude() {
@@ -134,19 +183,34 @@ function redemptionInclude() {
       },
     },
     payment: {
-      select: { id: true, description: true, source: true, amountCents: true },
+      select: {
+        id: true,
+        description: true,
+        source: true,
+        sourceId: true,
+        metadata: true,
+        amountCents: true,
+      },
     },
   } satisfies Prisma.CouponRedemptionInclude;
 }
 
-function toAnalyticsRow(
-  row: Prisma.CouponRedemptionGetPayload<{
-    include: ReturnType<typeof redemptionInclude>;
-  }>,
-) {
+type RedemptionRow = Prisma.CouponRedemptionGetPayload<{
+  include: ReturnType<typeof redemptionInclude>;
+}>;
+
+type PurchaseNameMaps = {
+  packages: Map<string, string>;
+  sessions: Map<string, string | null>;
+  plans: Map<string, string>;
+  bars: Map<string, string>;
+};
+
+function toAnalyticsRow(row: RedemptionRow, purchase: string | null) {
   return {
     id: row.id,
     usedAt: row.appliedAt?.toISOString() ?? row.createdAt.toISOString(),
+    redemptionStatus: row.status,
     couponId: row.coupon.id,
     code: row.code,
     discountType: row.discountType,
@@ -154,9 +218,37 @@ function toAnalyticsRow(
     originalAmountCents: row.originalAmountCents,
     discountAmountCents: row.discountAmountCents,
     finalAmountCents: row.payment.amountCents,
-    purchase: row.payment.description,
+    purchase,
     source: row.payment.source,
     createdBy: row.coupon.createdBy,
     user: row.user,
   };
+}
+
+function labelFromPayment(
+  payment: RedemptionRow['payment'],
+  names: PurchaseNameMaps,
+): string | null {
+  const cart = readCartCheckout(payment.metadata);
+  const planId =
+    readPackagePlanIdFromMetadata(payment.metadata) ??
+    cart?.packagePlanId ??
+    null;
+  const sessionId =
+    payment.source === 'DROPIN'
+      ? (payment.sourceId ?? cart?.sessionId ?? null)
+      : (cart?.sessionId ?? null);
+  const packageFromUser =
+    payment.source === 'PACKAGE' && payment.sourceId !== null
+      ? (names.packages.get(payment.sourceId) ?? null)
+      : null;
+  const planName = planId ? (names.plans.get(planId) ?? null) : null;
+  return couponPurchaseLabel({
+    description: payment.description,
+    packageName: packageFromUser ?? planName,
+    className: sessionId ? (names.sessions.get(sessionId) ?? null) : null,
+    barName: cart?.barProductId
+      ? (names.bars.get(cart.barProductId) ?? null)
+      : null,
+  });
 }

@@ -139,11 +139,12 @@ export function AudienceSection({
         {draft.eligibleAllProducts ? null : (
           <ProductPicker
             kinds={draft.kinds}
-            packagePlanId={draft.packagePlanId}
-            planLabel={t("packagePlan")}
+            packagePlanIds={draft.packagePlanIds}
             kindLabel={(kind) => t(`kind.${kind}`)}
-            onKinds={(kinds) => onPatch({ kinds })}
-            onPlan={(packagePlanId) => onPatch({ packagePlanId })}
+            onKinds={(kinds) =>
+              onPatch(kinds.includes("PACKAGE") ? { kinds } : { kinds, packagePlanIds: [] })
+            }
+            onPlans={(packagePlanIds) => onPatch({ packagePlanIds })}
           />
         )}
       </FormSection>

@@ -1,5 +1,8 @@
 import type { AdminCouponRow, CouponProductKind } from "@/components/admin/admin-coupons-types";
 
+/** Matches `COUPON_ELIGIBLE_PRODUCT_MAX` on the API. */
+const MAX_COUPON_ELIGIBLE_PRODUCTS = 50;
+
 export type CouponDraft = {
   code: string;
   discountType: "PERCENTAGE" | "FIXED_AMOUNT";
@@ -12,7 +15,8 @@ export type CouponDraft = {
   emails: string;
   eligibleAllProducts: boolean;
   kinds: CouponProductKind[];
-  packagePlanId: string;
+  /** Empty means every package. Each id becomes its own package rule. */
+  packagePlanIds: string[];
 };
 
 export function emptyCouponDraft(): CouponDraft {
@@ -28,7 +32,7 @@ export function emptyCouponDraft(): CouponDraft {
     emails: "",
     eligibleAllProducts: true,
     kinds: [],
-    packagePlanId: "",
+    packagePlanIds: [],
   };
 }
 
@@ -47,16 +51,71 @@ export function couponDraftFromRow(editing: AdminCouponRow | null): CouponDraft 
     eligibleAllUsers: editing.eligibleAllUsers,
     emails: editing.eligibleUsers.map((user) => user.email).join(", "),
     eligibleAllProducts: editing.eligibleAllProducts,
-    kinds: editing.eligibleProducts.map((row) => row.kind),
-    packagePlanId: editing.eligibleProducts.find((row) => row.packagePlanId)?.packagePlanId ?? "",
+    kinds: uniqueCouponKinds(editing.eligibleProducts.map((row) => row.kind)),
+    packagePlanIds: packagePlanIdsFromProducts(editing.eligibleProducts),
   };
 }
 
+export function uniqueCouponKinds(kinds: readonly CouponProductKind[]): CouponProductKind[] {
+  const unique: CouponProductKind[] = [];
+  for (const kind of kinds) {
+    if (!unique.includes(kind)) {
+      unique.push(kind);
+    }
+  }
+  return unique;
+}
+
+/** A package rule without an id already covers every package, so specific ids are dropped. */
+export function packagePlanIdsFromProducts(
+  products: readonly { kind: CouponProductKind; packagePlanId: string | null }[],
+): string[] {
+  const packageRows = products.filter((row) => row.kind === "PACKAGE");
+  const coversEveryPackage = packageRows.some((row) => {
+    const id = row.packagePlanId?.trim() ?? "";
+    return id.length === 0;
+  });
+  if (coversEveryPackage) {
+    return [];
+  }
+  return capCouponPackagePlanIds(
+    ["PACKAGE"],
+    packageRows.flatMap((row) => (row.packagePlanId ? [row.packagePlanId] : [])),
+  );
+}
+
+/** Keeps the saved product list inside the API limit. Other kinds take a slot each. */
+export function capCouponPackagePlanIds(
+  kinds: readonly CouponProductKind[],
+  ids: readonly string[],
+): string[] {
+  const otherCount = uniqueCouponKinds(kinds).filter((kind) => kind !== "PACKAGE").length;
+  const room = Math.max(0, MAX_COUPON_ELIGIBLE_PRODUCTS - otherCount);
+  const unique: string[] = [];
+  for (const id of ids) {
+    const trimmed = id.trim();
+    if (trimmed.length === 0 || unique.includes(trimmed)) {
+      continue;
+    }
+    if (unique.length >= room) {
+      break;
+    }
+    unique.push(trimmed);
+  }
+  return unique;
+}
+
 export function couponPayloadFromDraft(draft: CouponDraft) {
-  const products = draft.kinds.map((kind) => ({
-    kind,
-    ...(kind === "PACKAGE" && draft.packagePlanId.trim() ? { packagePlanId: draft.packagePlanId.trim() } : {}),
-  }));
+  const kinds = uniqueCouponKinds(draft.kinds);
+  const planIds = kinds.includes("PACKAGE")
+    ? capCouponPackagePlanIds(kinds, draft.packagePlanIds)
+    : [];
+  const products = kinds.flatMap((kind) => {
+    if (kind !== "PACKAGE" || planIds.length === 0) {
+      return [{ kind }];
+    }
+    return planIds.map((packagePlanId) => ({ kind, packagePlanId }));
+  });
   return {
     code: draft.code,
     discountType: draft.discountType,
