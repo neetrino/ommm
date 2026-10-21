@@ -11,13 +11,10 @@ import { randomBytes } from 'node:crypto';
 import { inviteRegistrationFields } from '../client-invites/client-invite-code';
 import { ClientInviteService } from '../client-invites/client-invite.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { releaseSelfClosedAccount } from '../users/archive-user';
 import { AuthService } from './auth.service';
-import {
-  isStateMatch,
-  isUniqueConstraintError,
-  normalizeEmail,
-  parseGoogleName,
-} from './google-oauth.helpers';
+import { isStateMatch, isUniqueConstraintError } from './google-oauth.helpers';
+import { fetchVerifiedGoogleProfile as readGoogleProfile } from './google-oauth.profile';
 import {
   resolveClosedAccountLoginUrl,
   resolveWebEntryUrl,
@@ -102,61 +99,10 @@ export class GoogleOAuthService {
     return code;
   }
 
-  private async fetchVerifiedGoogleProfile(
+  private fetchVerifiedGoogleProfile(
     code: string,
   ): Promise<GoogleOAuthProfile> {
-    const { clientId, clientSecret, callbackUrl } = this.getGoogleConfig();
-    const client = new OAuth2Client({
-      clientId,
-      clientSecret,
-      redirectUri: callbackUrl,
-    });
-    const { tokens } = await client.getToken(code);
-    const idToken = tokens.id_token;
-    if (!idToken) {
-      throw new UnauthorizedException('Missing Google ID token');
-    }
-    const ticket = await client.verifyIdToken({ idToken, audience: clientId });
-    const payload = ticket.getPayload();
-    if (!payload) {
-      throw new UnauthorizedException('Invalid Google ID token payload');
-    }
-    const audienceRaw: unknown = Reflect.get(
-      payload as unknown as Record<string, unknown>,
-      'aud',
-    );
-    const audienceMatches =
-      typeof audienceRaw === 'string'
-        ? audienceRaw === clientId
-        : Array.isArray(audienceRaw) &&
-          audienceRaw.some(
-            (item: unknown) => typeof item === 'string' && item === clientId,
-          );
-    if (!audienceMatches) {
-      throw new UnauthorizedException('Google audience does not match');
-    }
-    const providerAccountId = payload.sub?.trim();
-    const providerEmail = payload.email?.trim();
-    if (
-      !providerAccountId ||
-      !providerEmail ||
-      payload.email_verified !== true
-    ) {
-      throw new UnauthorizedException('Google email is missing or unverified');
-    }
-    const parsedName = parseGoogleName({
-      given_name: payload.given_name,
-      family_name: payload.family_name,
-      name: payload.name,
-    });
-    return {
-      providerAccountId,
-      providerEmail: normalizeEmail(providerEmail),
-      providerEmailVerified: true,
-      name: parsedName.name,
-      lastName: parsedName.lastName,
-      avatarUrl: payload.picture?.trim() ?? null,
-    };
+    return readGoogleProfile(this.getGoogleConfig(), code);
   }
 
   private async resolveGoogleAuthCompletion(
@@ -172,14 +118,20 @@ export class GoogleOAuthService {
       },
       include: { user: true },
     });
-    if (linked) {
+    const linkedReleased = linked
+      ? await releaseSelfClosedAccount(this.prisma, linked.user)
+      : false;
+    if (linked && !linkedReleased) {
       return this.sessionCompletion(linked.user);
     }
 
     const existingUser = await this.prisma.user.findUnique({
       where: { email: profile.providerEmail },
     });
-    if (existingUser) {
+    if (
+      existingUser &&
+      !(await releaseSelfClosedAccount(this.prisma, existingUser))
+    ) {
       assertGoogleSignInAllowed(existingUser);
       const user = await this.linkOAuthToExistingUser(existingUser, profile);
       return this.sessionCompletion(user);
@@ -248,6 +200,12 @@ export class GoogleOAuthService {
         const existingUser = await this.prisma.user.findUnique({
           where: { email: profile.providerEmail },
         });
+        if (
+          existingUser &&
+          (await releaseSelfClosedAccount(this.prisma, existingUser))
+        ) {
+          return this.createUserFromGoogleProfile(profile, referrerId);
+        }
         if (existingUser) {
           assertGoogleSignInAllowed(existingUser);
           return this.linkOAuthToExistingUser(existingUser, profile);

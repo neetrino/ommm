@@ -185,7 +185,7 @@ Notes:
 | `/v1/auth/register` | POST | Register account | `RegisterDto` | user + access token | Creates user, verify token, sets cookie, sends email |
 | `/v1/auth/login` | POST | Login | `LoginDto` | sanitized user + access token | Sets auth cookie |
 | `/v1/auth/google` | GET | Start Google OAuth | none | redirect | Sets OAuth state cookie |
-| `/v1/auth/google/callback` | GET | Complete Google OAuth | `code`, `state` query + state cookie | redirect | Creates/links OAuth account, sets auth cookie. A closed account redirects to login with `error=no_account` and does not open a new one. |
+| `/v1/auth/google/callback` | GET | Complete Google OAuth | `code`, `state` query + state cookie | redirect | Creates/links OAuth account, sets auth cookie. A self-closed account frees that email and opens a new one. A staff-closed account redirects to login with `error=no_account`. |
 | `/v1/auth/logout` | POST | Logout | none | `{ok:true}` | Clears auth cookie |
 | `/v1/auth/verify-email` | POST | Verify email token | `VerifyEmailDto` | `{ok:true}` | Marks email verified, consumes token |
 | `/v1/auth/request-password-reset` | POST | Request reset | `RequestPasswordResetDto` | `{ok:true}` | Creates reset token, sends email |
