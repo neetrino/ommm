@@ -71,14 +71,15 @@ function CouponUseTable({ rows, locale }: { rows: CouponAnalyticsRow[]; locale: 
   const t = useTranslations("adminPages.coupons");
   return (
     <div className="overflow-x-auto rounded-2xl border border-sand-200/80 bg-white/90">
-      <table className="w-full min-w-[760px] text-left text-sm">
+      <table className="w-full min-w-[920px] text-left text-sm">
         <thead className="bg-sand-50/80 text-[11px] uppercase tracking-wide text-sage-500">
           <tr>
             <th className="px-4 py-3">{t("code")}</th>
-            <th className="px-4 py-3">{t("createdBy")}</th>
             <th className="px-4 py-3">{t("filterUser")}</th>
-            <th className="px-4 py-3">{t("usedAt")}</th>
             <th className="px-4 py-3">{t("purchase")}</th>
+            <th className="px-4 py-3">{t("useState")}</th>
+            <th className="px-4 py-3">{t("usedAt")}</th>
+            <th className="px-4 py-3">{t("createdBy")}</th>
             <th className="px-4 py-3">{t("original")}</th>
             <th className="px-4 py-3">{t("discount")}</th>
             <th className="px-4 py-3">{t("final")}</th>
@@ -88,10 +89,11 @@ function CouponUseTable({ rows, locale }: { rows: CouponAnalyticsRow[]; locale: 
           {rows.map((row) => (
             <tr key={row.id} className="border-t border-sand-100 text-sage-800">
               <td className="px-4 py-3 font-serif tracking-wide">{row.code}</td>
-              <td className="px-4 py-3">{couponPersonLabel(row.createdBy)}</td>
               <td className="px-4 py-3">{couponPersonLabel(row.user)}</td>
+              <td className="px-4 py-3">{purchaseText(row, (kind) => t(`kind.${kind}`))}</td>
+              <td className="px-4 py-3">{redemptionStateText(row.redemptionStatus, (key) => t(key))}</td>
               <td className="px-4 py-3">{new Date(row.usedAt).toLocaleString(locale)}</td>
-              <td className="px-4 py-3">{row.purchase ?? row.source}</td>
+              <td className="px-4 py-3">{couponPersonLabel(row.createdBy)}</td>
               <td className="px-4 py-3"><AmdMoneyText cents={row.originalAmountCents} locale={locale} /></td>
               <td className="px-4 py-3"><AmdMoneyText cents={row.discountAmountCents} locale={locale} /></td>
               <td className="px-4 py-3"><AmdMoneyText cents={row.finalAmountCents} locale={locale} /></td>
@@ -101,5 +103,30 @@ function CouponUseTable({ rows, locale }: { rows: CouponAnalyticsRow[]; locale: 
       </table>
     </div>
   );
+}
+
+function purchaseText(
+  row: CouponAnalyticsRow,
+  kindLabel: (kind: "PACKAGE" | "DROPIN" | "GIFT" | "OTHER") => string,
+): string {
+  const purchase = row.purchase?.trim() ?? "";
+  if (purchase.length > 0) {
+    return purchase;
+  }
+  return kindLabel(purchaseKind(row.source));
+}
+
+function purchaseKind(source: string): "PACKAGE" | "DROPIN" | "GIFT" | "OTHER" {
+  if (source === "PACKAGE" || source === "DROPIN" || source === "GIFT") {
+    return source;
+  }
+  return "OTHER";
+}
+
+function redemptionStateText(
+  status: CouponAnalyticsRow["redemptionStatus"],
+  label: (key: "useStateReserved" | "useStateApplied") => string,
+): string {
+  return status === "RESERVED" ? label("useStateReserved") : label("useStateApplied");
 }
 

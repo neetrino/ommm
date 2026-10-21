@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { CouponPackagePlanPicker } from "@/components/admin/admin-coupon-package-picker";
 import type { CouponProductKind } from "@/components/admin/admin-coupons-types";
 
 const KINDS: CouponProductKind[] = ["PACKAGE", "DROPIN", "GIFT", "BAR", "OTHER"];
@@ -200,18 +201,16 @@ export function CheckRow({
 
 export function ProductPicker({
   kinds,
-  packagePlanId,
-  planLabel,
+  packagePlanIds,
   kindLabel,
   onKinds,
-  onPlan,
+  onPlans,
 }: {
   kinds: CouponProductKind[];
-  packagePlanId: string;
-  planLabel: string;
+  packagePlanIds: readonly string[];
   kindLabel: (kind: CouponProductKind) => string;
   onKinds: (kinds: CouponProductKind[]) => void;
-  onPlan: (value: string) => void;
+  onPlans: (ids: string[]) => void;
 }) {
   const showPlan = kinds.includes("PACKAGE");
   return (
@@ -235,7 +234,9 @@ export function ProductPicker({
           );
         })}
       </div>
-      {showPlan ? <TextField label={planLabel} value={packagePlanId} onChange={onPlan} /> : null}
+      {showPlan ? (
+        <CouponPackagePlanPicker kinds={kinds} selectedIds={packagePlanIds} onChange={onPlans} />
+      ) : null}
     </div>
   );
 }

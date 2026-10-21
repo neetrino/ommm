@@ -31,6 +31,7 @@ export type AdminCouponRow = {
 export type CouponAnalyticsRow = {
   id: string;
   usedAt: string;
+  redemptionStatus: "RESERVED" | "APPLIED";
   couponId: string;
   code: string;
   discountType: "PERCENTAGE" | "FIXED_AMOUNT";
