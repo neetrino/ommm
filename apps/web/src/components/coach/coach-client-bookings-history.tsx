@@ -94,15 +94,17 @@ export function CoachClientBookingsHistory({
         emptyLabel={t("noBookings")}
         errorLabel={t("loadBookingsFailed")}
       />
-      <OmmListPagination
-        total={bookings.total}
-        page={bookings.page}
-        pageSize={bookings.pageSize}
-        offset={bookings.offset}
-        disabled={bookings.loading}
-        onPageChange={bookings.setPage}
-        scrollOnPageChange={false}
-      />
+      {bookings.total > bookings.pageSize ? (
+        <OmmListPagination
+          total={bookings.total}
+          page={bookings.page}
+          pageSize={bookings.pageSize}
+          offset={bookings.offset}
+          disabled={bookings.loading}
+          onPageChange={bookings.setPage}
+          scrollOnPageChange={false}
+        />
+      ) : null}
     </section>
   );
 }

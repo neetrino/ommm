@@ -19,7 +19,10 @@ import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
-import { ListPaginationQueryDto } from '../common/dto/list-pagination-query.dto';
+import {
+  DEFAULT_LIST_PAGE_SIZE,
+  ListPaginationQueryDto,
+} from '../common/dto/list-pagination-query.dto';
 import { AddClientNoteDto } from './dto/add-client-note.dto';
 import { AdminCreateClientDto } from './dto/admin-create-client.dto';
 import { AdminCreateClientBookingDto } from './dto/admin-create-client-booking.dto';
@@ -74,6 +77,20 @@ export class ClientsController {
   @Roles(Role.COACH)
   getCoachPanelClient(@CurrentUser() user: User, @Param('id') id: string) {
     return this.clients.getForCoachUser(user.id, id);
+  }
+
+  /** Package cards for a guest who has booked this coach. No payment data. */
+  @Get('coach-panel/:id/packages')
+  @SkipThrottle()
+  @Roles(Role.COACH)
+  listCoachPanelPackages(
+    @CurrentUser() user: User,
+    @Param('id') id: string,
+    @Query() query: ListPaginationQueryDto,
+  ) {
+    const take = query.take ?? DEFAULT_LIST_PAGE_SIZE;
+    const offset = query.offset ?? 0;
+    return this.clients.listPackagesForCoachUser(user.id, id, take, offset);
   }
 
   @Post()

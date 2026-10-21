@@ -5208,6 +5208,7 @@
       "bookingHistory": "Visit history",
       "noBookings": "No visits yet.",
       "loadBookingsFailed": "Could not load booking history.",
+      "sheetTabs": "Client sections",
       "close": "Close"
     },
     "analytics": {

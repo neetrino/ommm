@@ -5206,6 +5206,7 @@
       "bookingHistory": "История посещений",
       "noBookings": "Посещений нет.",
       "loadBookingsFailed": "Не удалось загрузить историю бронирований.",
+      "sheetTabs": "Разделы клиента",
       "close": "Закрыть"
     },
     "analytics": {

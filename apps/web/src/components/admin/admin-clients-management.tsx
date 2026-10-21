@@ -236,9 +236,5 @@ function coachBookingsTarget(row: ClientRow | null) {
     id: row.id,
     name: row.name,
     lastName: row.lastName,
-    lastSessionAt: row.lastVisitDate,
-    activePackageId: row.activePackageId,
-    activePackageStatus: row.activePackageStatus,
-    activePlanName: row.activePlanName,
   };
 }
