@@ -119,8 +119,4 @@ export class BookingsService {
   adminUpdate(actor: User, bookingId: string, dto: UpdateAdminBookingDto) {
     return this.admin.adminUpdate(actor, bookingId, dto);
   }
-
-  adminDeletePermanent(bookingId: string) {
-    return this.admin.adminDeletePermanent(bookingId);
-  }
 }

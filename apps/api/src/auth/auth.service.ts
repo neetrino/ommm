@@ -23,6 +23,7 @@ import {
 import { inviteRegistrationFields } from '../client-invites/client-invite-code';
 import { ClientInviteService } from '../client-invites/client-invite.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { isSignInBlocked } from './user-sign-in-block';
 import { sanitizeUser } from './auth-public-user';
 import {
   isValidPhoneNumber,
@@ -139,7 +140,7 @@ export class AuthService {
     if (!ok) {
       throw new UnauthorizedException('Invalid credentials');
     }
-    if (user.isBlocked) {
+    if (isSignInBlocked(user)) {
       throw new UnauthorizedException();
     }
     if (user.passwordHash.startsWith('$argon2')) {
@@ -231,7 +232,7 @@ export class AuthService {
     if (!isSetupType && !isLegacyInviteReset) {
       throw new BadRequestException('Invalid or expired token');
     }
-    if (row.user.isBlocked) {
+    if (isSignInBlocked(row.user)) {
       throw new UnauthorizedException();
     }
     if (row.user.passwordHash !== null) {
@@ -265,7 +266,7 @@ export class AuthService {
     const row = await this.prisma.authToken.findUnique({
       where: { tokenHash },
       include: {
-        user: { select: { id: true, isBlocked: true } },
+        user: { select: { id: true, isBlocked: true, deletedAt: true } },
       },
     });
     if (
@@ -275,7 +276,7 @@ export class AuthService {
     ) {
       throw new BadRequestException('Invalid or expired token');
     }
-    if (row.user.isBlocked) {
+    if (isSignInBlocked(row.user)) {
       throw new UnauthorizedException();
     }
     const passwordHash = await hashPassword(newPassword);

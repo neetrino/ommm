@@ -290,21 +290,4 @@ export class BookingsAdminService {
     }
     return updated;
   }
-
-  async adminDeletePermanent(bookingId: string) {
-    const booking = await this.prisma.booking.findUnique({
-      where: { id: bookingId },
-      select: { id: true, status: true },
-    });
-    if (!booking) {
-      throw new NotFoundException();
-    }
-    if (booking.status === BookingStatus.BOOKED) {
-      throw new BadRequestException(
-        'Active bookings cannot be deleted permanently. Cancel first.',
-      );
-    }
-    await this.prisma.booking.delete({ where: { id: bookingId } });
-    return { ok: true };
-  }
 }

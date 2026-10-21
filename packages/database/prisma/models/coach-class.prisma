@@ -1,7 +1,7 @@
 model CoachProfile {
   id             String   @id @default(cuid())
   userId         String   @unique
-  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user           User     @relation(fields: [userId], references: [id], onDelete: Restrict)
   bio            String?
   specialization String?
   classType      String?
@@ -29,7 +29,7 @@ model CoachProfile {
 model CoachClassTypeRate {
   id             String       @id @default(cuid())
   coachProfileId String
-  coachProfile   CoachProfile @relation(fields: [coachProfileId], references: [id], onDelete: Cascade)
+  coachProfile   CoachProfile @relation(fields: [coachProfileId], references: [id], onDelete: Restrict)
   classTypeId    String
   classType      ClassType    @relation(fields: [classTypeId], references: [id], onDelete: Restrict)
   amountAmd      Int
@@ -43,7 +43,7 @@ model CoachClassTypeRate {
 model CoachAvailabilitySlot {
   id              String       @id @default(cuid())
   coachProfileId  String
-  coachProfile    CoachProfile @relation(fields: [coachProfileId], references: [id], onDelete: Cascade)
+  coachProfile    CoachProfile @relation(fields: [coachProfileId], references: [id], onDelete: Restrict)
   slotDate        DateTime
   slotTime        String
   availableSpots  Int
@@ -112,9 +112,9 @@ model ClassSession {
 model CoachSalaryAccrual {
   id             String       @id @default(cuid())
   coachProfileId String
-  coachProfile   CoachProfile @relation(fields: [coachProfileId], references: [id], onDelete: Cascade)
+  coachProfile   CoachProfile @relation(fields: [coachProfileId], references: [id], onDelete: Restrict)
   classSessionId String       @unique
-  classSession   ClassSession @relation(fields: [classSessionId], references: [id], onDelete: Cascade)
+  classSession   ClassSession @relation(fields: [classSessionId], references: [id], onDelete: Restrict)
   /// Snapshot of the coach×classType rate at generation time (whole AMD).
   amountAmd      Int
   periodYear     Int
@@ -128,11 +128,13 @@ model CoachSalaryAccrual {
 model CoachSalaryPayout {
   id             String       @id @default(cuid())
   coachProfileId String
-  coachProfile   CoachProfile @relation(fields: [coachProfileId], references: [id], onDelete: Cascade)
+  coachProfile   CoachProfile @relation(fields: [coachProfileId], references: [id], onDelete: Restrict)
   amountAmd      Int
   periodYear     Int
   periodMonth    Int
   paidAt         DateTime     @default(now())
+  /** Set when a duplicate payout row is collapsed. The amount stays for the ledger. */
+  voidedAt       DateTime?
   paidByAdminId  String
   paidByAdmin    User         @relation("CoachSalaryPayoutAdmin", fields: [paidByAdminId], references: [id], onDelete: Restrict)
 

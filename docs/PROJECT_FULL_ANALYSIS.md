@@ -491,8 +491,7 @@ Member shell-ում `@sheet` parallel route-ներ intercept են անում nav
 | DELETE | `/:id` | Authenticated (own) |
 | GET | `/admin`, `/admin/management`, `/admin/:id` | ADMIN, MANAGER, COACH |
 | PATCH | `/admin/:id`, `/admin/:id/move`, `/admin/:id/attendance` | ADMIN, MANAGER, COACH |
-| DELETE | `/admin/:id` | ADMIN, MANAGER |
-| DELETE | `/admin/:id/permanent` | ADMIN |
+| DELETE | `/admin/:id` | ADMIN, MANAGER (cancel, row stays) |
 | POST | `/:id/notes` | ADMIN, MANAGER, COACH |
 
 ### 8.11. Waitlist (`/waitlist`)

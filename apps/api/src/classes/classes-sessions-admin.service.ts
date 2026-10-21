@@ -11,6 +11,7 @@ import {
   sortAdminSessionRows,
   SessionListOrder,
 } from '../common/list-order.helpers';
+import { writeAuditLog } from '../audit/write-audit-log';
 import { PrismaService } from '../prisma/prisma.service';
 import { RealtimePublisherService } from '../realtime/realtime-publisher.service';
 import { ScheduleService } from '../schedule/schedule.service';
@@ -302,26 +303,28 @@ export class ClassesSessionsAdminService {
     return this.updateSessionStatus(id, ClassSessionStatus.CANCELLED);
   }
 
-  async deleteSession(id: string): Promise<void> {
+  async deleteSession(
+    id: string,
+    actor: { id: string; role: string },
+  ): Promise<void> {
     const session = await this.prisma.classSession.findUnique({
       where: { id },
-      select: {
-        _count: {
-          select: { bookings: true, waitlistEntries: true },
-        },
-      },
+      select: { status: true },
     });
     if (!session) {
       throw new NotFoundException('Session not found');
     }
-    const { bookings, waitlistEntries } = session._count;
-    if (bookings > 0 || waitlistEntries > 0) {
-      throw new BadRequestException(
-        'Cannot delete a session with bookings or waitlist entries. Cancel bookings first.',
-      );
+    if (session.status !== ClassSessionStatus.CANCELLED) {
+      await this.cancelSession(id);
     }
-    await this.prisma.classSession.delete({ where: { id } });
-    await this.invalidatePublicScheduleAndEmit(id);
+    await writeAuditLog(this.prisma, {
+      actorId: actor.id,
+      actorRole: actor.role,
+      action: 'CLASS_SESSION_ARCHIVED',
+      entityType: 'ClassSession',
+      entityId: id,
+      payload: { previousStatus: session.status },
+    });
   }
 
   private async statusAfterEdit(

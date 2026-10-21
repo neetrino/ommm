@@ -12,6 +12,7 @@ import {
 import { restoreGiftClassSpend } from '../gift-cards/gift-card-class-credit';
 import { PackageUsageService } from '../packages/package-usage.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { writeBookingCancelledAudit } from './bookings-cancel-audit';
 import { StaffActivityService } from '../staff-activity/staff-activity.service';
 import { WaitlistService } from '../waitlist/waitlist.service';
 import {
@@ -119,6 +120,7 @@ export class BookingsSlotService {
       });
       await restoreGiftClassSpend(tx, booking.id);
       await this.restorePackageIfEligible(tx, booking, options);
+      await writeBookingCancelledAudit(tx, booking, options.cancelledByUserId);
       return current.status;
     });
   }

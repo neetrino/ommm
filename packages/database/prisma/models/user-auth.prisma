@@ -14,6 +14,9 @@ model User {
   role           Role      @default(USER)
   /** When true, the member cannot sign in or book until unblocked by admin. */
   isBlocked      Boolean   @default(false)
+  /** Soft archive. The row, payments, and bookings stay. Sign-in stays closed until restored. */
+  deletedAt      DateTime?
+  deletedById    String?
   /** When true, staff should not call this client (shown on admin client profile). */
   doNotCall      Boolean   @default(false)
   emailVerified  DateTime?
@@ -30,6 +33,8 @@ model User {
 
   registeredBy      User?   @relation("ClientRegisteredBy", fields: [registeredById], references: [id], onDelete: SetNull)
   clientsRegistered User[]  @relation("ClientRegisteredBy")
+  deletedBy         User?   @relation("UserDeletedBy", fields: [deletedById], references: [id], onDelete: SetNull)
+  usersDeleted      User[]  @relation("UserDeletedBy")
   coachProfile      CoachProfile?
   bookings          Booking[]
   bookingsCancelled Booking[] @relation("BookingCancelledBy")
@@ -62,12 +67,14 @@ model User {
 
   @@index([registeredById])
   @@index([registrationSource])
+  @@index([deletedAt])
+  @@index([deletedById])
 }
 
 model AuthToken {
   id        String        @id @default(cuid())
   userId    String
-  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User          @relation(fields: [userId], references: [id], onDelete: Restrict)
   tokenHash String        @unique
   type      AuthTokenType
   expiresAt DateTime
@@ -104,7 +111,7 @@ model OAuthAccount {
   createdAt             DateTime @default(now())
   updatedAt             DateTime @updatedAt
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Restrict)
 
   @@unique([provider, providerAccountId])
   @@index([userId])
@@ -113,7 +120,7 @@ model OAuthAccount {
 model PushDeviceToken {
   id        String   @id @default(cuid())
   userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Restrict)
   token     String
   platform  String
   createdAt DateTime @default(now())

@@ -122,6 +122,7 @@ export class CoachSalaryPayoutService {
         coachProfileId: profile.id,
         periodYear: period.year,
         periodMonth: period.month,
+        voidedAt: null,
       },
       orderBy: [{ paidAt: 'asc' }, { id: 'asc' }],
       select: { id: true, amountAmd: true },
@@ -156,8 +157,9 @@ export class CoachSalaryPayoutService {
         }),
         ...(duplicateIds.length > 0
           ? [
-              this.prisma.coachSalaryPayout.deleteMany({
+              this.prisma.coachSalaryPayout.updateMany({
                 where: { id: { in: duplicateIds } },
+                data: { voidedAt: new Date() },
               }),
             ]
           : []),
@@ -214,6 +216,7 @@ export class CoachSalaryPayoutService {
             coachProfileId: group.coachProfileId,
             periodYear: group.periodYear,
             periodMonth: group.periodMonth,
+            voidedAt: null,
           },
           orderBy: [{ paidAt: 'desc' }, { id: 'desc' }],
           select: { id: true },
@@ -250,7 +253,7 @@ export class CoachSalaryPayoutService {
   private buildListWhere(
     query: AdminSalaryPayoutsQueryDto,
   ): Prisma.CoachSalaryPayoutWhereInput {
-    const where: Prisma.CoachSalaryPayoutWhereInput = {};
+    const where: Prisma.CoachSalaryPayoutWhereInput = { voidedAt: null };
     if (query.month) {
       const period = parseSalaryMonthParam(query.month);
       where.periodYear = period.year;

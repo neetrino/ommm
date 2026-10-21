@@ -23,6 +23,8 @@ function createSlotServiceAndDeps() {
       findMany: jest.fn().mockResolvedValue([]),
       findFirst: jest.fn().mockResolvedValue(null),
     },
+    user: { findUnique: jest.fn().mockResolvedValue(null) },
+    auditLog: { create: jest.fn().mockResolvedValue({ id: 'audit-1' }) },
   };
 
   const prisma = {

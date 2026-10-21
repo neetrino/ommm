@@ -11,7 +11,8 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { SkipThrottle } from '@nestjs/throttler';
-import { ClassSessionStatus } from '@prisma/client';
+import { ClassSessionStatus, type User } from '@prisma/client';
+import { CurrentUser } from '../common/decorators/current-user.decorator';
 import type { Response } from 'express';
 import {
   BACKOFFICE_DELETE_ROLES,
@@ -158,8 +159,8 @@ export class ClassesController {
   @Delete('sessions/:id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(...BACKOFFICE_DELETE_ROLES)
-  deleteSession(@Param('id') id: string) {
-    return this.classes.deleteSession(id);
+  deleteSession(@CurrentUser() user: User, @Param('id') id: string) {
+    return this.classes.deleteSession(id, user);
   }
 }
 

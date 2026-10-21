@@ -57,13 +57,24 @@ export class GiftCardsAdminCardsService {
       throw new NotFoundException('Gift card not found');
     }
 
-    await this.prisma.giftCard.delete({ where: { id } });
-    await this.audit.log({
-      actorId,
-      actorRole: 'ADMIN',
-      action: 'GIFT_CARD_DELETED',
-      entityType: 'GiftCard',
-      entityId: id,
+    await this.prisma.$transaction(async (tx) => {
+      await tx.giftCard.update({
+        where: { id },
+        data: { status: GiftCardStatus.DEACTIVATED },
+      });
+      await tx.auditLog.create({
+        data: {
+          actorId,
+          actorRole: 'ADMIN',
+          action: 'GIFT_CARD_ARCHIVED',
+          entityType: 'GiftCard',
+          entityId: id,
+          payload: JSON.stringify({
+            code: existing.code,
+            previousStatus: existing.status,
+          }),
+        },
+      });
     });
 
     return { ok: true };

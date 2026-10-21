@@ -102,7 +102,20 @@ export class CouponsAdminService {
     if (used > 0) {
       throw new BadRequestException('Only an unused draft can be deleted');
     }
-    await this.prisma.coupon.delete({ where: { id } });
+    await this.prisma.$transaction(async (tx) => {
+      await tx.coupon.update({
+        where: { id },
+        data: { status: 'DISABLED' },
+      });
+      await tx.auditLog.create({
+        data: {
+          action: 'COUPON_ARCHIVED',
+          entityType: 'Coupon',
+          entityId: id,
+          payload: JSON.stringify({ code: coupon.code }),
+        },
+      });
+    });
     return { id };
   }
 

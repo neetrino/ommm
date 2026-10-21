@@ -2,8 +2,6 @@ import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { ClassSessionStatus } from '@prisma/client';
 import { ClassesSessionsAdminService } from './classes-sessions-admin.service';
 
-type SessionCounts = { bookings: number; waitlistEntries: number };
-
 describe('ClassesSessionsAdminService.deleteSession', () => {
   const schedule = {
     invalidatePublicCache: jest.fn().mockResolvedValue(undefined),
@@ -11,76 +9,61 @@ describe('ClassesSessionsAdminService.deleteSession', () => {
   const realtime = {
     emitPublicScheduleSession: jest.fn(),
   };
+  const actor = { id: 'admin-1', role: 'ADMIN' };
 
-  function buildService(counts: SessionCounts | null) {
-    const deleteFn = jest.fn().mockResolvedValue(undefined);
-    const findUnique = jest
-      .fn()
-      .mockResolvedValue(counts === null ? null : { _count: counts });
+  function buildService(found: boolean) {
+    const update = jest.fn().mockResolvedValue({});
+    const session = found
+      ? {
+          id: 'session-1',
+          status: ClassSessionStatus.ACTIVE,
+          endsAt: new Date('2030-01-01T00:00:00.000Z'),
+          capacity: 8,
+          _count: { bookings: 2 },
+        }
+      : null;
+    const findUnique = jest.fn().mockResolvedValue(session);
+    const apply = jest.fn().mockResolvedValue(undefined);
     const prisma = {
-      classSession: { findUnique, delete: deleteFn },
+      classSession: { findUnique, update, delete: jest.fn() },
+      auditLog: { create: jest.fn().mockResolvedValue({ id: 'audit-1' }) },
     };
     const service = new ClassesSessionsAdminService(
       prisma as never,
       {} as never,
       schedule as never,
       realtime as never,
-      {} as never,
+      { apply } as never,
       {
         finishPastClassSessions: jest.fn().mockResolvedValue(0),
         onSessionFinished: jest.fn(),
       } as never,
       { offerNextIfSlot: jest.fn().mockResolvedValue(undefined) } as never,
     );
-    return { service, deleteFn };
+    return { service, prisma, apply };
   }
 
-  it('rejects deletion when the session has bookings', async () => {
-    const { service, deleteFn } = buildService({
-      bookings: 2,
-      waitlistEntries: 0,
+  it('cancels the session instead of deleting it', async () => {
+    const { service, prisma, apply } = buildService(true);
+
+    await service.deleteSession('session-1', actor);
+
+    expect(prisma.classSession.delete).not.toHaveBeenCalled();
+    expect(prisma.classSession.update).toHaveBeenCalledWith({
+      where: { id: 'session-1' },
+      data: { status: ClassSessionStatus.CANCELLED },
     });
-
-    await expect(service.deleteSession('session-1')).rejects.toBeInstanceOf(
-      BadRequestException,
-    );
-    expect(deleteFn).not.toHaveBeenCalled();
-  });
-
-  it('rejects deletion when the session has waitlist entries', async () => {
-    const { service, deleteFn } = buildService({
-      bookings: 0,
-      waitlistEntries: 1,
-    });
-
-    await expect(service.deleteSession('session-1')).rejects.toBeInstanceOf(
-      BadRequestException,
-    );
-    expect(deleteFn).not.toHaveBeenCalled();
-  });
-
-  it('deletes when there are no bookings or waitlist entries', async () => {
-    const { service, deleteFn } = buildService({
-      bookings: 0,
-      waitlistEntries: 0,
-    });
-
-    await service.deleteSession('session-1');
-
-    expect(deleteFn).toHaveBeenCalledWith({ where: { id: 'session-1' } });
-    expect(schedule.invalidatePublicCache).toHaveBeenCalled();
-    expect(realtime.emitPublicScheduleSession).toHaveBeenCalledWith(
-      'session-1',
-    );
+    expect(apply).toHaveBeenCalledWith('session-1');
+    expect(prisma.auditLog.create).toHaveBeenCalled();
   });
 
   it('throws NotFoundException when the session does not exist', async () => {
-    const { service, deleteFn } = buildService(null);
+    const { service, prisma } = buildService(false);
 
-    await expect(service.deleteSession('missing')).rejects.toBeInstanceOf(
-      NotFoundException,
-    );
-    expect(deleteFn).not.toHaveBeenCalled();
+    await expect(
+      service.deleteSession('missing', actor),
+    ).rejects.toBeInstanceOf(NotFoundException);
+    expect(prisma.classSession.delete).not.toHaveBeenCalled();
   });
 });
 

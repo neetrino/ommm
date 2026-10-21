@@ -95,7 +95,7 @@ export class CoachSalarySummaryService {
         _count: true,
       }),
       this.prisma.coachSalaryPayout.aggregate({
-        where: payoutWhere,
+        where: { AND: [payoutWhere, { voidedAt: null }] },
         _sum: { amountAmd: true },
       }),
     ]);

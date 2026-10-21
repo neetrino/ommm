@@ -36,6 +36,7 @@ function createPackagesService() {
       delete: jest.fn(),
     },
     $transaction: jest.fn(),
+    auditLog: { create: jest.fn().mockResolvedValue({ id: 'audit-1' }) },
   };
 
   const packageUsage = {
@@ -152,17 +153,29 @@ describe('PackagesService', () => {
     expect(cache.invalidate).toHaveBeenCalled();
   });
 
-  it('deletes a plan even when active memberships exist', async () => {
+  it('deactivates a plan instead of deleting it', async () => {
     const { service, prisma, cache } = createPackagesService();
-    prisma.packagePlan.findUnique.mockResolvedValue({ id: 'plan-1' });
-    prisma.packagePlan.delete.mockResolvedValue({ id: 'plan-1' });
+    prisma.packagePlan.findUnique.mockResolvedValue({
+      id: 'plan-1',
+      name: '8 Sessions',
+    });
+    prisma.packagePlan.update.mockResolvedValue({
+      id: 'plan-1',
+      isActive: false,
+    });
+    prisma.$transaction.mockImplementation(
+      (callback: (tx: typeof prisma) => Promise<unknown>) =>
+        Promise.resolve(callback(prisma)),
+    );
     cache.invalidate.mockResolvedValue(undefined);
 
     await expect(service.deletePlan('plan-1')).resolves.toEqual({ ok: true });
 
-    expect(prisma.packagePlan.delete).toHaveBeenCalledWith({
+    expect(prisma.packagePlan.update).toHaveBeenCalledWith({
       where: { id: 'plan-1' },
+      data: { isActive: false },
     });
+    expect(prisma.packagePlan.delete).not.toHaveBeenCalled();
     expect(cache.invalidate).toHaveBeenCalled();
   });
 });

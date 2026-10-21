@@ -6,7 +6,7 @@ model EhdmState {
 model EhdmReceipt {
   id              String    @id @default(cuid())
   paymentId       String    @unique
-  payment         Payment   @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+  payment         Payment   @relation(fields: [paymentId], references: [id], onDelete: Restrict)
   receiptId       String
   seq             Int
   fiscal          String?

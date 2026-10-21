@@ -59,6 +59,8 @@ export class CoachesAdminListService {
     const and: Prisma.CoachProfileWhereInput[] = [];
     if (searchWhere) {
       and.push(searchWhere);
+    } else {
+      and.push({ user: { deletedAt: null } });
     }
     if (specialization) {
       and.push({

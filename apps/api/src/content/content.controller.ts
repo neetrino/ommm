@@ -108,7 +108,10 @@ export class ContentController {
   @Delete('admin/posts/:id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN, Role.CONTENT_ADMIN)
-  remove(@Param('id') id: string) {
-    return this.content.delete(id);
+  remove(
+    @CurrentUser() user: { id: string; role: Role },
+    @Param('id') id: string,
+  ) {
+    return this.content.delete(id, user);
   }
 }

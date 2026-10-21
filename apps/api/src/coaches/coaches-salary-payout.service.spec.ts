@@ -60,7 +60,7 @@ describe('CoachSalaryPayoutService', () => {
       { id: 'payout-1', amountAmd: 80_000 },
       { id: 'payout-2', amountAmd: 10_000 },
     ]);
-    const deleteMany = jest.fn().mockResolvedValue({ count: 1 });
+    const updateMany = jest.fn().mockResolvedValue({ count: 1 });
     const transaction = jest.fn((ops: unknown) => Promise.resolve(ops));
     const forProfile = jest
       .fn()
@@ -78,7 +78,7 @@ describe('CoachSalaryPayoutService', () => {
         coachProfile: {
           findUnique: jest.fn().mockResolvedValue({ id: 'coach-1' }),
         },
-        coachSalaryPayout: { findMany, update, deleteMany },
+        coachSalaryPayout: { findMany, update, updateMany },
         $transaction: transaction,
       } as never,
       { log: jest.fn() } as never,
@@ -96,8 +96,9 @@ describe('CoachSalaryPayoutService', () => {
         paidByAdminId: 'admin-1',
       },
     });
-    expect(deleteMany).toHaveBeenCalledWith({
+    expect(updateMany).toHaveBeenCalledWith({
       where: { id: { in: ['payout-2'] } },
+      data: { voidedAt: expect.any(Date) as Date },
     });
   });
 
@@ -180,7 +181,7 @@ describe('CoachSalaryPayoutService', () => {
     expect(groupBy).toHaveBeenCalledWith(
       expect.objectContaining({
         by: ['coachProfileId', 'periodYear', 'periodMonth'],
-        where: { periodYear: 2026, periodMonth: 9 },
+        where: { periodYear: 2026, periodMonth: 9, voidedAt: null },
       }),
     );
     expect(result.total).toBe(1);

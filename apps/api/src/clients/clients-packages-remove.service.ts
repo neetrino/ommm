@@ -5,7 +5,7 @@ import {
   UserPackageStatus,
   type User,
 } from '@prisma/client';
-import { AuditService } from '../audit/audit.service';
+import { writeAuditLog } from '../audit/write-audit-log';
 import { PrismaService } from '../prisma/prisma.service';
 
 const PACKAGE_NOT_FOUND = 'Package not found';
@@ -18,28 +18,13 @@ type RemovablePackage = {
 
 @Injectable()
 export class ClientsPackagesRemoveService {
-  constructor(
-    private readonly prisma: PrismaService,
-    private readonly audit: AuditService,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   async remove(actor: User, clientId: string, packageId: string) {
     await this.assertClientExists(clientId);
     const membership = await this.loadRemovablePackage(clientId, packageId);
     const removedAt = new Date();
-    await this.applyRemoval(membership.id, actor.id, removedAt);
-    await this.audit.log({
-      actorId: actor.id,
-      actorRole: actor.role,
-      action: 'CLIENT_PACKAGE_REMOVED',
-      entityType: 'UserPackage',
-      entityId: membership.id,
-      payload: {
-        clientId,
-        previousStatus: membership.status,
-        planName: membership.planNameSnapshot,
-      },
-    });
+    await this.applyRemoval(membership, actor, clientId, removedAt);
     return { id: membership.id, removedAt: removedAt.toISOString() };
   }
 
@@ -68,14 +53,15 @@ export class ClientsPackagesRemoveService {
   }
 
   private async applyRemoval(
-    packageId: string,
-    actorId: string,
+    membership: RemovablePackage,
+    actor: User,
+    clientId: string,
     removedAt: Date,
   ): Promise<void> {
     await this.prisma.$transaction(async (tx) => {
       await tx.userPackageFreeze.updateMany({
         where: {
-          userPackageId: packageId,
+          userPackageId: membership.id,
           status: UserPackageFreezeStatus.ACTIVE,
         },
         data: {
@@ -84,13 +70,25 @@ export class ClientsPackagesRemoveService {
         },
       });
       await tx.userPackage.update({
-        where: { id: packageId },
+        where: { id: membership.id },
         data: {
           status: UserPackageStatus.CANCELLED,
           removedAt,
-          removedByUserId: actorId,
+          removedByUserId: actor.id,
           pausedAt: null,
           pausedUntil: null,
+        },
+      });
+      await writeAuditLog(tx, {
+        actorId: actor.id,
+        actorRole: actor.role,
+        action: 'CLIENT_PACKAGE_REMOVED',
+        entityType: 'UserPackage',
+        entityId: membership.id,
+        payload: {
+          clientId,
+          previousStatus: membership.status,
+          planName: membership.planNameSnapshot,
         },
       });
     });

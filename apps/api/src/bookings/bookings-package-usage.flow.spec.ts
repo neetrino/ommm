@@ -21,6 +21,8 @@ type MockTx = {
     findMany: jest.Mock;
     findFirst: jest.Mock;
   };
+  user: { findUnique: jest.Mock };
+  auditLog: { create: jest.Mock };
 };
 
 function createMembership(remaining = 5) {
@@ -90,6 +92,8 @@ function createSlotHarness() {
       findMany: jest.fn().mockResolvedValue([]),
       findFirst: jest.fn().mockResolvedValue(null),
     },
+    user: { findUnique: jest.fn().mockResolvedValue(null) },
+    auditLog: { create: jest.fn().mockResolvedValue({ id: 'audit-1' }) },
   };
   const prisma = {
     $transaction: jest.fn(async (cb: (value: MockTx) => Promise<void>) =>
@@ -222,6 +226,8 @@ describe('bookings package usage flow', () => {
       payment: { findFirst: jest.fn() },
       userPackageBalance: { update: jest.fn() },
       userPackage: { update: jest.fn() },
+      user: { findUnique: jest.fn() },
+      auditLog: { create: jest.fn() },
       bookingConsumption: {
         create: jest.fn(),
         findMany: jest

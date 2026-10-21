@@ -180,13 +180,6 @@ export class BookingsController {
     return this.bookings.adminUpdate(user, id, dto);
   }
 
-  @Delete('admin/:id/permanent')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN)
-  adminDeletePermanent(@Param('id') id: string) {
-    return this.bookings.adminDeletePermanent(id);
-  }
-
   @Patch('admin/:id/attendance')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN, Role.MANAGER, Role.COACH)

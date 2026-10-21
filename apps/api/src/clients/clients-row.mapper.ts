@@ -65,7 +65,7 @@ export type ClientRecord = Prisma.UserGetPayload<{
   include: typeof clientInclude;
 }>;
 export type ClientTag = 'New' | 'Beginner' | 'Influencer';
-export type ClientStatus = 'Active' | 'Inactive' | 'Blocked';
+export type ClientStatus = 'Active' | 'Inactive' | 'Blocked' | 'Deleted';
 export type PaymentBehavior = 'paid' | 'unpaid' | 'overdue' | 'partial';
 export type AttendanceBehavior =
   | 'regular'
@@ -110,6 +110,9 @@ function getBookingTotals(user: ClientRecord) {
 }
 
 function getClientStatus(user: ClientRecord): ClientStatus {
+  if (user.deletedAt != null) {
+    return 'Deleted';
+  }
   if (user.isBlocked) {
     return 'Blocked';
   }
@@ -289,6 +292,7 @@ export function toClientRow(user: ClientRecord) {
     hasGiftCardActivity: hasGiftCardActivity(user),
     hasPackageHistory: user._count.userPackages > 0,
     isBlocked: user.isBlocked,
+    deletedAt: user.deletedAt,
     doNotCall: user.doNotCall,
     nextBooking: pickNextBookingFromBookings(user.bookings),
     ...toClientActivePackageFields(user.userPackages),

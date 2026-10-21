@@ -13,6 +13,7 @@ import { ClientInviteService } from '../client-invites/client-invite.service';
 import { normalizeAppUiLocale } from '../common/app-ui-locales';
 import { PrismaService } from '../prisma/prisma.service';
 import { AuthService } from './auth.service';
+import { isSignInBlocked } from './user-sign-in-block';
 import {
   GOOGLE_PROVIDER,
   type GoogleAuthCompletion,
@@ -219,6 +220,9 @@ export class GoogleOAuthService {
       where: { email: profile.providerEmail },
     });
     if (existingUser) {
+      if (isSignInBlocked(existingUser)) {
+        throw new UnauthorizedException();
+      }
       const user = await this.linkOAuthToExistingUser(existingUser, profile);
       return this.sessionCompletion(user);
     }
@@ -229,6 +233,9 @@ export class GoogleOAuthService {
   }
 
   private sessionCompletion(user: User): GoogleAuthCompletion {
+    if (isSignInBlocked(user)) {
+      throw new UnauthorizedException();
+    }
     return {
       accessToken: this.auth.issueAccessTokenForUser(user),
       redirectUrl: this.resolveWebEntryUrl(user),
@@ -276,6 +283,9 @@ export class GoogleOAuthService {
           where: { email: profile.providerEmail },
         });
         if (existingUser) {
+          if (isSignInBlocked(existingUser)) {
+            throw new UnauthorizedException();
+          }
           return this.linkOAuthToExistingUser(existingUser, profile);
         }
       }

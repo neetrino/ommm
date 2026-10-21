@@ -6,6 +6,7 @@ import {
 import {
   AdminClientPackageFilter,
   AdminClientPaymentStatusFilter,
+  AdminClientStatusFilter,
   AdminClientTagFilter,
   type AdminListClientsQueryDto,
 } from './dto/admin-list-clients-query.dto';
@@ -67,6 +68,27 @@ describe('buildClientsListWhere', () => {
     expect(andClauses(where)).toEqual(
       expect.arrayContaining([{ userPackages: { none: {} } }]),
     );
+  });
+
+  it('hides archived clients unless search or the deleted filter asks for them', () => {
+    expect(andClauses(buildClientsListWhere(query()))).toEqual(
+      expect.arrayContaining([{ role: Role.USER }, { deletedAt: null }]),
+    );
+
+    const searched = andClauses(
+      buildClientsListWhere(query({ search: 'liza' })),
+    );
+    expect(searched).not.toEqual(
+      expect.arrayContaining([{ deletedAt: null }]),
+    );
+
+    expect(
+      andClauses(
+        buildClientsListWhere(
+          query({ status: [AdminClientStatusFilter.DELETED] }),
+        ),
+      ),
+    ).toEqual(expect.arrayContaining([{ deletedAt: { not: null } }]));
   });
 
   it('keeps past buyers in the inactive package filter', () => {

@@ -1,7 +1,7 @@
 model Payment {
   id              String               @id @default(cuid())
   userId          String
-  user            User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user            User                 @relation(fields: [userId], references: [id], onDelete: Restrict)
   amountCents     Int
   currency        String               @default("amd")
   status          PaymentStatus        @default(PENDING)
@@ -93,7 +93,7 @@ model GiftCardBatch {
 model GiftCardTransaction {
   id                  String                   @id @default(cuid())
   giftCardId          String
-  giftCard            GiftCard                 @relation(fields: [giftCardId], references: [id], onDelete: Cascade)
+  giftCard            GiftCard                 @relation(fields: [giftCardId], references: [id], onDelete: Restrict)
   kind                GiftCardTransactionKind
   userId              String?
   orderId             String?

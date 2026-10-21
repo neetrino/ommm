@@ -268,7 +268,7 @@ API prefix-ը `/v1` է, domain-ներով.
 
 - `POST /v1/bookings/sessions/:sessionId`
 - `GET /v1/bookings/me`, `DELETE /v1/bookings/:id`
-- Admin bookings: list/management/get/update/delete/permanent-delete/move/attendance
+- Admin bookings: list/management/get/update/cancel/move/attendance
 - `POST /v1/bookings/:id/notes`
 - Waitlist member: join/leave/me
 - Waitlist admin: recent/active/session entries/remove/promote/notify

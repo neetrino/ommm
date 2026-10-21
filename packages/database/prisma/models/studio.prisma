@@ -68,15 +68,15 @@ model UserAchievement {
   achievementId String
   unlockedAt    DateTime @default(now())
 
-  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  achievement Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+  user        User        @relation(fields: [userId], references: [id], onDelete: Restrict)
+  achievement Achievement @relation(fields: [achievementId], references: [id], onDelete: Restrict)
 
   @@id([userId, achievementId])
 }
 
 model NotificationPreference {
   userId              String  @id
-  user                User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user                User    @relation(fields: [userId], references: [id], onDelete: Restrict)
   bookingReminders    Boolean @default(true)
   waitlistAlerts      Boolean @default(true)
   promotions          Boolean @default(false)
@@ -90,7 +90,7 @@ model ClassReminderSendLog {
   hoursBefore Int
   sentAt      DateTime @default(now())
 
-  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Restrict)
 
   @@unique([bookingId, hoursBefore])
   @@index([bookingId])
@@ -101,7 +101,7 @@ model BookingConfirmedSendLog {
   bookingId String   @unique
   sentAt    DateTime @default(now())
 
-  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Restrict)
 }
 
 model PackagePurchasedSendLog {
@@ -109,7 +109,7 @@ model PackagePurchasedSendLog {
   userPackageId String   @unique
   sentAt        DateTime @default(now())
 
-  userPackage UserPackage @relation(fields: [userPackageId], references: [id], onDelete: Cascade)
+  userPackage UserPackage @relation(fields: [userPackageId], references: [id], onDelete: Restrict)
 }
 
 model MembershipExpiryReminderSendLog {
@@ -119,7 +119,7 @@ model MembershipExpiryReminderSendLog {
   daysBefore    Int
   sentAt        DateTime @default(now())
 
-  userPackage UserPackage @relation(fields: [userPackageId], references: [id], onDelete: Cascade)
+  userPackage UserPackage @relation(fields: [userPackageId], references: [id], onDelete: Restrict)
 
   @@unique([userPackageId, daysBefore])
   @@index([userPackageId])

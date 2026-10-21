@@ -211,6 +211,12 @@ export class ClientsController {
     return this.clients.remove(user, id);
   }
 
+  @Post(':id/restore')
+  @Roles(...BACKOFFICE_DELETE_ROLES)
+  restore(@CurrentUser() user: User, @Param('id') id: string) {
+    return this.clients.restore(user, id);
+  }
+
   @Post(':id/notes')
   addNote(
     @CurrentUser() user: User,

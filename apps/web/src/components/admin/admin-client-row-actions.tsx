@@ -39,6 +39,7 @@ export function AdminClientRowActions({ client, onChanged }: AdminClientRowActio
   const [message, setMessage] = useState<string | null>(null);
   const [tone, setTone] = useState<"ok" | "err">("ok");
   const [pendingConfirm, setPendingConfirm] = useState<PendingConfirm | null>(null);
+  const isArchived = client.status === "Deleted" || client.deletedAt !== null;
   const isActive = !(client.isBlocked ?? false);
   const statusLabel = isActive ? t("deactivateClient") : t("activateClient");
   const menuPosition = useFloatingMenuPosition(
@@ -212,17 +213,19 @@ export function AdminClientRowActions({ client, onChanged }: AdminClientRowActio
             >
               {t("resetPassword")}
             </button>
-            <button
-              type="button"
-              role="menuitem"
-              className={`${MENU_ITEM_CLASS} ${
-                isActive ? "text-red-800 hover:bg-red-50/80" : "text-sage-800"
-              }`}
-              disabled={busy}
-              onClick={openStatusConfirm}
-            >
-              {statusLabel}
-            </button>
+            {isArchived ? null : (
+              <button
+                type="button"
+                role="menuitem"
+                className={`${MENU_ITEM_CLASS} ${
+                  isActive ? "text-red-800 hover:bg-red-50/80" : "text-sage-800"
+                }`}
+                disabled={busy}
+                onClick={openStatusConfirm}
+              >
+                {statusLabel}
+              </button>
+            )}
           </div>,
           document.body,
         )

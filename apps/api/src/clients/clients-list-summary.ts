@@ -13,7 +13,7 @@ import {
 type ClientListRowSummaryFields = {
   classLevels: string[];
   preferredCoach: { id: string; name: string } | null;
-  status: 'Active' | 'Inactive' | 'Blocked';
+  status: 'Active' | 'Inactive' | 'Blocked' | 'Deleted';
   activePackageStatus: UserPackageStatus | null;
   totalVisits: number;
   lifetimeValueCents: number;

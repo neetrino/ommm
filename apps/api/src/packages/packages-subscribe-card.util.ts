@@ -294,12 +294,14 @@ export async function failPendingCardPackagePurchase(
   if (params.userPackageId === null) {
     return;
   }
-  // Legacy in-flight PENDING rows: remove instead of CANCELLED so they never
-  // appear as "cancelled packages" in client history.
-  await db.userPackage.deleteMany({
+  await db.userPackage.updateMany({
     where: {
       id: params.userPackageId,
       status: UserPackageStatus.PENDING,
+    },
+    data: {
+      status: UserPackageStatus.CANCELLED,
+      removedAt: new Date(),
     },
   });
 }

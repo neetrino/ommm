@@ -515,7 +515,7 @@ Rendered top-to-bottom:
 
 - Integrated search + filter panel (date, status, coach, class type)
 - Booking list with status badges, channel indicator
-- Row actions: view detail sheet, cancel, move to another session, mark attendance, add note, permanent delete
+- Row actions: view detail sheet, cancel, move to another session, mark attendance, add note
 - Detail sheet with tabs: info, notes, waitlist sidecar
 - Mobile-responsive list layout
 
@@ -706,7 +706,7 @@ Base prefix: **`/v1`**. All paths below are relative to `/v1`.
 | DELETE | `/users/me/home-image` | Removes home image |
 | PATCH | `/users/me/notifications` | Upserts `NotificationPreference` toggles |
 | POST | `/users/me/push-token` | Registers Expo push device token |
-| DELETE | `/users/me` | Self-delete account |
+| DELETE | `/users/me` | Closes the account: blocks sign-in and keeps studio rows |
 | POST | `/users/me/delete-request` | Submits account deletion request as `ContactMessage` |
 
 ### 17.4 Studio (`/studio`)
@@ -766,8 +766,7 @@ Base prefix: **`/v1`**. All paths below are relative to `/v1`.
 | GET | `/bookings/admin/management` | Admin management grid with extended filters |
 | GET | `/bookings/admin/:id` | Single booking detail |
 | PATCH | `/bookings/admin/:id` | Admin updates booking fields |
-| DELETE | `/bookings/admin/:id` | Admin cancels booking |
-| DELETE | `/bookings/admin/:id/permanent` | Admin hard-deletes booking record |
+| DELETE | `/bookings/admin/:id` | Admin cancels booking and keeps the row |
 | PATCH | `/bookings/admin/:id/move` | Moves booking to different session |
 | PATCH | `/bookings/admin/:id/attendance` | Marks attended/missed — may unlock achievements |
 
@@ -890,7 +889,8 @@ Base prefix: **`/v1`**. All paths below are relative to `/v1`.
 | GET | `/clients` | Searchable client list |
 | GET | `/clients/:id` | Client detail |
 | PATCH | `/clients/:id` | Update client profile / block status |
-| DELETE | `/clients/:id` | Delete client (admin, guarded) |
+| DELETE | `/clients/:id` | Archives the client, blocks sign-in, keeps payments and bookings |
+| POST | `/clients/:id/restore` | Admin restores an archived client; the account stays blocked |
 | GET | `/clients/:id/bookings` | Client's booking history |
 | GET | `/clients/:id/payments` | Client's payment history |
 | GET | `/clients/:id/gift-cards` | Client's gift cards |

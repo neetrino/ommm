@@ -144,6 +144,37 @@ export function resolvePublishedAt(
   return null;
 }
 
+export function contentPostUpdateData(
+  dto: UpsertPostDto,
+  primary: NormalizedContentTranslation,
+  existing: { coverImageUrl: string | null; publishedAt: Date | null },
+) {
+  return {
+    type: dto.type,
+    status: dto.status,
+    slug: primary.slug,
+    title: primary.title,
+    excerpt: primary.excerpt,
+    body: primary.body,
+    seoTitle: primary.seoTitle,
+    seoDescription: primary.seoDescription,
+    authorName: dto.authorName,
+    tags: sanitizeTags(dto.tags),
+    editorialNotes: dto.editorialNotes,
+    reviewNotes: dto.reviewNotes,
+    reviewedById: dto.reviewedById,
+    reviewedAt: dto.reviewedAt ? new Date(dto.reviewedAt) : null,
+    submittedForReviewAt: dto.submittedForReviewAt
+      ? new Date(dto.submittedForReviewAt)
+      : null,
+    coverImageUrl:
+      dto.coverImageUrl !== undefined
+        ? (dto.coverImageUrl ?? null)
+        : existing.coverImageUrl,
+    publishedAt: resolvePublishedAt(dto, existing.publishedAt),
+  };
+}
+
 export function sanitizeTags(tags: string[] | undefined): string[] {
   if (!tags || tags.length === 0) {
     return [];

@@ -199,6 +199,7 @@ Notes:
 | `/v1/users/me/notifications` | PATCH | Update notification prefs | `NotificationPrefsDto` | updated profile payload | Upserts `NotificationPreference` |
 | `/v1/users/me/push-token` | POST | Register push token | `RegisterPushTokenDto` | `{ok:true}` | Upserts `PushDeviceToken` |
 | `/v1/users/me/delete-request` | POST | Submit account deletion request | `RequestAccountDeletionDto` | `{ok:true}` | Writes a `ContactMessage` request record |
+| `/v1/users/me` | DELETE | Close own account | JWT | `{ok:true}` | Sets `deletedAt`, blocks sign-in, keeps studio rows |
 | `/v1/studio` | GET | Public studio settings | none | settings | none |
 | `/v1/studio` | PATCH | Update studio settings | `UpdateStudioDto` (ADMIN) | updated settings | Updates singleton settings |
 | `/v1/contact` | POST | Public contact submission | `CreateContactMessageDto` | create result | Creates `ContactMessage` |
@@ -213,7 +214,7 @@ Notes:
 | `/v1/classes/sessions/:id` | PATCH | Update session | `UpdateSessionDto` | updated session | DB update |
 | `/v1/classes/sessions/:id/cancel` | POST | Cancel session | id | status/object | Updates session status |
 | `/v1/classes/sessions/:id/status` | POST | Set session status | body `status` | status/object | Updates session status |
-| `/v1/classes/sessions/:id` | DELETE | Delete session | id | status/object | DB delete |
+| `/v1/classes/sessions/:id` | DELETE | Cancel session | id | status/object | Sets session cancelled and keeps the row |
 | `/v1/bookings/sessions/:sessionId` | POST | Book class | `CreateBookingDto` | booking | Creates booking, checks capacity/membership rules |
 | `/v1/bookings/me` | GET | My bookings | JWT | bookings | none |
 | `/v1/bookings/:id` | DELETE | Cancel my booking | id | status/object | Booking cancel, may trigger waitlist logic |
@@ -221,8 +222,7 @@ Notes:
 | `/v1/bookings/admin/management` | GET | Admin management listing | `AdminBookingsManagementQueryDto` | management payload | none |
 | `/v1/bookings/admin/:id` | GET | Admin get one booking | id | booking detail | none |
 | `/v1/bookings/admin/:id` | PATCH | Admin update booking | `UpdateAdminBookingDto` | updated booking | DB update |
-| `/v1/bookings/admin/:id` | DELETE | Admin cancel booking | id | status/object | Booking cancel |
-| `/v1/bookings/admin/:id/permanent` | DELETE | Admin hard delete booking | id | status/object | Permanent delete |
+| `/v1/bookings/admin/:id` | DELETE | Admin cancel booking | id | status/object | Booking cancel, writes audit log |
 | `/v1/bookings/admin/:id/move` | PATCH | Move booking to another session | `MoveBookingDto` | moved booking | Updates booking/session associations |
 | `/v1/bookings/admin/:id/attendance` | PATCH | Mark attendance | body `attended` | updated booking | Writes attendance status/time |
 | `/v1/bookings/:id/notes` | POST | Add booking note | `CreateBookingNoteDto` | note/booking payload | Creates `BookingNote` |
@@ -238,7 +238,7 @@ Notes:
 | `/v1/memberships/admin/plans` | GET | Admin plans | none | plans | none |
 | `/v1/memberships/plans` | POST | Create plan | `CreatePlanDto` | plan | DB create |
 | `/v1/memberships/plans/:id` | PATCH | Update plan | `UpdatePlanDto` | updated plan | DB update |
-| `/v1/memberships/plans/:id` | DELETE | Delete plan | id | status/object | DB delete |
+| `/v1/memberships/plans/:id` | DELETE | Deactivate plan | id | status/object | Sets `isActive` false and keeps the row |
 | `/v1/memberships/me` | GET | My memberships | JWT | memberships | none |
 | `/v1/memberships/me/:id/pause` | PATCH | Pause my membership | id | updated membership | status/time updates |
 | `/v1/memberships/me/:id/cancel` | PATCH | Cancel my membership | id | updated membership | status updates |
@@ -270,6 +270,8 @@ Notes:
 | `/v1/clients` | GET | List clients | `AdminListClientsQueryDto` | list payload | none |
 | `/v1/clients/:id` | GET | Client details | id | client payload | none |
 | `/v1/clients/:id` | PATCH | Update client basic info | `UpdateClientDto` | updated client | DB update |
+| `/v1/clients/:id` | DELETE | Archive client | id | status/object | Sets `deletedAt`, blocks sign-in, keeps payments and bookings |
+| `/v1/clients/:id/restore` | POST | Restore archived client | id | status/object | Admin clears `deletedAt`; account stays blocked |
 | `/v1/clients/:id/notes` | GET | List client notes | id | note list | none |
 | `/v1/clients/:id/notes` | POST | Add client note | `AddClientNoteDto` | note | Creates `ClientNote` |
 | `/v1/content/posts` | GET | Public posts list | `type?` | posts | none |
@@ -279,12 +281,12 @@ Notes:
 | `/v1/content/admin/posts/:id` | PATCH | Update post | `UpsertPostDto` | updated post | DB update |
 | `/v1/content/admin/posts/:id/submit-review` | POST | Submit for review | id | updated post/status | Workflow state change |
 | `/v1/content/admin/posts/:id/review` | POST | Review action | `ReviewPostDto` | updated post/status | Workflow state change |
-| `/v1/content/admin/posts/:id` | DELETE | Delete post | id | status/object | DB delete |
+| `/v1/content/admin/posts/:id` | DELETE | Hide post | id | status/object | Sets status hidden and keeps the row |
 | `/v1/schedule/public` | GET | Public schedule items | none | list | none |
 | `/v1/schedule/admin` | GET | Admin schedule items | none | list | none |
 | `/v1/schedule/admin` | POST | Create schedule item | `CreateScheduleItemDto` | item | DB create |
 | `/v1/schedule/admin/:id` | PATCH | Update schedule item | `UpdateScheduleItemDto` | item | DB update |
-| `/v1/schedule/admin/:id` | DELETE | Delete schedule item | id | status/object | DB delete |
+| `/v1/schedule/admin/:id` | DELETE | Deactivate schedule item | id | status/object | Sets `isActive` false and keeps the row |
 | `/v1/reports/dashboard` | GET | Dashboard report | flags query | aggregate payload | none |
 | `/v1/reports/bookings.csv` | GET | Bookings CSV export | `from,to` | CSV stream | none |
 | `/v1/reports/finance/summary` | GET | Finance summary | `DateRangeQueryDto` | aggregate payload | none |
