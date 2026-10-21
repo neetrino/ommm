@@ -109,10 +109,6 @@ export class CoachesService {
     return (await this.panelSessions.listForUser(userId)) ?? [];
   }
 
-  panelClients(userId: string) {
-    return this.clientsPanel.listForUser(userId);
-  }
-
   panelClientBookings(
     userId: string,
     clientId: string,

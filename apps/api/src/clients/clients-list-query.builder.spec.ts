@@ -10,7 +10,10 @@ import {
   AdminClientTagFilter,
   type AdminListClientsQueryDto,
 } from './dto/admin-list-clients-query.dto';
-import { buildClientsListWhere } from './clients-list-query.builder';
+import {
+  buildClientsListWhere,
+  scopeClientsListWhere,
+} from './clients-list-query.builder';
 
 function query(
   overrides: Partial<AdminListClientsQueryDto> = {},
@@ -101,5 +104,20 @@ describe('buildClientsListWhere', () => {
         },
       ]),
     );
+  });
+});
+
+describe('scopeClientsListWhere', () => {
+  it('keeps the admin filters and requires a booking with this coach', () => {
+    const where = scopeClientsListWhere(
+      buildClientsListWhere(query()),
+      'coach-1',
+    );
+    expect(where).toEqual({
+      AND: [
+        buildClientsListWhere(query()),
+        { bookings: { some: { session: { coachId: 'coach-1' } } } },
+      ],
+    });
   });
 });

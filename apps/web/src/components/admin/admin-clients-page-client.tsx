@@ -18,6 +18,9 @@ type AdminClientsPageClientProps = {
   capabilities?: ClientCapabilities;
   variant?: "full" | "staff";
   staffBanner?: string;
+  listPath?: string;
+  detailPath?: string;
+  bookingsOnly?: boolean;
 };
 
 function resolveClientCapabilities(
@@ -50,6 +53,9 @@ export function AdminClientsPageClient({
   capabilities,
   variant = "full",
   staffBanner,
+  listPath,
+  detailPath,
+  bookingsOnly = false,
 }: AdminClientsPageClientProps) {
   const caps = resolveClientCapabilities(capabilities, readOnly);
   const refetchRef = useRef<(() => void) | null>(null);
@@ -70,6 +76,9 @@ export function AdminClientsPageClient({
           variant={variant}
           staffBanner={staffBanner}
           capabilities={caps}
+          listPath={listPath}
+          detailPath={detailPath}
+          bookingsOnly={bookingsOnly}
           onAddUser={caps.canCreate ? openAddUserModal : undefined}
           onRegisterRefetch={(refetch) => {
             refetchRef.current = refetch;

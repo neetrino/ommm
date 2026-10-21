@@ -10,6 +10,7 @@ import { AdminClientsViewSwitcher } from "@/components/admin/admin-clients-view-
 import { useAdminClientsFilterFields } from "@/components/admin/use-admin-clients-filter-fields";
 import { useAdminClientsManagement } from "@/components/admin/use-admin-clients-management";
 import { useAdminClientsView } from "@/components/admin/use-admin-clients-view";
+import { CoachClientBookingsSheet } from "@/components/coach/coach-client-bookings-sheet";
 import { ListPageSearchFilters } from "@/components/shared/search/list-page-search-filters";
 import { AdminPageHero } from "@/components/admin/admin-page-hero";
 import { AdminPageHeroActionButton } from "@/components/admin/admin-page-hero-action-button";
@@ -34,6 +35,12 @@ type AdminClientsManagementProps = {
   /** @deprecated Prefer `capabilities`. */
   readOnly?: boolean;
   capabilities?: ClientCapabilities;
+  /** Directory endpoint. Coach panel uses `/clients/coach-panel`. */
+  listPath?: string;
+  /** Detail endpoint used when restoring an open client from the URL. */
+  detailPath?: string;
+  /** Opens booking history only, instead of the full client sheet. */
+  bookingsOnly?: boolean;
 };
 
 function resolveClientCapabilities(
@@ -69,6 +76,9 @@ export function AdminClientsManagement({
   staffBanner,
   readOnly = false,
   capabilities,
+  listPath,
+  detailPath,
+  bookingsOnly = false,
 }: AdminClientsManagementProps) {
   const caps = resolveClientCapabilities(capabilities, readOnly);
   const isStaff = variant === "staff";
@@ -100,6 +110,8 @@ export function AdminClientsManagement({
     initialFilters,
     onRegisterRefetch,
     onRegisterSeedCreatedClient,
+    listPath,
+    detailPath,
   });
 
   const filterFields = useAdminClientsFilterFields(payload);
@@ -190,16 +202,36 @@ export function AdminClientsManagement({
           {clientsList}
         </>
       )}
-      <AdminClientDrawer
-        client={selected}
-        locale={locale}
-        onClose={closeClientView}
-        onChanged={handleClientChanged}
-        capabilities={caps}
-        allowPackagePurchase={caps.canAssignPackage && !isStaff}
-        allowCreateBooking={caps.canCreateBooking && !isStaff}
-        allowCancelBooking={caps.canCancelBooking && !isStaff}
-      />
+      {bookingsOnly ? (
+        <CoachClientBookingsSheet
+          client={coachBookingsTarget(selected)}
+          locale={locale}
+          onClose={closeClientView}
+        />
+      ) : (
+        <AdminClientDrawer
+          client={selected}
+          locale={locale}
+          onClose={closeClientView}
+          onChanged={handleClientChanged}
+          capabilities={caps}
+          allowPackagePurchase={caps.canAssignPackage && !isStaff}
+          allowCreateBooking={caps.canCreateBooking && !isStaff}
+          allowCancelBooking={caps.canCancelBooking && !isStaff}
+        />
+      )}
     </div>
   );
+}
+
+function coachBookingsTarget(row: ClientRow | null) {
+  if (row === null) {
+    return null;
+  }
+  return {
+    id: row.id,
+    name: row.name,
+    lastName: row.lastName,
+    lastSessionAt: row.lastVisitDate,
+  };
 }

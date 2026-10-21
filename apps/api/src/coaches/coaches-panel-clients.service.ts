@@ -19,26 +19,6 @@ const bookingInclude = Prisma.validator<Prisma.BookingInclude>()({
 
 type BookingRow = Prisma.BookingGetPayload<{ include: typeof bookingInclude }>;
 
-type ClientListRow = {
-  id: string;
-  name: string | null;
-  lastName: string | null;
-  bookings: Array<{ session: { startsAt: Date } }>;
-  _count: { bookings: number };
-};
-
-export type CoachPanelClientItem = {
-  id: string;
-  name: string | null;
-  lastName: string | null;
-  bookingCount: number;
-  lastSessionAt: string | null;
-};
-
-export type CoachPanelClientsPage = {
-  items: CoachPanelClientItem[];
-};
-
 export type CoachPanelClientBookingItem = {
   id: string;
   status: string;
@@ -63,20 +43,10 @@ export type CoachPanelClientBookingsPage = {
   offset: number;
 };
 
-/** Clients who booked this coach, and those bookings only. */
+/** Booking history for clients who booked this coach. */
 @Injectable()
 export class CoachesPanelClientsService {
   constructor(private readonly prisma: PrismaService) {}
-
-  async listForUser(userId: string): Promise<CoachPanelClientsPage> {
-    const coachId = await this.requireCoachId(userId);
-    const rows = await this.prisma.user.findMany({
-      where: clientWhere(coachId),
-      select: clientSelect(coachId),
-      orderBy: [{ name: 'asc' }, { lastName: 'asc' }],
-    });
-    return { items: rows.map(mapClient).sort(compareClients) };
-  }
 
   async listBookingsForUser(
     userId: string,
@@ -115,30 +85,6 @@ export class CoachesPanelClientsService {
   }
 }
 
-function clientWhere(coachId: string): Prisma.UserWhereInput {
-  return {
-    deletedAt: null,
-    bookings: { some: { session: { coachId } } },
-  };
-}
-
-function clientSelect(coachId: string) {
-  return {
-    id: true,
-    name: true,
-    lastName: true,
-    bookings: {
-      where: { session: { coachId } },
-      orderBy: { session: { startsAt: 'desc' as const } },
-      take: 1,
-      select: { session: { select: { startsAt: true } } },
-    },
-    _count: {
-      select: { bookings: { where: { session: { coachId } } } },
-    },
-  };
-}
-
 function bookingWhere(
   coachId: string,
   clientId: string,
@@ -148,32 +94,6 @@ function bookingWhere(
     user: { deletedAt: null },
     session: { coachId },
   };
-}
-
-function mapClient(row: ClientListRow): CoachPanelClientItem {
-  const startsAt = row.bookings[0]?.session.startsAt ?? null;
-  return {
-    id: row.id,
-    name: row.name,
-    lastName: row.lastName,
-    bookingCount: row._count.bookings,
-    lastSessionAt: startsAt === null ? null : startsAt.toISOString(),
-  };
-}
-
-function compareClients(
-  left: CoachPanelClientItem,
-  right: CoachPanelClientItem,
-): number {
-  return sortLabel(left).localeCompare(sortLabel(right), undefined, {
-    sensitivity: 'base',
-  });
-}
-
-function sortLabel(client: CoachPanelClientItem): string {
-  return [client.name, client.lastName]
-    .filter((part) => part !== null && part.trim().length > 0)
-    .join(' ');
 }
 
 function mapBooking(row: BookingRow): CoachPanelClientBookingItem {

@@ -41,6 +41,8 @@ type UseAdminClientsManagementArgs = {
   initialFilters: Record<string, string>;
   onRegisterRefetch?: (refetch: () => void) => void;
   onRegisterSeedCreatedClient?: (seed: (client: ClientRow) => void) => void;
+  listPath?: string;
+  detailPath?: string;
 };
 
 export function useAdminClientsManagement({
@@ -48,6 +50,8 @@ export function useAdminClientsManagement({
   initialFilters,
   onRegisterRefetch,
   onRegisterSeedCreatedClient,
+  listPath = "/clients",
+  detailPath = "/clients",
 }: UseAdminClientsManagementArgs) {
   const router = useRouter();
   const pathname = usePathname();
@@ -155,7 +159,7 @@ export function useAdminClientsManagement({
     restoredViewClientIdRef.current = viewClientId;
     let cancelled = false;
 
-    void apiFetch<{ activity: ClientRow }>(`/clients/${viewClientId}`)
+    void apiFetch<{ activity: ClientRow }>(`${detailPath}/${viewClientId}`)
       .then((detail) => {
         if (!cancelled) {
           setFetchedClient(detail.activity);
@@ -175,7 +179,7 @@ export function useAdminClientsManagement({
     return () => {
       cancelled = true;
     };
-  }, [payload.rows, replaceSearchParams, viewClientId]);
+  }, [detailPath, payload.rows, replaceSearchParams, viewClientId]);
 
   const urlQueryString = useMemo(
     () => buildAdminClientsFilterQuery(filters),
@@ -238,7 +242,7 @@ export function useAdminClientsManagement({
       const nextRequestId = requestId.current + 1;
       requestId.current = nextRequestId;
       setIsListFetching(true);
-      void apiFetch<AdminClientsPayload>(`/clients?${apiQueryString}`)
+      void apiFetch<AdminClientsPayload>(`${listPath}?${apiQueryString}`)
         .then((next) => {
           if (requestId.current !== nextRequestId) return;
           if (
@@ -266,11 +270,11 @@ export function useAdminClientsManagement({
         });
     }, 300);
     return () => window.clearTimeout(handle);
-  }, [apiQueryString, setListPage]);
+  }, [apiQueryString, listPath, setListPage]);
 
   const refetchClients = useCallback((): void => {
     startTransition(() => {
-      void apiFetch<AdminClientsPayload>(`/clients?${apiQueryString}`)
+      void apiFetch<AdminClientsPayload>(`${listPath}?${apiQueryString}`)
         .then((next) => {
           setPayload(next);
           setError(null);
@@ -279,7 +283,7 @@ export function useAdminClientsManagement({
           setError("Could not load matching clients.");
         });
     });
-  }, [apiQueryString]);
+  }, [apiQueryString, listPath]);
 
   const handleClientChanged = useCallback(() => {
     refetchClients();

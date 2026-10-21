@@ -4,10 +4,6 @@ import { useId } from "react";
 import { useTranslations } from "next-intl";
 import { CoachClientBookingsHistory } from "@/components/coach/coach-client-bookings-history";
 import {
-  coachClientDisplayName,
-  type CoachPanelClient,
-} from "@/components/coach/coach-clients-types";
-import {
   ADMIN_BOOKINGS_DETAILS_SHEET_PANEL_CLASS,
   ADMIN_DETAILS_SHEET_BODY_CLASS,
   ADMIN_DETAILS_SHEET_HEADER_CLASS,
@@ -20,11 +16,28 @@ import { AdminSheetPortal } from "@/components/admin/admin-sheet-portal";
 import { useAdminAnimatedSheetClose } from "@/components/admin/use-admin-animated-sheet-close";
 import { formatDateTimeForUi } from "@/lib/date-display";
 
+type CoachClientBookingsTarget = {
+  id: string;
+  name: string | null;
+  lastName: string | null;
+  lastSessionAt?: string | null;
+};
+
 type CoachClientBookingsSheetProps = {
-  client: CoachPanelClient | null;
+  client: CoachClientBookingsTarget | null;
   locale: string;
   onClose: () => void;
 };
+
+function coachClientDisplayName(
+  client: Pick<CoachClientBookingsTarget, "name" | "lastName">,
+  fallback: string,
+): string {
+  const label = [client.name, client.lastName]
+    .filter((part): part is string => part !== null && part.trim().length > 0)
+    .join(" ");
+  return label.length > 0 ? label : fallback;
+}
 
 export function CoachClientBookingsSheet({
   client,
@@ -49,7 +62,7 @@ function CoachClientBookingsSheetContent({
   locale,
   onClose,
 }: {
-  client: CoachPanelClient;
+  client: CoachClientBookingsTarget;
   locale: string;
   onClose: () => void;
 }) {
@@ -58,7 +71,9 @@ function CoachClientBookingsSheetContent({
   const { isOpen, requestClose, onAfterClose } = useAdminAnimatedSheetClose(onClose);
   const name = coachClientDisplayName(client, t("unnamed"));
   const when =
-    client.lastSessionAt === null ? null : formatDateTimeForUi(client.lastSessionAt, locale);
+    client.lastSessionAt == null
+      ? null
+      : formatDateTimeForUi(client.lastSessionAt, locale);
 
   return (
     <AdminSheetPortal

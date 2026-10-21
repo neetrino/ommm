@@ -2,55 +2,6 @@ import { NotFoundException } from '@nestjs/common';
 import { CoachesPanelClientsService } from './coaches-panel-clients.service';
 
 describe('CoachesPanelClientsService', () => {
-  it('rejects when the user has no coach profile', async () => {
-    const service = new CoachesPanelClientsService({
-      coachProfile: { findUnique: jest.fn().mockResolvedValue(null) },
-    } as never);
-
-    await expect(service.listForUser('user-1')).rejects.toBeInstanceOf(
-      NotFoundException,
-    );
-  });
-
-  it('lists only clients who booked this coach', async () => {
-    const findUnique = jest.fn().mockResolvedValue({ id: 'coach-1' });
-    const findMany = jest.fn().mockResolvedValue([
-      {
-        id: 'client-1',
-        name: 'Anna',
-        lastName: 'Lee',
-        bookings: [
-          { session: { startsAt: new Date('2026-08-02T08:00:00.000Z') } },
-        ],
-        _count: { bookings: 2 },
-      },
-    ]);
-    const service = new CoachesPanelClientsService({
-      coachProfile: { findUnique },
-      user: { findMany },
-    } as never);
-
-    const page = await service.listForUser('user-1');
-
-    expect(findMany).toHaveBeenCalledWith(
-      expect.objectContaining({
-        where: {
-          deletedAt: null,
-          bookings: { some: { session: { coachId: 'coach-1' } } },
-        },
-      }),
-    );
-    expect(page.items).toEqual([
-      {
-        id: 'client-1',
-        name: 'Anna',
-        lastName: 'Lee',
-        bookingCount: 2,
-        lastSessionAt: '2026-08-02T08:00:00.000Z',
-      },
-    ]);
-  });
-
   it('hides a client who never booked this coach', async () => {
     const count = jest.fn().mockResolvedValue(0);
     const findMany = jest.fn();

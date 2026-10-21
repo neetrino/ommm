@@ -87,15 +87,6 @@ export class CoachesController {
     return this.coaches.panelSessionsList(user.id);
   }
 
-  /** Clients who have a booking on this coach's sessions. */
-  @Get('panel/clients')
-  @SkipThrottle()
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.COACH)
-  panelClients(@CurrentUser() user: { id: string }) {
-    return this.coaches.panelClients(user.id);
-  }
-
   /** Booking history for one client, limited to this coach's sessions. */
   @Get('panel/clients/:clientId/bookings')
   @SkipThrottle()

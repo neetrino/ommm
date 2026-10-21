@@ -63,6 +63,7 @@ describe("dashboard-nav manager parity", () => {
       (item) => item.href === "/coach/clients",
     );
     assert.equal(clients?.labelKey, "clients");
+    assert.equal(clients?.oliveIconSlug, "clients");
   });
 
   it("manager schedule uses calendar icon like admin", () => {

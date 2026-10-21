@@ -12,6 +12,9 @@ type AdminClientsPageViewProps = {
   capabilities?: ClientCapabilities;
   variant?: "full" | "staff";
   staffBanner?: string;
+  listPath?: string;
+  detailPath?: string;
+  bookingsOnly?: boolean;
 };
 
 export function AdminClientsPageView(props: AdminClientsPageViewProps) {
