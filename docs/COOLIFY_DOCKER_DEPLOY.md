@@ -106,9 +106,9 @@ Full key placement notes: [`DEPLOY_ENV_PLACEMENT.md`](./DEPLOY_ENV_PLACEMENT.md)
 
 ## Migrations
 
-Image entrypoint runs `prisma migrate deploy` when `RUN_DB_MIGRATE=true` (default). Prisma uses DB advisory locks, so concurrent boots are safe.
+Image entrypoint runs `prisma migrate deploy` only when `RUN_DB_MIGRATE=true`. The default is `false`: a restart must not migrate production. Prisma uses DB advisory locks when a migration is requested.
 
-To migrate manually instead: set `RUN_DB_MIGRATE=false` and run once against prod DB:
+To migrate, set `RUN_DB_MIGRATE=true` for that one deploy, or run once against the prod DB:
 
 ```bash
 pnpm run db:migrate:deploy

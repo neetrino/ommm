@@ -18,7 +18,7 @@
 | `WEB_APP_URL` | api | `https://www.ommm.am` — CORS + OAuth redirects։ |
 | `PORT` | api | `8080` (համընկնում է `Dockerfile.api` / compose-ի հետ)։ |
 | `API_LISTEN_HOST` | api | `0.0.0.0` |
-| `RUN_DB_MIGRATE` | api | `true` (default) — entrypoint-ը անում է `prisma migrate deploy`։ |
+| `RUN_DB_MIGRATE` | api | `false` (default) — `true` միայն այն դեպլոյի համար, երբ պետք է `prisma migrate deploy`։ |
 | `DATABASE_URL` / `DIRECT_URL` | api | Neon pooled + direct։ |
 | `JWT_SECRET` / `JWT_EXPIRES_SEC` | api | Production secret։ |
 | `ENABLE_BOOKING_BACKGROUND_JOBS` | api | `true` prod-ում։ |

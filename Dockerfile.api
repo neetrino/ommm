@@ -37,7 +37,7 @@ WORKDIR /app
 ENV NODE_ENV=production \
     PORT=8080 \
     API_LISTEN_HOST=0.0.0.0 \
-    RUN_DB_MIGRATE=true
+    RUN_DB_MIGRATE=false
 
 RUN apt-get update \
   && apt-get install -y --no-install-recommends openssl ca-certificates curl \
