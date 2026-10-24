@@ -29,11 +29,13 @@ export async function resolveBookingCreditSplit(
     classTypeId: string;
     session: CreditSession;
     userPackageId?: string;
+    requireCredit?: boolean;
   },
 ): Promise<BookingCreditSplit> {
   const requiredSessions = resolveBookingSessionCredits({
     session: params.session,
     userPackageId: params.userPackageId,
+    requireCredit: params.requireCredit,
   });
   const available = await peekGiftClassSessions(db, {
     userId: params.userId,
@@ -49,6 +51,7 @@ export async function resolveBookingCreditSplit(
       shouldValidatePackageForBooking({
         session: params.session,
         userPackageId: params.userPackageId,
+        requireCredit: params.requireCredit,
       }),
   };
 }

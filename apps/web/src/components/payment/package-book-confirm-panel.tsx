@@ -23,6 +23,7 @@ type PackageBookIntentStatus =
 
 type PackageBookIntent = {
   status: PackageBookIntentStatus;
+  userPackageId?: string;
   session: {
     id: string;
     title: string;
@@ -117,7 +118,7 @@ export function PackageBookConfirmPanel({ reference }: PackageBookConfirmPanelPr
     setBusy(true);
     setError(null);
     try {
-      await postSessionBooking(session.id);
+      await postSessionBooking(session.id, intent?.userPackageId);
       setBooked(true);
       clearPackageBookReference();
     } catch (err) {

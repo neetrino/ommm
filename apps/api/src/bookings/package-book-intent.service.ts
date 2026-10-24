@@ -25,6 +25,7 @@ export type PackageBookIntentStatus =
 
 export type PackageBookIntent = {
   status: PackageBookIntentStatus;
+  userPackageId?: string;
   session: {
     id: string;
     title: string;
@@ -60,7 +61,7 @@ export class PackageBookIntentService {
         paymentReference: reference,
         source: PaymentSource.PACKAGE,
       },
-      select: { status: true, metadata: true },
+      select: { status: true, metadata: true, sourceId: true },
     });
     const sessionId = readBookSessionIdFromMetadata(payment?.metadata ?? null);
     if (payment === null || sessionId === null) {
@@ -70,8 +71,17 @@ export class PackageBookIntentService {
     if (session === null) {
       return { status: 'none', session: null };
     }
-    const status = await this.resolveStatus(userId, payment.status, session);
-    return { status, session: toIntentSession(session) };
+    const status = await this.resolveStatus(
+      userId,
+      payment.status,
+      session,
+      payment.sourceId,
+    );
+    return {
+      status,
+      ...(payment.sourceId ? { userPackageId: payment.sourceId } : {}),
+      session: toIntentSession(session),
+    };
   }
 
   private async loadSession(sessionId: string): Promise<IntentSession | null> {
@@ -96,6 +106,7 @@ export class PackageBookIntentService {
     userId: string,
     paymentStatus: PaymentStatus,
     session: IntentSession,
+    userPackageId: string | null,
   ): Promise<PackageBookIntentStatus> {
     if (paymentStatus === PaymentStatus.PENDING) {
       return 'pending_payment';
@@ -131,7 +142,12 @@ export class PackageBookIntentService {
         classType: session.classType,
       },
     });
-    return eligible.length > 0 ? 'ready' : 'not_covered';
+    const canBook = eligible.some(
+      (pkg) =>
+        pkg.canBook &&
+        (userPackageId === null || pkg.userPackageId === userPackageId),
+    );
+    return canBook ? 'ready' : 'not_covered';
   }
 }
 
