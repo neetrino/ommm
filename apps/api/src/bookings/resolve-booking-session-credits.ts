@@ -8,6 +8,8 @@ type SessionCreditFields = Pick<
 type ResolveBookingSessionCreditsParams = {
   session: SessionCreditFields;
   userPackageId?: string;
+  /** Member self-service bookings require credit even when no drop-in price is set. */
+  requireCredit?: boolean;
 };
 
 /**
@@ -23,7 +25,7 @@ export function resolveBookingSessionCredits(
   if (configured > 0) {
     return configured;
   }
-  return params.userPackageId !== undefined ? 1 : 0;
+  return params.requireCredit || params.userPackageId !== undefined ? 1 : 0;
 }
 
 /** Whether booking should validate and charge against a member package. */

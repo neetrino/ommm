@@ -4,6 +4,21 @@ import {
 } from './resolve-booking-session-credits';
 
 describe('resolveBookingSessionCredits', () => {
+  it('requires a credit for member bookings without a package id or drop-in price', () => {
+    expect(
+      resolveBookingSessionCredits({
+        session: { priceCents: 0, sessionRequirement: null },
+        requireCredit: true,
+      }),
+    ).toBe(1);
+    expect(
+      shouldValidatePackageForBooking({
+        session: { priceCents: 0, sessionRequirement: 0 },
+        requireCredit: true,
+      }),
+    ).toBe(true);
+  });
+
   it('uses explicit sessionRequirement when set', () => {
     expect(
       resolveBookingSessionCredits({

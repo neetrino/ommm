@@ -134,6 +134,7 @@ export class BookingsClientService {
       classTypeId: session.classType.id,
       session,
       userPackageId: dto?.userPackageId,
+      requireCredit: true,
     });
 
     const booking = await this.prisma.$transaction(
